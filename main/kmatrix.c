@@ -217,7 +217,7 @@ void kmatrix_draw_deaths(int *sorted)
     int sw, sh, aw;
     gr_set_fontcolor(gr_find_closest_color(63,63,63),-1);
 
-    if (Players[Player_num].connected==7)
+    if (Players[Player_num].connected==CONNECT_KMATRIX_WAITING)
     {
       gr_get_string_size("Waiting for other players...",&sw, &sh, &aw);
       gr_printf( CENTERSCREEN-(sw/2), y,"Waiting for other players...");
@@ -283,7 +283,7 @@ void kmatrix_draw_coop_deaths(int *sorted)
 
     gr_set_fontcolor(gr_find_closest_color(63,63,63),-1);
 
-    if (Players[Player_num].connected==7)
+    if (Players[Player_num].connected==CONNECT_KMATRIX_WAITING)
     {
       gr_get_string_size("Waiting for other players...",&sw, &sh, &aw);
       gr_printf( CENTERSCREEN-(sw/2), y,"Waiting for other players...");
@@ -455,7 +455,7 @@ void kmatrix_view(int network)
     digi_kill_sound_linked_to_object (Players[i].objnum);
 
   set_screen_mode( SCREEN_MENU );
-
+printf("%i\n",network);
   WaitingForOthers=0;
 
   game_flush_inputs();
@@ -495,7 +495,7 @@ void kmatrix_view(int network)
             }
           }
 
-          Players[Player_num].connected=7;
+          Players[Player_num].connected=CONNECT_KMATRIX_WAITING;
           if (network)	
             network_send_endlevel_packet();
           break;
@@ -534,7 +534,7 @@ void kmatrix_view(int network)
             break;
       }
 
-      if (timer_get_approx_seconds() >= (entry_time+MAX_VIEW_TIME) && Players[Player_num].connected!=7)
+      if (timer_get_approx_seconds() >= (entry_time+MAX_VIEW_TIME) && Players[Player_num].connected!=CONNECT_KMATRIX_WAITING)
       {
         if (is_D2_OEM)
         {
@@ -550,7 +550,7 @@ void kmatrix_view(int network)
           }
         }
 
-        Players[Player_num].connected=7;
+        Players[Player_num].connected=CONNECT_KMATRIX_WAITING;
         if (network)
           network_send_endlevel_packet();
       }
@@ -571,6 +571,10 @@ void kmatrix_view(int network)
             }
           }
 
+		  // Important: Make sure we keep connected state CONNECT_KMATRIX_WAITING even if player exits kmatrix loop which will change to CONNECT_WAITING! If we don't get all palyer packets in sync and order this condition is very handy to keep all connections alive!
+		  if (oldstates[i]==CONNECT_KMATRIX_WAITING && (Players[i].connected!=0 || Players[i].connected!=CONNECT_KMATRIX_WAITING))
+			Players[i].connected=CONNECT_KMATRIX_WAITING;
+
           if (Players[i].connected!=oldstates[i])
           {
             if (ConditionLetters[Players[i].connected]!=ConditionLetters[oldstates[i]])
@@ -579,7 +583,7 @@ void kmatrix_view(int network)
             network_send_endlevel_packet();
           }
 
-          if (Players[i].connected==0 || Players[i].connected==7)
+          if (Players[i].connected==0 || Players[i].connected==CONNECT_KMATRIX_WAITING)
             num_ready++;
 
           if (Players[i].connected!=1)
@@ -606,7 +610,7 @@ void kmatrix_view(int network)
 		gr_flip();
   }
 
-  Players[Player_num].connected=7;
+  Players[Player_num].connected=CONNECT_KMATRIX_WAITING;
 
   if (network)
     network_send_endlevel_packet();  // make sure
