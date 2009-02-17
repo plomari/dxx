@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_OBJECTS     10000 // increased on 01/24/95 for multiplayer. --MK;  total number of objects in world
 // At least savegames depend on this.
 #define OLD_MAX_OBJECTS 350
+#define MAX_USED_OBJECTS	(MAX_OBJECTS-20)
 
 // Object types
 #define OBJ_NONE        255 // unused object
@@ -312,6 +313,7 @@ extern ubyte CollisionResult[MAX_OBJECT_TYPES][MAX_OBJECT_TYPES];
 
 extern object Objects[];
 extern int Highest_object_index;    // highest objnum
+extern int num_objects;
 
 extern char *robot_names[];         // name of each robot
 
