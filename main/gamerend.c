@@ -806,7 +806,6 @@ void update_cockpits()
 	switch( PlayerCfg.CockpitMode )	{
 		case CM_FULL_COCKPIT:
 			gr_set_current_canvas(NULL);
-			cockpit_decode_alpha(bm);
 			ogl_ubitmapm_cs (0, 0, -1, -1, bm, 255, F1_0);
 			break;
 		case CM_REAR_VIEW:
