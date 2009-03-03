@@ -853,7 +853,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 #endif
 
 		//see if redbook song needs to be restarted
-		songs_check_redbook_repeat();
+		RBACheckFinishedHook();
 
 		k = key_inkey();
 
@@ -1686,7 +1686,7 @@ ReadFileNames:
 #endif
 
 		//see if redbook song needs to be restarted
-		songs_check_redbook_repeat();
+		RBACheckFinishedHook();
 
 		key = key_inkey();
 
@@ -2038,7 +2038,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 		mouse_state = mouse_button_state(0);
 #endif
 		//see if redbook song needs to be restarted
-		songs_check_redbook_repeat();
+		RBACheckFinishedHook();
 
 		key = key_inkey();
 
