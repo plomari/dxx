@@ -82,9 +82,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "controls.h"
 #include "laser.h"
 #include "state.h"
-#ifdef NETWORK
-#include "net_ipx.h"
-#endif
+#include "multi.h"
 #include "gr.h"
 #include "physfsx.h"
 
