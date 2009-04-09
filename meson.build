@@ -72,6 +72,7 @@ common_sources = [
     'main/hostage.c',
     'main/hud.c',
     'main/inferno.c',
+	'main/ipxdrv.c',
     'main/kconfig.c',
     'main/kmatrix.c',
     'main/laser.c',
@@ -83,13 +84,9 @@ common_sources = [
     'main/movie.c',
     'main/multi.c',
     'main/multibot.c',
-    'main/netdrv.c',
-    'main/netdrv_udp.c',
-    'main/netpkt.c',
-    'main/network.c',
+    'main/net_ipx.c',
     'main/newdemo.c',
     'main/newmenu.c',
-	'main/noloss.c',
     'main/object.c',
     'main/paging.c',
     'main/physics.c',
@@ -184,8 +181,8 @@ editor_sources = [
 ]
 
 arch_linux_sources = [
-    'arch/linux/netdrv_ipx.c',
-    'arch/linux/netdrv_kali.c',
+    'arch/linux/ipx.c',
+    'arch/linux/ipx_kali.c',
     'arch/linux/ukali.c'
 ]
 

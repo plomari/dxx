@@ -50,7 +50,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "kmatrix.h"
 #include "gauges.h"
 #include "pcx.h"
-#include "net_ipx.h"
 #include "ogl_init.h"
 
 #define CENTERING_OFFSET(x) ((300 - (70 + (x)*25 ))/2)
@@ -438,8 +437,6 @@ void kmatrix_redraw_coop()
 
 fix StartAbortMenuTime;
 
-extern void network_endlevel_poll3( int nitems, struct newmenu_item * menus, int * key, int citem );
-
 void kmatrix_view(int network)
 {
   int i, k, done,choice;
@@ -466,7 +463,7 @@ void kmatrix_view(int network)
     oldstates[i]=Players[i].connected;
 
   if (network)
-      network_endlevel(&key);
+      multi_endlevel(&key);
 
   while(!done)
   {
@@ -487,7 +484,7 @@ void kmatrix_view(int network)
             {
               Players[Player_num].connected=0;
               if (network)
-                network_send_endlevel_packet();
+                multi_send_endlevel_packet();
               multi_leave_game();
               Kmatrix_nomovie_message=0;
               longjmp(LeaveGame, 0);
@@ -497,14 +494,14 @@ void kmatrix_view(int network)
 
           Players[Player_num].connected=CONNECT_KMATRIX_WAITING;
           if (network)	
-            network_send_endlevel_packet();
+            multi_send_endlevel_packet();
           break;
 
         case KEY_ESC:
           if (Game_mode & GM_NETWORK)
           {
             StartAbortMenuTime=timer_get_approx_seconds();
-            choice=nm_messagebox1( NULL,network_endlevel_poll3, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+            choice=nm_messagebox1( NULL,multi_endlevel_poll3, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
           }
           else
             choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
@@ -512,7 +509,7 @@ void kmatrix_view(int network)
           {
             Players[Player_num].connected=0;
             if (network)
-              network_send_endlevel_packet();
+              multi_send_endlevel_packet();
             multi_leave_game();
             Kmatrix_nomovie_message=0;
             longjmp(LeaveGame, 0);
@@ -542,7 +539,7 @@ void kmatrix_view(int network)
           {
             Players[Player_num].connected=0;
             if (network)
-              network_send_endlevel_packet();
+              multi_send_endlevel_packet();
             multi_leave_game();
             Kmatrix_nomovie_message=0;
             longjmp(LeaveGame, 0);
@@ -552,22 +549,22 @@ void kmatrix_view(int network)
 
         Players[Player_num].connected=CONNECT_KMATRIX_WAITING;
         if (network)
-          network_send_endlevel_packet();
+          multi_send_endlevel_packet();
       }
 
       if (network && (Game_mode & GM_NETWORK))
       {
-        network_endlevel_poll2(0, NULL, &key, 0);
+        multi_endlevel_poll2(0, NULL, &key, 0);
 
         for (num_escaped=0,num_ready=0,i=0;i<N_players;i++)
         {
           if (Players[i].connected && i!=Player_num)
           {
             // Check timeout for idle players
-            if (timer_get_approx_seconds() > LastPacketTime[i]+ENDLEVEL_IDLE_TIME)
+            if (timer_get_approx_seconds() > Netgame.players[i].LastPacketTime+ENDLEVEL_IDLE_TIME)
             {
               Players[i].connected = 0;
-              network_send_endlevel_sub(i);
+              multi_send_endlevel_sub(i);
             }
           }
 
@@ -580,7 +577,7 @@ void kmatrix_view(int network)
             if (ConditionLetters[Players[i].connected]!=ConditionLetters[oldstates[i]])
               kmatrix_kills_changed=1;
             oldstates[i]=Players[i].connected;
-            network_send_endlevel_packet();
+            multi_send_endlevel_packet();
           }
 
           if (Players[i].connected==0 || Players[i].connected==CONNECT_KMATRIX_WAITING)
@@ -613,7 +610,7 @@ void kmatrix_view(int network)
   Players[Player_num].connected=CONNECT_KMATRIX_WAITING;
 
   if (network)
-    network_send_endlevel_packet();  // make sure
+    multi_send_endlevel_packet();  // make sure
 
   game_flush_inputs();
 
