@@ -4,9 +4,6 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
 
 #include <SDL.h>
 
