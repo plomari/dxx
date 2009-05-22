@@ -81,6 +81,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "collide.h"
 #include "newdemo.h"
 #include "joy.h"
+#include "event.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
