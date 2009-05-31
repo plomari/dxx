@@ -1405,8 +1405,6 @@ void kill_buddy(void)
 			}
 }
 
-extern char Language[];
-
 void HandleTestKey(int key)
 {
 	switch (key) {
