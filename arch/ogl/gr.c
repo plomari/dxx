@@ -129,7 +129,7 @@ void gr_sdl_ogl_resize_window(int w, int h)
 	OGL_VIEWPORT(0,0,w,h);
 
 	Game_screen_mode = screen_mode;
-	game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE, 0);
+	game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE);
 }
 
 int ogl_init_window(int x, int y)

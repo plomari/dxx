@@ -90,19 +90,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "escort.h"
 
-//#define TEST_TIMER    1		//if this is set, do checking on timer
-
-#define SHOW_EXIT_PATH  1
-
 #ifdef EDITOR
 #include "editor/editor.h"
-#endif
-
-//#define _MARK_ON 1
-#ifdef __WATCOMC__
-#if __WATCOMC__ < 1000
-#include <wsample.h>		//should come after inferno.h to get mark setting
-#endif
 #endif
 
 #include <SDL.h>
@@ -112,8 +101,7 @@ extern void object_goto_prev_viewer(void);
 
 // Global Variables -----------------------------------------------------------
 
-int	redbook_volume = 255;
-
+int	Debug_spew;
 
 //	External Variables ---------------------------------------------------------
 
@@ -131,8 +119,6 @@ extern int	Game_aborted;
 extern int	*Toggle_var;
 
 extern int	Physics_cheat_flag;
-
-extern int	Debug_spew;
 
 extern fix	Show_view_text_timer;
 
@@ -388,6 +374,7 @@ void format_time(char *str, int secs_int)
 }
 
 extern int netplayerinfo_on;
+
 //Process selected keys until game unpaused. returns key that left pause (p or esc)
 int do_game_pause()
 {
@@ -463,7 +450,6 @@ int do_game_pause()
 	return key;
 }
 
-extern int newmenu_dotiny2( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem) );
 extern int network_who_is_master(),network_how_many_connected(),GetMyNetRanking();
 extern int TotalMissedPackets,TotalPacketsGot;
 extern char Pauseable_menu;
@@ -1685,7 +1671,6 @@ char HomingCheat=0;
 char AcidCheatOn=0;
 char OldHomingState[20];
 extern char Monster_mode;
-void load_background_bitmap();
 
 extern int Robots_kill_robots_cheat;
 
