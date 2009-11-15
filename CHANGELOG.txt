@@ -1,8 +1,186 @@
 D2X-Rebirth Changelog
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of 8e7fe5361... Defined some default cockpit modes in Demo mode so we do not get invalid values when demo starts in non-default-view mode (as new HUD modes are only triggered at beginning and end of event); Removed Newdemo_flying_guided global; Init seismic disturbances in demo mode just to make sure tey are switched off when coming from game mode; Made initialisation for Missile_viewer signature saving global so we can reset it for each new level and make sure we get a correct missile view; Fixed regression in Ai_last_missile_camera
 20090201
+||||||| parent of 00347f0bc... Add endian converter for demos, read shareware demos, various bugfixes to demo system
+20091005
+--------
+include/physfsx.h, main/ai.c, main/ai.h, main/cntrlcen.c, main/cntrlcen.h, main/fireball.c, main/fireball.h, main/fuelcen.c, main/fuelcen.h, main/object.c, main/object.h, main/player.c, main/player.h, main/state.c, main/switch.c, main/switch.h, main/wall.c, main/wall.h: Read big endian savegames on little endian computers and vice versa
+
+20090911
+--------
+main/state.c: Include necessary ogl_init.h in state.c (whoops)
+
+20090822
+--------
+main/state.c, main/state.h: Make state.c more similar between D1X and D2X
+
+20090810
+--------
+arch/sdl/window.c, main/automap.c, main/game.c, main/inferno.c, main/multi.c: Make the game screen into a 'window', handling events through event_process
+
+20090701
+--------
+main/game.c, main/game.h, main/gamecntl.c, main/kconfig.c, main/kconfig.h, main/menu.c, main/net_ipx.c, main/newmenu.c, main/newmenu.h, main/scores.c, main/screens.h, main/songs.c, main/titles.c: Make game.c more similar between D1X and D2X, making related changes to other files (!)
+
+20090607
+--------
+main/game.c, main/gamecntl.c: Small cleanup
+
+20090531
+--------
+include/args.h, include/u_mem.h, main/gamecntl.c, main/inferno.c: Make inferno.c more similar between D1X and D2X
+
+20090522
+--------
+arch/sdl/window.c, main/inferno.c: Add include directives for last commit (whoops)
+
+20090521
+--------
+arch/include/event.h, arch/include/window.h, arch/sdl/event.c, arch/sdl/mouse.c, arch/sdl/window.c, d1x-rebirth.xcodeproj/project.pbxproj, main/inferno.c, SConstruct: Add new window system, not used yet
+
+20090506
+--------
+main/config.c, main/config.h, main/menu.c, main/songs.c: Add option to force either Redbook or Jukebox to use the playing order for the game CD
+
+220090503
+--------
+main/net_ipx.c: Make sure HoardEquipped returns 1 if hoard.ham is in the Data folder, hence properly allowing hoard.ham to be in the Data folder
+main/config.c, main/menu.c: Make some files more similar between D1X and D2X
+
+20090430
+--------
+arch/carbon/conf.h, d2x-rebirth.xcodeproj/project.pbxproj: Disable network support for Mac OS X for now
+2d/2dsline.c, 2d/bitblt.c, 2d/bitmap.c, 2d/box.c, 2d/canvas.c, 2d/circle.c, 2d/disc.c, 2d/font.c, 2d/gpixel.c, 2d/line.c, 2d/palette.c, 2d/pcx.c, 2d/pixel.c, 2d/poly.c, 2d/rect.c, 2d/rle.c, 2d/scalec.c, 2d/tmerge.c, 3d/clipper.c, 3d/draw.c, 3d/globvars.c, 3d/instance.c, 3d/interp.c, 3d/matrix.c, 3d/points.c, 3d/rod.c, 3d/setup.c, arch/carbon/findfile.c, arch/carbon/gui.c, arch/carbon/SDL_main.c, arch/linux/ukali.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c, arch/sdl/digi.c, arch/sdl/event.c, arch/sdl/gr.c, arch/sdl/joy.c, arch/sdl/key.c, arch/sdl/mouse.c, arch/sdl/rbaudio.c, arch/sdl/timer.c, iff/iff.c, include/physfsx.h, libmve/mvelib.c, libmve/mveplay.c, main/ai.c, main/ai2.c, main/aipath.c, main/automap.c, main/bm.c, main/bmread.c, main/cntrlcen.c, main/collide.c, main/config.c, main/console.c, main/controls.c, main/credits.c, main/crypt.c, main/digiobj.c, main/dumpmine.c, main/editor/autosave.c, main/editor/centers.c, main/editor/curves.c, main/editor/eglobal.c, main/editor/ehostage.c, main/editor/elight.c, main/editor/eobject.c, main/editor/eswitch.c, main/editor/fixseg.c, main/editor/func.c, main/editor/group.c, main/editor/info.c, main/editor/kbuild.c, main/editor/kcurve.c, main/editor/kfuncs.c, main/editor/kgame.c, main/editor/khelp.c, main/editor/kmine.c, main/editor/ksegmove.c, main/editor/ksegsel.c, main/editor/ksegsize.c, main/editor/ktmap.c, main/editor/kview.c, main/editor/macro.c, main/editor/med.c, main/editor/meddraw.c, main/editor/medmisc.c, main/editor/medrobot.c, main/editor/medsel.c, main/editor/medwall.c, main/editor/mine.c, main/editor/objpage.c, main/editor/segment.c, main/editor/seguvs.c, main/editor/texpage.c, main/editor/texture.c, main/effects.c, main/endlevel.c, main/escort.c, main/fireball.c, main/fuelcen.c, main/fvi.c, main/game.c, main/gamecntl.c, main/gamemine.c, main/gamepal.c, main/gamerend.c, main/gamesave.c, main/gameseg.c, main/gameseq.c, main/gauges.c, main/hostage.c, main/hud.c, main/inferno.c, main/kconfig.c, main/kmatrix.c, main/laser.c, main/lighting.c, main/menu.c, main/mglobal.c, main/mission.c, main/morph.c, main/movie.c, main/multi.c, main/multibot.c, main/newdemo.c, main/newmenu.c, main/object.c, main/paging.c, main/physics.c, main/piggy.c, main/player.c, main/playsave.c, main/polyobj.c, main/powerup.c, main/render.c, main/robot.c, main/scores.c, main/segment.c, main/slew.c, main/state.c, main/switch.c, main/terrain.c, main/texmerge.c, main/text.c, main/titles.c, main/vclip.c, main/wall.c, main/weapon.c, maths/fixc.c, maths/rand.c, maths/tables.c, maths/vecmat.c, mem/mem.c, misc/args.c, misc/error.c, misc/hash.c, misc/strio.c, misc/strutil.c, texmap/ntmap.c, texmap/scanline.c, texmap/tmapflat.c, ui/barbox.c, ui/button.c, ui/checkbox.c, ui/func.c, ui/gadget.c, ui/icon.c, ui/inputbox.c, ui/keypad.c, ui/keypress.c, ui/keytrap.c, ui/listbox.c, ui/menu.c, ui/menubar.c, ui/message.c, ui/mouse.c, ui/number.c, ui/popup.c, ui/radio.c, ui/scroll.c, ui/ui.c, ui/uidraw.c, ui/userbox.c, ui/window.c: Remove redundant conf.h directives
+
+20090409
+--------
+main/multi.c, main/multi.h, main/multibot.c, main/menu.c, main/kmatrix.c, main/net_ipx.c, main/net_ipx.h, main/gameseq.c, main/fuelcen.c, main/gamerend.c: Abstracting networking protocols - Step 3: Renaming network_* functions to net_ipx_*, writing wrappers for protocol dependend functions in multi.c, Implementing protocol selection and Cleanup - Next up: Implementing new UDP layer
+
+20090320
+--------
+include/ipxdrv.h, main/collide.c, main/ipxdrv.c, main/fireball.c, main/multi.c, main/multi.h, main/menu.c, main/state.c, main/newdemo.c, main/switch.c, main/net_ipx.c, main/net_ipx.h, main/gameseq.c, main/endlevel.c, main/powerup.c, main/automap.c, SConstruct, arch/linux/ipx.c, arch/linux/ipx_kali.c, arch/win32/ipx.c: Abstracting networking protocols - Step 2: Introducing new structure to hold protocol-dependend and -independend information about Netgame and it's Players; Further isolation of the IPX code and renaming the netdrv_* code to ipxdrv_* as this is now actually IPX-only; Next up: Renaming network_* functions to net_ipx_*, writing wrappers for protocol dependend functions in multi.c, Implementing protocol selection and Cleanup
+
+20090304
+--------
+various: Abstracting networking protocols - Step 1: Renaming network-related files; Removing net_ipx.h (former network.h) includes from as much files as possible to make isolation of IPX-related functions easier in Step 2; Version defines Cleanup - needed later for good Version-Checking
+
+20090303
+--------
+arch/include/digi_mixer_music.h, arch/include/jukebox.h, arch/sdl/digi_mixer_music.c, arch/sdl/digi_mixer.c, arch/sdl/digi.c, arch/sdl/init.c, arch/sdl/jukebox.c, arch/sdl/rbaudio.c, include/rbaudio.h, main/automap.c, main/config.h, main/credits.c, main/digi.h, main/game.c, main/gamecntl.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/network.c, main/newmenu.c, main/scores.c, main/songs.c, main/songs.h: Associate the jukebox with Redbook Audio via new 'extmusic' layer - separating from MIDI and making it handle ALL music (not just game music)
+
+20090223
+--------
+main/gamerend.c, main/gauges.c, main/menu.c: Made our Cockpit-Transparency decoding function a bit safer for current and possibly new code flow
+main/gauges.c: Small positional correction for homing-warning bitmap
+
+20090222
+--------
+main/fireball.c: Fixed param handling of expl_obj in do_explosion_sequence for the case that free_object_slots might have it set to OF_SHOULD_BE_DEAD before it's actually attached to another object
+
+20090217
+--------
+main/object.c, main/object.h, main/weapon.c: Made Max_used_objects an absolute defined value; Made num_objects globally available; Restricted Weapon drops to MAX_USED_OBJECTS; When dropping Secondary weapon, drop 4-pack if possible
+
+20090215
+--------
+main/network.c, main/noloss.c, main/noloss.h: Added list to keep trace of received PDATA packets so receiver won't interpret them several times
+main/kmatrix.c: Made connect-state handling in kmatrix flow even more failsafe
+
+20090209
+=======
+20091115
+--------
+main/gamecntl.c, main/gameseq.c, main/gameseq.h, main/menu.c, main/newdemo.c, main/newdemo.h, main/newmenu.c, main/text.c: Add endian converter for demos, read shareware demos, various bugfixes to demo system
+
+20091005
+--------
+include/physfsx.h, main/ai.c, main/ai.h, main/cntrlcen.c, main/cntrlcen.h, main/fireball.c, main/fireball.h, main/fuelcen.c, main/fuelcen.h, main/object.c, main/object.h, main/player.c, main/player.h, main/state.c, main/switch.c, main/switch.h, main/wall.c, main/wall.h: Read big endian savegames on little endian computers and vice versa
+
+20090911
+--------
+main/state.c: Include necessary ogl_init.h in state.c (whoops)
+
+20090822
+--------
+main/state.c, main/state.h: Make state.c more similar between D1X and D2X
+
+20090810
+--------
+arch/sdl/window.c, main/automap.c, main/game.c, main/inferno.c, main/multi.c: Make the game screen into a 'window', handling events through event_process
+
+20090701
+--------
+main/game.c, main/game.h, main/gamecntl.c, main/kconfig.c, main/kconfig.h, main/menu.c, main/net_ipx.c, main/newmenu.c, main/newmenu.h, main/scores.c, main/screens.h, main/songs.c, main/titles.c: Make game.c more similar between D1X and D2X, making related changes to other files (!)
+
+20090607
+--------
+main/game.c, main/gamecntl.c: Small cleanup
+
+20090531
+--------
+include/args.h, include/u_mem.h, main/gamecntl.c, main/inferno.c: Make inferno.c more similar between D1X and D2X
+
+20090522
+--------
+arch/sdl/window.c, main/inferno.c: Add include directives for last commit (whoops)
+
+20090521
+--------
+arch/include/event.h, arch/include/window.h, arch/sdl/event.c, arch/sdl/mouse.c, arch/sdl/window.c, d1x-rebirth.xcodeproj/project.pbxproj, main/inferno.c, SConstruct: Add new window system, not used yet
+
+20090506
+--------
+main/config.c, main/config.h, main/menu.c, main/songs.c: Add option to force either Redbook or Jukebox to use the playing order for the game CD
+
+220090503
+--------
+main/net_ipx.c: Make sure HoardEquipped returns 1 if hoard.ham is in the Data folder, hence properly allowing hoard.ham to be in the Data folder
+main/config.c, main/menu.c: Make some files more similar between D1X and D2X
+
+20090430
+--------
+arch/carbon/conf.h, d2x-rebirth.xcodeproj/project.pbxproj: Disable network support for Mac OS X for now
+2d/2dsline.c, 2d/bitblt.c, 2d/bitmap.c, 2d/box.c, 2d/canvas.c, 2d/circle.c, 2d/disc.c, 2d/font.c, 2d/gpixel.c, 2d/line.c, 2d/palette.c, 2d/pcx.c, 2d/pixel.c, 2d/poly.c, 2d/rect.c, 2d/rle.c, 2d/scalec.c, 2d/tmerge.c, 3d/clipper.c, 3d/draw.c, 3d/globvars.c, 3d/instance.c, 3d/interp.c, 3d/matrix.c, 3d/points.c, 3d/rod.c, 3d/setup.c, arch/carbon/findfile.c, arch/carbon/gui.c, arch/carbon/SDL_main.c, arch/linux/ukali.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/sdl/digi_audio.c, arch/sdl/digi_mixer.c, arch/sdl/digi.c, arch/sdl/event.c, arch/sdl/gr.c, arch/sdl/joy.c, arch/sdl/key.c, arch/sdl/mouse.c, arch/sdl/rbaudio.c, arch/sdl/timer.c, iff/iff.c, include/physfsx.h, libmve/mvelib.c, libmve/mveplay.c, main/ai.c, main/ai2.c, main/aipath.c, main/automap.c, main/bm.c, main/bmread.c, main/cntrlcen.c, main/collide.c, main/config.c, main/console.c, main/controls.c, main/credits.c, main/crypt.c, main/digiobj.c, main/dumpmine.c, main/editor/autosave.c, main/editor/centers.c, main/editor/curves.c, main/editor/eglobal.c, main/editor/ehostage.c, main/editor/elight.c, main/editor/eobject.c, main/editor/eswitch.c, main/editor/fixseg.c, main/editor/func.c, main/editor/group.c, main/editor/info.c, main/editor/kbuild.c, main/editor/kcurve.c, main/editor/kfuncs.c, main/editor/kgame.c, main/editor/khelp.c, main/editor/kmine.c, main/editor/ksegmove.c, main/editor/ksegsel.c, main/editor/ksegsize.c, main/editor/ktmap.c, main/editor/kview.c, main/editor/macro.c, main/editor/med.c, main/editor/meddraw.c, main/editor/medmisc.c, main/editor/medrobot.c, main/editor/medsel.c, main/editor/medwall.c, main/editor/mine.c, main/editor/objpage.c, main/editor/segment.c, main/editor/seguvs.c, main/editor/texpage.c, main/editor/texture.c, main/effects.c, main/endlevel.c, main/escort.c, main/fireball.c, main/fuelcen.c, main/fvi.c, main/game.c, main/gamecntl.c, main/gamemine.c, main/gamepal.c, main/gamerend.c, main/gamesave.c, main/gameseg.c, main/gameseq.c, main/gauges.c, main/hostage.c, main/hud.c, main/inferno.c, main/kconfig.c, main/kmatrix.c, main/laser.c, main/lighting.c, main/menu.c, main/mglobal.c, main/mission.c, main/morph.c, main/movie.c, main/multi.c, main/multibot.c, main/newdemo.c, main/newmenu.c, main/object.c, main/paging.c, main/physics.c, main/piggy.c, main/player.c, main/playsave.c, main/polyobj.c, main/powerup.c, main/render.c, main/robot.c, main/scores.c, main/segment.c, main/slew.c, main/state.c, main/switch.c, main/terrain.c, main/texmerge.c, main/text.c, main/titles.c, main/vclip.c, main/wall.c, main/weapon.c, maths/fixc.c, maths/rand.c, maths/tables.c, maths/vecmat.c, mem/mem.c, misc/args.c, misc/error.c, misc/hash.c, misc/strio.c, misc/strutil.c, texmap/ntmap.c, texmap/scanline.c, texmap/tmapflat.c, ui/barbox.c, ui/button.c, ui/checkbox.c, ui/func.c, ui/gadget.c, ui/icon.c, ui/inputbox.c, ui/keypad.c, ui/keypress.c, ui/keytrap.c, ui/listbox.c, ui/menu.c, ui/menubar.c, ui/message.c, ui/mouse.c, ui/number.c, ui/popup.c, ui/radio.c, ui/scroll.c, ui/ui.c, ui/uidraw.c, ui/userbox.c, ui/window.c: Remove redundant conf.h directives
+
+20090409
+--------
+main/multi.c, main/multi.h, main/multibot.c, main/menu.c, main/kmatrix.c, main/net_ipx.c, main/net_ipx.h, main/gameseq.c, main/fuelcen.c, main/gamerend.c: Abstracting networking protocols - Step 3: Renaming network_* functions to net_ipx_*, writing wrappers for protocol dependend functions in multi.c, Implementing protocol selection and Cleanup - Next up: Implementing new UDP layer
+
+20090320
+--------
+include/ipxdrv.h, main/collide.c, main/ipxdrv.c, main/fireball.c, main/multi.c, main/multi.h, main/menu.c, main/state.c, main/newdemo.c, main/switch.c, main/net_ipx.c, main/net_ipx.h, main/gameseq.c, main/endlevel.c, main/powerup.c, main/automap.c, SConstruct, arch/linux/ipx.c, arch/linux/ipx_kali.c, arch/win32/ipx.c: Abstracting networking protocols - Step 2: Introducing new structure to hold protocol-dependend and -independend information about Netgame and it's Players; Further isolation of the IPX code and renaming the netdrv_* code to ipxdrv_* as this is now actually IPX-only; Next up: Renaming network_* functions to net_ipx_*, writing wrappers for protocol dependend functions in multi.c, Implementing protocol selection and Cleanup
+
+20090304
+--------
+various: Abstracting networking protocols - Step 1: Renaming network-related files; Removing net_ipx.h (former network.h) includes from as much files as possible to make isolation of IPX-related functions easier in Step 2; Version defines Cleanup - needed later for good Version-Checking
+
+20090303
+--------
+arch/include/digi_mixer_music.h, arch/include/jukebox.h, arch/sdl/digi_mixer_music.c, arch/sdl/digi_mixer.c, arch/sdl/digi.c, arch/sdl/init.c, arch/sdl/jukebox.c, arch/sdl/rbaudio.c, include/rbaudio.h, main/automap.c, main/config.h, main/credits.c, main/digi.h, main/game.c, main/gamecntl.c, main/kconfig.c, main/kmatrix.c, main/menu.c, main/network.c, main/newmenu.c, main/scores.c, main/songs.c, main/songs.h: Associate the jukebox with Redbook Audio via new 'extmusic' layer - separating from MIDI and making it handle ALL music (not just game music)
+
+20090223
+--------
+main/gamerend.c, main/gauges.c, main/menu.c: Made our Cockpit-Transparency decoding function a bit safer for current and possibly new code flow
+main/gauges.c: Small positional correction for homing-warning bitmap
+
+20090222
+--------
+main/fireball.c: Fixed param handling of expl_obj in do_explosion_sequence for the case that free_object_slots might have it set to OF_SHOULD_BE_DEAD before it's actually attached to another object
+
+20090217
+--------
+main/object.c, main/object.h, main/weapon.c: Made Max_used_objects an absolute defined value; Made num_objects globally available; Restricted Weapon drops to MAX_USED_OBJECTS; When dropping Secondary weapon, drop 4-pack if possible
+
+20090215
+--------
+main/network.c, main/noloss.c, main/noloss.h: Added list to keep trace of received PDATA packets so receiver won't interpret them several times
+main/kmatrix.c: Made connect-state handling in kmatrix flow even more failsafe
+
+20090209
+>>>>>>> 00347f0bc... Add endian converter for demos, read shareware demos, various bugfixes to demo system
 --------
 main/netdrv_udp.c: Fixing bug with incorrect/missing UDP port termination
 main/network.c, main/network.h, main/multi.h, main/netdrv_udp.c, main/netdrv_udp.h, main/noloss.c, main/noloss.h, SConstruct: Added Packet-loss prevention code for Netgames

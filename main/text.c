@@ -46,6 +46,7 @@ char *Text_string[N_TEXT_STRINGS];
 
 void free_text()
 {
+	d_free(Text_string[350]);
 	d_free(text);
 }
 
@@ -92,10 +93,6 @@ void decode_text(char *buf, int len)
 	}
 }
 
-
-#if !defined(_MSC_VER) && !defined(macintosh)
-#include <unistd.h>
-#endif
 //load all the text strings for Descent
 void load_text()
 {
@@ -118,10 +115,12 @@ void load_text()
 
 		len = cfilelength(ifile);
 
-		MALLOC(text,char,len);
+//edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
+		MALLOC(text,char,len+1);
 
 		cfread(text,1,len,ifile);
-
+		text[len]=0;
+//end edit -MM
 		cfclose(ifile);
 
 	} else {
@@ -130,7 +129,8 @@ void load_text()
 
 		len = cfilelength(tfile);
 
-		MALLOC(text,char,len);
+//edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
+		MALLOC(text,char,len+1);
 
 		//fread(text,1,len,tfile);
 		p = text;
@@ -139,6 +139,8 @@ void load_text()
 			if ( c != 13 )
 				*p++ = c;
 		} while ( c!=EOF );
+		*p=0;
+//end edit -MM
 
 		cfclose(tfile);
 	}
@@ -181,6 +183,21 @@ void load_text()
 			d_free(buf);
 			p++;
 		}
+
+          switch(i) {
+				  char *extra;
+				  char *str;
+				  
+			  case 350:
+				  extra = "\n<Ctrl-C> converts format\nIntel <-> PowerPC";
+				  str = d_malloc(strlen(Text_string[i]) + strlen(extra) + 1);
+				  if (!str)
+					  break;
+				  strcpy(str, Text_string[i]);
+				  strcat(str, extra);
+				  Text_string[i] = str;
+				  break;
+          }
 
 	}
 
