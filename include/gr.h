@@ -24,16 +24,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "fix.h"
 
-#if defined(MACDATA)
-#error native mac data currently not supported
-#define SWAP_0_255              // swap black and white
-#define TRANSPARENCY_COLOR  0   // palette entry of transparency color -- 0 on the mac
-#define TRANSPARENCY_COLOR_STR  "0"
-#else /* defined(MACDATA) */
-/* #undef  SWAP_0_255 */        // no swapping for PC people
-#define TRANSPARENCY_COLOR  255 // palette entry of transparency color -- 255 on the PC
-#define TRANSPARENCY_COLOR_STR  "255"
-#endif /* defined(MACDATA) */
+// #define SWAP_0_255		0			// swap black and white
+#define TRANSPARENCY_COLOR	255			// palette entry of transparency color -- 255 on the PC
 
 #define GR_FADE_LEVELS 34
 #define GR_ACTUAL_FADE_LEVELS 32
@@ -42,10 +34,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define GHEIGHT grd_curcanv->cv_bitmap.bm_h
 #define SWIDTH  (grd_curscreen->sc_w)
 #define SHEIGHT (grd_curscreen->sc_h)
-#define HIRESMODE (SWIDTH >= 640 && SHEIGHT >= 480 && GameArg.GfxHiresGFXAvailable)
 
+#define HIRESMODE (SWIDTH >= 640 && SHEIGHT >= 480 && GameArg.GfxHiresGFXAvailable)
 #define MAX_BMP_SIZE(width, height) (4 + ((width) + 2) * (height))
-#define BM_FLAG_TGA 128
+
+#define SCRNS_DIR "screenshots/"
 
 extern int Gr_scanline_darkening_level;
 
@@ -73,7 +66,7 @@ typedef struct _grs_point {
 #define SM(w,h) ((((u_int32_t)w)<<16)+(((u_int32_t)h)&0xFFFF))
 #define SM_W(m) (m>>16)
 #define SM_H(m) (m&0xFFFF)
-
+#define SM_ORIGINAL		0
 
 #define BM_FLAG_TRANSPARENT         1
 #define BM_FLAG_SUPER_TRANSPARENT   2
@@ -102,8 +95,6 @@ typedef struct _grs_bitmap {
 	struct _ogl_texture *gltexture;
 	struct _grs_bitmap  *bm_parent;
 } grs_bitmap;
-
-#define SCRNS_DIR "screenshots/"
 
 //font structure
 typedef struct _grs_font {
@@ -150,19 +141,12 @@ typedef struct _grs_screen {    // This is a video screen
 
 int gr_init(int mode);
 
-// This function sets up the main screen.  It should be called whenever
-// the video mode changes.
-int gr_init_screen(int mode, int w, int h, int x, int y, int rowsize, ubyte *data);
-
+int gr_check_mode(u_int32_t mode);
 int gr_set_mode(u_int32_t mode);
 void gr_set_attributes(void);
 
 extern void gr_pal_setblock( int start, int number, unsigned char * pal );
 extern void gr_pal_getblock( int start, int number, unsigned char * pal );
-
-
-extern unsigned char *gr_video_memory;
-	                                            // All graphic modules will define this value.
 
 //shut down the 2d.  Restore the screen mode.
 void gr_close(void);
@@ -236,7 +220,10 @@ void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src
 void gr_bm_ubitblt( int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
+void gr_set_bitmap_flags(grs_bitmap *pbm, int flags);
 void gr_set_transparent(grs_bitmap *pbm, int bTransparent);
+void gr_set_super_transparent(grs_bitmap *pbm, int bTransparent);
+void gr_set_bitmap_data(grs_bitmap *bm, unsigned char *data);
 
 //=========================================================================
 // Color functions:
@@ -338,8 +325,6 @@ extern void gr_set_current_canvas( grs_canvas *canv );
 #define FT_COLOR        1
 #define FT_PROPORTIONAL 2
 #define FT_KERNED       4
-
-extern void gr_vesa_update( grs_bitmap * source1, grs_bitmap * dest, grs_bitmap * source2 );
 
 // Special effects
 extern void gr_snow_out(int num_dots);

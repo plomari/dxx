@@ -601,3 +601,8 @@ void save_screen_shot(int automap_flag)
 	key_flush();
 	start_time();
 }
+
+int gr_check_mode(u_int32_t mode)
+{
+	return 1;
+}
