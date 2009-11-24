@@ -352,7 +352,7 @@ void kmatrix_ipx_redraw_coop()
 void kmatrix_ipx_view(int network)
 {
   int i, k, done,choice;
-  fix entry_time = timer_get_approx_seconds();
+  fix entry_time = timer_get_fixed_seconds();
   int key;
   int oldstates[MAX_PLAYERS];
   int num_ready,num_escaped;
@@ -405,7 +405,7 @@ void kmatrix_ipx_view(int network)
         case KEY_ESC:
           if (Game_mode & GM_NETWORK)
           {
-            StartAbortMenuTime=timer_get_approx_seconds();
+            StartAbortMenuTime=timer_get_fixed_seconds();
             choice=nm_messagebox1( NULL,multi_endlevel_poll2, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
           }
           else
@@ -433,7 +433,7 @@ void kmatrix_ipx_view(int network)
             break;
       }
 
-      if (timer_get_approx_seconds() >= (entry_time+MAX_VIEW_TIME) && Players[Player_num].connected!=CONNECT_KMATRIX_WAITING)
+      if (timer_get_fixed_seconds() >= (entry_time+MAX_VIEW_TIME) && Players[Player_num].connected!=CONNECT_KMATRIX_WAITING)
       {
         if (is_D2_OEM)
         {
@@ -462,7 +462,7 @@ void kmatrix_ipx_view(int network)
           if (Players[i].connected && i!=Player_num)
           {
             // Check timeout for idle players
-            if (timer_get_approx_seconds() > Netgame.players[i].LastPacketTime+ENDLEVEL_IDLE_TIME)
+            if (timer_get_fixed_seconds() > Netgame.players[i].LastPacketTime+ENDLEVEL_IDLE_TIME)
             {
               Players[i].connected = CONNECT_DISCONNECTED;
             }
@@ -732,7 +732,7 @@ void kmatrix_view(int network)
 	while (!done)
 	{
 		int playing = 0;
-		fix time = timer_get_approx_seconds();
+		fix time = timer_get_fixed_seconds();
 		
 		timer_delay2(50);
 		kmatrix_redraw();
@@ -770,7 +770,7 @@ void kmatrix_view(int network)
 			case KEY_ESC:
 				if (network)
 				{
-					StartAbortMenuTime=timer_get_approx_seconds();
+					StartAbortMenuTime=timer_get_fixed_seconds();
 					choice=nm_messagebox1( NULL,multi_endlevel_poll2, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
 				}
 				else
