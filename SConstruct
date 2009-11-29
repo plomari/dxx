@@ -32,6 +32,11 @@ arm = int(ARGUMENTS.get('arm', 0))
 ipv6 = int(ARGUMENTS.get('ipv6', 0))
 micro = int(ARGUMENTS.get('micro', 0))
 use_svn_as_micro = int(ARGUMENTS.get('svnmicro', 0))
+use_udp = int(ARGUMENTS.get('use_udp', 1))
+use_ipx = int(ARGUMENTS.get('use_ipx', 1))
+
+if (sys.platform != 'linux2') and (sys.platform != 'win32'):
+	use_ipx = 0
 
 if (micro > 0):
 	D2XMICRO = micro
@@ -132,8 +137,6 @@ common_sources = [
 'main/movie.c',
 'main/multi.c',
 'main/multibot.c',
-'main/net_ipx.c',
-'main/net_udp.c',
 'main/newdemo.c',
 'main/newmenu.c',
 'main/object.c',
@@ -230,34 +233,13 @@ editor_sources = [
 'ui/window.c'
 ]
 
-# for linux
-arch_linux_sources = [
-'arch/linux/ipx.c',
-'arch/linux/ipx_kali.c',
-'arch/linux/ukali.c'
-]
-
 # SDL_mixer sound implementation
 arch_sdlmixer = [
 'misc/hmp2mid.c',
 'arch/sdl/digi_mixer.c',
 'arch/sdl/digi_mixer_music.c',
 'arch/sdl/jukebox.c'
-]
-
-if (sdlmixer == 1):
-        common_sources += arch_sdlmixer
-
-# for windows
-arch_win32_sources = [
-'arch/win32/hmpfile.c',
-'arch/win32/ipx.c',
-]
-
-# for Mac OS X
-arch_macosx_sources = [
-'arch/cocoa/SDLMain.m'
-]
+]       
 
 # for opengl
 arch_ogl_sources = [
@@ -295,14 +277,11 @@ env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D2XMAJOR', '\\"' + str(D2XMAJOR) + '\\"'), ('D2XMINOR', '\\"' + str(D2XMINOR) + '\\"')])
 #env.Append(CPPDEFINES = [('VERSION', '\\"' + str(VERSION) + '\\"')])
 #env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
-env.Append(CPPDEFINES = ['NETWORK', 'HAVE_NETIPX_IPX_H', '_REENTRANT'])
+env.Append(CPPDEFINES = ['NETWORK', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 # scons is too poop to correctly get it from the pkg-config call?
 generic_libs = ['SDL2']
 sdlmixerlib = ['SDL2_mixer']
-
-if sdlmixer:
-	env.Append(CPPDEFINES = ['USE_SDLMIXER'])
 
 if (D2XMICRO):
 	env.Append(CPPDEFINES = [('D2XMICRO', '\\"' + str(D2XMICRO) + '\\"')])
@@ -327,10 +306,12 @@ if sys.platform == 'win32':
 	osdef = '_WIN32'
 	osasmdef = 'win32'
 	sharepath = ''
-	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL', 'NATIVE_IPX'])
+	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/win32/include'])
 	ogldefines = ['OGL']
-	common_sources += arch_win32_sources
+	common_sources += ['arch/win32/hmpfile.c']
+	if (use_ipx == 1):
+		common_sources += ['arch/win32/ipx.c']
 	ogllibs = ''
 	winlibs = ['wsock32', 'winmm', 'mingw32', 'SDLmain']
 	libs = winlibs + generic_libs
@@ -343,7 +324,7 @@ elif sys.platform == 'darwin':
 	asm = 0
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['OGL']
-	common_sources += arch_macosx_sources
+	common_sources += 'arch/cocoa/SDLMain.m'
 	ogllibs = ''
 	libs = ''
 	# Ugly way of linking to frameworks, but kreator has seen uglier
@@ -365,10 +346,11 @@ else:
 	osdef = '__LINUX__'
 	osasmdef = 'elf'
 	sharepath += '/'
-	env.Append(CPPDEFINES = ['__LINUX__', 'NATIVE_IPX', 'KALINIX', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
+	env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['OGL']
-	common_sources += arch_linux_sources
+	if (use_ipx == 1):
+		common_sources += ['arch/linux/ipx.c', 'arch/linux/ipx_kali.c', 'arch/linux/ukali.c']
 	ogllibs = ['GL', 'm']
 	libs = generic_libs
 	lflags = '-L/usr/X11R6/lib'
@@ -391,10 +373,13 @@ else:
 	common_sources += arch_ogl_sources
 	libs += ogllibs
 
-# SDL_mixer for sound? (*NIX only)
-if (sdlmixer == 1) and (sys.platform != 'darwin'):
+# SDL_mixer support?
+if (sdlmixer == 1):
 	print "including SDL_mixer"
-	libs += sdlmixerlib
+	env.Append(CPPDEFINES = ['USE_SDLMIXER'])
+	common_sources += arch_sdlmixer
+	if (sys.platform != 'darwin'):
+		libs += sdlmixerlib
 
 # debug?
 if (debug == 1):
@@ -429,6 +414,16 @@ if (editor == 1):
 # IPv6 compability?
 if (ipv6 == 1):
 	env.Append(CPPDEFINES = ['IPv6'])
+
+# UDP support?
+if (use_udp == 1):
+	env.Append(CPPDEFINES = ['USE_UDP'])
+	common_sources += ['main/net_udp.c']
+
+# IPX support?
+if (use_ipx == 1):
+	env.Append(CPPDEFINES = ['USE_IPX'])
+	common_sources += ['main/net_ipx.c']
 
 print '\n'
 
@@ -466,6 +461,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'editor=1'        build editor !EXPERIMENTAL!
 	'arm=1'           compile for ARM architecture
 	'ipv6=1'          enables IPv6 copability
+	'use_ipx=0'		  disable IPX support (supported only on Linux and Windows)
 	
 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + """
