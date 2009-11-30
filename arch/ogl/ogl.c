@@ -44,7 +44,7 @@
 #include "polyobj.h"
 #include "gamefont.h"
 #include "byteswap.h"
-#include "endlevel.h"
+#include "internal.h"
 #include "gauges.h"
 #include "playsave.h"
 
@@ -713,9 +713,6 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm->gltexture,GL_CLAMP_TO_EDGE);
 
-	if (Endlevel_sequence)
-		glDepthFunc(GL_ALWAYS);
-
 	glBegin(GL_QUADS);
 
 	// Define alpha by looking for object TYPE or ID. We do this here so we have it seperated from the rest of the code.
@@ -730,8 +727,9 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int ori
 		glColor4f(1.0,1.0,1.0,0.6); // ... with 0.6 alpha
 	else
 		glColor3f(1.0,1.0,1.0);
-	width = fixmul(width,Matrix_scale.x);	
-	height = fixmul(height,Matrix_scale.y);	
+
+	width = fixmul(width,Matrix_scale.x);
+	height = fixmul(height,Matrix_scale.y);
 	for (i=0;i<4;i++){
 		vm_vec_sub(&v1,pos,&View_position);
 		vm_vec_rotate(&pv,&v1,&View_matrix);
@@ -817,6 +815,7 @@ bool ogl_ubitmapm_c(int x, int y,grs_bitmap *bm,int c)
 	
 	return 0;
 }
+
 bool ogl_ubitmapm(int x, int y,grs_bitmap *bm){
 	return ogl_ubitmapm_c(x,y,bm,-1);
 }
@@ -1075,8 +1074,8 @@ static int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *t
 				}
 				memset (bufP, 0, tex->th * tw - (bufP - texbuf));
 				bufP = texbuf;
-				}
 			}
+		}
 	}
 	// Generate OpenGL texture IDs.
 	glGenTextures (1, &tex->handle);
@@ -1161,6 +1160,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 			bm->gltexture->h=bm->bm_h;
 		}
 	}
+
 	if (bm->bm_flags & BM_FLAG_RLE){
 		unsigned char * dbits;
 		unsigned char * sbits;
