@@ -166,6 +166,7 @@ ubyte DemoDoRight=0,DemoDoLeft=0;
 
 char nd_save_callsign[CALLSIGN_LEN+1];
 int Newdemo_state = 0;
+int Newdemo_game_mode = 0;
 int Newdemo_vcr_state = 0;
 int Newdemo_start_frame = -1;
 int Newdemo_frame_number = -1;
@@ -1512,28 +1513,25 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 		return 1;
 	}
 	nd_read_fix(&GameTime);
-	nd_read_int(&Game_mode);
+	nd_read_int(&Newdemo_game_mode);
 	if (purpose == PURPOSE_REWRITE)
 	{
 		nd_write_fix(GameTime);
-		nd_write_int(Game_mode);
+		nd_write_int(Newdemo_game_mode);
 	}
 
 	Boss_cloak_start_time=Boss_cloak_end_time=GameTime;
 	JasonPlaybackTotal=0;
 #ifndef NETWORK
-	if (Game_mode & GM_MULTI) {
+	if (Newdemo_game_mode & GM_MULTI) {
 		nm_messagebox( NULL, 1, "Ok", "can't playback net game\nwith this version of code\n" );
 		return 1;
 	}
 #endif
 
-	nd_read_int(&Game_mode);
-	Game_mode &= ~GM_NETWORK;
-
 #ifdef NETWORK
-	change_playernum_to((Game_mode >> 16) & 0x7);
-	if (Game_mode & GM_TEAM) {
+	change_playernum_to((Newdemo_game_mode >> 16) & 0x7);
+	if (Newdemo_game_mode & GM_TEAM) {
 		nd_read_byte((sbyte *) &(Netgame.team_vector));
 		nd_read_string(Netgame.team_name[0]);
 		nd_read_string(Netgame.team_name[1]);
@@ -1544,7 +1542,7 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 			nd_write_string(Netgame.team_name[1]);
 		}
 	}
-	if (Game_mode & GM_MULTI) {
+	if (Newdemo_game_mode & GM_MULTI) {
 
 		if (purpose != PURPOSE_REWRITE)
 			multi_new_game();
@@ -1566,7 +1564,7 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 				nd_write_byte(Players[i].connected);
 			}
 
-			if (Game_mode & GM_MULTI_COOP) {
+			if (Newdemo_game_mode & GM_MULTI_COOP) {
 				nd_read_int(&(Players[i].score));
 				if (purpose == PURPOSE_REWRITE)
 					nd_write_int(Players[i].score);
@@ -1580,8 +1578,10 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 				}
 			}
 		}
+		Game_mode = Newdemo_game_mode;
 		if (purpose != PURPOSE_REWRITE)
 			multi_sort_kill_list();
+		Game_mode = GM_NORMAL;
 	} else
 #endif
 	{
@@ -1810,10 +1810,10 @@ int newdemo_read_frame_information(int rewrite)
 
 				obj_link(obj-Objects,segnum);
 #ifdef NETWORK
-				if ((obj->type == OBJ_PLAYER) && (Game_mode & GM_MULTI)) {
+				if ((obj->type == OBJ_PLAYER) && (Newdemo_game_mode & GM_MULTI)) {
 					int player;
 
-					if (Game_mode & GM_TEAM)
+					if (Newdemo_game_mode & GM_TEAM)
 						player = get_team(obj->id);
 					else
 						player = obj->id;
@@ -2448,14 +2448,16 @@ int newdemo_read_frame_information(int rewrite)
 			}
 			if ((Newdemo_vcr_state == ND_STATE_REWINDING) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEBACKWARD)) {
 				Players[pnum].net_kills_total -= kill;
-				if (Game_mode & GM_TEAM)
+				if (Newdemo_game_mode & GM_TEAM)
 					team_kills[get_team(pnum)] -= kill;
 			} else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD)) {
 				Players[pnum].net_kills_total += kill;
-				if (Game_mode & GM_TEAM)
+				if (Newdemo_game_mode & GM_TEAM)
 					team_kills[get_team(pnum)] += kill;
 			}
+			Game_mode = Newdemo_game_mode;
 			multi_sort_kill_list();
+			Game_mode = GM_NORMAL;
 			break;
 		}
 
@@ -2552,7 +2554,9 @@ int newdemo_read_frame_information(int rewrite)
 				Players[pnum].score -= score;
 			else if ((Newdemo_vcr_state == ND_STATE_PLAYBACK) || (Newdemo_vcr_state == ND_STATE_FASTFORWARD) || (Newdemo_vcr_state == ND_STATE_ONEFRAMEFORWARD))
 				Players[pnum].score += score;
+			Game_mode = Newdemo_game_mode;
 			multi_sort_kill_list();
+			Game_mode = GM_NORMAL;
 			break;
 		}
 
@@ -2800,34 +2804,18 @@ int newdemo_read_frame_information(int rewrite)
 					break;
 
 #ifdef NETWORK
+				Game_mode = Newdemo_game_mode;
 				if (Game_mode & GM_HOARD)
 					init_hoard_data();
 
 				if (Game_mode & GM_CAPTURE || Game_mode & GM_HOARD)
 					multi_apply_goal_textures ();
+				Game_mode = GM_NORMAL;
 #endif
 			}
 
 			if (rewrite)
 				break;
-
-			// so says Rob H.!!!			if (Game_mode & GM_MULTI) {
-			// so says Rob H.!!!				for (i = 0; i < Num_walls; i++) {
-			// so says Rob H.!!!					if (Walls[i].type == WALL_BLASTABLE)
-			// so says Rob H.!!!					{
-			// so says Rob H.!!!						int a, n;
-			// so says Rob H.!!!						int side;
-			// so says Rob H.!!!						segment *seg;
-			// so says Rob H.!!!
-			// so says Rob H.!!!						seg = &Segments[Walls[i].segnum];
-			// so says Rob H.!!!						side = Walls[i].sidenum;
-			// so says Rob H.!!!						a = Walls[i].clip_num;
-			// so says Rob H.!!!						n = WallAnims[a].num_frames;
-			// so says Rob H.!!!						seg->sides[side].tmap_num = WallAnims[a].frames[n-1];
-			// so says Rob H.!!!						Walls[i].flags |= WALL_BLASTED;
-			// so says Rob H.!!!					}
-			// so says Rob H.!!!				}
-			// so says Rob H.!!!			}
 
 			reset_palette_add();                // get palette back to normal
 			start_time();
@@ -2913,7 +2901,7 @@ void newdemo_goto_end(int to_rewrite)
 
 	nd_read_short(&frame_length);
 	loc = cftell(infile);
-	if (Game_mode & GM_MULTI)
+	if (Newdemo_game_mode & GM_MULTI)
 	{
 		nd_read_byte(&cloaked);
 		for (i = 0; i < MAX_PLAYERS; i++)
@@ -2949,7 +2937,7 @@ void newdemo_goto_end(int to_rewrite)
 			update_laser_weapon_info();
 	}
 
-	if (Game_mode & GM_MULTI) {
+	if (Newdemo_game_mode & GM_MULTI) {
 		nd_read_byte(&c);
 		N_players = (int)c;
 		// see newdemo_read_start_demo for explanation of
@@ -2958,7 +2946,7 @@ void newdemo_goto_end(int to_rewrite)
 		for (i = 0; i < N_players; i++) {
 			nd_read_string(Players[i].callsign);
 			nd_read_byte(&(Players[i].connected));
-			if (Game_mode & GM_MULTI_COOP) {
+			if (Newdemo_game_mode & GM_MULTI_COOP) {
 				nd_read_int(&(Players[i].score));
 			} else {
 				nd_read_short((short *)&(Players[i].net_killed_total));
@@ -3606,7 +3594,7 @@ void newdemo_start_playback(char * filename)
 		return;
 	}
 
-
+	Game_mode = GM_NORMAL;
 	Newdemo_state = ND_STATE_PLAYBACK;
 	Newdemo_vcr_state = ND_STATE_PLAYBACK;
 	Newdemo_old_cockpit = PlayerCfg.CockpitMode;
@@ -3634,7 +3622,7 @@ void newdemo_stop_playback()
 	strncpy(Players[Player_num].callsign, nd_save_callsign, CALLSIGN_LEN);
 	PlayerCfg.CockpitMode = Newdemo_old_cockpit;
 	Rear_view=0;
-	Game_mode = GM_GAME_OVER;
+	Newdemo_game_mode = Game_mode = GM_GAME_OVER;
 	Function_mode = FMODE_MENU;
 	longjmp(LeaveGame,0);               // Exit game loop
 }
