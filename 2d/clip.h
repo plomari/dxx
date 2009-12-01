@@ -23,7 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 	(b) = __temp__;                                                     \
 } while(0)
 
-# define FSCALE(var,arg,num,den) ((var) = fixmuldiv((arg),(num),(den)))
+# define FIXSCALE(var,arg,num,den) ((var) = fixmuldiv((arg),(num),(den)))
 
 #define CLIPLINE(x1,y1,x2,y2,XMIN,YMIN,XMAX,YMAX,WHEN_OUTSIDE,WHEN_CLIPPED,MY_SCALE) do {       \
 	register int temp;                                                  \
