@@ -1100,7 +1100,6 @@ window *game_setup(void)
 	set_warn_func(game_show_warning);
 	init_cockpit();
 	init_gauges();
-	keyd_repeat = 1; // Do allow repeat in game
 
 #ifdef EDITOR
 	if (Segments[ConsoleObject->segnum].segnum == -1)      //segment no longer exists
@@ -1198,8 +1197,8 @@ int game_handler(window *wind, d_event *event, void *data)
 		}
 	}
 	
-	if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR)
- )	{
+	if ( (Function_mode != FMODE_GAME ) && (Newdemo_state != ND_STATE_PLAYBACK ) && (Function_mode!=FMODE_EDITOR))
+	{
 		int choice, fmode;
 		fmode = Function_mode;
 		Function_mode = FMODE_GAME;
