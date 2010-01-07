@@ -406,7 +406,7 @@ void kmatrix_ipx_view(int network)
           if (Game_mode & GM_NETWORK)
           {
             StartAbortMenuTime=timer_get_fixed_seconds();
-            choice=nm_messagebox1( NULL,multi_endlevel_poll2, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+            choice=nm_messagebox1( NULL,multi_endlevel_poll2, NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
           }
           else
             choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
@@ -771,7 +771,7 @@ void kmatrix_view(int network)
 				if (network)
 				{
 					StartAbortMenuTime=timer_get_fixed_seconds();
-					choice=nm_messagebox1( NULL,multi_endlevel_poll2, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+					choice=nm_messagebox1( NULL,multi_endlevel_poll2, NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
 				}
 				else
 					choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
