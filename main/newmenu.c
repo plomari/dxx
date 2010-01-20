@@ -562,7 +562,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 #endif
 	int rval = 0;
 
-	if (event->type == EVENT_CLOSE)
+	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		// Don't allow cancel here - handle item selected events / key events instead
 		if (menu->subfunction)
@@ -582,7 +582,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 		return 1;	// always close
 	}
 	
-	if (event->type == EVENT_DRAW)
+	if (event->type == EVENT_WINDOW_DRAW)
 	{
 		int ty;
 
@@ -1688,7 +1688,7 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 #endif
 	int rval = 0;
 	
-	if (event->type == EVENT_CLOSE)
+	if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		// Don't allow cancel here - handle item selected events / key events instead
 		if (lb->listbox_callback)
@@ -1698,7 +1698,7 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 		return 1;	// always close
 	}
 
-	if (event->type == EVENT_DRAW)
+	if (event->type == EVENT_WINDOW_DRAW)
 	{
 		nm_draw_background1(NULL);
 		nm_draw_background( lb->box_x-BORDERX,lb->box_y-lb->title_height-BORDERY,lb->box_x+lb->box_w+BORDERX,lb->box_y+lb->height+BORDERY );

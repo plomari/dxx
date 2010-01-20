@@ -537,12 +537,12 @@ int automap_handler(window *wind, d_event *event, automap *am)
 	int c, marker_num;
 	char maxdrop;
 
-	if (event->type == EVENT_DRAW)
+	if (event->type == EVENT_WINDOW_DRAW)
 	{
 		draw_automap(am);
 		return 1;
 	}
-	else if (event->type == EVENT_CLOSE)
+	else if (event->type == EVENT_WINDOW_CLOSE)
 	{
 		gr_free_bitmap_data(&am->automap_background);
 		d_free(am->edges);
