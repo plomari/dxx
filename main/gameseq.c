@@ -691,23 +691,24 @@ int RegisterPlayer(int at_program_start)
 do_menu_again:
 	;
 
-        if (at_program_start && !(GameCfg.LastPlayer[0]==0)) {
+	if (at_program_start && !(GameCfg.LastPlayer[0]==0)) {
             snprintf(filename, sizeof(filename), "%s", GameCfg.LastPlayer);
         } else {
-            if (!get_filename(TXT_SELECT_PILOT, ".plr", filename, allow_abort_flag))
-                    goto do_menu_again; //return 0;		// They hit Esc in file selector
-        }
-        at_program_start = 0;
 
-	if ( filename[0] == '<' )	{
-		// They selected 'create new pilot'
-		if (!MakeNewPlayerFile(allow_abort_flag))
-			//return 0;		// They hit Esc during enter name stage
-			goto do_menu_again;
-	} else {
-		strncpy(Players[Player_num].callsign,filename, CALLSIGN_LEN);
-		strlwr(Players[Player_num].callsign);
+	if (get_filename(TXT_SELECT_PILOT, ".plr", filename, allow_abort_flag))
+	{
+		if ( filename[0] == '<' )	{
+			// They selected 'create new pilot'
+			if (!MakeNewPlayerFile(allow_abort_flag))
+				//return 0;		// They hit Esc during enter name stage
+				goto do_menu_again;
+		} else {
+			strncpy(Players[Player_num].callsign,filename, CALLSIGN_LEN);
+			strlwr(Players[Player_num].callsign);
+		}
 	}
+
+		}
 
 	if (read_player_file() != EZERO)
 		goto do_menu_again;
