@@ -1211,6 +1211,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			clear_warn_func(game_show_warning);     //don't use this func anymore
 			game_disable_cheats();
 			Game_wind = NULL;
+			return 0;	// continue closing
 			break;
 			
 		default:
