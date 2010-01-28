@@ -347,8 +347,6 @@ void start_endlevel_sequence()
 	PlayerFinishedLevel(0);		//done with level
 }
 
-static int cockpit_mode_save;
-
 void start_rendered_endlevel_sequence()
 {
 	int last_segnum,exit_side,tunnel_length;
@@ -393,8 +391,6 @@ void start_rendered_endlevel_sequence()
 		transition_segnum = segnum;
 
 	}
-
-	cockpit_mode_save = PlayerCfg.CockpitMode;
 
 	#ifdef NETWORK
 	if (Game_mode & GM_MULTI) {
@@ -507,7 +503,8 @@ int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 
 void stop_endlevel_sequence()
 {
-	select_cockpit(cockpit_mode_save);
+
+	select_cockpit(PlayerCfg.CockpitMode[0]);
 
 	Endlevel_sequence = EL_OFF;
 
