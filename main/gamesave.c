@@ -880,7 +880,7 @@ int load_game_data(CFILE *LoadFile)
 	}
 
 	//===================== READ PLAYER INFO ==========================
-	Object_next_signature = 0;
+
 
 	//===================== READ OBJECT INFO ==========================
 
@@ -895,7 +895,7 @@ int load_game_data(CFILE *LoadFile)
 
 			read_object(&Objects[i], LoadFile, game_top_fileinfo_version);
 
-			Objects[i].signature = Object_next_signature++;
+			Objects[i].signature = obj_get_signature();
 			verify_object( &Objects[i] );
 
 			check_and_fix_matrix(&Objects[i].orient);
