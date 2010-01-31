@@ -242,4 +242,6 @@ void game_render_frame_mono(int flip);
 
 void game_init_render_buffers(int render_w, int render_h, int render_method );
 
+void game_leave_menus(void);
+
 #endif /* _GAME_H */
