@@ -20,11 +20,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MENU_H
 #define _MENU_H
 
+// called once at program startup to get the player's name
+// at_program_start==1 if it's actually at startup
+int RegisterPlayer(int at_program_start);
+
 // returns number of item chosen
 extern int DoMenu();
 extern void do_options_menu();
 extern void d2x_options_menu();
-extern int select_filename(char *title, char *type, int allow_abort_flag);
+extern int select_demo(void);
 
 #define MENU_PCX_MAC_SHARE ("menub.pcx")
 #define MENU_PCX_SHAREWARE ("menud.pcx")
