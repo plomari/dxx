@@ -197,13 +197,15 @@ void rpad_string( char * string, int max_chars )
 }
 #endif
 
+int state_default_item = 0;
+
 /* Present a menu for selection of a savegame filename.
  * For saving, dsc should be a pre-allocated buffer into which the new
  * savegame description will be stored.
  * For restoring, dsc should be NULL, in which case empty slots will not be
  * selectable and savagames descriptions will not be editable.
  */
-int state_get_savegame_filename(char * fname, char * dsc, char * caption )
+int state_get_savegame_filename(char * fname, char * dsc, char * caption, int blind_save)
 {
 	PHYSFS_file * fp;
 	int i, choice, version, nsaves;
@@ -213,7 +215,6 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption )
 	grs_bitmap *sc_bmp[NUM_SAVES];
 	char id[5];
 	int valid;
-	static int state_default_item = 0;
 
 	nsaves=0;
 	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";
@@ -265,7 +266,17 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption )
 	}
 
 	sc_last_item = -1;
-	choice = newmenu_do3( NULL, caption, NUM_SAVES+1, m, (int (*)(newmenu *, d_event *, void *))state_callback, sc_bmp, state_default_item + 1, NULL, -1, -1 );
+
+	if (blind_save && state_default_item < 0)
+	{
+		blind_save = 0;		// haven't picked a slot yet
+		state_default_item = 0;
+	}
+
+	if (blind_save)
+		choice = state_default_item + 1;
+	else
+		choice = newmenu_do3( NULL, caption, NUM_SAVES+1, m, (int (*)(newmenu *, d_event *, void *))state_callback, sc_bmp, state_default_item + 1, NULL, -1, -1 );
 
 	for (i=0; i<NUM_SAVES; i++ )	{
 		if ( sc_bmp[i] )
@@ -281,14 +292,14 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption )
 	return 0;
 }
 
-int state_get_save_file(char * fname, char * dsc )
+int state_get_save_file(char * fname, char * dsc, int blind_save)
 {
-	return state_get_savegame_filename(fname, dsc, "Save Game");
+	return state_get_savegame_filename(fname, dsc, "Save Game", blind_save);
 }
 
 int state_get_restore_file(char * fname )
 {
-	return state_get_savegame_filename(fname, NULL, "Select Game to Restore");
+	return state_get_savegame_filename(fname, NULL, "Select Game to Restore", 0);
 }
 
 #define	DESC_OFFSET	8
@@ -348,7 +359,7 @@ int copy_file(char *old_file, char *new_file)
 extern int Final_boss_is_dead;
 
 //	-----------------------------------------------------------------------------------
-int state_save_all(int between_levels, int secret_save, char *filename_override)
+int state_save_all(int between_levels, int secret_save, char *filename_override, int blind_save)
 {
 	int	rval, filenum = -1;
 	char	filename[128], desc[DESC_LENGTH+1];
@@ -385,7 +396,7 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 		filename_override = filename;
 		sprintf(filename_override, SECRETC_FILENAME);
 	} else {
-		if (!(filenum = state_get_save_file(filename, desc)))
+		if (!(filenum = state_get_save_file(filename, desc, blind_save)))
 		{
 			start_time();
 			return 0;
@@ -424,8 +435,9 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 	}
 
 	rval = state_save_all_sub(filename, desc, between_levels);
+
 	if (rval && !secret_save)
-		HUD_init_message("Game saved.");
+		HUD_init_message("Game saved");
 
 	return rval;
 }
