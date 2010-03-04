@@ -614,6 +614,12 @@ int load_mission(mle *mission)
 	Current_mission->n_secret_levels = 0;
 	Current_mission->enhanced = 0;
 
+	//init vars
+	Last_level = 0;
+	Last_secret_level = 0;
+	Briefing_text_filename[0] = 0;
+	Ending_text_filename[0] = 0;
+
 	// for Descent 1 missions, load descent.hog
 	if (EMULATING_D1) {
 		if (!cfile_hog_add("descent.hog", 1))
@@ -672,12 +678,6 @@ int load_mission(mle *mission)
 		if (cfexist(buf))
 			cfile_hog_add(buf, 0);
 	}
-
-	//init vars
-	Last_level = 0;
-	Last_secret_level = 0;
-	Briefing_text_filename[0] = 0;
-	Ending_text_filename[0] = 0;
 
 	while (cfgets(buf,sizeof(buf),mfile)) {
 		if (istok(buf,"name") && !Current_mission->enhanced) {
