@@ -903,8 +903,7 @@ int show_briefing(briefing *br)
 					while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 						;
 					timer_delay2(50);
-					if (!br->robot_playing)
-						gr_flip();
+					gr_flip();
 					show_fullscr(&br->background);
 					redraw_messagestream(br->messagestream, br->streamcount);
 					if (br->guy_bitmap_show)
@@ -984,8 +983,7 @@ int show_briefing(briefing *br)
 			br->messagestream[br->streamcount].color = Briefing_text_colors[Current_color];
 			br->messagestream[br->streamcount].ch = ch;
 			if (br->delay_count) {
-				if (!br->robot_playing)
-					gr_flip();
+				gr_flip();
 				show_fullscr(&br->background);
 				redraw_messagestream(br->messagestream, br->streamcount);
 			}
@@ -1040,8 +1038,7 @@ int show_briefing(briefing *br)
 				while (timer_get_fixed_seconds() < start_time + KEY_DELAY_DEFAULT/2)
 					;
 				timer_delay2(50);
-				if (!br->robot_playing)
-					gr_flip();
+				gr_flip();
 				show_fullscr(&br->background);
 				redraw_messagestream(br->messagestream, br->streamcount);
 				if (br->guy_bitmap_show)
