@@ -224,6 +224,7 @@ typedef struct movie
 {
 	int result, aborted;
 	int frame_num;
+	int paused;
 } movie;
 
 int show_pause_message(window *wind, d_event *event, void *userdata)
@@ -277,6 +278,14 @@ int MovieHandler(window *wind, d_event *event, movie *m)
 
 	switch (event->type)
 	{
+		case EVENT_WINDOW_ACTIVATED:
+			m->paused = 0;
+			break;
+
+		case EVENT_WINDOW_DEACTIVATED:
+			m->paused = 1;
+			break;
+			
 		case EVENT_KEY_COMMAND:
 			key = ((d_event_keycommand *)event)->keycode;
 			
@@ -296,21 +305,23 @@ int MovieHandler(window *wind, d_event *event, movie *m)
 			}
 			break;
 
-		case EVENT_IDLE:
-			m->result = MVE_rmStepMovie();
-			if (m->result)
-			{
-				window_close(wind);
-				return 1;
-			}
-			break;
-
 		case EVENT_WINDOW_DRAW:
+			if (!m->paused)
+			{
+				m->result = MVE_rmStepMovie();
+				if (m->result)
+				{
+					window_close(wind);
+					return 1;
+				}
+			}
+
 			draw_subtitles(m->frame_num);
 			
 			gr_palette_load(gr_palette);
 			
-			m->frame_num++;
+			if (!m->paused)
+				m->frame_num++;
 			break;
 			
 		default:
@@ -386,10 +397,14 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	m->result = 1;
 	m->aborted = 0;
 	m->frame_num = 0;
+	m->paused = 0;
+	
+	hide_menus();
 	
 	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))MovieHandler, m);
 	if (!wind)
 	{
+		show_menus();
 		d_free(m);
 		return MOVIE_NOT_PLAYED;
 	}
@@ -403,6 +418,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		if (must_have)
 			con_printf(CON_URGENT, "Can't open movie <%s>\n", filename);
 		window_close(wind);
+		show_menus();
 		d_free(m);
 		return MOVIE_NOT_PLAYED;
 	}
@@ -422,21 +438,23 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 		Int3();
 		SDL_FreeRW(filehndl);
 		window_close(wind);
+		show_menus();
 		d_free(m);
 		return MOVIE_NOT_PLAYED;
 	}
 
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
-
+	
 	while (window_exists(wind))
 		event_process();
-
+	
 	Assert(m->aborted || m->result == MVE_ERR_EOF);	 ///movie should be over
 
     MVE_rmEndMovie();
 
 	SDL_FreeRW(filehndl);                           // Close Movie File
+	show_menus();
 	aborted = m->aborted;
 	d_free(m);
 
