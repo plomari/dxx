@@ -1303,22 +1303,16 @@ void DoEndGame(void)
 		init_subtitles(ENDMOVIE ".tex");	//ingore errors
 		played = PlayMovie(ENDMOVIE,MOVIE_REQUIRED);
 		close_subtitles();
-		if (!played) {
-			if (is_D2_OEM)
-			{
-				songs_play_song( SONG_TITLE, 0 );
-				do_briefing_screens("end2oem.tex",1);
-			}
-			else
-			{
-				songs_play_song( SONG_ENDGAME, 0 );
-				do_briefing_screens("ending2.tex",1);
-			}
+		if (!played)
+		{
+			do_end_briefing_screens(Ending_text_filename);
 		}
-   } else if (!(Game_mode & GM_MULTI)) {    //not multi
+   }
+   else if (!(Game_mode & GM_MULTI))    //not multi
+   {
 		char tname[4096];
-		snprintf(tname, sizeof(tname), "%s.tex", Current_mission_filename);
-		do_briefing_screens (tname,Last_level+1);   //level past last is endgame breifing
+
+		do_end_briefing_screens (Ending_text_filename);
 
 		//try doing special credits
 		snprintf(tname, sizeof(tname), "%s.ctb", Current_mission_filename);
@@ -1326,10 +1320,6 @@ void DoEndGame(void)
 	}
 
 	key_flush();
-
-#ifdef SHAREWARE
-		show_order_form();
-#endif
 
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
@@ -1792,12 +1782,12 @@ void ShowLevelIntro(int level_num)
 			if (is_SHAREWARE || is_MAC_SHARE)
 			{
 				if (level_num==1)
-					do_briefing_screens ("brief2.tex", 1);
+					do_briefing_screens (Briefing_text_filename, 1);
 			}
 			else if (is_D2_OEM)
 			{
 				if (level_num == 1 && !intro_played)
-					do_briefing_screens("brief2o.tex", 1);
+					do_briefing_screens(Briefing_text_filename, 1);
 			}
 			else // full version
 			{
@@ -1812,17 +1802,12 @@ void ShowLevelIntro(int level_num)
 					}
 				}
 
-				do_briefing_screens ("robot.tex",level_num);
+				do_briefing_screens (Briefing_text_filename,level_num);
 			}
 		}
-		else {	//not the built-in mission.  check for add-on briefing
-			if (EMULATING_D1)
-				do_briefing_screens(Briefing_text_filename, level_num);
-			else {
-				char tname[4096];
-				snprintf(tname, sizeof(tname), "%s.tex", Current_mission_filename);
-				do_briefing_screens(tname, level_num);
-			}
+		else	//not the built-in mission (maybe d1, too).  check for add-on briefing
+		{
+			do_briefing_screens(Briefing_text_filename, level_num);
 		}
 
 
