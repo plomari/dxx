@@ -1219,6 +1219,7 @@ int new_briefing_screen(briefing *br, int first)
 	int i;
 
 	br->new_screen = 0;
+	br->got_z = 0;
 	
 	if (EMULATING_D1)
 	{
@@ -1259,8 +1260,7 @@ int new_briefing_screen(briefing *br, int first)
 	if (br->message==NULL)
 		return 0;
 	
-	br->got_z = 0;
-	br->hum_channel = br->printing_channel = -1;
+	br->printing_channel = -1;
 	Current_color = 0;
 	br->streamcount = 0;
 	br->tab_stop = 0;
@@ -1278,7 +1278,8 @@ int new_briefing_screen(briefing *br, int first)
 	br->prev_ch = -1;
 	
 #ifndef SHAREWARE
-	br->hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
+	if (br->hum_channel == -1)
+		br->hum_channel  = digi_start_sound( digi_xlat_sound(SOUND_BRIEFING_HUM), F1_0/2, 0xFFFF/2, 1, -1, -1, -1 );
 #endif
 	
 	return 1;
