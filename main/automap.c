@@ -1388,7 +1388,7 @@ void InitMarkerInput ()
 	MarkerBeingDefined = i;
 }
 
-void MarkerInputMessage(int key)
+int MarkerInputMessage(int key)
 {
 	switch( key )
 	{
@@ -1422,7 +1422,10 @@ void MarkerInputMessage(int key)
 					Marker_input[Marker_index++] = ascii;
 					Marker_input[Marker_index] = 0;
 				}
+			return 0;
 			break;
 		}
 	}
+	
+	return 1;
 }
