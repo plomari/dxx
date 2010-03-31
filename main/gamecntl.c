@@ -139,10 +139,9 @@ extern void	check_rear_view(void);
 extern int	create_special_path(void);
 extern void move_player_2_segment(segment *seg, int side);
 extern void	kconfig_center_headset(void);
-extern void game_render_frame_mono(int flip);
 extern void newdemo_strip_frames(char *, int);
 extern void toggle_cockpit(void);
-extern int  dump_used_textures_all(void);
+extern void dump_used_textures_all();
 extern void DropMarker();
 extern void DropSecondaryWeapon();
 extern void DropCurrentWeapon();
@@ -250,10 +249,10 @@ int which_bomb()
 }
 
 
-void do_weapon_stuff(void)
+void do_weapon_stuff()
 {
-  int i;
-
+	int i;
+	
 	if (Controls.fire_flare_down_count)
 		if (allowed_to_fire_flare())
 			Flare_create(ConsoleObject);
@@ -262,45 +261,33 @@ void do_weapon_stuff(void)
 		Global_missile_firing_count += Weapon_info[Secondary_weapon_to_weapon_info[Secondary_weapon]].fire_count * (Controls.fire_secondary_state || Controls.fire_secondary_down_count);
 
 	if (Global_missile_firing_count) {
-		do_missile_firing(1);			//always enable autoselect for normal missile firing
+		do_missile_firing(0);
 		Global_missile_firing_count--;
 	}
 
-   if (Controls.cycle_primary_count)
-	 {
-     for (i=0;i<Controls.cycle_primary_count;i++)
-		CyclePrimary ();
-    }
-   if (Controls.cycle_secondary_count)
-	 {
-     for (i=0;i<Controls.cycle_secondary_count;i++)
-		CycleSecondary ();
-    }
-   if (Controls.headlight_count)
-	 {
-     for (i=0;i<Controls.headlight_count;i++)
-		toggle_headlight_active ();
-    }
+	if (Controls.cycle_primary_count)
+	{
+		for (i=0;i<Controls.cycle_primary_count;i++)
+			CyclePrimary ();
+	}
+	if (Controls.cycle_secondary_count)
+	{
+		for (i=0;i<Controls.cycle_secondary_count;i++)
+			CycleSecondary ();
+	}
+	if (Controls.headlight_count)
+	{
+		for (i=0;i<Controls.headlight_count;i++)
+			toggle_headlight_active ();
+	}
 
 	if (Global_missile_firing_count < 0)
 		Global_missile_firing_count = 0;
 
 	//	Drop proximity bombs.
 	if (Controls.drop_bomb_down_count) {
-		int ssw_save = Secondary_weapon;
-
-		while (Controls.drop_bomb_down_count--) {
-			int ssw_save2;
-
-			ssw_save2 = Secondary_weapon = which_bomb();
-
-			do_missile_firing(Secondary_weapon == ssw_save);	//only allow autoselect if bomb is actually selected
-
-			if (Secondary_weapon != ssw_save2 && ssw_save == ssw_save2)
-				ssw_save = Secondary_weapon;    //if bomb was selected, and we ran out & autoselect, then stick with new selection
-		}
-
-		Secondary_weapon = ssw_save;
+		while (Controls.drop_bomb_down_count--)
+			do_missile_firing(1);
 	}
 }
 
@@ -562,7 +549,6 @@ void HandleDeathKey(int key)
 
 	if (Death_sequence_aborted)
 		game_flush_inputs();
-// 
 }
 
 void HandleDemoKey(int key)
@@ -571,7 +557,7 @@ void HandleDemoKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_1:)
 		case KEY_F1:	show_newdemo_help();	break;
 		KEY_MAC(case KEY_COMMAND+KEY_2:)
-		case KEY_F2:		Config_menu_flag = 1; break;
+		case KEY_F2:	Config_menu_flag = 1;	break;
 		KEY_MAC(case KEY_COMMAND+KEY_3:)
 		case KEY_F3:
 			 if (Viewer->type == OBJ_PLAYER)
@@ -581,16 +567,16 @@ void HandleDemoKey(int key)
 		case KEY_F4:	Newdemo_show_percentage = !Newdemo_show_percentage; break;
 		KEY_MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
-			#ifdef NETWORK
+#ifdef NETWORK
 			Show_kill_list = (Show_kill_list+1) % ((Newdemo_game_mode & GM_TEAM) ? 4 : 3);
-			#endif
+#endif
 			break;
 		case KEY_ESC:
 			if (GameArg.SysAutoDemo)
 			{
 				int choice;
-				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
-				if (choice==0)
+				choice = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
+				if (choice == 0)
 					GameArg.SysAutoDemo = 0;
 				else
 					break;
@@ -653,7 +639,7 @@ void HandleDemoKey(int key)
 			gr_toggle_fullscreen();
 			break;
 
-		#ifndef NDEBUG
+#ifndef NDEBUG
 		case KEY_BACKSP:
 			Int3();
 			break;
@@ -686,8 +672,7 @@ void HandleDemoKey(int key)
 
 			break;
 		}
-		#endif
-
+#endif
 	}
 }
 
@@ -846,7 +831,8 @@ int HandleSystemKey(int key)
 	int screen_changed=0;
 
 	if (!Player_is_dead)
-		switch (key) {
+		switch (key)
+		{
 
 			#ifdef DOOR_DEBUGGING
 			case KEY_LAPOSTRO+KEY_SHIFTED:
@@ -871,11 +857,11 @@ int HandleSystemKey(int key)
 				break;
 		}
 
-	switch (key) {
-
+	switch (key)
+	{
 		KEY_MAC( case KEY_COMMAND+KEY_P: )
-		case KEY_PAUSE: 
-			do_game_pause();				break;
+		case KEY_PAUSE:
+			do_game_pause();	break;
 
 
 #ifdef macintosh
@@ -896,10 +882,10 @@ int HandleSystemKey(int key)
 		}
 
 		KEY_MAC(case KEY_COMMAND+KEY_1:)
-		case KEY_F1:					if (Game_mode & GM_MULTI) show_netgame_help(); else show_help();			break;
+		case KEY_F1:				if (Game_mode & GM_MULTI) show_netgame_help(); else show_help();	break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_2:)
-		case KEY_F2:					//Config_menu_flag = 1; break;
+		case KEY_F2:				//Config_menu_flag = 1;	break;
 			{
 				do_options_menu();
 				break;
@@ -922,40 +908,32 @@ int HandleSystemKey(int key)
 			else if ( Newdemo_state == ND_STATE_NORMAL )
 				newdemo_start_recording();
 			break;
-
+#ifdef NETWORK
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_4:)
-		case KEY_ALTED+KEY_F4:
-			#ifdef NETWORK
+		case KEY_ALTED + KEY_F4:
 			Show_reticle_name = (Show_reticle_name+1)%2;
-			#endif
 			break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_7:)
 		case KEY_F7:
-			#ifdef NETWORK
 			Show_kill_list = (Show_kill_list+1) % ((Game_mode & GM_TEAM) ? 4 : 3);
 			if (Game_mode & GM_MULTI)
 				multi_sort_kill_list();
-		#endif
 			break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_8:)
 		case KEY_F8:
-			#ifdef NETWORK
 			multi_send_message_start();
-			#endif
 			break;
 
 		case KEY_F9:
 		case KEY_F10:
 		case KEY_F11:
 		case KEY_F12:
-			#ifdef NETWORK
 			multi_send_macro(key);
-			#endif
 			break;		// send taunt macros
 
-#if defined(NETWORK) && (defined(__APPLE__) || defined(macintosh))
+#if defined(__APPLE__) || defined(macintosh)
 		case KEY_9 + KEY_COMMAND:
 			multi_send_macro(KEY_F9);
 			break;
@@ -974,12 +952,10 @@ int HandleSystemKey(int key)
 		case KEY_SHIFTED + KEY_F10:
 		case KEY_SHIFTED + KEY_F11:
 		case KEY_SHIFTED + KEY_F12:
-			#ifdef NETWORK
 			multi_define_macro(key);
-			#endif
 			break;		// redefine taunt macros
 
-#if defined(NETWORK) && (defined(__APPLE__) || defined(macintosh))
+#if defined(__APPLE__) || defined(macintosh)
 		case KEY_9 + KEY_SHIFTED + KEY_COMMAND:
 			multi_define_macro(KEY_F9);
 			break;
@@ -994,12 +970,13 @@ int HandleSystemKey(int key)
 			break;
 #endif
 
+#endif
+
 		KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_S:)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_2:)
 		case KEY_ALTED+KEY_F2:
-			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
+			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
 				state_save_all(0, 0, NULL, 0); // 0 means not between levels.
-			}
 			break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_S:)
@@ -1007,9 +984,8 @@ int HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_O:)
 		KEY_MAC(case KEY_COMMAND+KEY_ALTED+KEY_3:)
 		case KEY_ALTED+KEY_F3:
-			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP))) {
+			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
 				state_restore_all(1, 0, NULL);
-			}
 			break;
 
 
@@ -1066,7 +1042,7 @@ int HandleSystemKey(int key)
 		default:
 			break;
 
-	}	 //switch (key)
+	}
 
 	return screen_changed;
 }
@@ -1162,9 +1138,6 @@ void HandleGameKey(int key)
 {
 	switch (key) {
 
-		#if (defined(__APPLE__) || defined(macintosh))  && !defined(RELEASE)
-		case KEY_COMMAND+KEY_F:	GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator; break;
-		#endif
 #ifndef D2X_KEYS // weapon selection handled in controls_read_all, d1x-style
 		// MWA changed the weapon select cases to have each case call
 		// do_weapon_select the macintosh keycodes aren't consecutive from 1
@@ -1411,11 +1384,12 @@ void kill_buddy(void)
 
 void HandleTestKey(int key)
 {
-	switch (key) {
+	switch (key)
+	{
 
-		#ifdef SHOW_EXIT_PATH
-		case KEY_DEBUGGED+KEY_1:	create_special_path();  break;
-		#endif
+#ifdef SHOW_EXIT_PATH
+		case KEY_DEBUGGED+KEY_1:	create_special_path();	break;
+#endif
 
 		case KEY_DEBUGGED+KEY_Y:
 			do_controlcen_destroyed_stuff(NULL);
@@ -1437,7 +1411,7 @@ void HandleTestKey(int key)
 		case KEY_SHIFTED+KEY_CTRLED+KEY_BACKSP:
 		case KEY_SHIFTED+KEY_CTRLED+KEY_ALTED+KEY_BACKSP:
 
-				Int3(); break;
+			Int3(); break;
 
 		case KEY_DEBUGGED+KEY_S:				digi_reset(); break;
 
@@ -1454,16 +1428,15 @@ void HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:  Players[Player_num].shields = -1;	 break;  //	an actual kill
 		case KEY_DEBUGGED+KEY_X: Players[Player_num].lives++; break; // Extra life cheat key.
 		case KEY_DEBUGGED+KEY_H:
-//				if (!(Game_mode & GM_MULTI) )   {
-				Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
-				if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-					#ifdef NETWORK
-					if (Game_mode & GM_MULTI)
-						multi_send_cloak();
-					#endif
-					ai_do_cloak_stuff();
-					Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
-				}
+			Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
+			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
+#ifdef NETWORK
+				if (Game_mode & GM_MULTI)
+					multi_send_cloak();
+#endif
+				ai_do_cloak_stuff();
+				Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
+			}
 			break;
 
 
@@ -1475,7 +1448,7 @@ void HandleTestKey(int key)
 			kill_all_robots();
 			break;
 
-		#ifdef EDITOR		//editor-specific functions
+#ifdef EDITOR		//editor-specific functions
 
 		case KEY_E + KEY_DEBUGGED:
 #ifdef NETWORK
@@ -1515,23 +1488,10 @@ void HandleTestKey(int key)
 
 		#endif  //#ifdef EDITOR
 
-		//flythrough keys
-		// case KEY_DEBUGGED+KEY_SHIFTED+KEY_F: toggle_flythrough(); break;
-		// case KEY_LEFT:		ft_preference=FP_LEFT; break;
-		// case KEY_RIGHT:				ft_preference=FP_RIGHT; break;
-		// case KEY_UP:		ft_preference=FP_UP; break;
-		// case KEY_DOWN:		ft_preference=FP_DOWN; break;
-
-#ifndef NDEBUG
-		case KEY_DEBUGGED+KEY_LAPOSTRO: Show_view_text_timer = 0x30000; object_goto_next_viewer(); break;
-		case KEY_DEBUGGED+KEY_CTRLED+KEY_LAPOSTRO: Show_view_text_timer = 0x30000; object_goto_prev_viewer(); break;
-#endif
-		case KEY_DEBUGGED+KEY_SHIFTED+KEY_LAPOSTRO: Viewer=ConsoleObject; break;
-
-	#ifndef NDEBUG
-		case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
-	#endif
-		case KEY_DEBUGGED+KEY_T:
+			case KEY_DEBUGGED+KEY_LAPOSTRO: Show_view_text_timer = 0x30000; object_goto_next_viewer(); break;
+			case KEY_DEBUGGED+KEY_SHIFTED+KEY_LAPOSTRO: Viewer=ConsoleObject; break;
+			case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
+			case KEY_DEBUGGED+KEY_T:
 			*Toggle_var = !*Toggle_var;
 			break;
 		case KEY_DEBUGGED + KEY_SHIFTED + KEY_L:
@@ -1542,14 +1502,6 @@ void HandleTestKey(int key)
 		case KEY_DEBUGGED + KEY_F11: play_test_sound(); break;
 		case KEY_DEBUGGED + KEY_SHIFTED+KEY_F11: advance_sound(); play_test_sound(); break;
 #endif
-
-		case KEY_DEBUGGED +KEY_F4: {
-			//fvi_info hit_data;
-			//vms_vector p0 = {-0x1d99a7,-0x1b20000,0x186ab7f};
-			//vms_vector p1 = {-0x217865,-0x1b20000,0x187de3e};
-			//find_vector_intersection(&hit_data,&p0,0x1b9,&p1,0x40000,0x0,NULL,-1);
-			break;
-		}
 
 		case KEY_DEBUGGED + KEY_M:
 			Debug_spew = !Debug_spew;
@@ -1568,17 +1520,12 @@ void HandleTestKey(int key)
 			break;
 		case KEY_DEBUGGED + KEY_A:	{
 			do_megawow_powerup(200);
-//								if ( Game_mode & GM_MULTI )     {
-//									nm_messagebox( NULL, 1, "Damn", "CHEATER!\nYou cannot use the\nmega-thing in network mode." );
-//									Network_message_reciever = 100;		// Send to everyone...
-//									sprintf( Network_message, "%s cheated!", Players[Player_num].callsign);
-//								} else {
-//									do_megawow_powerup();
-//								}
-						break;
+				break;
 		}
-
-		case KEY_DEBUGGED+KEY_F:	GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator; break;
+		case KEY_DEBUGGED+KEY_F:
+		KEY_MAC(case KEY_COMMAND+KEY_F:)
+			GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator;
+			break;
 
 		case KEY_DEBUGGED+KEY_SPACEBAR:		//KEY_F7:				// Toggle physics flying
 			slew_stop();
@@ -1602,13 +1549,13 @@ void HandleTestKey(int key)
 			break;
 		#endif
 
-		#ifdef EDITOR
+#ifdef EDITOR
 		case KEY_DEBUGGED+KEY_Q:
 			stop_time();
 			dump_used_textures_all();
 			start_time();
 			break;
-		#endif
+#endif
 
 		case KEY_DEBUGGED+KEY_B: {
 			newmenu_item m;
@@ -1633,6 +1580,8 @@ void HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_G:
 			GameTime = i2f(0x7fff - 600) - (F1_0*10);
 			HUD_init_message("GameTime %i - Reset in 10 seconds!", GameTime);
+			break;
+		default:
 			break;
 	}
 }
@@ -2087,7 +2036,8 @@ void do_cheat_menu()
 			Players[Player_num].invulnerable_time = GameTime+i2f(1000);
 		} else
 			Players[Player_num].flags &= ~PLAYER_FLAGS_INVULNERABLE;
-		if ( mm[1].value ) {
+		if ( mm[1].value )
+		{
 			Players[Player_num].flags |= PLAYER_FLAGS_CLOAKED;
 			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
@@ -2156,14 +2106,14 @@ void ReadControls()
 	if (!Endlevel_sequence && !con_render)  //this was taken out of the if statement by WraithX
 	{
 
-			if ( (Newdemo_state == ND_STATE_PLAYBACK) || (DefiningMarkerMessage)
-				#ifdef NETWORK
-				|| multi_sending_message || multi_defining_message
-				#endif
-				)	 // WATCH OUT!!! WEIRD CODE ABOVE!!!
-				memset( &Controls, 0, sizeof(control_info) );
-			else
-				controls_read_all(0);		//NOTE LINK TO ABOVE!!!
+		if ( (Newdemo_state == ND_STATE_PLAYBACK) || (DefiningMarkerMessage)
+#ifdef NETWORK
+			|| multi_sending_message || multi_defining_message
+#endif
+			) 	// WATCH OUT!!! WEIRD CODE ABOVE!!!
+			memset( &Controls, 0, sizeof(control_info) );
+		else
+			controls_read_all(0);		//NOTE LINK TO ABOVE!!!
 
 		check_rear_view();
 
@@ -2177,7 +2127,7 @@ void ReadControls()
 		do_weapon_stuff();
 	}
 
-	if (Player_exploded && !con_render) { //Player_is_dead && (ConsoleObject->flags & OF_EXPLODING) ) {
+	if (Player_exploded && !con_render) {
 
 		if (exploding_flag==0)  {
 			exploding_flag = 1;			// When player starts exploding, clear all input devices...
@@ -2234,7 +2184,8 @@ void ReadControls()
 
 	if (Endlevel_sequence)
 		HandleEndlevelKey(key);
-	else if (Newdemo_state == ND_STATE_PLAYBACK ) {
+	else if (Newdemo_state == ND_STATE_PLAYBACK )
+	{
 		HandleDemoKey(key);
 
 		#ifndef RELEASE
