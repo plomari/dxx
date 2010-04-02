@@ -412,14 +412,6 @@ int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
 					}
 					return 1;
 					
-				case KEY_PRINT_SCREEN:
-					save_screen_shot(0);
-					return 1;
-					
-				case KEY_BACKSP:
-					Int3();
-					return 1;
-					
 				default:
 					break;
 			}
@@ -427,9 +419,6 @@ int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
 			
 		case EVENT_IDLE:
 			timer_delay2(50);
-
-			//see if redbook song needs to be restarted
-			RBACheckFinishedHook();
 
 			if (timer_get_fixed_seconds() >= (km->entry_time+MAX_VIEW_TIME) && Players[Player_num].connected!=CONNECT_KMATRIX_WAITING)
 			{
@@ -812,10 +801,6 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 					}
 					return 1;
 					
-				case KEY_PRINT_SCREEN:
-					save_screen_shot(0);
-					return 1;
-					
 				default:
 					break;
 			}
@@ -824,8 +809,6 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 		case EVENT_IDLE:
 			timer_delay2(50);
 
-			RBACheckFinishedHook(); //see if redbook song needs to be restarted
-			
 			if (km->network)
 				multi_do_protocol_frame(0, 1);
 			
