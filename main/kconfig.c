@@ -87,7 +87,6 @@ ubyte system_keys[] = { KEY_ESC, KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6,
 extern void transfer_energy_to_shield(fix);
 extern void CyclePrimary(),CycleSecondary(),InitMarkerInput();
 extern ubyte DefiningMarkerMessage;
-extern void nm_draw_background1(char * filename);
 
 control_info Controls;
 
@@ -463,7 +462,6 @@ int get_item_height(kc_item *item)
 	return h;
 }
 
-void nm_draw_background1(char * filename);
 void kc_drawquestion( kc_menu *menu, kc_item *item );
 
 void kconfig_draw(kc_menu *menu)
@@ -475,7 +473,6 @@ void kconfig_draw(kc_menu *menu)
 	int w = FSPACX(290), h = FSPACY(170);
 
 	gr_set_current_canvas(NULL);
-	nm_draw_background1(NULL);
 	nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 
 	gr_set_current_canvas(window_get_canvas(menu->wind));
@@ -937,8 +934,6 @@ void kconfig_sub(kc_item * items,int nitems, char *title)
 	gr_force_grab_keys(0);
 
 	menu->mouse_state = 0;
-
-	nm_draw_background1(NULL);
 
 	if (!(menu->wind = window_create(&grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200),
 					   (int (*)(window *, d_event *, void *))kconfig_handler, menu)))
