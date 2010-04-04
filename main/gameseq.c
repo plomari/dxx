@@ -856,7 +856,6 @@ void StartNewGame(int start_level)
 	state_default_item = -2;	// for first blind save, pick slot to save in
 
 	Game_mode = GM_NORMAL;
-	Function_mode = FMODE_GAME;
 	
 	Next_level_num = 0;
 
@@ -1031,12 +1030,12 @@ int p_secret_level_destroyed(void)
 //	-----------------------------------------------------------------------------------------------------
 void do_secret_message(char *msg)
 {
-	int	old_fmode;
+	int	old_vis;
 
-	old_fmode = Function_mode;
-	Function_mode = FMODE_MENU;
+	old_vis = window_is_visible(Game_wind);
+	window_set_visible(Game_wind, 0);
 	nm_messagebox(NULL, 1, TXT_OK, msg);
-	Function_mode = old_fmode;
+	window_set_visible(Game_wind, old_vis);
 }
 
 //	-----------------------------------------------------------------------------------------------------
@@ -1084,8 +1083,6 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 	LoadLevel(level_num,page_in_textures);
 
 	Assert(Current_level_num == level_num);	//make sure level set right
-
-	Assert(Function_mode == FMODE_GAME);
 
 	gameseq_init_network_players(); // Initialize the Players array for
 											  // this level
@@ -1286,7 +1283,6 @@ void show_order_form();
 //called when the player has finished the last level
 void DoEndGame(void)
 {
-	Function_mode = FMODE_MENU;
 	if ((Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED))
 		newdemo_stop_recording();
 
@@ -1420,7 +1416,7 @@ void
 died_in_mine_message(void)
 {
 	// Tell the player he died in the mine, explain why
-	int old_fmode;
+	int old_vis;
 
 	if (Game_mode & GM_MULTI)
 		return;
@@ -1429,10 +1425,10 @@ died_in_mine_message(void)
 
 	gr_set_current_canvas(NULL);
 
-	old_fmode = Function_mode;
-	Function_mode = FMODE_MENU;
+	old_vis = window_is_visible(Game_wind);
+	window_set_visible(Game_wind, 0);
 	nm_messagebox(NULL, 1, TXT_OK, TXT_DIED_IN_MINE);
-	Function_mode = old_fmode;
+	window_set_visible(Game_wind, old_vis);
 }
 
 //	Called when player dies on secret level.
@@ -1440,7 +1436,7 @@ void returning_to_level_message(void)
 {
 	char	msg[128];
 
-	int old_fmode;
+	int old_vis;
 
 	if (Game_mode & GM_MULTI)
 		return;
@@ -1449,11 +1445,11 @@ void returning_to_level_message(void)
 
 	gr_set_current_canvas(NULL);
 
-	old_fmode = Function_mode;
-	Function_mode = FMODE_MENU;
+	old_vis = window_is_visible(Game_wind);
+	window_set_visible(Game_wind, 0);
 	sprintf(msg, "Returning to level %i", Entered_from_level);
 	nm_messagebox(NULL, 1, TXT_OK, msg);
-	Function_mode = old_fmode;
+	window_set_visible(Game_wind, old_vis);
 }
 
 //	Called when player dies on secret level.
@@ -1461,7 +1457,7 @@ void advancing_to_level_message(void)
 {
 	char	msg[128];
 
-	int old_fmode;
+	int old_vis;
 
 	//	Only supposed to come here from a secret level.
 	Assert(Current_level_num < 0);
@@ -1473,11 +1469,11 @@ void advancing_to_level_message(void)
 
 	gr_set_current_canvas(NULL);
 	
-	old_fmode = Function_mode;
-	Function_mode = FMODE_MENU;
+	old_vis = window_is_visible(Game_wind);
+	window_set_visible(Game_wind, 0);
 	sprintf(msg, "Base level destroyed.\nAdvancing to level %i", Entered_from_level+1);
 	nm_messagebox(NULL, 1, TXT_OK, msg);
-	Function_mode = old_fmode;
+	window_set_visible(Game_wind, old_vis);
 }
 
 void digi_stop_digi_sounds();
@@ -1604,9 +1600,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 		newdemo_record_start_frame(FrameTime );
 	}
 
-	if (Game_mode & GM_MULTI)
-		Function_mode = FMODE_MENU; // Cheap fix to prevent problems with errror dialogs in loadlevel.
-
 	LoadLevel(level_num,page_in_textures);
 
 	Assert(Current_level_num == level_num);	//make sure level set right
@@ -1626,8 +1619,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 			return;
 	}
 #endif
-
-	Assert(Function_mode == FMODE_GAME);
 
 	HUD_clear_messages();
 
