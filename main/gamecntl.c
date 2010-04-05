@@ -950,7 +950,7 @@ int HandleSystemKey(int key)
 			 */
 		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
 		KEY_MAC(case KEY_COMMAND+KEY_E:)
-			songs_stop_extmusic();
+			songs_stop_all();
 			ext_music_eject_disk();
 			break;
 			
