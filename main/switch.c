@@ -224,7 +224,7 @@ int do_change_walls(sbyte trigger_num)
 			ret = 1;
 
 			switch (Triggers[trigger_num].type) {
-	
+
 				case TT_OPEN_WALL:
 					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
 						vms_vector pos;
@@ -301,7 +301,7 @@ void do_matcen(sbyte trigger_num)
   	}
 }
 
-	
+
 void do_il_on(sbyte trigger_num)
 {
 	int i;
@@ -316,7 +316,7 @@ void do_il_on(sbyte trigger_num)
 void do_il_off(sbyte trigger_num)
 {
 	int i;
-	
+
 	if (trigger_num != -1) {
 		for (i=0;i<Triggers[trigger_num].num_links;i++) {
 			vms_vector	cp;
@@ -416,8 +416,8 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			  break;
 
                         if (!EMULATING_D1)
-			  digi_stop_all();  //Sound shouldn't cut out when exiting a D1 lvl 
-			
+			  digi_stop_digi_sounds();  //Sound shouldn't cut out when exiting a D1 lvl
+
 			if (Current_level_num > 0) {
 				start_endlevel_sequence();
 			} else if (Current_level_num < 0) {
@@ -425,7 +425,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 					break;
 				// NMN 04/09/07 Do endlevel movie if we are
 				//             playing a D1 secret level
-				if (EMULATING_D1) 
+				if (EMULATING_D1)
 				{
 					start_endlevel_sequence();
 				} else {
@@ -481,7 +481,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			if (Newdemo_state == ND_STATE_RECORDING)		// stop demo recording
 				Newdemo_state = ND_STATE_PAUSED;
 
-			digi_stop_all();		//kill the sounds
+			digi_stop_digi_sounds();
 
 			digi_play_sample( SOUND_SECRET_EXIT, F1_0 );
 
@@ -495,7 +495,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 		case TT_OPEN_DOOR:
 			do_link(trigger_num);
 			print_trigger_message (pnum,trigger_num,shot,"Door%s opened!");
-			
+
 			break;
 
 		case TT_CLOSE_DOOR:
@@ -506,15 +506,15 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 		case TT_UNLOCK_DOOR:
 			do_unlock_doors(trigger_num);
 			print_trigger_message (pnum,trigger_num,shot,"Door%s unlocked!");
-			
+
 			break;
-	
+
 		case TT_LOCK_DOOR:
 			do_lock_doors(trigger_num);
 			print_trigger_message (pnum,trigger_num,shot,"Door%s locked!");
 
 			break;
-	
+
 		case TT_OPEN_WALL:
 			if (do_change_walls(trigger_num))
 			{
@@ -544,12 +544,12 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
 				do_matcen(trigger_num);
 			break;
-	
+
 		case TT_ILLUSION_ON:
 			do_il_on(trigger_num);
 			print_trigger_message (pnum,trigger_num,shot,"Illusion%s on!");
 			break;
-	
+
 		case TT_ILLUSION_OFF:
 			do_il_off(trigger_num);
 			print_trigger_message (pnum,trigger_num,shot,"Illusion%s off!");
@@ -628,7 +628,7 @@ void check_trigger(segment *seg, short side, short objnum,int shot)
 
 		wall_num = seg->sides[side].wall_num;
 		if ( wall_num == -1 ) return;
-		
+
 		trigger_num = Walls[wall_num].trigger;
 
 		if (trigger_num == -1)
@@ -737,35 +737,35 @@ void trigger_write(trigger *t, short version, PHYSFS_file *fp)
 			case TT_MATCEN:
 				PHYSFS_writeSLE16(fp, TRIGGER_MATCEN);
 				break;
-				
+
 			case TT_ILLUSION_OFF:
 				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_OFF);
 				break;
-				
+
 			case TT_SECRET_EXIT:
 				PHYSFS_writeSLE16(fp, TRIGGER_SECRET_EXIT);
 				break;
-				
+
 			case TT_ILLUSION_ON:
 				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSION_ON);
 				break;
-				
+
 			case TT_UNLOCK_DOOR:
 				PHYSFS_writeSLE16(fp, TRIGGER_UNLOCK_DOORS);
 				break;
-				
+
 			case TT_OPEN_WALL:
 				PHYSFS_writeSLE16(fp, TRIGGER_OPEN_WALL);
 				break;
-				
+
 			case TT_CLOSE_WALL:
 				PHYSFS_writeSLE16(fp, TRIGGER_CLOSE_WALL);
 				break;
-				
+
 			case TT_ILLUSORY_WALL:
 				PHYSFS_writeSLE16(fp, TRIGGER_ILLUSORY_WALL);
 				break;
-				
+
 			default:
 				Int3();
 				PHYSFS_writeSLE16(fp, 0);
