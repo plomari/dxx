@@ -12,11 +12,6 @@
 
 #include <SDL.h>
 #include <digi_audio.h>
-
-#ifdef _WIN32
-#include "hmpfile.h"
-#endif
-
 #include "pstypes.h"
 #include "error.h"
 #include "fix.h"
