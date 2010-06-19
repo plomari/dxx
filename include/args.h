@@ -67,6 +67,7 @@ typedef struct Arg
 	int GfxMovieHires;
 	int GfxMovieSubtitles;
 	int OglFixedFont;
+	int OglNoMovieFilter;
 	int MplGameProfile;
 	int MplNoRankings;
 	int MplPlayerMessages;

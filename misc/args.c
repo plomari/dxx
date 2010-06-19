@@ -179,6 +179,7 @@ void ReadCmdArgs(void)
 	// OpenGL Options
 
 	GameArg.OglFixedFont 		= FindArg("-gl_fixedfont");
+	GameArg.OglNoMovieFilter	= FindArg("-gl_nomoviefilter");
 
 	// Multiplayer Options
 
