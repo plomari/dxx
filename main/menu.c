@@ -323,11 +323,16 @@ int RegisterPlayer(int at_program_start)
 
 	if ( Players[Player_num].callsign[0] == 0 )
 	{
-		// Read the last player's name from config file, not lastplr.txt
-		strncpy( Players[Player_num].callsign, GameCfg.LastPlayer, CALLSIGN_LEN );
-
 		if (GameCfg.LastPlayer[0]==0)
+		{
+			strncpy( Players[Player_num].callsign, "player", CALLSIGN_LEN );
 			allow_abort_flag = 0;
+		}
+		else
+		{
+			// Read the last player's name from config file, not lastplr.txt
+			strncpy( Players[Player_num].callsign, GameCfg.LastPlayer, CALLSIGN_LEN );
+		}
 	}
 
 	if (at_program_start && !(GameCfg.LastPlayer[0]==0)) {
