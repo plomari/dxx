@@ -232,6 +232,12 @@ static void ogl_get_verinfo(void)
 	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s\nOpenGL: version: %s\n",gl_vendor,gl_renderer,gl_version);
 }
 
+// returns possible (fullscreen) resolutions if any.
+int gr_list_modes( u_int32_t gsmodes[] )
+{
+	return 0;
+}
+
 int gr_set_mode(u_int32_t mode)
 {
 	unsigned int w, h;
@@ -354,7 +360,7 @@ int gr_init(int mode)
 	ogl_init_pixel_buffers(256, 128);	// for gamefont_init
 
 	gr_installed = 1;
-	
+
 	return 0;
 }
 
@@ -393,7 +399,7 @@ void ogl_urect(int left,int top,int right,int bot)
 {
 	GLfloat xo,yo,xf,yf;
 	int c=COLOR;
-	
+
 	xo=(left+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
 	xf = (right + 1 + grd_curcanv->cv_bitmap.bm_x) / (float)last_width;
 	yo=1.0-(top+grd_curcanv->cv_bitmap.bm_y)/(float)last_height;
@@ -452,8 +458,7 @@ void ogl_do_palfx(void)
 	glVertex2f(1,1);
 	glVertex2f(1,0);
 	glEnd();
-	
-	glEnable(GL_BLEND);	
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
@@ -576,7 +581,7 @@ void save_screen_shot(int automap_flag)
 	static int savenum=0;
 	char savename[13+sizeof(SCRNS_DIR)];
 	unsigned char *buf;
-	
+
 	stop_time();
 
 	if (!cfexist(SCRNS_DIR))
