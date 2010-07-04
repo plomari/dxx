@@ -1184,6 +1184,7 @@ void ExitSecretLevel(void)
 
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
+	reset_time();
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -1257,6 +1258,7 @@ void EnterSecretLevel(void)
 	// do_cloak_invul_stuff();
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
+	reset_time();
 }
 
 //called when the player has finished a level
@@ -1279,6 +1281,7 @@ void PlayerFinishedLevel(int secret_flag)
 
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
+	reset_time();
 }
 
 #if defined(D2_OEM) || defined(COMPILATION)
@@ -1570,6 +1573,7 @@ void DoPlayerDead()
 
 	if (Game_wind)
 		window_set_visible(Game_wind, 1);
+	reset_time();
 }
 
 extern int BigWindowSwitch;
@@ -1987,8 +1991,6 @@ void StartLevel(int random_flag)
 	//	in a shipped version.
 	init_ai_objects();
 	#endif
-
-	// reset_time(); Time is stopped and should be resumed soon. You shall be obsolete!
 
 	reset_rear_view();
 	Auto_fire_fusion_cannon_time = 0;
