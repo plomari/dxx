@@ -622,12 +622,12 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 		detect_escort_goal_accomplished(-4);	//	UGLY! Hack! -4 means went through fuelcen.
 
 //		if (Station[segp->value].MaxCapacity<=0)	{
-//			HUD_init_message( "Fuelcenter %d is destroyed.", segp->value );
+//			HUD_init_message(HM_DEFAULT, "Fuelcenter %d is destroyed.", segp->value );
 //			return 0;
 //		}
 
 //		if (Station[segp->value].Capacity<=0)	{
-//			HUD_init_message( "Fuelcenter %d is empty.", segp->value );
+//			HUD_init_message(HM_DEFAULT, "Fuelcenter %d is empty.", segp->value );
 //			return 0;
 //		}
 
@@ -660,7 +660,7 @@ fix fuelcen_give_fuel(segment *segp, fix MaxAmountCanTake )
 		}
 
 
-		//HUD_init_message( "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
+		//HUD_init_message(HM_DEFAULT, "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
 		return amount;
 
 	} else {
@@ -683,11 +683,11 @@ fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake )
 		fix amount;
 //             detect_escort_goal_accomplished(-4);    //      UGLY! Hack! -4 means went through fuelcen.
 //             if (Station[segp->value].MaxCapacity<=0)        {
-//                     HUD_init_message( "Repaircenter %d is destroyed.", segp->value );
+//                     HUD_init_message(HM_DEFAULT, "Repaircenter %d is destroyed.", segp->value );
 //                     return 0;
 //             }
 //             if (Station[segp->value].Capacity<=0)   {
-//                     HUD_init_message( "Repaircenter %d is empty.", segp->value );
+//                     HUD_init_message(HM_DEFAULT, "Repaircenter %d is empty.", segp->value );
 //                     return 0;
 //             }
 		if (MaxAmountCanTake <= 0 ) {
@@ -714,7 +714,7 @@ fix repaircen_give_shields(segment *segp, fix MaxAmountCanTake )
 #endif
 			last_play_time = GameTime;
 		}
-//HUD_init_message( "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
+//HUD_init_message(HM_DEFAULT, "Fuelcen %d has %d/%d fuel", segp->value,f2i(Station[segp->value].Capacity),f2i(Station[segp->value].MaxCapacity) );
 		return amount;
 	} else {
 		return 0;

@@ -68,9 +68,8 @@ typedef struct Arg
 	int GfxMovieSubtitles;
 	int OglFixedFont;
 	int OglNoMovieFilter;
-	int MplGameProfile;
 	int MplNoRankings;
-	int MplPlayerMessages;
+	int MplTxtMessages;
 	const char *MplIpxNetwork;
 	const char *MplUdpHostAddr;
 	int MplUdpHostPort;
