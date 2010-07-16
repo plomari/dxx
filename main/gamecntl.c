@@ -115,7 +115,6 @@ extern int	Mark_count;
 #endif
 
 extern int	Global_missile_firing_count;
-extern int	Config_menu_flag;
 
 extern int	*Toggle_var;
 
@@ -498,7 +497,7 @@ int HandleDemoKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_1:)
 		case KEY_F1:	show_newdemo_help();	break;
 		KEY_MAC(case KEY_COMMAND+KEY_2:)
-		case KEY_F2:	Config_menu_flag = 1;	break;
+		case KEY_F2:	do_options_menu();	break;
 		KEY_MAC(case KEY_COMMAND+KEY_3:)
 		case KEY_F3:
 			 if (Viewer->type == OBJ_PLAYER)
@@ -823,7 +822,7 @@ int HandleSystemKey(int key)
 		case KEY_F1:				if (Game_mode & GM_MULTI) show_netgame_help(); else show_help();	break;
 
 		KEY_MAC(case KEY_COMMAND+KEY_2:)
-		case KEY_F2:				//Config_menu_flag = 1;	break;
+		case KEY_F2:
 			{
 				do_options_menu();
 				break;
