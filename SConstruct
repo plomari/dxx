@@ -168,6 +168,7 @@ common_sources = [
 'misc/dl_list.c',
 'misc/error.c',
 'misc/hash.c',
+'misc/hmp.c',
 'misc/strio.c',
 'misc/strutil.c',
 ]
@@ -235,7 +236,6 @@ editor_sources = [
 
 # SDL_mixer sound implementation
 arch_sdlmixer = [
-'misc/hmp2mid.c',
 'arch/sdl/digi_mixer.c',
 'arch/sdl/digi_mixer_music.c',
 'arch/sdl/jukebox.c'
@@ -309,7 +309,6 @@ if sys.platform == 'win32':
 	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/win32/include'])
 	ogldefines = ['OGL']
-	common_sources += ['arch/win32/hmpfile.c']
 	if (use_ipx == 1):
 		common_sources += ['arch/win32/ipx.c']
 	ogllibs = ''
