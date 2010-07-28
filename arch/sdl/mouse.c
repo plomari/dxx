@@ -25,7 +25,7 @@ static struct mouseinfo {
 	struct mousebutton buttons[MOUSE_MAX_BUTTONS];
 	int delta_x, delta_y, delta_z, old_delta_x, old_delta_y;
 	int x,y,z;
-	int cursor_enabled, grab_enabled;
+	int cursor_enabled;
 	fix cursor_time;
 } Mouse;
 
@@ -38,6 +38,13 @@ typedef struct d_event_mousebutton
 void mouse_init(void)
 {
 	memset(&Mouse,0,sizeof(Mouse));
+	mouse_toggle_cursor(1);
+}
+
+void mouse_close(void)
+{
+	SDL_ShowCursor(SDL_ENABLE);
+	//SDL_WM_GrabInput(SDL_GRAB_OFF);
 }
 
 void mouse_button_handler(SDL_MouseButtonEvent *mbe, fix time)
@@ -236,11 +243,6 @@ void mouse_toggle_cursor(int activate)
 	Mouse.cursor_enabled = (activate && !GameArg.CtlNoMouse);
 }
 
-void mouse_toggle_grab(int activate)
-{
-	Mouse.grab_enabled = (activate && GameArg.CtlGrabMouse && !GameArg.CtlNoMouse);
-}
-
 /*
  * Here we check what to do with our mouse:
  * If we want to display/hide cursor, do so if not already and also hide it automatically after some time.
@@ -249,19 +251,28 @@ void mouse_toggle_grab(int activate)
  */
 void mouse_update_cursor_and_grab(fix time)
 {
-	static int show = -1;
+	int show = SDL_ShowCursor(SDL_QUERY);
+	//, grab = SDL_WM_GrabInput(SDL_QUERY);
 
-	if (show == -1)
-		show = SDL_ShowCursor(SDL_QUERY);
-	if (!Mouse.cursor_enabled)
+	if (Mouse.cursor_enabled)
+	{
+		if ( (Mouse.cursor_time + (F1_0*2)) >= time && !show)
+			SDL_ShowCursor(SDL_ENABLE);
+		else if ( (Mouse.cursor_time + (F1_0*2)) < time && show)
+			SDL_ShowCursor(SDL_DISABLE);
+
+		/*
+		if (!grab)
+			SDL_WM_GrabInput(SDL_GRAB_OFF);
+		*/
+	}
+	else
 	{
 		if (show)
-			show = SDL_ShowCursor(SDL_DISABLE);
-		return;
+			SDL_ShowCursor(SDL_DISABLE);
+		/*
+		if (grab && GameArg.CtlGrabMouse)
+			SDL_WM_GrabInput(SDL_GRAB_ON);
+		*/
 	}
-
-	if ( (Mouse.cursor_time + (F1_0*3)) >= time && !show)
-		show = SDL_ShowCursor(SDL_ENABLE);
-	else if ( (Mouse.cursor_time + (F1_0*3)) < time && show)
-		show = SDL_ShowCursor(SDL_DISABLE);
 }

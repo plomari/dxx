@@ -1147,8 +1147,7 @@ int game_handler(window *wind, d_event *event, void *data)
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
 
-			if (Newdemo_state != ND_STATE_PLAYBACK)
-				mouse_toggle_grab(1);
+			mouse_toggle_cursor(0);
 
 			if (time_paused)
 				start_time();
@@ -1170,7 +1169,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				full_palette_save();
 
-			mouse_toggle_grab(0);
+			mouse_toggle_cursor(1);
 			break;
 
 		case EVENT_MOUSE_BUTTON_UP:
@@ -1234,7 +1233,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			Game_mode = GM_GAME_OVER;
 			show_menus();
 			Game_wind = NULL;
-			mouse_toggle_grab(0);
+			mouse_toggle_cursor(1);
 			return 0;	// continue closing
 			break;
 
