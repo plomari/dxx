@@ -333,12 +333,6 @@ void game_init_render_buffers(int render_w, int render_h, int render_method )
 	game_init_render_sub_buffers( 0, 0, render_w, render_h );
 }
 
-static void grab_mouse(bool grab)
-{
-    // TODO: SDL1.x
-    //SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF);
-}
-
 //called to change the screen mode. Parameter sm is the new mode, one of
 //SMODE_GAME or SMODE_EDITOR. returns mode acutally set (could be other
 //mode if cannot init requested mode)
@@ -392,10 +386,6 @@ int set_screen_mode(int sm)
 			break;
 #endif
 		case SCREEN_MOVIE:
-			/* give control back to the WM */
-			if (GameArg.CtlGrabMouse)
-				grab_mouse(false);
-
 			if (grd_curscreen->sc_mode != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
 				if (gr_set_mode(SM(MOVIE_WIDTH,MOVIE_HEIGHT))) Error("Cannot set screen mode for game!");
 				gr_palette_load( gr_palette );
