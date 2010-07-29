@@ -369,9 +369,6 @@ int set_screen_mode(int sm)
 			if  (grd_curscreen->sc_mode != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
 					Error("Cannot set screen mode.");
-
-			reset_cockpit();
-			init_cockpit();
 			break;
 #ifdef EDITOR
 		case SCREEN_EDITOR:
@@ -1097,7 +1094,6 @@ window *game_setup(void)
 	last_drawn_cockpit = -1;	// Force cockpit to redraw next time a frame renders.
 	Endlevel_sequence = 0;
 
-	set_screen_mode(SCREEN_GAME);
 	game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, NULL);
 	if (!game_wind)
 		return NULL;
@@ -1145,6 +1141,8 @@ int game_handler(window *wind, d_event *event, void *data)
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
+			set_screen_mode(SCREEN_GAME);
+
 			game_flush_inputs();
 
 			mouse_toggle_cursor(0);
@@ -1157,6 +1155,8 @@ int game_handler(window *wind, d_event *event, void *data)
 
 			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				palette_restore();
+			
+			reset_cockpit();
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
