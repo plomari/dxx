@@ -905,7 +905,7 @@ void ogl_start_frame(void){
 	glShadeModel(GL_SMOOTH);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//clear matrix
-	glhPerspectivef2(90.0,1.0,0.01,1000000.0);
+	glhPerspectivef2(90.0,1.0,1.0,1000.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
 }
