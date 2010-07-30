@@ -241,13 +241,28 @@ int mouse_button_state(int button)
 void mouse_toggle_cursor(int activate)
 {
 	Mouse.cursor_enabled = (activate && !GameArg.CtlNoMouse);
+	if (Mouse.cursor_enabled)
+	{
+		SDL_ShowCursor(SDL_ENABLE);
+		/*
+		if (GameArg.CtlGrabMouse)
+			SDL_WM_GrabInput(SDL_GRAB_OFF);
+		*/
+	}
+	else
+	{
+		SDL_ShowCursor(SDL_DISABLE);
+		/*
+		if (GameArg.CtlGrabMouse)
+			SDL_WM_GrabInput(SDL_GRAB_ON);
+		*/
+	}
 }
 
 /*
  * Here we check what to do with our mouse:
  * If we want to display/hide cursor, do so if not already and also hide it automatically after some time.
  * If we want to grab/release cursor, do so if not already.
- * If app looses focus, automatically show and release cursor.
  */
 void mouse_update_cursor_and_grab(fix time)
 {
@@ -262,7 +277,7 @@ void mouse_update_cursor_and_grab(fix time)
 			SDL_ShowCursor(SDL_DISABLE);
 
 		/*
-		if (!grab)
+		if (grab)
 			SDL_WM_GrabInput(SDL_GRAB_OFF);
 		*/
 	}
@@ -271,7 +286,7 @@ void mouse_update_cursor_and_grab(fix time)
 		if (show)
 			SDL_ShowCursor(SDL_DISABLE);
 		/*
-		if (grab && GameArg.CtlGrabMouse)
+		if (!grab && GameArg.CtlGrabMouse)
 			SDL_WM_GrabInput(SDL_GRAB_ON);
 		*/
 	}
