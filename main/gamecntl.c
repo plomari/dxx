@@ -153,7 +153,6 @@ void do_cheat_menu(void);
 int HandleGameKey(int key);
 int HandleSystemKey(int key);
 int HandleTestKey(int key);
-int HandleVRKey(int key);
 void advance_sound(void);
 void play_test_sound(void);
 
@@ -2144,7 +2143,6 @@ int ReadControls(d_event *event)
 			FinalCheats(key);
 
 			if (HandleSystemKey(key)) return 1;
-			if (HandleVRKey(key)) return 1;
 			if (HandleGameKey(key)) return 1;
 		}
 
