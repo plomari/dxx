@@ -381,7 +381,7 @@ void paging_touch_all()
 		extern int Current_level_num;
 		extern ushort GameBitmapXlat[MAX_BITMAP_FILES];
 		short Used[MAX_BITMAP_FILES];
-		FILE * fp;
+		PHYSFS_file * fp;
 		char fname[128];
 		int i;
 
@@ -393,7 +393,7 @@ void paging_touch_all()
 		if ( p ) *p = 0;
 		strcat( fname, ".pag" );
 
-		fp = fopen( fname, "wt" );
+		fp = PHYSFSX_openWriteBuffered( fname );
 		for (i=0; i<MAX_BITMAP_FILES;i++ )      {
 			Used[i] = 0;
 		}
@@ -451,12 +451,12 @@ void paging_touch_all()
 				paged_in = 1;
 	
 			if ( !paged_in )
-				fprintf( fp, "0,\t// Bitmap %d (%s)\n", i, "test\0"); // cmp debug fname );
+				PHYSFSX_printf( fp, "0,\t// Bitmap %d (%s)\n", i, "test\0"); // cmp debug fname );
 			else
-				fprintf( fp, "1,\t// Bitmap %d (%s)\n", i, "test\0"); // cmp debug fname );
+				PHYSFSX_printf( fp, "1,\t// Bitmap %d (%s)\n", i, "test\0"); // cmp debug fname );
 		}
 
-		fclose(fp);
+		PHYSFS_close(fp);
 	}
 #endif
 
