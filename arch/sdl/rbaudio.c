@@ -47,6 +47,8 @@ void RBACheckFinishedHook() {}
 #include "console.h"
 #include "timer.h"
 
+#define REDBOOK_VOLUME_SCALE 255
+
 static SDL_CD *s_cd = NULL;
 static int initialised = 0;
 
@@ -164,10 +166,10 @@ void RBASetVolume(int volume)
 	if (!s_cd) return;
 
 	cdfile = s_cd->id;
-	level = volume;
+	level = volume*REDBOOK_VOLUME_SCALE/8;
 
-	if ((level<0) || (level>255)) {
-		con_printf(CON_CRITICAL, "illegal volume value (allowed values 0-255)\n");
+	if ((level<0) || (level>REDBOOK_VOLUME_SCALE)) {
+		con_printf(CON_CRITICAL, "illegal volume value (allowed values 0-%i)\n",REDBOOK_VOLUME_SCALE);
 		return;
 	}
 
