@@ -159,6 +159,8 @@ int ogl_init_window(int x, int y)
 		// issues on shit OSes (Microsoft Windows). But on sane OSes, this just
 		// makes things awkward.
 		SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
+
+		SDL_SetWindowIcon(sdl_window, SDL_LoadBMP("d2x-rebirth.ico"));
 	}
 
 	gr_update_grab();
