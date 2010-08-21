@@ -160,7 +160,7 @@ int ogl_init_window(int x, int y)
 		// makes things awkward.
 		SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 
-		SDL_SetWindowIcon(sdl_window, SDL_LoadBMP("d2x-rebirth.ico"));
+		SDL_SetWindowIcon(sdl_window, SDL_LoadBMP("d2x-rebirth.bmp"));
 	}
 
 	gr_update_grab();
