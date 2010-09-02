@@ -3468,7 +3468,7 @@ try_again:
 		if (filename[0] != '\0') {
 			strcpy(save_file, DEMO_DIR);
 			strcat(save_file, filename);
-			strcat(save_file, ".dem");
+			strcat(save_file, DEMO_EXT);
 		} else
 			sprintf (save_file, "%stmp%d.dem", DEMO_DIR, tmpcnt++);
 		remove(save_file);
@@ -3494,7 +3494,7 @@ try_again:
 		strcat(fullname, m[1].text);
 	else
 		strcat(fullname, m[0].text);
-	strcat(fullname, ".dem");
+	strcat(fullname, DEMO_EXT);
 	PHYSFS_delete(fullname);
 	PHYSFSX_rename(DEMO_FILENAME, fullname);
 }
@@ -3503,9 +3503,10 @@ try_again:
 int newdemo_count_demos()
 {
 	char **find, **i;
+	char *types[] = { DEMO_EXT, NULL };
 	int NumFiles=0;
 
-	find = PHYSFS_enumerateFiles(DEMO_DIR);
+	find = PHYSFSX_findFiles(DEMO_DIR, types);
 
 	for (i = find; *i != NULL; i++)
 		NumFiles++;
@@ -3532,6 +3533,7 @@ void newdemo_start_playback(char * filename)
 		// Randomly pick a filename
 		int NumFiles = 0, RandFileNum;
 		rnd_demo = 1;
+		char *types[] = { DEMO_EXT, NULL };
 
 		NumFiles = newdemo_count_demos();
 
@@ -3542,7 +3544,7 @@ void newdemo_start_playback(char * filename)
 		RandFileNum = d_rand() % NumFiles;
 		NumFiles = 0;
 
-		find = PHYSFS_enumerateFiles(DEMO_DIR);
+		find = PHYSFSX_findFiles(DEMO_DIR, types);
 
 		for (i = find; *i != NULL; i++)
 		{
@@ -3557,13 +3559,6 @@ void newdemo_start_playback(char * filename)
 		PHYSFS_freeList(find);
 
 		if (NumFiles > RandFileNum)
-		{
-			GameArg.SysAutoDemo = 0;
-			return;
-		}
-
-		// if in random mode, PhysFS may look for all possible files, so check if filename actually points to be a demo file...
-		if (strnicmp(".dem",&filename2[strlen(filename2)-4],4))
 		{
 			GameArg.SysAutoDemo = 0;
 			return;
