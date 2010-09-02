@@ -35,6 +35,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "makesig.h"
 #include "gamefont.h"
 #include "console.h"
+#include "config.h"
 #include "ogl_init.h"
 
 #define FONTSCALE_X(x) ((float)(x)*(FNTScaleX))
@@ -503,7 +504,7 @@ void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 
 void ogl_init_font(grs_font * font)
 {
-	int oglflags = OGL_FLAG_ALPHA | OGL_FLAG_MIPMAP;
+	int oglflags = OGL_FLAG_ALPHA;
 	int	nchars = font->ft_maxchar-font->ft_minchar+1;
 	int i,w,h,tw,th,x,y,curx=0,cury=0;
 	unsigned char *fp;
@@ -517,6 +518,8 @@ void ogl_init_font(grs_font * font)
 	gr_set_transparent(&font->ft_parent_bitmap, 1);
 
 	ogl_init_texture(font->ft_parent_bitmap.gltexture = ogl_get_free_texture(), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
+	if (GameCfg.TexFilt)
+		oglflags |= OGL_FLAG_MIPMAP;
 
 	font->ft_bitmaps=(grs_bitmap*)d_malloc( nchars * sizeof(grs_bitmap));
 	h=font->ft_h;

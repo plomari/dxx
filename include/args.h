@@ -65,9 +65,7 @@ typedef struct Arg
 	int GfxHiresGFXAvailable;
 	int GfxHiresFNTAvailable;
 	int GfxMovieHires;
-	int GfxMovieSubtitles;
 	int OglFixedFont;
-	int OglNoMovieFilter;
 	int MplNoRankings;
 	int MplTxtMessages;
 	const char *MplIpxNetwork;

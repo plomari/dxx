@@ -270,42 +270,8 @@ int ogl_atotexfilti(char *a,int min)
 	Error("unknown/invalid texture filter %s\n",a);
 }
 
-int ogl_testneedmipmaps(int i)
-{
-	switch (i)
-	{
-		case GL_NEAREST:
-		case GL_LINEAR:
-			return 0;
-		case GL_NEAREST_MIPMAP_NEAREST:
-		case GL_NEAREST_MIPMAP_LINEAR:
-		case GL_LINEAR_MIPMAP_NEAREST:
-		case GL_LINEAR_MIPMAP_LINEAR:
-			return 1;
-	}
-	Error("unknown texture filter %x\n",i);
-}
-
 void gr_set_attributes(void)
 {
-	switch (GameCfg.TexFilt)
-	{
-		case 2:
-			OglTexMagFilt = GL_LINEAR;
-			OglTexMinFilt = GL_LINEAR_MIPMAP_LINEAR;
-			break;
-		case 1:
-			OglTexMagFilt = GL_LINEAR;
-			OglTexMinFilt = GL_LINEAR_MIPMAP_NEAREST;
-			break;
-		default:
-			OglTexMagFilt = GL_NEAREST;
-			OglTexMinFilt = GL_NEAREST;
-			break;
-	}
-
-	GL_needmipmaps=ogl_testneedmipmaps(OglTexMinFilt);
-
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
 	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,0);
