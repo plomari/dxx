@@ -136,7 +136,6 @@ typedef struct st24_wall {
 extern void apply_all_changed_light(void);
 
 extern int Do_appearance_effect;
-extern fix Fusion_next_sound_time;
 
 extern int Laser_rapid_fire;
 extern int Physics_cheat_flag;
