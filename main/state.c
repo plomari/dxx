@@ -1066,7 +1066,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		PHYSFS_read(fp, Automap_visited, sizeof(ubyte), i);
 
 		//	Restore hacked up weapon system stuff.
-		Fusion_next_sound_time = GameTime;
 		Auto_fire_fusion_cannon_time = 0;
 		Next_laser_fire_time = GameTime;
 		Next_missile_fire_time = GameTime;
