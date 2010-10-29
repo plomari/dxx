@@ -1438,7 +1438,7 @@ void do_end_briefing_screens(char *filename)
 	{
 		if (stricmp(filename, BIMD1_ENDING_FILE_OEM) == 0)
 		{
-			songs_play_song( SONG_ENDGAME, 0 );
+			songs_play_song( SONG_ENDGAME, 1 );
 			level_num_screen = ENDING_LEVEL_NUM_OEMSHARE;
 		}
 		else if (stricmp(filename, BIMD1_ENDING_FILE_SHARE) == 0)
@@ -1448,7 +1448,7 @@ void do_end_briefing_screens(char *filename)
 		}
 		else
 		{
-			songs_play_song( SONG_ENDGAME, 0 );
+			songs_play_song( SONG_ENDGAME, 1 );
 			level_num_screen = ENDING_LEVEL_NUM_REGISTER;
 		}
 	}
@@ -1456,13 +1456,13 @@ void do_end_briefing_screens(char *filename)
 	{
 		if (stricmp(filename, BIMD2_ENDING_FILE_OEM) == 0)
 		{
-			songs_play_song( SONG_TITLE, 0 );
+			songs_play_song( SONG_TITLE, 1 );
 			level_num_screen = 1;
 			showorder = 1;
 		}
 		else if (stricmp(filename, BIMD2_ENDING_FILE_SHARE) == 0)
 		{
-			songs_play_song( SONG_ENDGAME, 0 );
+			songs_play_song( SONG_ENDGAME, 1 );
 			level_num_screen = 1;
 			showorder = 1;
 		}
