@@ -1186,14 +1186,6 @@ typedef struct browser
 	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
 } browser;
 
-// Figure out if we need to remove the view_path searchpath when finished
-// We don't, and shouldn't, if it was already there
-void searchpath_matches(browser *b, const char *str)
-{
-	if (!strcmp(b->view_path, str))
-		b->new_path = 0;
-}
-
 void list_dir_el(browser *b, const char *origdir, const char *fname)
 {
 	char *ext;
@@ -1406,7 +1398,7 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 		}
 
 		p = b->view_path + strlen(b->view_path) - 1;
-		PHYSFS_getSearchPathCallback((PHYSFS_StringCallback) searchpath_matches, b);
+		b->new_path = PHYSFSX_isNewPath(b->view_path);
 		
 		while (!PHYSFS_addToSearchPath(b->view_path, 0))
 		{
@@ -1417,7 +1409,7 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 			if (p == b->view_path)
 				break;
 			
-			PHYSFS_getSearchPathCallback((PHYSFS_StringCallback) searchpath_matches, b);
+			b->new_path = PHYSFSX_isNewPath(b->view_path);
 		}
 	}
 	
@@ -1426,7 +1418,7 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 	{
 		strncpy(b->view_path, PHYSFS_getUserDir(), PATH_MAX - 1);
 		b->view_path[PATH_MAX - 1] = '\0';
-		PHYSFS_getSearchPathCallback((PHYSFS_StringCallback) searchpath_matches, b);
+		b->new_path = PHYSFSX_isNewPath(b->view_path);
 		if (!PHYSFS_addToSearchPath(b->view_path, 0))
 		{
 			d_free(b);
