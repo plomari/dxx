@@ -312,7 +312,14 @@ int main(int argc, char *argv[])
 
 	setbuf(stdout, NULL); // unbuffered output via printf
 
-	ReadConfigFile();
+	if (GameArg.SysShowCmdHelp) {
+		print_commandline_help();
+		set_exit_message("");
+
+		return(0);
+	}
+
+	printf("\nType %s -help' for a list of command-line options.\n\n", PROGNAME);
 
 	if (! cfile_hog_add("descent2.hog", 1)) {
 		if (! cfile_hog_add("d2demo.hog", 1))
@@ -331,7 +338,7 @@ int main(int argc, char *argv[])
 	load_text();
 
 	//print out the banner title
-	con_printf(CON_NORMAL, "\nDESCENT 2 %s v%d.%d",VERSION_TYPE,Version_major,Version_minor);
+	con_printf(CON_NORMAL, "DESCENT 2 %s v%d.%d",VERSION_TYPE,Version_major,Version_minor);
 	#if 1	//def VERSION_NAME
 	con_printf(CON_NORMAL, "  %s", DESCENT_VERSION);	// D2X version
 	#endif
@@ -343,21 +350,15 @@ int main(int argc, char *argv[])
 	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
 	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent 2. Copyright (c) 1999 Peter Hawkins\n");
 	con_printf(CON_NORMAL, "                                         Copyright (c) 2002 Bradley Bell\n");
-	con_printf(CON_NORMAL, "                                         Copyright (c) 2005 Christian Beckhaeuser\n");
+	con_printf(CON_NORMAL, "                                         Copyright (c) 2005 Christian Beckhaeuser\n\n");
 
-
-	if (GameArg.SysShowCmdHelp) {
-		print_commandline_help();
-		set_exit_message("");
-
-		return(0);
-	}
-
-	printf("\n");
-	printf(TXT_HELP, PROGNAME);		//help message has %s for program name
 	if (GameArg.DbgVerbose)
+	{
 		con_printf(CON_VERBOSE,"%s", TXT_VERBOSE_1);
-	printf("\n");
+		con_printf(CON_VERBOSE,"%s", "\n");
+	}
+	
+	ReadConfigFile();
 
 	arch_init();
 
