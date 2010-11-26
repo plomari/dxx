@@ -311,6 +311,10 @@ int main(int argc, char *argv[])
 	con_init();  // Initialise the console
 
 	setbuf(stdout, NULL); // unbuffered output via printf
+#ifdef _WIN32
+	freopen( "CON", "w", stdout );
+	freopen( "CON", "w", stderr );
+#endif
 
 	if (GameArg.SysShowCmdHelp) {
 		print_commandline_help();
@@ -361,11 +365,6 @@ int main(int argc, char *argv[])
 	ReadConfigFile();
 
 	arch_init();
-
-#ifdef _WIN32
-	freopen( "CON", "w", stdout );
-	freopen( "CON", "w", stderr );
-#endif
 
 	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
 	gr_set_mode(Game_screen_mode);
