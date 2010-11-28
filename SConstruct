@@ -171,6 +171,7 @@ common_sources = [
 'misc/hmp.c',
 'misc/strio.c',
 'misc/strutil.c',
+'arch/linux/messagebox.c',
 ]
 
 # for editor
@@ -231,7 +232,7 @@ editor_sources = [
 'ui/ui.c',
 'ui/uidraw.c',
 'ui/userbox.c',
-'ui/window.c'
+'ui/window.c',
 ]
 
 # SDL_mixer sound implementation
