@@ -413,7 +413,6 @@ int newdemo_count_demos();
 // ------------------------------------------------------------------------
 int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 {
-	int curtime;
 	newmenu_item *items = newmenu_get_items(menu);
 
 	switch (event->type)
@@ -424,7 +423,7 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 			if ( Players[Player_num].callsign[0]==0 )
 				RegisterPlayer(1);
 			else
-				keyd_time_when_last_pressed = timer_get_fixed_seconds();		// .. 20 seconds from now!
+				keyd_time_when_last_pressed = timer_query();		// .. 20 seconds from now!
 			break;
 
 		case EVENT_KEY_COMMAND:
@@ -434,8 +433,7 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 			break;
 
 		case EVENT_IDLE:
-			curtime = timer_get_fixed_seconds();
-			if ( keyd_time_when_last_pressed+i2f(25) < curtime && GameArg.SysAutoDemo  )
+			if ( keyd_time_when_last_pressed+i2f(25) < timer_query() && GameArg.SysAutoDemo  )
 			{
 				int n_demos;
 				n_demos = newdemo_count_demos();
@@ -456,12 +454,11 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 				}
 				else
 				{
-					if (curtime < 0) curtime = 0;
-					keyd_time_when_last_pressed = curtime;			// Reset timer so that disk won't thrash if no demos.
+					keyd_time_when_last_pressed = timer_query();			// Reset timer so that disk won't thrash if no demos.
 					newdemo_start_playback(NULL);		// Randomly pick a file, assume native endian (crashes if not)
 					if (Newdemo_state == ND_STATE_PLAYBACK)
 						return 0;
-					else
+				else
 						goto try_again;	//keep trying until we get a demo that works
 				}
 			}

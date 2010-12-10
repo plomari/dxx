@@ -1236,7 +1236,7 @@ void controls_read_all(int automap_flag)
 	slide_on = 0;
 	bank_on = 0;
 
-	ctime = timer_get_fixed_seconds();
+	ctime = timer_query();
 
 	//---------  Read Joystick -----------
 	if ( PlayerCfg.ControlType & CONTROL_USING_JOYSTICK ) {
