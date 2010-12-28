@@ -13,6 +13,7 @@ arch/carbon/conf.h: Disabling IPv6 support for OS X since in Snow Leopard it's b
 20101228
 --------
 d2x-rebirth.xcodeproj/project.pbxproj, editor, include/editor, main/editor, SConstruct: Move main/editor to editor and move headers to include/editor, like d1x
+editor/info.c, editor/med.c, include/editor/editor.h, include/editor/info.h: Make the keypad info display into a window
 
 20101224
 --------
