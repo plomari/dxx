@@ -1,6 +1,7 @@
 D2X-Rebirth Changelog
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 20101221
 ||||||| parent of 2fa153489... Move main/editor to editor and move headers to include/editor, like d1x
 20101224
@@ -10,6 +11,13 @@ arch/carbon/conf.h: Disabling IPv6 support for OS X since in Snow Leopard it's b
 
 20101223
 =======
+||||||| parent of 8c8216c1f... Fixed glitch in scroll arrow position; Added newmenu_scroll which can scroll through all kind is menu structures including automatically handling NM_TYPE_TEXT items as well as automatically updating scroll_offset; PageUp/Down now scrolls by 10 items, Home/end will select first/last/items of menu creating consistency to listbox behaviour; Fit text for GrabInput to be more understandable
+=======
+20101230
+--------
+main/newmenu.c, main/menu.c: Fixed glitch in scroll arrow position; Added newmenu_scroll which can scroll through all kind is menu structures including automatically handling NM_TYPE_TEXT items as well as automatically updating scroll_offset; PageUp/Down now scrolls by 10 items, Home/end will select first/last/items of menu creating consistency to listbox behaviour; Fit text for GrabInput to be more understandable
+
+>>>>>>> 8c8216c1f... Fixed glitch in scroll arrow position; Added newmenu_scroll which can scroll through all kind is menu structures including automatically handling NM_TYPE_TEXT items as well as automatically updating scroll_offset; PageUp/Down now scrolls by 10 items, Home/end will select first/last/items of menu creating consistency to listbox behaviour; Fit text for GrabInput to be more understandable
 20101228
 --------
 d2x-rebirth.xcodeproj/project.pbxproj, editor, include/editor, main/editor, SConstruct: Move main/editor to editor and move headers to include/editor, like d1x
