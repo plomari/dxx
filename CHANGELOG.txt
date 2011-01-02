@@ -1,5 +1,46 @@
 D2X-Rebirth Changelog
 
+<<<<<<< HEAD
+||||||| parent of 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
+20110102
+--------
+main/credits.c, main/kconfig.c, main/menu.c, main/net_udp.c, main/newmenu.c, main/scores.c: Increasing general mouse functionality all over the game: Mouse wheel now can scroll through menu/listbox items; Right mouse button closes a menu (without the need of these ugly close boxes); Also added mouse-closing capabilities to credits, scores and kconfig menus; While being in UDP Netgames list, override keycode at PAGEUP/DOWN keypress to only flip pages without modifying citem also added messagebox showing TXT_INVALID_CHOICE when invalid netgame was chosen
+
+20101230
+--------
+main/newmenu.c, main/menu.c: Fixed glitch in scroll arrow position; Added newmenu_scroll which can scroll through all kind is menu structures including automatically handling NM_TYPE_TEXT items as well as automatically updating scroll_offset; PageUp/Down now scrolls by 10 items, Home/end will select first/last/items of menu creating consistency to listbox behaviour; Fit text for GrabInput to be more understandable
+
+20101228
+--------
+d2x-rebirth.xcodeproj/project.pbxproj, editor, include/editor, main/editor, SConstruct: Move main/editor to editor and move headers to include/editor, like d1x
+editor/info.c, editor/med.c, include/editor/editor.h, include/editor/info.h: Make the keypad info display into a window
+arch/include/event.h, arch/include/joy.h, arch/include/mouse.h, arch/sdl/event.c, arch/sdl/joy.c, arch/sdl/mouse.c, d2x.ini, include/args.h, main/automap.c, main/config.c, main/config.h, main/game.c, main/gamecntl.c, main/inferno.c, main/kconfig.c, main/menu.c, main/newmenu.c, main/playsave.c, main/playsave.h, misc/args.c: Added Sensitivity/Deadzone menu with sliders for each movement based action seperated for joystick and mouse to support all kinds of configuration - regardless the amount of joystick axes and whatnot; SDL_WM_GrabInput does not only capture mouse but also focus keyboard input - changed code to respect this fact and made grabbing a menu option which is enabled by default
+
+20101224
+--------
+d2x-rebirth.xcodeproj/project.pbxproj, include/ui.h, main/editor/centers.c, main/editor/editor.h, main/editor/group.c, main/editor/medrobot.c, main/editor/medwall.c, main/editor/mine.c, main/editor/texpage.h, main/gamesave.c, main/gamesave.h, main/switch.c, main/switch.h, ui/button.c, ui/checkbox.c, ui/func.c, ui/harderr.c, ui/keytrap.c, ui/medfunc.c, ui/menubar.c, ui/mouse.c, ui/radio.c, ui/ui.c, ui/window.c: Copy some editor stuff from d1x-rebirth to d2x-rebirth, like use of the OS native cursor
+arch/carbon/conf.h: Disabling IPv6 support for OS X since in Snow Leopard it's buggy, making all Multiplayer pretty much impossible - re-activating soon as proper patches from Apple are in sight
+=======
+20110102
+--------
+main/credits.c, main/kconfig.c, main/menu.c, main/net_udp.c, main/newmenu.c, main/scores.c: Increasing general mouse functionality all over the game: Mouse wheel now can scroll through menu/listbox items; Right mouse button closes a menu (without the need of these ugly close boxes); Also added mouse-closing capabilities to credits, scores and kconfig menus; While being in UDP Netgames list, override keycode at PAGEUP/DOWN keypress to only flip pages without modifying citem also added messagebox showing TXT_INVALID_CHOICE when invalid netgame was chosen
+arch/include/key.h, arch/sdl/key.c, main/newmenu.c, main/credits.c: Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
+
+20101230
+--------
+main/newmenu.c, main/menu.c: Fixed glitch in scroll arrow position; Added newmenu_scroll which can scroll through all kind is menu structures including automatically handling NM_TYPE_TEXT items as well as automatically updating scroll_offset; PageUp/Down now scrolls by 10 items, Home/end will select first/last/items of menu creating consistency to listbox behaviour; Fit text for GrabInput to be more understandable
+
+20101228
+--------
+d2x-rebirth.xcodeproj/project.pbxproj, editor, include/editor, main/editor, SConstruct: Move main/editor to editor and move headers to include/editor, like d1x
+editor/info.c, editor/med.c, include/editor/editor.h, include/editor/info.h: Make the keypad info display into a window
+arch/include/event.h, arch/include/joy.h, arch/include/mouse.h, arch/sdl/event.c, arch/sdl/joy.c, arch/sdl/mouse.c, d2x.ini, include/args.h, main/automap.c, main/config.c, main/config.h, main/game.c, main/gamecntl.c, main/inferno.c, main/kconfig.c, main/menu.c, main/newmenu.c, main/playsave.c, main/playsave.h, misc/args.c: Added Sensitivity/Deadzone menu with sliders for each movement based action seperated for joystick and mouse to support all kinds of configuration - regardless the amount of joystick axes and whatnot; SDL_WM_GrabInput does not only capture mouse but also focus keyboard input - changed code to respect this fact and made grabbing a menu option which is enabled by default
+
+20101224
+--------
+d2x-rebirth.xcodeproj/project.pbxproj, include/ui.h, main/editor/centers.c, main/editor/editor.h, main/editor/group.c, main/editor/medrobot.c, main/editor/medwall.c, main/editor/mine.c, main/editor/texpage.h, main/gamesave.c, main/gamesave.h, main/switch.c, main/switch.h, ui/button.c, ui/checkbox.c, ui/func.c, ui/harderr.c, ui/keytrap.c, ui/medfunc.c, ui/menubar.c, ui/mouse.c, ui/radio.c, ui/ui.c, ui/window.c: Copy some editor stuff from d1x-rebirth to d2x-rebirth, like use of the OS native cursor
+arch/carbon/conf.h: Disabling IPv6 support for OS X since in Snow Leopard it's buggy, making all Multiplayer pretty much impossible - re-activating soon as proper patches from Apple are in sight
+>>>>>>> 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 
 
 20101205
