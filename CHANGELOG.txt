@@ -2,6 +2,7 @@ D2X-Rebirth Changelog
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 ||||||| parent of 3adc5fe77... Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
 =======
@@ -49,6 +50,13 @@ arch/include/event.h, arch/include/joy.h, arch/include/mouse.h, arch/sdl/event.c
 d2x-rebirth.xcodeproj/project.pbxproj, include/ui.h, main/editor/centers.c, main/editor/editor.h, main/editor/group.c, main/editor/medrobot.c, main/editor/medwall.c, main/editor/mine.c, main/editor/texpage.h, main/gamesave.c, main/gamesave.h, main/switch.c, main/switch.h, ui/button.c, ui/checkbox.c, ui/func.c, ui/harderr.c, ui/keytrap.c, ui/medfunc.c, ui/menubar.c, ui/mouse.c, ui/radio.c, ui/ui.c, ui/window.c: Copy some editor stuff from d1x-rebirth to d2x-rebirth, like use of the OS native cursor
 arch/carbon/conf.h: Disabling IPv6 support for OS X since in Snow Leopard it's buggy, making all Multiplayer pretty much impossible - re-activating soon as proper patches from Apple are in sight
 >>>>>>> 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
+||||||| parent of c313b9877... Moved NoRedundancy, MultiMessages and NoRankings toggles from GameArg to PlayerCfg to be set via Misc Options
+=======
+20110103
+--------
+arch/sdl/joy.c, arch/sdl/key.c, arch/sdl/mouse.c, include/args.h, main/kconfig.c, main/kconfig.h, main/playsave.c, misc/args.c: Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
+d2x.ini, include/args.h, main/gamerend.c, main/hud.c, main/inferno.c, main/menu.c, main/multi.c, main/net_ipx.c, main/net_udp.c, main/playsave.c, main/playsave.h, misc/args.c: Moved NoRedundancy, MultiMessages and NoRankings toggles from GameArg to PlayerCfg to be set via Misc Options
+>>>>>>> c313b9877... Moved NoRedundancy, MultiMessages and NoRankings toggles from GameArg to PlayerCfg to be set via Misc Options
 
 
 20101205

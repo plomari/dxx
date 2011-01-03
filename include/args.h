@@ -53,7 +53,6 @@ typedef struct Arg
 	int SysWindow;
 	int SysAutoDemo;
 	int SysNoMovies;
-	int SysNoRedundancy;
 	int CtlNoMouse;
 	int CtlNoJoystick;
 	int CtlMouselook;
@@ -66,8 +65,6 @@ typedef struct Arg
 	int GfxHiresFNTAvailable;
 	int GfxMovieHires;
 	int OglFixedFont;
-	int MplNoRankings;
-	int MplTxtMessages;
 	const char *MplIpxNetwork;
 	const char *MplUdpHostAddr;
 	int MplUdpHostPort;
