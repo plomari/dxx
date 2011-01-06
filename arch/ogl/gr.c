@@ -48,12 +48,6 @@
 #include "vers_id.h"
 #include "game.h"
 
-#if defined(__APPLE__) && defined(__MACH__)
-#include <OpenGL/glu.h>
-#else
-#include <GL/glu.h>
-#endif
-
 int gr_installed = 0;
 int gl_initialized=0;
 int ogl_fullscreen;
@@ -354,19 +348,30 @@ void gr_close()
 extern int r_upixelc;
 void ogl_upixelc(int x, int y, int c)
 {
+	GLfloat vertex_array[] = { (x+grd_curcanv->cv_bitmap.bm_x)/(float)last_width, 1.0-(y+grd_curcanv->cv_bitmap.bm_y)/(float)last_height };
+	GLfloat color_array[] = { CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0 };
+
 	r_upixelc++;
 	OGL_DISABLE(TEXTURE_2D);
 	glPointSize(linedotscale);
-	glBegin(GL_POINTS);
-	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
-	glVertex2f((x + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width, 1.0 - (y + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height);
-	glEnd();
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glDrawArrays(GL_POINTS, 0, 1);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 void ogl_urect(int left,int top,int right,int bot)
 {
-	GLfloat xo,yo,xf,yf;
+	GLfloat xo, yo, xf, yf, color_r, color_g, color_b, color_a;
+	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	int c=COLOR;
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
 
 	xo=(left+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
 	xf = (right + 1 + grd_curcanv->cv_bitmap.bm_x) / (float)last_width;
@@ -374,33 +379,62 @@ void ogl_urect(int left,int top,int right,int bot)
 	yf = 1.0 - (bot + 1 + grd_curcanv->cv_bitmap.bm_y) / (float)last_height;
 
 	OGL_DISABLE(TEXTURE_2D);
+
+	color_r = CPAL2Tr(c);
+	color_g = CPAL2Tg(c);
+	color_b = CPAL2Tb(c);
+
 	if (Gr_scanline_darkening_level >= GR_FADE_LEVELS)
-		glColor3f(CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c));
+		color_a = 1.0;
 	else
-		glColor4f(CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
-	glBegin(GL_QUADS);
-	glVertex2f(xo,yo);
-	glVertex2f(xo,yf);
-	glVertex2f(xf,yf);
-	glVertex2f(xf,yo);
-	glEnd();
+		color_a = 1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0);
+
+	color_array[0] = color_array[4] = color_array[8] = color_array[12] = color_r;
+	color_array[1] = color_array[5] = color_array[9] = color_array[13] = color_g;
+	color_array[2] = color_array[6] = color_array[10] = color_array[14] = color_b;
+	color_array[3] = color_array[7] = color_array[11] = color_array[15] = color_a;
+
+	vertex_array[0] = xo;
+	vertex_array[1] = yo;
+	vertex_array[2] = xo;
+	vertex_array[3] = yf;
+	vertex_array[4] = xf;
+	vertex_array[5] = yf;
+	vertex_array[6] = xf;
+	vertex_array[7] = yo;
+	
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
+	glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 void ogl_ulinec(int left,int top,int right,int bot,int c)
 {
 	GLfloat xo,yo,xf,yf;
+	GLfloat color_array[] = { CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0 };
+	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0 };
 
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	
 	xo = (left + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width;
 	xf = (right + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width;
 	yo = 1.0 - (top + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height;
 	yf = 1.0 - (bot + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height;
-
+ 
 	OGL_DISABLE(TEXTURE_2D);
-	glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
-	glBegin(GL_LINES);
-	glVertex2f(xo,yo);
-	glVertex2f(xf,yf);
-	glEnd();
+
+	vertex_array[0] = xo;
+	vertex_array[1] = yo;
+	vertex_array[2] = xf;
+	vertex_array[3] = yf;
+
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glDrawArrays(GL_LINES, 0, 2);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 }
 	
 
@@ -409,23 +443,27 @@ int do_pal_step=0;
 
 void ogl_do_palfx(void)
 {
+	GLfloat color_array[] = { last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0, last_r, last_g, last_b, 1.0 };
+	GLfloat vertex_array[] = { 0,0,0,1,1,1,1,0 };
+
 	OGL_DISABLE(TEXTURE_2D);
 
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+ 
 	if (do_pal_step)
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE,GL_ONE);
-		glColor3f(last_r,last_g,last_b);
 	}
 	else
 		return;
-
-	glBegin(GL_QUADS);
-	glVertex2f(0,0);
-	glVertex2f(0,1);
-	glVertex2f(1,1);
-	glVertex2f(1,0);
-	glEnd();
+ 
+	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }

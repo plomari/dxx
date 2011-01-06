@@ -16,7 +16,11 @@
 #include <OpenGL/glu.h>
 #else
 #define GL_GLEXT_PROTOTYPES
-#include <GL/gl.h>
+#  ifdef OGLES
+#  include <GLES/gl.h>
+#  else
+#  include <GL/gl.h>
+#  endif
 #endif
 
 #include "gr.h"
