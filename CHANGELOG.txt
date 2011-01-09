@@ -5,10 +5,29 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 ||||||| parent of 3adc5fe77... Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
 =======
 20110103
+||||||| parent of 09da4f9f5... Mousebutton assigned to CYCLE SECONADARY was actually calling CYCLE PRIMARY
+20110109
+--------
+main/net_udp.h: Set max UDP packet size to 1024 again (seems some configuration DO have problems with larger packets after all)
+main/net_udp.c: Fix for rev968: my_pnum must be defined static
+arch/sdl/digi.c, inlcude/hmp.h, misc/hmp.c: Improvement on the HMP track loop feature by TURRICAN; Added small template fix for descent.hmp which is supposed to be activated soon as we have some kind or Checksum function
+
+20110106
+=======
+20110109
+--------
+main/net_udp.h: Set max UDP packet size to 1024 again (seems some configuration DO have problems with larger packets after all)
+main/net_udp.c: Fix for rev968: my_pnum must be defined static
+arch/sdl/digi.c, inlcude/hmp.h, misc/hmp.c: Improvement on the HMP track loop feature by TURRICAN; Added small template fix for descent.hmp which is supposed to be activated soon as we have some kind or Checksum function
+main/kconfig.c: Mousebutton assigned to CYCLE SECONADARY was actually calling CYCLE PRIMARY
+
+20110106
+>>>>>>> 09da4f9f5... Mousebutton assigned to CYCLE SECONADARY was actually calling CYCLE PRIMARY
 --------
 <<<<<<< HEAD
 arch/sdl/joy.c, arch/sdl/key.c, arch/sdl/mouse.c, include/args.h, main/kconfig.c, main/kconfig.h, main/playsave.c, misc/args.c: Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
