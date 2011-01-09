@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 ||||||| parent of 3adc5fe77... Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
 =======
@@ -52,6 +53,46 @@ arch/carbon/conf.h: Disabling IPv6 support for OS X since in Snow Leopard it's b
 >>>>>>> 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 ||||||| parent of c313b9877... Moved NoRedundancy, MultiMessages and NoRankings toggles from GameArg to PlayerCfg to be set via Misc Options
 =======
+||||||| parent of b7b4ab120... Improvement on the HMP track loop feature by TURRICAN; Added small template fix for descent.hmp which is supposed to be activated soon as we have some kind or Checksum function
+=======
+<<<<<<< HEAD
+||||||| parent of adad856f3... Improvement on the HMP track loop feature by TURRICAN; Added small template fix for descent.hmp which is supposed to be activated soon as we have some kind or Checksum function
+20110109
+--------
+main/net_udp.h: Set max UDP packet size to 1024 again (seems some configuration DO have problems with larger packets after all)
+main/net_udp.c: Fix for rev968: my_pnum must be defined static
+
+20110106
+--------
+main/multi.c, main/state.c: Fixed but in object to object_rw conversion - if a bot is not dead, leave dying_start_time at 0 as anything else would kill it
+3d/rod.c, SConstruct, arch/ogl/gr.c, arch/ogl/ogl.c, include/3d.h, include/ogl_init.h, main/gamecntl.c, main/object.c, main/state.c, misc/args.c: Added OpenGL ES support - contributed by Florian Feucht and Oliver Haag
+main/automap.c, main/gauges.c, main/gauges.h: Draw FlightSim Reticle on Automap display, too; Fixed small glitch showing Vulcan/Gauss ammo in alt hud mode on all cockpit modes instead of CM_FULL_SCREEN only
+arch/ogl/ogl.c: Fix small bug in vertex_array for ogl_ubitblt_i
+
+20110104
+--------
+d2x.ini, include/args.h, main/gauges.c, main/inferno.c, main/kconfig.c, main/kconfig.h, main/menu.c, main/playsave.c, main/playsave.h, misc/args.c: Introduced FlightSim control scheme for mouse which adds delta values to absolute position to behave like a Joystick; Added Deadzone slider for FlightSim as well as an optional Reticle display to show the positional data on screen; Removed old Mouselook hack in favor of this new feature
+
+=======
+20110109
+--------
+main/net_udp.h: Set max UDP packet size to 1024 again (seems some configuration DO have problems with larger packets after all)
+main/net_udp.c: Fix for rev968: my_pnum must be defined static
+arch/sdl/digi.c, inlcude/hmp.h, misc/hmp.c: Improvement on the HMP track loop feature by TURRICAN; Added small template fix for descent.hmp which is supposed to be activated soon as we have some kind or Checksum function
+
+20110106
+--------
+main/multi.c, main/state.c: Fixed but in object to object_rw conversion - if a bot is not dead, leave dying_start_time at 0 as anything else would kill it
+3d/rod.c, SConstruct, arch/ogl/gr.c, arch/ogl/ogl.c, include/3d.h, include/ogl_init.h, main/gamecntl.c, main/object.c, main/state.c, misc/args.c: Added OpenGL ES support - contributed by Florian Feucht and Oliver Haag
+main/automap.c, main/gauges.c, main/gauges.h: Draw FlightSim Reticle on Automap display, too; Fixed small glitch showing Vulcan/Gauss ammo in alt hud mode on all cockpit modes instead of CM_FULL_SCREEN only
+arch/ogl/ogl.c: Fix small bug in vertex_array for ogl_ubitblt_i
+
+20110104
+--------
+d2x.ini, include/args.h, main/gauges.c, main/inferno.c, main/kconfig.c, main/kconfig.h, main/menu.c, main/playsave.c, main/playsave.h, misc/args.c: Introduced FlightSim control scheme for mouse which adds delta values to absolute position to behave like a Joystick; Added Deadzone slider for FlightSim as well as an optional Reticle display to show the positional data on screen; Removed old Mouselook hack in favor of this new feature
+
+>>>>>>> adad856f3... Improvement on the HMP track loop feature by TURRICAN; Added small template fix for descent.hmp which is supposed to be activated soon as we have some kind or Checksum function
+>>>>>>> b7b4ab120... Improvement on the HMP track loop feature by TURRICAN; Added small template fix for descent.hmp which is supposed to be activated soon as we have some kind or Checksum function
 20110103
 --------
 arch/sdl/joy.c, arch/sdl/key.c, arch/sdl/mouse.c, include/args.h, main/kconfig.c, main/kconfig.h, main/playsave.c, misc/args.c: Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
