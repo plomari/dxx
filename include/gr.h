@@ -273,6 +273,9 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm );
 void gr_rect(int left,int top,int right,int bot);
 void gr_urect(int left,int top,int right,int bot);
 
+// Draw a filled circle
+int gr_disk(fix x,fix y,fix r);
+
 // Draw an outline circle
 int gr_circle(fix x,fix y,fix r);
 int gr_ucircle(fix x,fix y,fix r);

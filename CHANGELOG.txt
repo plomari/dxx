@@ -6,6 +6,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 ||||||| parent of 3adc5fe77... Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
 =======
@@ -19,6 +20,13 @@ arch/sdl/digi.c, inlcude/hmp.h, misc/hmp.c: Improvement on the HMP track loop fe
 
 20110106
 =======
+||||||| parent of 39e956e2b... Added different reticle types with RGBA and size settings; Apply RGBA and size to FlightSim Indicator and Guided Crosshair; Added Brightness Slider to Graphics options menu; Added OpenGL usage for gr_disk
+=======
+20110110
+--------
+2d/disc.c, arch/ogl/gr.c, arch/ogl/ogl.c, include/gr.h, include/ogl_init.h, main/automap.c, main/gamerend.c, main/gauges.c, main/gauges.h, main/menu.c, main/playsave.c, main/playsave.h: Added different reticle types with RGBA and size settings; Apply RGBA and size to FlightSim Indicator and Guided Crosshair; Added Brightness Slider to Graphics options menu; Added OpenGL usage for gr_disk
+
+>>>>>>> 39e956e2b... Added different reticle types with RGBA and size settings; Apply RGBA and size to FlightSim Indicator and Guided Crosshair; Added Brightness Slider to Graphics options menu; Added OpenGL usage for gr_disk
 20110109
 --------
 main/net_udp.h: Set max UDP packet size to 1024 again (seems some configuration DO have problems with larger packets after all)
