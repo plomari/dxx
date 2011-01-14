@@ -361,7 +361,7 @@ int kmatrix_ipx_handler(window *wind, d_event *event, kmatrix_ipx_screen *km)
 	switch (event->type)
 	{
 		case EVENT_KEY_COMMAND:
-			k = ((d_event_keycommand *)event)->keycode;
+			k = event_key_get(event);
 			switch( k )
 			{
 				case KEY_ENTER:
@@ -774,7 +774,7 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 	switch (event->type)
 	{
 		case EVENT_KEY_COMMAND:
-			k = ((d_event_keycommand *)event)->keycode;
+			k = event_key_get(event);
 			switch( k )
 			{
 				case KEY_ESC:
