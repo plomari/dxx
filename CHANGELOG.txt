@@ -9,6 +9,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 ||||||| parent of 3adc5fe77... Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
 =======
@@ -28,6 +29,13 @@ arch/sdl/digi.c, inlcude/hmp.h, misc/hmp.c: Improvement on the HMP track loop fe
 =======
 ||||||| parent of 030aef43e... For editor, replace use of ui_mega_process() with event_process(), with the editor's own default event handler; add EVENT_MOUSE_MOVED event with event_mouse_get_delta() accessor; add event_key_get() to replace ugly casting; rename mouse_get_button() with event_mouse_get_button() to keep with name convention; only send idle events when there are no input events so editor still works properly (or the same anyway); add and use event_send() function for input events (including idle)
 =======
+||||||| parent of c0dfe4617... Fixed some compiler warnings
+=======
+20110115
+--------
+arch/linux/ipx.c, main/net_ipx.c: Fixed some compiler warnings
+
+>>>>>>> c0dfe4617... Fixed some compiler warnings
 20110114
 --------
 arch/include/event.h, arch/include/key.h, arch/include/mouse.h, arch/sdl/event.c, arch/sdl/key.c, arch/sdl/mouse.c, editor/med.c, include/ui.h, main/automap.c, main/credits.c, main/escort.c, main/gamecntl.c, main/inferno.c, main/inferno.h, main/kconfig.c, main/kmatrix.c, main/menu.c, main/movie.c, main/net_ipx.c, main/net_udp.c, main/newmenu.c, main/scores.c, main/titles.c, ui/file.c, ui/keypress.c, ui/menu.c, ui/menubar.c, ui/message.c, ui/mouse.c, ui/popup.c, ui/window.c: For editor, replace use of ui_mega_process() with event_process(), with the editor's own default event handler; add EVENT_MOUSE_MOVED event with event_mouse_get_delta() accessor; add event_key_get() to replace ugly casting; rename mouse_get_button() with event_mouse_get_button() to keep with name convention; only send idle events when there are no input events so editor still works properly (or the same anyway); add and use event_send() function for input events (including idle)
