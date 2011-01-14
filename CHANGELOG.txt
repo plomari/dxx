@@ -37,6 +37,7 @@ main/gameseq.c: Using timer_query() instead of clock() in InitPlayerPositions();
 main/net_ipx.c, main/net_udp.c: When displaying kill goals in game rules, value must be multiplied by 5 to show the correct limit
 main/collide.c, main/multi.c, main/multi.h, main/net_udp.c: Added feature to optionally disable friendly fire in Team and Coop games
 main/newmenu.c: Moved scroll arrow one unit to the left to be not pixel-aligned to possible checkbox; Made newmenu sliders only react to spacebar, backspace, left and right since pageup/down is already taken for menu scrolling and all other previous key assignments will not work on most spread keyboard layouts
+include/console.h, main/console.c, main/gamecntl.c, main/gamerend.c, main/inferno.c, main/kmatrix.c, main/movie.c, main/net_ipx.c, main/net_udp.c: Converted console into a window and allow it to show in every part of the game; Fit several poll functions and kmatrix so they won't get interrupted by the console
 
 >>>>>>> 030aef43e... For editor, replace use of ui_mega_process() with event_process(), with the editor's own default event handler; add EVENT_MOUSE_MOVED event with event_mouse_get_delta() accessor; add event_key_get() to replace ugly casting; rename mouse_get_button() with event_mouse_get_button() to keep with name convention; only send idle events when there are no input events so editor still works properly (or the same anyway); add and use event_send() function for input events (including idle)
 20110111
