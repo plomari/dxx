@@ -639,7 +639,7 @@ int gr_ucircle(fix xc1, fix yc1, fix r1)
 	int c, nsides;
 	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
-	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
+	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(Gr_scanline_darkening_level >= GR_FADE_LEVELS)?1.0:1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
 	glPushMatrix();
 	glTranslatef(
 	             (f2fl(xc1) + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width,
@@ -660,7 +660,7 @@ int gr_disk(fix x,fix y,fix r)
 	int c, nsides;
 	c=grd_curcanv->cv_color;
 	OGL_DISABLE(TEXTURE_2D);
-	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
+	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(Gr_scanline_darkening_level >= GR_FADE_LEVELS)?1.0:1.0 - (float)Gr_scanline_darkening_level / ((float)GR_FADE_LEVELS - 1.0));
 	glPushMatrix();
 	glTranslatef(
 	             (f2fl(x) + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width,
