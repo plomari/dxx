@@ -34,6 +34,7 @@ arch/sdl/digi.c, inlcude/hmp.h, misc/hmp.c: Improvement on the HMP track loop fe
 20110115
 --------
 arch/linux/ipx.c, main/net_ipx.c: Fixed some compiler warnings
+main/game.c: Due to recent changes in event_poll() game_handler() must call ReadControls() for EVENT_MOUSE_MOVED, too; Little fix for FixedStepCalc()
 
 >>>>>>> c0dfe4617... Fixed some compiler warnings
 20110114
