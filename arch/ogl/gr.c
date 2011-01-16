@@ -226,6 +226,13 @@ static void ogl_get_verinfo(void)
 	}
 
 	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s\nOpenGL: version: %s\n",gl_vendor,gl_renderer,gl_version);
+	if (!stricmp(gl_extensions,"GL_EXT_texture_filter_anisotropic")==0)
+	{
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &ogl_maxanisotropy);
+		con_printf(CON_VERBOSE,"ogl_maxanisotropy:%f\n",ogl_maxanisotropy);
+	}
+	else if (GameCfg.TexFilt >= 3)
+		GameCfg.TexFilt = 2;
 }
 
 // returns possible (fullscreen) resolutions if any.

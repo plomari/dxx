@@ -1,4 +1,3 @@
-/* $Id: bitblt.c,v 1.1.1.1 2006/03/17 19:51:56 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -19,12 +18,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */ 
 
 #include <string.h>
-
 #include "u_mem.h"
 #include "gr.h"
 #include "grdef.h"
-#include "error.h"
 #include "rle.h"
+#include "error.h"
 #include "byteswap.h"
 #include "ogl_init.h"
 
@@ -111,7 +109,7 @@ void gr_ubitmap( int x, int y, grs_bitmap *bm )
 	dest = TYPE;
 
 	if (source == BM_LINEAR && dest == BM_OGL) {
-		ogl_ubitmapm(x,y,bm);
+		ogl_ubitmapm_cs(x,y,-1,-1,bm,255,F1_0);
 		return;
 	}
 
@@ -127,7 +125,7 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 	dest = TYPE;
 
 	if (source == BM_LINEAR && dest == BM_OGL) {
-		ogl_ubitmapm(x,y,bm);
+		ogl_ubitmapm_cs(x,y,-1,-1,bm,255,F1_0);
 		return;
 	}
 
