@@ -50,7 +50,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //-------------------------------------------------------------------------
 // Variables for this module...
 //-------------------------------------------------------------------------
-static UI_WINDOW 				*MainWindow = NULL;
+static UI_DIALOG 				*MainWindow = NULL;
 static UI_GADGET_BUTTON 	*QuitButton;
 static UI_GADGET_RADIO		*CenterFlag[MAX_CENTER_TYPES];
 static UI_GADGET_CHECKBOX	*RobotMatFlag[64];	// 2 ints = 64 bits
@@ -82,7 +82,7 @@ int do_centers_dialog()
 	robot_close_window();
 
 	// Open a window with a quit button
-	MainWindow = ui_open_window( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, WIN_DIALOG );
+	MainWindow = ui_create_dialog( TMAPBOX_X+20, TMAPBOX_Y+20, 765-TMAPBOX_X, 545-TMAPBOX_Y, DF_DIALOG, NULL, NULL );
 	QuitButton = ui_add_gadget_button( MainWindow, 20, 252, 48, 40, "Done", NULL );
 
 	// These are the checkboxes for each door flag.
@@ -105,7 +105,7 @@ int do_centers_dialog()
 void close_centers_window()
 {
 	if ( MainWindow!=NULL )	{
-		ui_close_window( MainWindow );
+		ui_close_dialog( MainWindow );
 		MainWindow = NULL;
 	}
 }
@@ -123,7 +123,7 @@ void do_centers_window()
 	// Call the ui code..
 	//------------------------------------------------------------
 	ui_button_any_drawn = 0;
-	ui_window_do_gadgets(MainWindow);
+	ui_dialog_do_gadgets(MainWindow);
 
 	//------------------------------------------------------------
 	// If we change walls, we need to reset the ui code for all
@@ -198,7 +198,7 @@ void do_centers_window()
 //		int	i;
 //		char	temp_text[CENTER_STRING_LENGTH];
 	
-		ui_wprintf_at( MainWindow, 12, 6, "Seg: %3d", Cursegp-Segments );
+		ui_dprintf_at( MainWindow, 12, 6, "Seg: %3d", Cursegp-Segments );
 
 //		for (i=0; i<CENTER_STRING_LENGTH; i++)
 //			temp_text[i] = ' ';
@@ -206,7 +206,7 @@ void do_centers_window()
 
 //		Assert(Curseg2p->special < MAX_CENTER_TYPES);
 //		strncpy(temp_text, Center_names[Curseg2p->special], strlen(Center_names[Curseg2p->special]));
-//		ui_wprintf_at( MainWindow, 12, 23, " Type: %s", temp_text );
+//		ui_dprintf_at( MainWindow, 12, 23, " Type: %s", temp_text );
 		Update_flags |= UF_WORLD_CHANGED;
 	}
 
