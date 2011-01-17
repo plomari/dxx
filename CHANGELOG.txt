@@ -40,6 +40,7 @@ arch/sdl/digi.c, inlcude/hmp.h, misc/hmp.c: Improvement on the HMP track loop fe
 20110117
 --------
 arch/sdl/event.c: Still send idle events when receiving SDL joystick events, fixing possible joystick issues
+main/menu.c: No referring to non-existent ogl_maxanisotropy for non-OGL build
 
 >>>>>>> b64794e1b... Still send idle events when receiving SDL joystick events, fixing possible joystick issues
 20110116
