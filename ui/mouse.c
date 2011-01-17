@@ -103,6 +103,9 @@ int ui_mouse_find_gadget(short n)
 
 void ui_mouse_show()
 {
+#ifndef __MSDOS__
+	event_toggle_focus(0);
+#else
 	if (Mouse.hidden==1 )   {
 		Mouse.hidden = 0;
 		// Save the background under new pointer
