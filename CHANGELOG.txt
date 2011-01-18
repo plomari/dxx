@@ -44,6 +44,13 @@ arch/sdl/digi.c, inlcude/hmp.h, misc/hmp.c: Improvement on the HMP track loop fe
 --------
 main/net_udp.c: Fixed small bug in net_udp_list_join_poll() which was introduced when I reorganized the events for making console render global
 main/gamecntl.c, main/gameseq.c: Allowing loading a savestate while being in death sequence and resetting Dead_player_camera correctly in init_player_stats_level() so forther death sequences won't screw up
+<<<<<<< HEAD
+||||||| parent of 931d13435... Instead of calling object/extras sending every frame, use a delay of 100ms between packet send to not overload the network stack
+main/net_udp.c: In net_udp_send_objects() player_num byte was not considered for mode 1 resulting on incorrect object count for this mode
+=======
+main/net_udp.c: In net_udp_send_objects() player_num byte was not considered for mode 1 resulting on incorrect object count for this mode
+main/net_ipx.c, main/net_udp.c: Instead of calling object/extras sending every frame, use a delay of 100ms between packet send to not overload the network stack
+>>>>>>> 931d13435... Instead of calling object/extras sending every frame, use a delay of 100ms between packet send to not overload the network stack
 
 >>>>>>> c0864b71a... Fixed small bug in net_udp_list_join_poll() which was introduced when I reorganized the events for making console render global
 20110117
