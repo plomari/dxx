@@ -43,6 +43,7 @@ arch/sdl/digi.c, inlcude/hmp.h, misc/hmp.c: Improvement on the HMP track loop fe
 20110118
 --------
 main/net_udp.c: Fixed small bug in net_udp_list_join_poll() which was introduced when I reorganized the events for making console render global
+main/gamecntl.c, main/gameseq.c: Allowing loading a savestate while being in death sequence and resetting Dead_player_camera correctly in init_player_stats_level() so forther death sequences won't screw up
 
 >>>>>>> c0864b71a... Fixed small bug in net_udp_list_join_poll() which was introduced when I reorganized the events for making console render global
 20110117
