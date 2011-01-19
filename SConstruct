@@ -24,8 +24,6 @@ DATA_DIR = PREFIX + DATA_SUBDIR
 sharepath = str(ARGUMENTS.get('sharepath', DATA_DIR))
 debug = int(ARGUMENTS.get('debug', 0))
 profiler = int(ARGUMENTS.get('profiler', 0))
-sdl_only = int(ARGUMENTS.get('sdl_only', 0))
-asm = int(ARGUMENTS.get('asm', 0))
 editor = int(ARGUMENTS.get('editor', 0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
 arm = int(ARGUMENTS.get('arm', 0))
@@ -162,6 +160,10 @@ common_sources = [
 'main/vclip.c',
 'main/wall.c',
 'main/weapon.c',
+'maths/fixc.c',
+'maths/rand.c',
+'maths/tables.c',
+'maths/vecmat.c',
 'mem/mem.c',
 'misc/args.c',
 'misc/cfile.c',
@@ -254,21 +256,6 @@ arch_sdl_sources = [
 'texmap/tmapflat.c'
 ]
 
-# assembler related
-asm_sources = [
-'maths/fix.asm',
-'maths/rand.c',
-'maths/vecmat.c',
-'maths/vecmata.asm',
-]
-
-noasm_sources = [
-'maths/fixc.c',
-'maths/rand.c',
-'maths/tables.c',
-'maths/vecmat.c'
-]
-
 # Acquire environment object...
 env = Environment(ENV = os.environ)
 
@@ -305,7 +292,6 @@ env['CCFLAGS'] += ["-Wno-deprecated-declarations"]
 if sys.platform == 'win32':
 	print "compiling on Windows"
 	osdef = '_WIN32'
-	osasmdef = 'win32'
 	sharepath = ''
 	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/win32/include'])
@@ -321,7 +307,6 @@ elif sys.platform == 'darwin':
 	osdef = '__APPLE__'
 	sharepath = ''
 	env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
-	asm = 0
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['OGL']
 	common_sources += 'arch/cocoa/SDLMain.m'
@@ -329,8 +314,7 @@ elif sys.platform == 'darwin':
 	libs = ''
 	# Ugly way of linking to frameworks, but kreator has seen uglier
 	lflags = '-framework Cocoa -framework SDL'
-	if (sdl_only == 0):
-		lflags += ' -framework OpenGL'
+	lflags += ' -framework OpenGL'
 	if (sdlmixer == 1):
 		print "including SDL_mixer"
 		lflags += ' -framework SDL_mixer'
@@ -344,7 +328,6 @@ elif sys.platform == 'darwin':
 else:
 	print "compiling on *NIX"
 	osdef = '__LINUX__'
-	osasmdef = 'elf'
 	sharepath += '/'
 	env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/linux/include'])
@@ -357,21 +340,14 @@ else:
 
 # arm architecture?
 if (arm == 1):
-	asm = 0
 	env.Append(CPPDEFINES = ['WORDS_NEED_ALIGNMENT'])
 	env.Append(CPPFLAGS = ['-mstructure-size-boundary=8'])
 
-# sdl or opengl?
-if (sdl_only == 1):
-	print "building with SDL"
-	target = 'd2x-rebirth-sdl'
-	common_sources += arch_sdl_sources
-else:
-	print "building with OpenGL"
-	target = 'd2x-rebirth-gl'
-	env.Append(CPPDEFINES = ogldefines)
-	common_sources += arch_ogl_sources
-	libs += ogllibs
+print "building with OpenGL"
+target = 'd2x-rebirth-gl'
+env.Append(CPPDEFINES = ogldefines)
+common_sources += arch_ogl_sources
+libs += ogllibs
 
 # SDL_mixer support?
 if (sdlmixer == 1):
@@ -393,17 +369,6 @@ else:
 if (profiler == 1):
 	env.Append(CPPFLAGS = ['-pg'])
 	lflags += ' -pg'
-
-# assembler code?
-if (asm == 1) and (sdl_only == 1):
-	print "including: ASSEMBLER"
-	Object(['texmap/tmappent.S', 'texmap/tmapppro.S'], AS='gcc', ASFLAGS='-D' + str(osdef) + ' -c ')
-	env.Replace(AS = 'nasm')
-	env.Append(ASCOM = ' -f ' + str(osasmdef) + ' -d' + str(osdef) + ' -Itexmap/ ')
-	common_sources += asm_sources + ['texmap/tmappent.o', 'texmap/tmapppro.o']
-else:
-	env.Append(CPPDEFINES = ['NO_ASM'])
-	common_sources += noasm_sources
 
 #editor build?
 if (editor == 1):
@@ -453,9 +418,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	Extra options (add them to command line, like 'scons extraoption=value'):
 	
 	'sharepath=DIR'   (non-Mac OS *NIX only) use DIR for shared game data. (default: /usr/local/share/games/d2x-rebirth)
-	'sdl_only=1'      don't include OpenGL, use SDL-only instead
 	'sdlmixer=1'      use SDL_Mixer for sound (includes external music support)
-	'asm=1'           use ASSEMBLER code (only with sdl_only=1, requires NASM and x86)
 	'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
 	'profiler=1'      do profiler build
 	'editor=1'        build editor !EXPERIMENTAL!

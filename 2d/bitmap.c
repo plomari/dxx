@@ -1,4 +1,3 @@
-/* $Id: bitmap.c,v 1.1.1.1 2006/03/17 19:51:57 zicodxx Exp $ */
 /*
 THE COMPUTER CODE CONTAINED HEREIN IS THE SOLE PROPERTY OF PARALLAX
 SOFTWARE CORPORATION ("PARALLAX").  PARALLAX, IN DISTRIBUTING THE CODE TO
@@ -44,12 +43,12 @@ grs_bitmap *gr_create_bitmap(int w, int h )
 
 grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data )
 {
-    grs_bitmap *new;
+	grs_bitmap *new;
 
-    new = (grs_bitmap *)d_malloc( sizeof(grs_bitmap) );
+	new = (grs_bitmap *)d_malloc( sizeof(grs_bitmap) );
 	gr_init_bitmap (new, 0, 0, 0, w, h, w, raw_data);
 
-    return new;
+	return new;
 }
 
 
@@ -84,15 +83,14 @@ void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h,
 void gr_init_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 {
 	bm->bm_data = NULL;
-//	ogl_freebmtexture(bm);//not what we want here.
 	bm->bm_parent=NULL;bm->gltexture=NULL;
 }
 
 grs_bitmap *gr_create_sub_bitmap(grs_bitmap *bm, int x, int y, int w, int h )
 {
-    grs_bitmap *new;
+	grs_bitmap *new;
 
-    new = (grs_bitmap *)d_malloc( sizeof(grs_bitmap) );
+	new = (grs_bitmap *)d_malloc( sizeof(grs_bitmap) );
 	gr_init_sub_bitmap (new, bm, x, y, w, h);
 
 	return new;
@@ -137,64 +135,7 @@ void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int
 	bm->bm_data = bmParent->bm_data+(unsigned int)((y*bmParent->bm_rowsize)+x);
 }
 
-void decode_data_asm(ubyte *data, int num_pixels, ubyte * colormap, int * count );
-
-#if !defined(NO_ASM) && defined(__WATCOMC__)
-
-#pragma aux decode_data_asm parm [esi] [ecx] [edi] [ebx] modify exact [esi edi eax ebx ecx] = \
-"again_ddn:"							\
-	"xor	eax,eax"				\
-	"mov	al,[esi]"			\
-	"inc	dword ptr [ebx+eax*4]"		\
-	"mov	al,[edi+eax]"		\
-	"mov	[esi],al"			\
-	"inc	esi"					\
-	"dec	ecx"					\
-	"jne	again_ddn"
-
-#elif !defined(NO_ASM) && defined(__GNUC__)
-
-inline void decode_data_asm(ubyte *data, int num_pixels, ubyte * colormap, int * count ) {
-	int dummy[4];
-   __asm__ __volatile__ (
-    "xorl   %%eax,%%eax;"
-"0:;"
-    "movb   (%%esi), %%al;"
-    "incl   (%%ebx, %%eax, 4);"
-    "movb   (%%edi, %%eax), %%al;"
-    "movb   %%al, (%%esi);"
-    "incl   %%esi;"
-    "decl   %%ecx;"
-    "jne    0b"
-    : "=S" (dummy[0]), "=c" (dummy[1]), "=D" (dummy[2]), "=b" (dummy[3])
-	: "0" (data), "1" (num_pixels), "2" (colormap), "3" (count)
-	: "%eax");
-}
-
-#elif !defined(NO_ASM) && defined(_MSC_VER)
-
-__inline void decode_data_asm(ubyte *data, int num_pixels, ubyte * colormap, int * count )
-{
-  __asm {
-	mov esi,[data]
-	mov ecx,[num_pixels]
-	mov edi,[colormap]
-	mov ebx,[count]
-again_ddn:
-	xor eax,eax
-	mov al,[esi]
-	inc dword ptr [ebx+eax*4]
-	mov al,[edi+eax]
-	mov [esi],al
-	inc esi
-	dec ecx
-	jne again_ddn
-  }
-}
-
-#else // NO_ASM or unknown compiler
-
-void decode_data_asm(ubyte *data, int num_pixels, ubyte *colormap, int *count)
+void decode_data(ubyte *data, int num_pixels, ubyte *colormap, int *count)
 {
 	int i;
 	ubyte mapped;
@@ -206,8 +147,6 @@ void decode_data_asm(ubyte *data, int num_pixels, ubyte *colormap, int *count)
 		data++;
 	}
 }
-
-#endif
 
 void gr_set_bitmap_flags (grs_bitmap *pbm, int flags)
 {
@@ -270,7 +209,7 @@ void gr_remap_bitmap( grs_bitmap * bmp, ubyte * palette, int transparent_color, 
 	if ( (transparent_color>=0) && (transparent_color<=255))
 		colormap[transparent_color] = TRANSPARENCY_COLOR;
 
-	decode_data_asm(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq );
+	decode_data(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq );
 
 	if ( (transparent_color>=0) && (transparent_color<=255) && (freq[transparent_color]>0) )
 		gr_set_transparent (bmp, 1);
@@ -294,12 +233,12 @@ void gr_remap_bitmap_good( grs_bitmap * bmp, ubyte * palette, int transparent_co
 		colormap[transparent_color] = TRANSPARENCY_COLOR;
 
 	if (bmp->bm_w == bmp->bm_rowsize)
-		decode_data_asm(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq );
+		decode_data(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq );
 	else {
 		int y;
 		ubyte *p = bmp->bm_data;
 		for (y=0;y<bmp->bm_h;y++,p+=bmp->bm_rowsize)
-			decode_data_asm(p, bmp->bm_w, colormap, freq );
+			decode_data(p, bmp->bm_w, colormap, freq );
 	}
 
 	if ( (transparent_color>=0) && (transparent_color<=255) && (freq[transparent_color]>0) )

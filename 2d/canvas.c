@@ -94,14 +94,6 @@ void gr_set_current_canvas( grs_canvas *canv )
 		grd_curcanv = &(grd_curscreen->sc_canvas);
 	else
 		grd_curcanv = canv;
-#ifndef NO_ASM
-	if ( (grd_curcanv->cv_color >= 0) && (grd_curcanv->cv_color <= 255) )	{
-		gr_var_color = grd_curcanv->cv_color;
-	} else
-		gr_var_color  = 0;
-	gr_var_bitmap = grd_curcanv->cv_bitmap.bm_data;
-	gr_var_bwidth = grd_curcanv->cv_bitmap.bm_rowsize;
-#endif
 }
 
 void gr_clear_canvas(int color)
@@ -113,8 +105,5 @@ void gr_clear_canvas(int color)
 void gr_setcolor(int color)
 {
 	grd_curcanv->cv_color=color;
-#ifndef NO_ASM
-	gr_var_color = color;
-#endif
 }
 
