@@ -19,6 +19,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 ||||||| parent of 3adc5fe77... Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
 =======
@@ -58,6 +59,13 @@ arch/sdl/digi.c, inlcude/hmp.h, misc/hmp.c: Improvement on the HMP track loop fe
 =======
 ||||||| parent of 4f160df96... Revamped what previously was the BUMP_HACK by checking if an object is actually intersecting a segment and move it out towards segment center just after the initial object movement composed by fvi and before velocity is made - should make inaccurate wall collisions a bit smoother and prevent objects from goind inside or through walls, too
 =======
+||||||| parent of 518e01fbe... In event_process() check for wind->next before sending EVENT_WINDOW_DRAW in case drawing will free wind
+=======
+20110126
+--------
+arc/sdl/event.c: In event_process() check for wind->next before sending EVENT_WINDOW_DRAW in case drawing will free wind
+
+>>>>>>> 518e01fbe... In event_process() check for wind->next before sending EVENT_WINDOW_DRAW in case drawing will free wind
 20110124
 --------
 main/physics.c: Revamped what previously was the BUMP_HACK by checking if an object is actually intersecting a segment and move it out towards segment center just after the initial object movement composed by fvi and before velocity is made - should make inaccurate wall collisions a bit smoother and prevent objects from goind inside or through walls, too
