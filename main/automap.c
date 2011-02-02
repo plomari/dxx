@@ -655,9 +655,9 @@ int automap_idle(window *wind, d_event *event, automap *am)
 		return 1;
 	}
 	
-	controls_read_all(1);
-	
-	if ( Controls.automap_down_count )	{
+	if ( Controls.automap_count > 0)
+	{
+		Controls.automap_count = 0;
 		if (am->leave_mode==0)
 		{
 			window_close(wind);
@@ -665,13 +665,14 @@ int automap_idle(window *wind, d_event *event, automap *am)
 		}
 	}
 	
-	if ( Controls.fire_primary_down_count )	{
+	if ( Controls.fire_primary_count > 0)	{
 		// Reset orientation
 		am->viewDist = ZOOM_DEFAULT;
 		am->tangles.p = PITCH_DEFAULT;
 		am->tangles.h  = 0;
 		am->tangles.b  = 0;
 		am->view_target = Objects[Players[Player_num].objnum].pos;
+		Controls.fire_primary_count = 0;
 	}
 	
 	am->viewDist -= Controls.forward_thrust_time*ZOOM_SPEED_FACTOR;
@@ -732,16 +733,27 @@ int automap_handler(window *wind, d_event *event, automap *am)
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
 			event_toggle_focus(1);
+			key_toggle_repeat(0);
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
 			event_toggle_focus(0);
+			key_toggle_repeat(1);
 			break;
 
+		case EVENT_JOYSTICK_BUTTON_UP:
+		case EVENT_JOYSTICK_BUTTON_DOWN:
+		case EVENT_JOYSTICK_MOVED:
+		case EVENT_MOUSE_BUTTON_UP:
+		case EVENT_MOUSE_BUTTON_DOWN:
+		case EVENT_MOUSE_MOVED:
 		case EVENT_KEY_COMMAND:
+		case EVENT_KEY_RELEASE:
+			kconfig_read_controls(event, 1);
 			return automap_key_command(wind, event, am);
 
 		case EVENT_IDLE:
+			kconfig_read_controls(event, 1);
 			return automap_idle(wind, event, am);
 			break;
 			
@@ -751,6 +763,7 @@ int automap_handler(window *wind, d_event *event, automap *am)
 			
 		case EVENT_WINDOW_CLOSE:
 			event_toggle_focus(0);
+			key_toggle_repeat(1);
 #ifdef OGL
 			gr_free_bitmap_data(&am->automap_background);
 #endif
@@ -1379,6 +1392,7 @@ void InitMarkerInput ()
 	Marker_index=0;
 	DefiningMarkerMessage=1;
 	MarkerBeingDefined = i;
+	key_toggle_repeat(1);
 }
 
 int MarkerInputMessage(int key)
@@ -1388,6 +1402,7 @@ int MarkerInputMessage(int key)
 		case KEY_F8:
 		case KEY_ESC:
 			DefiningMarkerMessage = 0;
+			key_toggle_repeat(0);
 			game_flush_inputs();
 			break;
 		case KEY_LEFT:
@@ -1403,6 +1418,7 @@ int MarkerInputMessage(int key)
 			strcpy (MarkerOwner[(Player_num*2)+MarkerBeingDefined],Players[Player_num].callsign);
 			DropMarker(MarkerBeingDefined);
 			LastMarkerDropped = MarkerBeingDefined;
+			key_toggle_repeat(0);
 			game_flush_inputs();
 			DefiningMarkerMessage = 0;
 			break;
