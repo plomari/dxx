@@ -22,6 +22,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 ||||||| parent of 3adc5fe77... Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
 =======
@@ -67,6 +68,13 @@ arch/sdl/digi.c, inlcude/hmp.h, misc/hmp.c: Improvement on the HMP track loop fe
 =======
 ||||||| parent of fbf27484f... Little fixes for recent kconfig/event overhaul: Automap inputs read by kconfig should be processed by input rather than idle and automap frame calculations should be done while drawing; Fixed drop_bomb_count which could roll over to 255 dropping bombs without end
 =======
+||||||| parent of 488c44f9c... Increased key repeat values to react a little more like the MS-DOS version of the game but a little slower so I can still stop at the correct item; In automap reorganized control_info swapping as well as wiggle state handling to properly work in connection with the new input handling and Multiplayer where game is not paused
+=======
+20110206
+--------
+arch/include/key.h, main/automap.c: Increased key repeat values to react a little more like the MS-DOS version of the game but a little slower so I can still stop at the correct item; In automap reorganized control_info swapping as well as wiggle state handling to properly work in connection with the new input handling and Multiplayer where game is not paused
+
+>>>>>>> 488c44f9c... Increased key repeat values to react a little more like the MS-DOS version of the game but a little slower so I can still stop at the correct item; In automap reorganized control_info swapping as well as wiggle state handling to properly work in connection with the new input handling and Multiplayer where game is not paused
 20110203
 --------
 main/automap.c, main/gamecntl.c: Little fixes for recent kconfig/event overhaul: Automap inputs read by kconfig should be processed by input rather than idle and automap frame calculations should be done while drawing; Fixed drop_bomb_count which could roll over to 255 dropping bombs without end
