@@ -23,12 +23,22 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 ||||||| parent of 3adc5fe77... Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
 =======
 20110103
 ||||||| parent of 09da4f9f5... Mousebutton assigned to CYCLE SECONADARY was actually calling CYCLE PRIMARY
 20110109
+||||||| parent of 5bac68c5c... Fixed broken FlightSim indicator on Automap; Fixed Assert for using mouse buttons in kconfig (which can react to UP and DOWN states); Added scrolling support for menus flagged tiny_mode and all_text
+20110209
+=======
+20110210
+--------
+main/automap.c, main/gauges.c, main/gauges.h, main/kconfig.c, main/newmenu.c, main/newmenu.h: Fixed broken FlightSim indicator on Automap; Fixed Assert for using mouse buttons in kconfig (which can react to UP and DOWN states); Added scrolling support for menus flagged tiny_mode and all_text
+
+20110209
+>>>>>>> 5bac68c5c... Fixed broken FlightSim indicator on Automap; Fixed Assert for using mouse buttons in kconfig (which can react to UP and DOWN states); Added scrolling support for menus flagged tiny_mode and all_text
 --------
 <<<<<<< HEAD
 main/net_udp.h: Set max UDP packet size to 1024 again (seems some configuration DO have problems with larger packets after all)
