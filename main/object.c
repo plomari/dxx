@@ -50,10 +50,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "fuelcen.h"
 #include "endlevel.h"
-
 #include "sounds.h"
 #include "collide.h"
-
 #include "lighting.h"
 #include "newdemo.h"
 #include "player.h"
@@ -68,11 +66,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "gameseq.h"
 #include "playsave.h"
-
+#ifdef OGL
 #include "ogl_init.h"
-#include "gamefont.h"
+#endif
 #include "../3d/globvars.h"
-
+#include "gamefont.h"
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -507,18 +505,12 @@ void draw_polygon_object(object *obj)
 				if (obj->ctype.ai_info.behavior == AIB_SNIPE)
 					light = 2*light + F1_0;
 			}
-			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 ))
-				Gr_scanline_darkening_level = 1;
-			draw_polygon_model(&obj->pos,
-					   &obj->orient,
-					   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
-					   obj->rtype.pobj_info.subobj_flags,
-					   light,
-					   engine_glow_value,
-					   alt_textures);
-			Gr_scanline_darkening_level = GR_FADE_LEVELS;
+
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
 				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
+#ifdef OGL
+				ogl_toggle_laser_blending(1);
+#endif
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
 					draw_polygon_model(&obj->pos,
 							   &obj->orient,
@@ -529,6 +521,18 @@ void draw_polygon_object(object *obj)
 							   engine_glow_value,
 							   alt_textures);
 			}
+			
+			draw_polygon_model(&obj->pos,
+					   &obj->orient,
+					   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
+					   obj->rtype.pobj_info.subobj_flags,
+					   light,
+					   engine_glow_value,
+					   alt_textures);
+#ifdef OGL
+			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 ))
+				ogl_toggle_laser_blending(0);
+#endif
 		}
 	}
 
