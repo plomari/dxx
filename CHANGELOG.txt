@@ -28,6 +28,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 ||||||| parent of 3adc5fe77... Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
 =======
@@ -49,6 +50,13 @@ SConstruct, d2x.ini, include/args.h, main/ai.c, main/ai.h, main/ai2.c, main/auto
 =======
 ||||||| parent of bddb2e97a... Fixed PRShot feature which was accidentially broken while implementation of OpenGL ES support
 =======
+||||||| parent of d57eed80b... When recording cloaking or unclocking wall to demo, make sure the very first frame is recorded, too so wall will correctly transform back when rewinding the demo
+=======
+20110217
+--------
+main/wall.c: When recording cloaking or unclocking wall to demo, make sure the very first frame is recorded, too so wall will correctly transform back when rewinding the demo
+
+>>>>>>> d57eed80b... When recording cloaking or unclocking wall to demo, make sure the very first frame is recorded, too so wall will correctly transform back when rewinding the demo
 20110215
 --------
 main/gamecntl.c: Fixed PRShot feature which was accidentially broken while implementation of OpenGL ES support
