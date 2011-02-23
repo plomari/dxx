@@ -32,6 +32,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 ||||||| parent of 3adc5fe77... Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
 =======
@@ -61,6 +62,13 @@ SConstruct, d2x.ini, include/args.h, main/ai.c, main/ai.h, main/ai2.c, main/auto
 =======
 ||||||| parent of 635dcfee4... Fix a critical bug in string_array_add - when d_reallocing the buffer containing the string data, update all the pointers in '*list' as well as next_str, preventing ugly crashes
 =======
+||||||| parent of c960d5505... Added cv_fade_level to canvas structure to replace Gr_scanline_darkening_level; Added cv_blend_func to canvas structure to set blending; Introduced gr_settransblend to set cv_fade_level and cv_blend_func; Added function to set normal blending, additive alpha blending and additive color blending; Moved Special transparency effects from g3_draw_bitmap to render_object to set individual transparency and/or blending for each object outside of OpenGL-specific code; Added special blending for fuelcenter and force field effects as well; Removed unused LASER_HACK code; Renamed OglAlphaEffects variable of PalyerCfg to AlphaEffects as I plan to implement this kind of effects for Software renderer, too
+=======
+20110223
+--------
+2d/2dsline.c, 2d/canvas.c, arch/ogl/gr.c, arch/ogl/ogl.c, arch/sdl/gr.c, include/3d.h, include/gr.h, include/ogl_init.h, main/ai.c, main/ai.h, main/console.c, main/effects.h, main/gamerend.c, main/gauges.c, main/hud.c, main/menu.c, main/multibot.c, main/newmenu.c, main/object.c, main/playsave.c, main/playsave.h, main/render.c, texmap/tmapflat.c: Added cv_fade_level to canvas structure to replace Gr_scanline_darkening_level; Added cv_blend_func to canvas structure to set blending; Introduced gr_settransblend to set cv_fade_level and cv_blend_func; Added function to set normal blending, additive alpha blending and additive color blending; Moved Special transparency effects from g3_draw_bitmap to render_object to set individual transparency and/or blending for each object outside of OpenGL-specific code; Added special blending for fuelcenter and force field effects as well; Removed unused LASER_HACK code; Renamed OglAlphaEffects variable of PalyerCfg to AlphaEffects as I plan to implement this kind of effects for Software renderer, too
+
+>>>>>>> c960d5505... Added cv_fade_level to canvas structure to replace Gr_scanline_darkening_level; Added cv_blend_func to canvas structure to set blending; Introduced gr_settransblend to set cv_fade_level and cv_blend_func; Added function to set normal blending, additive alpha blending and additive color blending; Moved Special transparency effects from g3_draw_bitmap to render_object to set individual transparency and/or blending for each object outside of OpenGL-specific code; Added special blending for fuelcenter and force field effects as well; Removed unused LASER_HACK code; Renamed OglAlphaEffects variable of PalyerCfg to AlphaEffects as I plan to implement this kind of effects for Software renderer, too
 20110221
 --------
 misc/strutil.c: Fix a critical bug in string_array_add - when d_reallocing the buffer containing the string data, update all the pointers in '*list' as well as next_str, preventing ugly crashes

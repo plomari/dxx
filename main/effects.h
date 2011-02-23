@@ -34,6 +34,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // D2X-XL
 #define EF_ALTFMT	8
 
+#define ECLIP_NUM_FUELCEN     2
+#define ECLIP_NUM_BOSS        53
+#define ECLIP_NUM_FORCE_FIELD 78
+
 typedef struct eclip {
 	vclip   vc;             //imbedded vclip
 	fix     time_left;      //for sequencing

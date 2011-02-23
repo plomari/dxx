@@ -53,6 +53,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "internal.h"
 #include "gamemine.h"
+#include "timer.h"
+#include "effects.h"
+#include "playsave.h"
 #include "ogl_init.h"
 
 #define INITIAL_LOCAL_LIGHT (F1_0/4)    // local light value in segment of occurence (of light emission)
@@ -228,12 +231,12 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 	//handle cloaked walls
 	if (wid_flags & WID_CLOAKED_FLAG) {
 		Assert(wall_num != -1);
-		Gr_scanline_darkening_level = Walls[wall_num].cloak_value;
+		gr_settransblend(Walls[wall_num].cloak_value, GR_BLEND_NORMAL);
 		gr_setcolor(BM_XRGB(0, 0, 0));  // set to black (matters for s3)
 
 		g3_draw_poly(nv, pointlist);    // draw as flat poly
 
-		Gr_scanline_darkening_level = GR_FADE_LEVELS;
+		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 
 		return;
 	}
@@ -302,12 +305,8 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 		}
 	}
 
-#if 0
-	if (segnum == highlight_seg && sidenum == highlight_side) {
-		Gr_color[0] = 0;
-		Gr_color[2] = 0;
-	}
-#endif
+	if ( PlayerCfg.AlphaEffects && ( TmapInfo[tmap1].eclip_num == ECLIP_NUM_FUELCEN || TmapInfo[tmap1].eclip_num == ECLIP_NUM_FORCE_FIELD ) ) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
+		gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 
 #ifdef EDITOR
 	if ((Render_only_bottom) && (sidenum == WBOTTOM))
@@ -320,7 +319,11 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 		}else
 			g3_draw_tmap(nv,pointlist,uvl_copy,bm);
 
+	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
+
+#ifndef NDEBUG
 	if (Outline_mode) draw_outline(nv, pointlist);
+#endif
 
 #if 1
 	for (int i = 0; i < 3; i++)
@@ -1660,7 +1663,7 @@ void build_object_lists(int n_segs)
                             int t = render_objs[lookn].objnum;
 						sort_list[n_sort_items].objnum = t;
 						//NOTE: maybe use depth, not dist - quicker computation
-						sort_list[n_sort_items].dist = vm_vec_dist_quick(&Objects[t].pos,&Viewer_eye);
+						sort_list[n_sort_items].dist = vm_vec_dist(&Objects[t].pos,&Viewer_eye);
 						n_sort_items++;
                             lookn = render_objs[lookn].next;
                         }
@@ -2048,10 +2051,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	//	Initialize number of objects (actually, robots!) rendered this frame.
 	Window_rendered_data[window_num].num_objects = 0;
 
-#ifdef LASER_HACK
-	Hack_nlasers = 0;
-#endif
-
 	#ifndef NDEBUG
 	for (i=0;i<=Highest_object_index;i++)
 		object_rendered[i] = 0;
@@ -2295,20 +2294,9 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 				for (;index >= 0;index = render_objs[index].next) {
 					int ObjNumber = render_objs[index].objnum;
 
-						#ifdef LASER_HACK
-						if ( 	(Objects[ObjNumber].type==OBJ_WEAPON) && 								//if its a weapon
-								(Objects[ObjNumber].lifeleft==Laser_max_time ) && 	//  and its in it's first frame
-								(Hack_nlasers< MAX_HACKED_LASERS) && 									//  and we have space for it
-								(Objects[ObjNumber].laser_info.parent_num>-1) &&					//  and it has a parent
-								((Viewer-Objects)==Objects[ObjNumber].laser_info.parent_num)	//  and it's parent is the viewer
-						   )		{
-							Hack_laser_list[Hack_nlasers++] = ObjNumber;								//then make it draw after everything else.
-						} else
-						#endif
-							do_render_object(ObjNumber, window_num);	// note link to above else
+					do_render_object(ObjNumber, window_num);	// note link to above else
 
-						objnp++;
-
+					objnp++;
 				}
 
 				Max_linear_depth = save_linear_depth;
@@ -2358,14 +2346,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 			}
 			visited[segnum]=255;
 		}
-	}
-#endif
-
-								
-#ifdef LASER_HACK								
-	// Draw the hacked lasers last
-	for (i=0; i < Hack_nlasers; i++ )	{
-		do_render_object(Hack_laser_list[i], window_num);
 	}
 #endif
 

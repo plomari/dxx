@@ -208,7 +208,7 @@ bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_
 
 //draws a bitmap with the specified 3d width & height
 //returns 1 if off screen, 0 if drew
-bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, struct object *obj);
+bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm);
 
 void g3_set_flat_shading(bool enable);
 

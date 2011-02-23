@@ -26,8 +26,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "grdef.h"
 #include "error.h"
 
-int Gr_scanline_darkening_level = GR_FADE_LEVELS;
-
 void gr_uscanline( int x1, int x2, int y )
 {
 	Assert(0); // old code for BM_OGL made no sense
