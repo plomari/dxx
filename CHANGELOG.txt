@@ -70,6 +70,7 @@ SConstruct, d2x.ini, include/args.h, main/ai.c, main/ai.h, main/ai2.c, main/auto
 20110224
 --------
 2d/canvas.c: Fix for last revision: Correctly initialize cv_fade_level and cv_blend_func when creating initializing a canvas
+main/multi.c, main/piggy.c: Using gr_init_bitmap for hoard data initialization; Correctly free hoard data before the program closes; When reloading the main HAM files, made sure it does not try to reload main game sounds from shareware/demo HAM
 
 >>>>>>> 36c291d5d... Fix for last revision: Correctly initialize cv_fade_level and cv_blend_func when creating initializing a canvas
 20110223
