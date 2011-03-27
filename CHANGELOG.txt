@@ -37,6 +37,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 ||||||| parent of 3adc5fe77... Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
 =======
@@ -76,6 +77,13 @@ SConstruct, d2x.ini, include/args.h, main/ai.c, main/ai.h, main/ai2.c, main/auto
 =======
 ||||||| parent of 56348243b... Again reworked new bump hack to only apply when fate == HIT_WALL (to not break level SKYBOX) and made bumping by distance  between object position and wall hit point; Removed/handled some safety checks in find_plane_line_intersection() to make sliding along joining edges smoother again while bad values *should* be handled in pyhsics.c and not make object warp-crashing tru the whole level or stuck in walls (fvi code should still be rewritten tho)
 =======
+||||||| parent of 4301faad9... Another rework for anti-stuck-bumping: Execute after calculation of velocity and add fvi check to make sure we deal with an actual wall collision
+=======
+20110327
+--------
+main/physics.c: Another rework for anti-stuck-bumping: Execute after calculation of velocity and add fvi check to make sure we deal with an actual wall collision
+
+>>>>>>> 4301faad9... Another rework for anti-stuck-bumping: Execute after calculation of velocity and add fvi check to make sure we deal with an actual wall collision
 20110314
 --------
 main/fvi.c, main/physics.c: Again reworked new bump hack to only apply when fate == HIT_WALL (to not break level SKYBOX) and made bumping by distance  between object position and wall hit point; Removed/handled some safety checks in find_plane_line_intersection() to make sliding along joining edges smoother again while bad values *should* be handled in pyhsics.c and not make object warp-crashing tru the whole level or stuck in walls (fvi code should still be rewritten tho)
