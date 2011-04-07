@@ -4218,7 +4218,6 @@ void net_udp_do_frame(int force, int listen)
 	if (time >= (last_send_time+(F1_0/Netgame.PacketsPerSec)))
 	{
 		multi_send_robot_frame(0);
-		multi_send_fire(); // Do firing if needed..
 		
 		last_send_time = time;
 		
@@ -4228,7 +4227,10 @@ void net_udp_do_frame(int force, int listen)
 	}
 
 	if (send_mdata)
+	{
+		multi_send_fire(); // Do firing if needed..
 		net_udp_send_mdata(PacketUrgent, time);
+	}
 
 	net_udp_noloss_process_queue(time);
 
