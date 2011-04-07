@@ -72,10 +72,10 @@ bool g3_check_and_draw_poly(int nv,g3s_point **pointlist,vms_vector *norm,vms_ve
 		return 255;
 }
 
-bool g3_check_and_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm,vms_vector *norm,vms_vector *pnt)
+bool g3_check_and_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm,vms_vector *norm,vms_vector *pnt)
 {
 	if (do_facing_check(norm,pointlist,pnt))
-		return g3_draw_tmap(nv,pointlist,uvl_list,bm);
+		return g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,bm);
 	else
 		return 255;
 }
