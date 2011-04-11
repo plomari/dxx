@@ -2568,7 +2568,7 @@ void show_HUD_names()
 	int show_team_names,show_all_names,show_indi,player_team;
 	int pnum;
 
-	show_all_names = ((Newdemo_state == ND_STATE_PLAYBACK) || (Netgame.ShowAllNames && Show_reticle_name));
+	show_all_names = ((Newdemo_state == ND_STATE_PLAYBACK) || (Show_reticle_name));
 	show_team_names = (((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_TEAM)) && Show_reticle_name);
 	show_indi = Game_mode & ( GM_CAPTURE | GM_HOARD | GM_BOUNTY );
 
@@ -2625,7 +2625,7 @@ void show_HUD_names()
 						if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
 							strcpy( s, "Target" );
 						else
-							sprintf(s, "%s", Players[pnum].callsign);
+							snprintf( s, strlen(Players[pnum].callsign), "%s", Players[pnum].callsign );
 						
 						gr_get_string_size(s, &w, &h, &aw);
 						gr_set_fontcolor(BM_XRGB(player_rgb[color_num].r,player_rgb[color_num].g,player_rgb[color_num].b),-1 );
