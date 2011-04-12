@@ -91,6 +91,7 @@ typedef struct _grs_bitmap {
 	                                //   SVGA = *parent+(rowsize*y+x)
 	unsigned short      bm_handle;  //for application.  initialized to 0
 	ubyte   avg_color;  //  Average color of all pixels in texture map.
+	fix avg_color_rgb[3]; // same as above but real rgb value to be used to textured objects that should emit light
 	uint8_t				bm_depth;	// bytes per pixel (1 or 4)
 	struct _ogl_texture *gltexture;
 	struct _grs_bitmap  *bm_parent;

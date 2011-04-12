@@ -220,7 +220,6 @@ typedef struct vclip_info {
 	int     vclip_num;
 	fix     frametime;
 	sbyte   framenum;
-	//g3s_lrgb lrgb; // light color this vclip will emit
 } __pack__ vclip_info;
 
 // structures for different kinds of rendering
@@ -231,7 +230,6 @@ typedef struct polyobj_info {
 	int     subobj_flags;       // specify which subobjs to draw
 	int     tmap_override;      // if this is not -1, map all face to this
 	int     alt_textures;       // if not -1, use these textures instead
-	//g3s_lrgb lrgb; // light color this polyobj will emit
 } __pack__ polyobj_info;
 
 typedef struct object {
