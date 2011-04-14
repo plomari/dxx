@@ -3,6 +3,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 --------
@@ -13,6 +14,13 @@ main/game.c, main/gamecntl.c, main/gamerend.c, main/gauges.c, main/multi.c, main
 =======
 ||||||| parent of f42aa8a5f... Improved security for UDP protocol: Add checks for correct packet size and - if possible - valid sender address (valid player) and making sure Clients only accept packets meant for Clients and Hosts only accept packets meant for Hosts
 =======
+||||||| parent of 54674a47c... Fixing km struct being used after it's being freed by closing the window in EVENT_WINDOW_DRAW
+=======
+20110414
+--------
+main/kmatrix.c: Fixing km struct being used after it's being freed by closing the window in EVENT_WINDOW_DRAW
+
+>>>>>>> 54674a47c... Fixing km struct being used after it's being freed by closing the window in EVENT_WINDOW_DRAW
 20110413
 --------
 main/net_udp.c, main/net_udp.h: Improved security for UDP protocol: Add checks for correct packet size and - if possible - valid sender address (valid player) and making sure Clients only accept packets meant for Clients and Hosts only accept packets meant for Hosts
