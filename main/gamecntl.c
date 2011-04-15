@@ -2115,8 +2115,9 @@ int ReadControls(d_event *event)
 	} else {
 		exploding_flag=0;
 	}
-	if (Player_is_dead)
-		return HandleDeathInput(event);
+	if (Player_is_dead )
+		if (HandleDeathInput(event))
+			return 1;
 
 	if (Newdemo_state == ND_STATE_PLAYBACK )
 		update_vcr_state();
