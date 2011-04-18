@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 --------
@@ -16,6 +17,13 @@ main/game.c, main/gamecntl.c, main/gamerend.c, main/gauges.c, main/multi.c, main
 =======
 ||||||| parent of 54674a47c... Fixing km struct being used after it's being freed by closing the window in EVENT_WINDOW_DRAW
 =======
+||||||| parent of cc5a7d135... Fix broken m3u playlist support (in jukebox_play() path resolving); point to default descent.m3u playlist for Mac OS X (will be included in bundle); better error reporting in mix_play_file(); only make relative Jukebox path in the menu absolute after browsing it - relative paths are more flexible; allow select_file_recursive() to figure out PhysicsFS relative paths passed to it; stop the music if Jukebox is chosen and unavailable (used to just keep playing the last song)
+=======
+20110418
+--------
+arch/sdl/digi_mixer_music.c, arch/sdl/jukebox.c, main/config.c, main/menu.c, main/songs.c, main/songs.h, main/titles.c: Fix broken m3u playlist support (in jukebox_play() path resolving); point to default descent.m3u playlist for Mac OS X (will be included in bundle); better error reporting in mix_play_file(); only make relative Jukebox path in the menu absolute after browsing it - relative paths are more flexible; allow select_file_recursive() to figure out PhysicsFS relative paths passed to it; stop the music if Jukebox is chosen and unavailable (used to just keep playing the last song)
+
+>>>>>>> cc5a7d135... Fix broken m3u playlist support (in jukebox_play() path resolving); point to default descent.m3u playlist for Mac OS X (will be included in bundle); better error reporting in mix_play_file(); only make relative Jukebox path in the menu absolute after browsing it - relative paths are more flexible; allow select_file_recursive() to figure out PhysicsFS relative paths passed to it; stop the music if Jukebox is chosen and unavailable (used to just keep playing the last song)
 20110414
 --------
 main/kmatrix.c: Fixing km struct being used after it's being freed by closing the window in EVENT_WINDOW_DRAW
