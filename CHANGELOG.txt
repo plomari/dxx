@@ -8,7 +8,14 @@ D2X-Rebirth Changelog
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 --------
+<<<<<<< HEAD
 main/game.c, main/gamecntl.c, main/gamerend.c, main/gauges.c, main/multi.c, main/multi.h: Improved syntax for Multi messages/commands: Commands starting with '/' and those accepting arguments as well as Player/Team messages require space after ':' ; Added indicator on HUD to show if a player is typing a message to prevent accidential kills
+||||||| parent of a498f20bc... Moved reloading of main descent2.ham (in case mission brings it's own verision) from LoadLevel() to load_mission() so it does not screw missions with ther custom ham-file (like vertigo)
+main/multi.c, main/state.c: Resolved termination issue when reading and comparing callsigns fro Coop savestates; Added scores sending after Coop savestate loading as unrestored players will send them when loading new level
+=======
+main/multi.c, main/state.c: Resolved termination issue when reading and comparing callsigns fro Coop savestates; Added scores sending after Coop savestate loading as unrestored players will send them when loading new level
+main/gameseq.c, main/misison.c: Moved reloading of main descent2.ham (in case mission brings it's own version) from LoadLevel() to load_mission() so it does not screw missions with ther custom ham-file (like vertigo)
+>>>>>>> a498f20bc... Moved reloading of main descent2.ham (in case mission brings it's own verision) from LoadLevel() to load_mission() so it does not screw missions with ther custom ham-file (like vertigo)
 
 =======
 ||||||| parent of baeca7ebf... Little fix for typing-indicator in multiplayer - was showing comma even if no player name was displayed; Removed team_vector from UDP lite_info structure - it's not needed; Removed ShowAllNames from Netgame structure as I see no reason why names display should be host-controlled; Increased UDP_NETGAMES_PAGES to actually show 3000 possible games
