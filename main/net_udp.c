@@ -3411,6 +3411,7 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 	if (Netgame.segments_checksum != my_segments_checksum)
 	{
 		Network_status = NETSTAT_MENU;
+		net_udp_close();
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_NETLEVEL_NMATCH);
 #ifdef RELEASE
 		return;
@@ -4037,7 +4038,10 @@ void net_udp_leave_game()
 	if ((multi_i_am_master()))
 	{
 		while (Network_sending_extras>1 && Player_joining_extras!=-1)
+		{
+			timer_update();
 			net_udp_send_extras();
+		}
 
 		Netgame.numplayers = 0;
 		nsave=N_players;
