@@ -7,6 +7,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -18,6 +19,13 @@ D2X-Rebirth Changelog
 2d/rle.c, SConstruct, main/segment.h, main/texmerge.c: Expanded possibilities for level authors: RLE- and Texture-cache accepts textures bigger than 64x64, only limit being Texture width must be equal height; Increased maximum amount of Segments from 900 to 9000 - not dynamically allocating them, yet
 
 =======
+||||||| parent of 2a682044d... Check if a menu closed in a subfunction before setting it's return value, fixing crash when levels are mismatched in multiplayer; Small tidy up for Xcode project
+=======
+20110424
+--------
+d2x-rebirth.xcodeproj/project.pbxproj, main/newmenu.c: Check if a menu closed in a subfunction before setting it's return value, fixing crash when levels are mismatched in multiplayer; Small tidy up for Xcode project
+
+>>>>>>> 2a682044d... Check if a menu closed in a subfunction before setting it's return value, fixing crash when levels are mismatched in multiplayer; Small tidy up for Xcode project
 20110422
 --------
 2d/rle.c, SConstruct, main/segment.h, main/texmerge.c: Expanded possibilities for level authors: RLE- and Texture-cache accepts textures bigger than 64x64, only limit being Texture width must be equal height; Increased maximum amount of Segments from 900 to 9000 - not dynamically allocating them, yet
