@@ -8,6 +8,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -22,8 +23,13 @@ D2X-Rebirth Changelog
 ||||||| parent of 2a682044d... Check if a menu closed in a subfunction before setting it's return value, fixing crash when levels are mismatched in multiplayer; Small tidy up for Xcode project
 =======
 20110424
+||||||| parent of 4d2e19a96... Since current approach to improve wall collisions prevented the player to enter segments which basically are too small for the player ship, added simple bumping function via object_intersects_wall(); Also when validating segments check for segment degeneration outside the editor build, too and set flag in segment structure for all different purposes but right now helps us to disable bumping when encountering degenerated segments and not break such levels
+20110424
+=======
+20110504
+>>>>>>> 4d2e19a96... Since current approach to improve wall collisions prevented the player to enter segments which basically are too small for the player ship, added simple bumping function via object_intersects_wall(); Also when validating segments check for segment degeneration outside the editor build, too and set flag in segment structure for all different purposes but right now helps us to disable bumping when encountering degenerated segments and not break such levels
 --------
-d2x-rebirth.xcodeproj/project.pbxproj, main/newmenu.c: Check if a menu closed in a subfunction before setting it's return value, fixing crash when levels are mismatched in multiplayer; Small tidy up for Xcode project
+editor/segment.c, main/fvi.c, main/gameseg.c, main/physics.c, main/segment.h: Since current approach to improve wall collisions prevented the player to enter segments which basically are too small for the player ship, added simple bumping function via object_intersects_wall(); Also when validating segments check for segment degeneration outside the editor build, too and set flag in segment structure for all different purposes but right now helps us to disable bumping when encountering degenerated segments and not break such levels
 
 >>>>>>> 2a682044d... Check if a menu closed in a subfunction before setting it's return value, fixing crash when levels are mismatched in multiplayer; Small tidy up for Xcode project
 20110422
