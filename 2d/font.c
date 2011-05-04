@@ -518,8 +518,6 @@ void ogl_init_font(grs_font * font)
 	gr_set_transparent(&font->ft_parent_bitmap, 1);
 
 	ogl_init_texture(font->ft_parent_bitmap.gltexture = ogl_get_free_texture(), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.
-	if (GameCfg.TexFilt)
-		oglflags |= OGL_FLAG_MIPMAP;
 
 	font->ft_bitmaps=(grs_bitmap*)d_malloc( nchars * sizeof(grs_bitmap));
 	h=font->ft_h;
@@ -604,7 +602,7 @@ void ogl_init_font(grs_font * font)
 		gr_init_sub_bitmap(&font->ft_bitmaps[i],&font->ft_parent_bitmap,curx,cury,w,h);
 		curx+=w+gap;
 	}
-	ogl_loadbmtexture_f(&font->ft_parent_bitmap, oglflags);
+	ogl_loadbmtexture_f(&font->ft_parent_bitmap, GameCfg.TexFilt);
 }
 
 int ogl_internal_string(int x, int y, char *s )
