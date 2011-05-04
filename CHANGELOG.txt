@@ -9,6 +9,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -26,6 +27,13 @@ D2X-Rebirth Changelog
 ||||||| parent of 4d2e19a96... Since current approach to improve wall collisions prevented the player to enter segments which basically are too small for the player ship, added simple bumping function via object_intersects_wall(); Also when validating segments check for segment degeneration outside the editor build, too and set flag in segment structure for all different purposes but right now helps us to disable bumping when encountering degenerated segments and not break such levels
 20110424
 =======
+||||||| parent of 914555fe8... Host can now decide (again) if players are allowed to display enemy names on HUD
+=======
+20110505
+--------
+main/gauges.c, main/multi.h, main/net_ipx.c, main/net_udp.c, main/net_udp.h, main/playsave.c: Host can now decide (again) if players are allowed to display enemy names on HUD
+
+>>>>>>> 914555fe8... Host can now decide (again) if players are allowed to display enemy names on HUD
 20110504
 >>>>>>> 4d2e19a96... Since current approach to improve wall collisions prevented the player to enter segments which basically are too small for the player ship, added simple bumping function via object_intersects_wall(); Also when validating segments check for segment degeneration outside the editor build, too and set flag in segment structure for all different purposes but right now helps us to disable bumping when encountering degenerated segments and not break such levels
 --------
