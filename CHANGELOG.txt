@@ -32,6 +32,13 @@ D2X-Rebirth Changelog
 20110505
 --------
 main/gauges.c, main/multi.h, main/net_ipx.c, main/net_udp.c, main/net_udp.h, main/playsave.c: Host can now decide (again) if players are allowed to display enemy names on HUD
+<<<<<<< HEAD
+||||||| parent of 47bd048b1... Correctly handle light computation of objects with render_type RT_LASER
+d2x-rebirth.desktop, debian/changelog, debian/control, debian/copyright, debian/rules: Update for Debian packaging stuff
+=======
+d2x-rebirth.desktop, debian/changelog, debian/control, debian/copyright, debian/rules: Update for Debian packaging stuff
+main/lighting.c: Correctly handle light computation of objects with render_type RT_LASER
+>>>>>>> 47bd048b1... Correctly handle light computation of objects with render_type RT_LASER
 
 >>>>>>> 914555fe8... Host can now decide (again) if players are allowed to display enemy names on HUD
 20110504
