@@ -27,6 +27,7 @@ RELEASE-NOTES.txt, README.txt, SConstruct, arch/carbon/conf.h: Changed version f
 arch/carbon/conf.h: Enabled Tracker support for Mac OS
 RELEASE-NOTES.txt, README.txt, SConstruct, arch/carbon/conf.h: Changed version from 0.56 to 0.57; Added first draft for RELEASE-NOTES.txt; updated docs
 main/endlevel.c: Taken out Render_depth reduction of Endlevel sequence in Software rendering build; Fixed two compiler warnings regarding set but unused variables
+<<<<<<< HEAD
 >>>>>>> 580ac93b7... Taken out Render_depth reduction of Endlevel sequence in Software rendering build; Fixed two compiler warnings regarding set but unused variables
 
 =======
@@ -38,6 +39,12 @@ main/endlevel.c: Taken out Render_depth reduction of Endlevel sequence in Softwa
 =======
 ||||||| parent of 914555fe8... Host can now decide (again) if players are allowed to display enemy names on HUD
 =======
+||||||| parent of 80ff01474... Don't call automap_process_input() if autmap_key_command() returns 1 preventing input mess
+
+=======
+main/automap.c: Don't call automap_process_input() if autmap_key_command() returns 1 preventing input mess
+
+>>>>>>> 80ff01474... Don't call automap_process_input() if autmap_key_command() returns 1 preventing input mess
 20110505
 --------
 main/gauges.c, main/multi.h, main/net_ipx.c, main/net_udp.c, main/net_udp.h, main/playsave.c: Host can now decide (again) if players are allowed to display enemy names on HUD
