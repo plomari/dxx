@@ -2522,6 +2522,8 @@ multi_send_player_explode(char type)
 		Network_send_objnum = -1;
 	}
 
+	multi_send_position(Players[Player_num].objnum);
+
 	multibuf[count++] = type;
 	multibuf[count++] = Player_num;
 

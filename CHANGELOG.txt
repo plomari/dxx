@@ -10,6 +10,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -17,6 +18,15 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of 4e21bb9cd... When reading ingame controls only flush mouse delta timer-based since reading is event-based already, allowing high precision no matter the game speed; Removed Mouse smoothing/filtering as it's now unnecessary due to event-based motion handling
 20110422
+||||||| parent of aa520e662... Send player position also when multi_send_player_explode() is called so powerups drop at the right spot in case the respawn packet arrives first
+20110507
+=======
+20110513
+--------
+main/multi.c: Send player position also when multi_send_player_explode() is called so powerups drop at the right spot in case the respawn packet arrives first
+
+20110507
+>>>>>>> aa520e662... Send player position also when multi_send_player_explode() is called so powerups drop at the right spot in case the respawn packet arrives first
 --------
 <<<<<<< HEAD
 2d/rle.c, SConstruct, main/segment.h, main/texmerge.c: Expanded possibilities for level authors: RLE- and Texture-cache accepts textures bigger than 64x64, only limit being Texture width must be equal height; Increased maximum amount of Segments from 900 to 9000 - not dynamically allocating them, yet
