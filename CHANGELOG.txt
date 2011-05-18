@@ -11,6 +11,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -21,6 +22,31 @@ D2X-Rebirth Changelog
 ||||||| parent of aa520e662... Send player position also when multi_send_player_explode() is called so powerups drop at the right spot in case the respawn packet arrives first
 20110507
 =======
+||||||| parent of ea850bd8e... Improvement for fix_illegal_wall_interesection(): Move away from wall in right angle - not towards center. This improves the bumping in many situations and prevents ship getting stuck in small segments. Simplified and optimized code as well and removed check for degenerated Segments as not needed with this approach; Fixed some compiler warnings regarding set but unused variables
+20110516
+--------
+main/menu.c: for debug build ignore player Highest_level_index when starting a mission, making *Load Level* entry in main menu obsolete; Fixed two compiler warnings regarding set but unused variables
+
+20110515
+--------
+main/multi.c: Solved possible issue when setting new Bounty_target via host messing up scores or new target itself - only set if player decided why to unset Bounty_target, keeping code flow and game logic in order; Fixed two compiler warnings regarding set but unused variables
+RELEASE-NOTES.txt: Added more info: M3U-support, GCC 4.6 warnings, more tracker infos
+
+=======
+20110519
+--------
+main/fvi.c, main/fvi.h, main/physics.c: Improvement for fix_illegal_wall_interesection(): Move away from wall in right angle - not towards center. This improves the bumping in many situations and prevents ship getting stuck in small segments. Simplified and optimized code as well and removed check for degenerated Segments as not needed with this approach; Fixed some compiler warnings regarding set but unused variables
+
+20110516
+--------
+main/menu.c: for debug build ignore player Highest_level_index when starting a mission, making *Load Level* entry in main menu obsolete; Fixed two compiler warnings regarding set but unused variables
+
+20110515
+--------
+main/multi.c: Solved possible issue when setting new Bounty_target via host messing up scores or new target itself - only set if player decided why to unset Bounty_target, keeping code flow and game logic in order; Fixed two compiler warnings regarding set but unused variables
+RELEASE-NOTES.txt: Added more info: M3U-support, GCC 4.6 warnings, more tracker infos
+
+>>>>>>> ea850bd8e... Improvement for fix_illegal_wall_interesection(): Move away from wall in right angle - not towards center. This improves the bumping in many situations and prevents ship getting stuck in small segments. Simplified and optimized code as well and removed check for degenerated Segments as not needed with this approach; Fixed some compiler warnings regarding set but unused variables
 20110513
 --------
 main/multi.c: Send player position also when multi_send_player_explode() is called so powerups drop at the right spot in case the respawn packet arrives first
