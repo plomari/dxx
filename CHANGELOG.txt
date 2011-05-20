@@ -29,8 +29,17 @@ main/menu.c: for debug build ignore player Highest_level_index when starting a m
 
 20110515
 --------
+<<<<<<< HEAD
 main/multi.c: Solved possible issue when setting new Bounty_target via host messing up scores or new target itself - only set if player decided why to unset Bounty_target, keeping code flow and game logic in order; Fixed two compiler warnings regarding set but unused variables
 RELEASE-NOTES.txt: Added more info: M3U-support, GCC 4.6 warnings, more tracker infos
+||||||| parent of a1aff9376... Made Automap Free Flight controls an optional feature which can be set in MISC OPTIONS
+INSTALL.txt, RELEASE-NOTES.txt: Updated docs and fixed some typos
+main/net_ipx.c, main/net_udp.c: Rearranged code to check for netgame-closed flag and refuse-players flag so they are updated correctly if another part of the code changes the menu item without activating it
+=======
+INSTALL.txt, RELEASE-NOTES.txt: Updated docs and fixed some typos
+main/net_ipx.c, main/net_udp.c: Rearranged code to check for netgame-closed flag and refuse-players flag so they are updated correctly if another part of the code changes the menu item without activating it
+main/automap.c, main/menu.c, main/playsave.c, main/playsave.h: Made Automap Free Flight controls an optional feature which can be set in MISC OPTIONS
+>>>>>>> a1aff9376... Made Automap Free Flight controls an optional feature which can be set in MISC OPTIONS
 
 =======
 20110519
