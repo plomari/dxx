@@ -1080,11 +1080,6 @@ window *game_setup(void)
 {
 	window *game_wind;
 
-#ifdef EDITOR
-	keyd_editor_mode = 0;
-#endif
-	do_lunacy_on();			// Copy values for insane into copy buffer in ai.c
-	do_lunacy_off();		// Restore true insane mode.
 	PlayerCfg.CockpitMode[1] = PlayerCfg.CockpitMode[0];
 	last_drawn_cockpit = -1;	// Force cockpit to redraw next time a frame renders.
 	Endlevel_sequence = 0;
