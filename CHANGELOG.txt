@@ -14,6 +14,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -31,6 +32,15 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of 52a4c9ff5... In event_process() if a window closes while being drawn and there isn't a previous window we can get the next from just finish processing for this frame
 20110525
+||||||| parent of d34936d77... Added own channel management to SDL_mixer sound interface since the builtin channel management of this lib cannot handle our needs; Little code cleanup
+20110528
+=======
+20110530
+--------
+arch/include/digi_audio.h, arch/include/digi_mixer.h, arch/sdl/digi.c, arch/sdl/digi_mixer.c, main/digi.h, main/digiobj.c: Added own channel management to SDL_mixer sound interface since the builtin channel management of this lib cannot handle our needs; Little code cleanup
+
+20110528
+>>>>>>> d34936d77... Added own channel management to SDL_mixer sound interface since the builtin channel management of this lib cannot handle our needs; Little code cleanup
 --------
 main/multi.c, main/multi.h, main/net_ipx.h, main/net_udp.c: Added multi_send_data_direct to send multibuf to a specific player (i.e. Host<->Client, not Client<->Client); Overhauled kill sending/receiving and computation to rely in host information about game_mode-related variables (team_vector, Bounty_target) which are vital for consistent kill computation; Added function to send/update game_mode-related variables and solve /move command with this as well instead of workaround via updating lite_info
 
