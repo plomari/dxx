@@ -1402,7 +1402,7 @@ void do_briefing_screens(char *filename, int level_num)
 		return;
 	}
 
-	if (EMULATING_D1 || is_SHAREWARE || is_MAC_SHARE || is_D2_OEM)
+	if (EMULATING_D1 || is_SHAREWARE || is_MAC_SHARE || is_D2_OEM || !PLAYING_BUILTIN_MISSION)
 	{
 		if ((songs_is_playing() != SONG_BRIEFING) && (songs_is_playing() != SONG_ENDGAME))
 			songs_play_song( SONG_BRIEFING, 1 );
@@ -1469,6 +1469,7 @@ void do_end_briefing_screens(char *filename)
 	}
 	else
 	{
+		songs_play_song( SONG_ENDGAME, 1 );
 		level_num_screen = Last_level + 1;
 	}
 
