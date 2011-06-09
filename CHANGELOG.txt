@@ -19,6 +19,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -51,6 +52,13 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of 4d51c1d8d... Correctly disable secret levels for Shareware
 =======
+||||||| parent of e3217385d... Saturate colored dynamic light just like normal one - makes the hwole thing a bit less colorful but makes for better balanced color mixing (theoretically) and does not reduce static light
+=======
+20110609
+--------
+main/render.c: Saturate colored dynamic light just like normal one - makes the hwole thing a bit less colorful but makes for better balanced color mixing (theoretically) and does not reduce static light
+
+>>>>>>> e3217385d... Saturate colored dynamic light just like normal one - makes the hwole thing a bit less colorful but makes for better balanced color mixing (theoretically) and does not reduce static light
 20110607
 --------
 main/switch.c: Correctly disable secret levels for Shareware
