@@ -21,6 +21,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -57,6 +58,13 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of 7c4d9afc8... By using fixed distance bumping for fix_illegal_wall_intersection making the whole process much more reliable on sharp edges
 =======
+||||||| parent of 47c687d5f... in compute_light_emission() handle RT_NONE for delayed explosion fireballs
+=======
+20110620
+--------
+main/lighting.c: in compute_light_emission() handle RT_NONE for delayed explosion fireballs
+
+>>>>>>> 47c687d5f... in compute_light_emission() handle RT_NONE for delayed explosion fireballs
 20110617
 --------
 main/physics.c: By using fixed distance bumping for fix_illegal_wall_intersection making the whole process much more reliable on sharp edges
