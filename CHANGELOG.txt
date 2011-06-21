@@ -22,6 +22,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -60,6 +61,13 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of 47c687d5f... in compute_light_emission() handle RT_NONE for delayed explosion fireballs
 =======
+||||||| parent of 1be064dfb... When GameArg.CtlNoStickyKeys was introduced I forgot to add an actual check if -nostickykeys was supplied - fixed now
+=======
+20110621
+--------
+misc/args.c: When GameArg.CtlNoStickyKeys was introduced I forgot to add an actual check if -nostickykeys was supplied - fixed now
+
+>>>>>>> 1be064dfb... When GameArg.CtlNoStickyKeys was introduced I forgot to add an actual check if -nostickykeys was supplied - fixed now
 20110620
 --------
 main/lighting.c: in compute_light_emission() handle RT_NONE for delayed explosion fireballs
