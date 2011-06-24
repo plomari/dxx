@@ -24,6 +24,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -66,6 +67,13 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of 5252e41d3... PlayerCfg.MultiMessages was supposed to only show messages of class HM_MULTI but turned out to only block HM_REDUNDANT, too. Fixed this copy/paste error of mine
 =======
+||||||| parent of dd01f591a... Fixed object sync for latecoming clients which was broken due to a very, very, VERY stupid mistake...
+=======
+20110624
+--------
+main/net_udp.c: Fixed object sync for latecoming clients which was broken due to a very, very, VERY stupid mistake...
+
+>>>>>>> dd01f591a... Fixed object sync for latecoming clients which was broken due to a very, very, VERY stupid mistake...
 20110623
 --------
 main/hud.c: PlayerCfg.MultiMessages was supposed to only show messages of class HM_MULTI but turned out to only block HM_REDUNDANT, too. Fixed this copy/paste error of mine
