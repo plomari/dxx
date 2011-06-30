@@ -81,12 +81,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define EF_TOO_FAR  64  // An edge that is too far away
 
 typedef struct Edge_info {
-	short verts[2];     // 4 bytes
-	ubyte sides[4];     // 4 bytes
-	short segnum[4];    // 8 bytes  // This might not need to be stored... If you can access the normals of a side.
-	ubyte flags;        // 1 bytes  // See the EF_??? defines above.
-	ubyte color;        // 1 bytes
-	ubyte num_faces;    // 1 bytes  // 19 bytes...
+	int   verts[2];     // 8  bytes
+	ubyte sides[4];     // 4  bytes
+	int   segnum[4];    // 16 bytes  // This might not need to be stored... If you can access the normals of a side.
+	ubyte flags;        // 1  bytes  // See the EF_??? defines above.
+	ubyte color;        // 1  bytes
+	ubyte num_faces;    // 1  bytes  // 31 bytes...
 } Edge_info;
 
 typedef struct automap
@@ -1085,8 +1085,8 @@ static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
 	ret = -1;
 
 	while (ret==-1) {
-		ev0 = (int)(am->edges[hash].verts[0]);
-		ev1 = (int)(am->edges[hash].verts[1]);
+		ev0 = am->edges[hash].verts[0];
+		ev1 = am->edges[hash].verts[1];
 		evv = (ev1<<16)+ev0;
 		if (am->edges[hash].num_faces == 0 ) ret=0;
 		else if (evv == vv) ret=1;
@@ -1107,10 +1107,10 @@ static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
 }
 
 
-void add_one_edge( automap *am, short va, short vb, ubyte color, ubyte side, short segnum, int hidden, int grate, int no_fade )	{
+void add_one_edge( automap *am, int va, int vb, ubyte color, ubyte side, int segnum, int hidden, int grate, int no_fade )	{
 	int found;
 	Edge_info *e;
-	short tmp;
+	int tmp;
 
 	if ( am->num_edges >= am->max_edges)	{
 		// GET JOHN! (And tell him that his
@@ -1164,11 +1164,11 @@ void add_one_edge( automap *am, short va, short vb, ubyte color, ubyte side, sho
 		e->flags |= EF_NO_FADE;
 }
 
-void add_one_unknown_edge( automap *am, short va, short vb )
+void add_one_unknown_edge( automap *am, int va, int vb )
 {
 	int found;
 	Edge_info *e;
-	short tmp;
+	int tmp;
 
 	if ( va > vb )	{
 		tmp = va;
@@ -1198,7 +1198,7 @@ void add_segment_edges(automap *am, segment *seg)
 		return;
 	
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
-		short	vertex_list[4];
+		int	vertex_list[4];
 
 		hidden_flag = 0;
 
@@ -1316,7 +1316,7 @@ void add_unknown_segment_edges(automap *am, segment *seg)
 	int segnum = seg-Segments;
 	
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
-		short	vertex_list[4];
+		int	vertex_list[4];
 
 		// Only add edges that have no children
 		if (seg->children[sn] == -1) {
