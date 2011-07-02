@@ -26,6 +26,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -51,6 +52,21 @@ D2X-Rebirth Changelog
 ||||||| parent of 8a6839e8a... changed variables and pointer carrying vertex indexes from short to int to handle levels with over 900 segments properly
 20110628
 =======
+||||||| parent of 837ccccf8... When initializing ai object correctly initialize Ai_local_info to prevent glitches like random submodel angles
+20110701
+--------
+d2x.ini, main/inferno.c, main/net_udp.h, misc/args.c: Made formatting for help text more consistent and prettier; Somewhat changed the code for help text so we can use variables in the help text. For example: If we change MAXIMUM_FPS, it will automatically be displayed in the help text without manual editing needed
+
+=======
+20110702
+--------
+main/ai.c: When initializing ai object correctly initialize Ai_local_info to prevent glitches like random submodel angles
+
+20110701
+--------
+d2x.ini, main/inferno.c, main/net_udp.h, misc/args.c: Made formatting for help text more consistent and prettier; Somewhat changed the code for help text so we can use variables in the help text. For example: If we change MAXIMUM_FPS, it will automatically be displayed in the help text without manual editing needed
+
+>>>>>>> 837ccccf8... When initializing ai object correctly initialize Ai_local_info to prevent glitches like random submodel angles
 20110630
 --------
 editor/group.c, editor/ksegsize.c, editor/meddraw.c, editor/segment.c, editor/seguvs.c, include/editor/editor.h, main/automap.c, main/fireball.c, main/gamecntl.c, main/gameseg.c, main/gameseg.h, main/lighting.c, main/render.c, main/render.h, main/segment.h: changed variables and pointer carrying vertex indexes from short to int to handle levels with over 900 segments properly
