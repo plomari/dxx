@@ -29,6 +29,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -64,6 +65,13 @@ d2x.ini, main/inferno.c, main/net_udp.h, misc/args.c: Made formatting for help t
 =======
 ||||||| parent of c947462c3... Slight improvement for Packet Loss Prevention: Be able to send to 35 packets per call of net_udp_noloss_process_queue() and also let counter only increase if a packet was actually sent, making sure the queue is not stuck on the first 5 packets in the list
 =======
+||||||| parent of 41b4c080f... In Multiplayer games show player names in big guided window as well
+=======
+20110709
+--------
+main/gamerend.c, main/gauges.h: In Multiplayer games show player names in big guided window as well
+
+>>>>>>> 41b4c080f... In Multiplayer games show player names in big guided window as well
 20110708
 --------
 main/net_udp.c: Slight improvement for Packet Loss Prevention: Be able to send to 35 packets per call of net_udp_noloss_process_queue() and also let counter only increase if a packet was actually sent, making sure the queue is not stuck on the first 5 packets in the list
