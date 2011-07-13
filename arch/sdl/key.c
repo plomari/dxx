@@ -360,18 +360,15 @@ unsigned char key_ascii()
 		return 255;
 }
 
-void key_handler(SDL_KeyboardEvent *event)
+void key_handler(SDL_KeyboardEvent *kevent)
 {
 	int keycode, event_keysym=-1, key_state;
 
-	if (event->repeat && !keyd_repeat)
-		return;
-
 	// Read SDLK symbol and state
-        event_keysym = event->keysym.sym;
-        key_state = (event->state == SDL_PRESSED)?1:0;
+        event_keysym = kevent->keysym.sym;
+        key_state = (kevent->state == SDL_PRESSED)?1:0;
 
-	if (key_state && event->repeat)
+	if (key_state && kevent->repeat)
 		return;
 
 	// fill the unicode frame-related unicode buffer 

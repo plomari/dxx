@@ -32,6 +32,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -73,6 +74,13 @@ d2x.ini, main/inferno.c, main/net_udp.h, misc/args.c: Made formatting for help t
 =======
 ||||||| parent of a87dccd1b... Readded automatic wall-flag setting for opened doors as PLP cannot protect us from negative side-effects due to how gullible multi_do_door_open() works
 =======
+||||||| parent of 97f2bb11c... Stability fixes: avoid somfusions with same named variables in one function; Properly sort out players from player list that use too long filenames; Removed call for gr_set_fontcolor in kconfig where no canvas is set, causing crashes when trying to reassign a button, key or axis
+=======
+20110713
+--------
+arch/sdl/event.c, arch/sdl/key.c, main/kconfig.c, main/menu.c: Stability fixes: avoid somfusions with same named variables in one function; Properly sort out players from player list that use too long filenames; Removed call for gr_set_fontcolor in kconfig where no canvas is set, causing crashes when trying to reassign a button, key or axis
+
+>>>>>>> 97f2bb11c... Stability fixes: avoid somfusions with same named variables in one function; Properly sort out players from player list that use too long filenames; Removed call for gr_set_fontcolor in kconfig where no canvas is set, causing crashes when trying to reassign a button, key or axis
 20110712
 --------
 main/wall.c: Readded automatic wall-flag setting for opened doors as PLP cannot protect us from negative side-effects due to how gullible multi_do_door_open() works
