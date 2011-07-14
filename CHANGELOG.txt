@@ -34,6 +34,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -79,6 +80,13 @@ d2x.ini, main/inferno.c, main/net_udp.h, misc/args.c: Made formatting for help t
 =======
 ||||||| parent of 0eca250fd... When colliding with robot not controlled by us in Multi-Robot game do not apply force or damage - wait until the robot is under our control - preventing juggeling robots back and forth between players and creating massive damage
 =======
+||||||| parent of 8a495dab0... When updating netgame hoard game flag used for compability reasons must be removed as it can be set - otherwise screwing up game mode display in netlist menu
+=======
+20110715
+--------
+main/net_ipx.c, main/net_udp.c: When updating netgame hoard game flag used for compability reasons must be removed as it can be set - otherwise screwing up game mode display in netlist menu
+
+>>>>>>> 8a495dab0... When updating netgame hoard game flag used for compability reasons must be removed as it can be set - otherwise screwing up game mode display in netlist menu
 20110714
 --------
 main/collide.c: When colliding with robot not controlled by us in Multi-Robot game do not apply force or damage - wait until the robot is under our control - preventing juggeling robots back and forth between players and creating massive damage
