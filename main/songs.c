@@ -169,7 +169,7 @@ void songs_init()
 void songs_uninit()
 {
 #ifdef _WIN32
-	digi_win32_stop_current_song();	// Stop midi song, if playing
+	digi_win32_stop_midi_song();	// Stop midi song, if playing
 #endif
 	RBAStop();
 //	RBAExit();
@@ -188,7 +188,7 @@ void songs_uninit()
 void songs_stop_all(void)
 {
 #ifdef _WIN32
-	digi_win32_stop_current_song();	// Stop midi song, if playing
+	digi_win32_stop_midi_song();	// Stop midi song, if playing
 #endif
 	RBAStop();
 #ifdef USE_SDLMIXER
