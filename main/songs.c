@@ -297,7 +297,7 @@ int songs_play_song( int songnum, int repeat )
 		case MUSIC_TYPE_BUILTIN:
 		{
 			// EXCEPTION: If SONG_ENDLEVEL is not available, continue playing level song.
-			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !PHYSFSX_exists(BIMSongs[songnum].filename, 1))
+			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !cfexist(BIMSongs[songnum].filename))
 				return Song_playing;
 
 			Song_playing = -1;

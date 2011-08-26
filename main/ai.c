@@ -649,7 +649,6 @@ _exit_cheat:
 	default:
 		{
 			int	pv;
-			fix	dtp = dist_to_player/4;
 
 			if (aip->GOAL_STATE == AIS_FLIN)
 				aip->GOAL_STATE = AIS_FIRE;
@@ -663,7 +662,6 @@ _exit_cheat:
 			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
 				pv = 0;
-				dtp = vm_vec_dist_quick(&ConsoleObject->pos, &obj->pos)/4;
 			}
 
 			do_boss_stuff(obj, pv);
