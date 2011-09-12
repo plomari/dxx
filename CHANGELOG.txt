@@ -39,6 +39,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -94,6 +95,13 @@ d2x.ini, main/inferno.c, main/net_udp.h, misc/args.c: Made formatting for help t
 =======
 ||||||| parent of 7efd8f818... Due to conversion from fix64 to fix Boss_dying_start_time was not 0 when saving even if boss was not dead - fixed; Fixed warning about set but unused variable
 =======
+||||||| parent of 94f896c16... Move EVENT_MOUSE_DOUBLE_CLICKED support from ui/mouse.c to arch/sdl/mouse.c for tidiness and to possibly use it outside the editor
+=======
+20110912
+--------
+arch/sdl/mouse.c, ui/mouse.c: Move EVENT_MOUSE_DOUBLE_CLICKED support from ui/mouse.c to arch/sdl/mouse.c for tidiness and to possibly use it outside the editor
+
+>>>>>>> 94f896c16... Move EVENT_MOUSE_DOUBLE_CLICKED support from ui/mouse.c to arch/sdl/mouse.c for tidiness and to possibly use it outside the editor
 20110826
 --------
 main/ai.c: Due to conversion from fix64 to fix Boss_dying_start_time was not 0 when saving even if boss was not dead - fixed; Fixed warning about set but unused variable
