@@ -151,17 +151,14 @@ void print_commandline_help()
 	printf( "  -gl_fixedfont          %s\n", "Do not scale fonts to current resolution");
 #endif // OGL
 
-#ifdef    NETWORK
+#if  defined(USE_UDP)
 	printf( "\n Multiplayer:\n\n");
-	printf( "  -ipxnetwork <n>        %s\n", "Use IPX network number <n>");
-	printf( "  -udp_hostaddr <n>      %s\n", "When manually joining a game use default IP Address <n> to connect to");
-	printf( "  -udp_hostport <n>      %s\n", "When manually joining a game use default UDP Port <n> to connect to");
-	printf( "  -udp_myport <n>        %s\n", "When hosting/joining a game use default UDP Port <n> to send packets from");
+	printf( "  -udp_hostaddr <s>             Use IP address/Hostname <s> for manual game joining\n\t\t\t\t(default: %s)\n", "localhost");
 #ifdef USE_TRACKER
 	printf( "  -tracker_hostaddr <n>  %s\n", "Address of Tracker server to register/query games to/from (default: dxxtracker.reenigne.net)");
 	printf( "  -tracker_hostport <n>  %s\n", "Port of Tracker server to register/query games to/from (default: 42420)");
 #endif // USE_TRACKER
-#endif // NETWORK
+#endif // defined(USE_UDP)
 
 #ifdef    EDITOR
 	printf( "\n Editor:\n\n");

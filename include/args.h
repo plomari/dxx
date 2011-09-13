@@ -64,7 +64,6 @@ typedef struct Arg
 	int GfxHiresFNTAvailable;
 	int GfxMovieHires;
 	int OglFixedFont;
-	const char *MplIpxNetwork;
 	const char *MplUdpHostAddr;
 	int MplUdpHostPort;
 	int MplUdpMyPort;

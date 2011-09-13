@@ -105,7 +105,23 @@
 #if defined(__APPLE__) && defined(__MACH__)
 #define __unix__
 /* Define if you want a network build */
+<<<<<<< HEAD
 //# define NETWORK	//FIXME: TURN BACK ON WHEN ZICO FINISHES!!!
+||||||| parent of d9ca3a228... Removed support for IPX protocol and MS-DOS-Multiplayer-compability due to age and lack of real need and to really improve on the Multiplayer without adding too much complexity for backwards-compability
+# define NETWORK
+# define USE_UDP
+# define USE_TRACKER
+//# define USE_IPX
+# define USE_TRACKER
+
+//#define IPv6
+=======
+# define NETWORK
+# define USE_UDP
+# define USE_TRACKER
+
+//#define IPv6
+>>>>>>> d9ca3a228... Removed support for IPX protocol and MS-DOS-Multiplayer-compability due to age and lack of real need and to really improve on the Multiplayer without adding too much complexity for backwards-compability
 
 /* Define to 1 if the system has the type `struct timespec'. */
 #define HAVE_STRUCT_TIMESPEC 1

@@ -31,7 +31,6 @@ ipv6 = int(ARGUMENTS.get('ipv6', 0))
 micro = int(ARGUMENTS.get('micro', 0))
 use_svn_as_micro = int(ARGUMENTS.get('svnmicro', 0))
 use_udp = int(ARGUMENTS.get('use_udp', 1))
-use_ipx = int(ARGUMENTS.get('use_ipx', 1))
 
 if (sys.platform != 'linux2') and (sys.platform != 'win32'):
 	use_ipx = 0
@@ -296,8 +295,7 @@ if sys.platform == 'win32':
 	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/win32/include'])
 	ogldefines = ['OGL']
-	if (use_ipx == 1):
-		common_sources += ['arch/win32/ipx.c']
+	common_sources += ['arch/win32/messagebox.c']
 	ogllibs = ''
 	winlibs = ['wsock32', 'winmm', 'mingw32', 'SDLmain']
 	libs = winlibs + generic_libs
@@ -332,8 +330,6 @@ else:
 	env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['OGL']
-	if (use_ipx == 1):
-		common_sources += ['arch/linux/ipx.c', 'arch/linux/ipx_kali.c', 'arch/linux/ukali.c']
 	ogllibs = ['GL', 'm']
 	libs = generic_libs
 	lflags = '-L/usr/X11R6/lib'
@@ -388,11 +384,6 @@ if (use_udp == 1):
 	# Tracker support?  (Relies on UDP)
 	env.Append( CPPDEFINES = [ 'USE_TRACKER' ] )
 
-# IPX support?
-if (use_ipx == 1):
-	env.Append(CPPDEFINES = ['USE_IPX'])
-	common_sources += ['main/net_ipx.c']
-
 print '\n'
 
 env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(sharepath) + '\\"')])
@@ -427,7 +418,6 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'editor=1'        build editor !EXPERIMENTAL!
 	'arm=1'           compile for ARM architecture
 	'ipv6=1'          enables IPv6 copability
-	'use_ipx=0'		  disable IPX support (supported only on Linux and Windows)
 	
 	Default values:
 	""" + ' sharepath = ' + DATA_DIR + """

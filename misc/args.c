@@ -177,13 +177,12 @@ void ReadCmdArgs(void)
 
 	// Multiplayer Options
 
-	GameArg.MplIpxNetwork 		= get_str_arg("-ipxnetwork", NULL);
+#ifdef USE_UDP
 	GameArg.MplUdpHostAddr		= get_str_arg("-udp_hostaddr", "localhost");
-	GameArg.MplUdpHostPort		= get_int_arg("-udp_hostport", 0);
-	GameArg.MplUdpMyPort		= get_int_arg("-udp_myport", 0);
 #ifdef USE_TRACKER
 	GameArg.MplTrackerAddr		= get_str_arg("-tracker_hostaddr", "dxxtracker.reenigne.net");
 	GameArg.MplTrackerPort		= get_int_arg("-tracker_hostport", 42420);
+#endif
 #endif
 
 #ifdef EDITOR
