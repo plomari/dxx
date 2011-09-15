@@ -41,6 +41,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -71,6 +72,13 @@ D2X-Rebirth Changelog
 ||||||| parent of d9ca3a228... Removed support for IPX protocol and MS-DOS-Multiplayer-compability due to age and lack of real need and to really improve on the Multiplayer without adding too much complexity for backwards-compability
 20110913
 =======
+||||||| parent of a8892bd13... Added new priority level for MDATA packets to also send them ASAP without the need for an ACK; Streamlined sending multibot and fire packets and on the way artificially and automatically scaling fire rates, energy/ammo usage and damage of weapons in Multiplayer to decrease traffic easy way without changing the Gameplay
+=======
+20110915
+--------
+main/laser.c, main/laser.h, main/multi.c, main/multi.h, main/multibot.c, main/net_udp.c, main/net_udp.h: Added new priority level for MDATA packets to also send them ASAP without the need for an ACK; Streamlined sending multibot and fire packets and on the way artificially and automatically scaling fire rates, energy/ammo usage and damage of weapons in Multiplayer to decrease traffic easy way without changing the Gameplay
+
+>>>>>>> a8892bd13... Added new priority level for MDATA packets to also send them ASAP without the need for an ACK; Streamlined sending multibot and fire packets and on the way artificially and automatically scaling fire rates, energy/ammo usage and damage of weapons in Multiplayer to decrease traffic easy way without changing the Gameplay
 20110914
 --------
 INSTALL.txt, README.txt, SConstruct, arch/carbon/conf.h, d2x.ini, include/args.h, main/inferno.c, main/kmatrix.c, main/kmatrix.h, main/menu.c, main/multi.c, main/multi.h, misc/args.c: Removed support for IPX protocol and MS-DOS-Multiplayer-compability due to age and lack of real need and to really improve on the Multiplayer without adding too much complexity for backwards-compability
