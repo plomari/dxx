@@ -43,6 +43,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -77,6 +78,13 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of 951f3edd8... Reworked Packet Loss Prevention: If an important packet could not be recovered until it timed out, dump player who failed sending/receiving it; Noloss queue can proces spackets until a certain traffic has been reached; In main UDP frame schedule different types of packets depending on PPS to decrease traffic produced in one frame, hopefully preventing too much loss in high-traffic situations; Small code cleanups; Added new dump signal for loss of important packet; When dumping player also disconnect that one in case the dumped player does not accept the signal
 =======
+||||||| parent of aa165490e... Streamlined joining, rejoining, disconnecting players and timeouts, getting rid of unwanted rejoin messages and let host remove a player for good without rejoining it via pdata packet to really get rid of lossy or unwanted players; Care for rollover of pkt_num of stored mdata packets
+=======
+20110921
+--------
+main/net_udp.c: Streamlined joining, rejoining, disconnecting players and timeouts, getting rid of unwanted rejoin messages and let host remove a player for good without rejoining it via pdata packet to really get rid of lossy or unwanted players; Care for rollover of pkt_num of stored mdata packets
+
+>>>>>>> aa165490e... Streamlined joining, rejoining, disconnecting players and timeouts, getting rid of unwanted rejoin messages and let host remove a player for good without rejoining it via pdata packet to really get rid of lossy or unwanted players; Care for rollover of pkt_num of stored mdata packets
 20110919
 --------
 main/multi.h, main/net_udp.c: Reworked Packet Loss Prevention: If an important packet could not be recovered until it timed out, dump player who failed sending/receiving it; Noloss queue can proces spackets until a certain traffic has been reached; In main UDP frame schedule different types of packets depending on PPS to decrease traffic produced in one frame, hopefully preventing too much loss in high-traffic situations; Small code cleanups; Added new dump signal for loss of important packet; When dumping player also disconnect that one in case the dumped player does not accept the signal
