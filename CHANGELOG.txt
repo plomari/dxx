@@ -44,6 +44,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -80,6 +81,21 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of aa165490e... Streamlined joining, rejoining, disconnecting players and timeouts, getting rid of unwanted rejoin messages and let host remove a player for good without rejoining it via pdata packet to really get rid of lossy or unwanted players; Care for rollover of pkt_num of stored mdata packets
 =======
+||||||| parent of 2802ea7f0... Consistency check for segment number in find_vector_intersection() and obj_create(); Added more debug output for invalid segment numberin get_seg_masks()
+20110923
+--------
+main/state.c: When restoring Coop players and make turn them into ghosts perform a check if this player is actually a valid player so we do not just blindly use any object number from a possibly uninitialized player structure
+
+=======
+20110924
+--------
+main/fvi.c, main/gameseg.c, main/object.c: Consistency check for segment number in find_vector_intersection() and obj_create(); Added more debug output for invalid segment numberin get_seg_masks()
+
+20110923
+--------
+main/state.c: When restoring Coop players and make turn them into ghosts perform a check if this player is actually a valid player so we do not just blindly use any object number from a possibly uninitialized player structure
+
+>>>>>>> 2802ea7f0... Consistency check for segment number in find_vector_intersection() and obj_create(); Added more debug output for invalid segment numberin get_seg_masks()
 20110921
 --------
 main/net_udp.c: Streamlined joining, rejoining, disconnecting players and timeouts, getting rid of unwanted rejoin messages and let host remove a player for good without rejoining it via pdata packet to really get rid of lossy or unwanted players; Care for rollover of pkt_num of stored mdata packets
