@@ -102,7 +102,12 @@ d2x-rebirth.desktop, SConstruct, misc/physfsx.c: Patches by Hans de Goede: Made 
 =======
 d2x-rebirth.desktop, SConstruct, misc/physfsx.c: Patches by Hans de Goede: Made the .desktop file follow the official specifications; Added explicit link to libmath for newer versions of binutils; Fixed crash using PhysFS 1.x in PHYSFSX_addArchiveContent()
 main/kconfig.c, main/menu.c, main/playsave.c, main/playsave.h: Gave throttle it's own sensitivity and deadzone settings; Added patch by Hans de Goede to let Slide-On and Bank-On settings use invert settings from Slide- and Bank-axes
+<<<<<<< HEAD
 >>>>>>> 80bf0580e... Gave throttle it's own sensitivity and deadzone settings; Added patch by Hans de Goede to let Slide-On and Bank-On settings use invert settings from Slide- and Bank-axes
+||||||| parent of 52f3f8735... Avoided variable array initializations which some compilers do not like; Also made sure declarations happen first inside (sub)functions; Fixed set but unused variables
+=======
+3d/interp.c, arch/ogl/ogl.c, main/bm.c, main/endlevel.c: Avoided variable array initializations which some compilers do not like; Also made sure declarations happen first inside (sub)functions; Fixed set but unused variables
+>>>>>>> 52f3f8735... Avoided variable array initializations which some compilers do not like; Also made sure declarations happen first inside (sub)functions; Fixed set but unused variables
 
 >>>>>>> ba3d2e2d4... Code consistency checks by _Tyr_; Fixed set but unused variables
 20110925
