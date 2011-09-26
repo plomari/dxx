@@ -46,6 +46,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -90,6 +91,13 @@ main/state.c: When restoring Coop players and make turn them into ghosts perform
 =======
 ||||||| parent of d444c571f... Fixed misuse of gr_bitblt_find_transparent_area() caused rear view to be shifted on some cockpits
 =======
+||||||| parent of ba3d2e2d4... Code consistency checks by _Tyr_; Fixed set but unused variables
+=======
+20110926
+--------
+main/collide.c, main/escort.c, main/laser.c, main/fireball.c: Code consistency checks by _Tyr_; Fixed set but unused variables
+
+>>>>>>> ba3d2e2d4... Code consistency checks by _Tyr_; Fixed set but unused variables
 20110925
 --------
 main/game.c: Fixed misuse of gr_bitblt_find_transparent_area() caused rear view to be shifted on some cockpits
