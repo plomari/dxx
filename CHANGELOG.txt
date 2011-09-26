@@ -95,7 +95,7 @@ main/state.c: When restoring Coop players and make turn them into ghosts perform
 =======
 20110926
 --------
-main/collide.c, main/escort.c, main/laser.c, main/fireball.c: Code consistency checks by _Tyr_; Fixed set but unused variables
+main/collide.c, main/escort.c, main/laser.c, main/fireball.c, main/lighting.c: Code consistency checks by _Tyr_; Fixed set but unused variables
 
 >>>>>>> ba3d2e2d4... Code consistency checks by _Tyr_; Fixed set but unused variables
 20110925
