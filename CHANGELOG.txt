@@ -96,6 +96,13 @@ main/state.c: When restoring Coop players and make turn them into ghosts perform
 20110926
 --------
 main/collide.c, main/escort.c, main/laser.c, main/fireball.c, main/lighting.c: Code consistency checks by _Tyr_; Fixed set but unused variables
+<<<<<<< HEAD
+||||||| parent of 80bf0580e... Gave throttle it's own sensitivity and deadzone settings; Added patch by Hans de Goede to let Slide-On and Bank-On settings use invert settings from Slide- and Bank-axes
+d2x-rebirth.desktop, SConstruct, misc/physfsx.c: Patches by Hans de Goede: Made the .desktop file follow the official specifications; Added explicit link to libmath for newer versions of binutils; Fixed crash using PhysFS 1.x in PHYSFSX_addArchiveContent()
+=======
+d2x-rebirth.desktop, SConstruct, misc/physfsx.c: Patches by Hans de Goede: Made the .desktop file follow the official specifications; Added explicit link to libmath for newer versions of binutils; Fixed crash using PhysFS 1.x in PHYSFSX_addArchiveContent()
+main/kconfig.c, main/menu.c, main/playsave.c, main/playsave.h: Gave throttle it's own sensitivity and deadzone settings; Added patch by Hans de Goede to let Slide-On and Bank-On settings use invert settings from Slide- and Bank-axes
+>>>>>>> 80bf0580e... Gave throttle it's own sensitivity and deadzone settings; Added patch by Hans de Goede to let Slide-On and Bank-On settings use invert settings from Slide- and Bank-axes
 
 >>>>>>> ba3d2e2d4... Code consistency checks by _Tyr_; Fixed set but unused variables
 20110925
