@@ -47,6 +47,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -85,6 +86,15 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of 2802ea7f0... Consistency check for segment number in find_vector_intersection() and obj_create(); Added more debug output for invalid segment numberin get_seg_masks()
 20110923
+||||||| parent of e01c25fbd... Initialise dyn_light using memset, fixing a warning
+20110927
+=======
+20111009
+--------
+main/render.c: Initialise dyn_light using memset, fixing a warning
+
+20110927
+>>>>>>> e01c25fbd... Initialise dyn_light using memset, fixing a warning
 --------
 main/state.c: When restoring Coop players and make turn them into ghosts perform a check if this player is actually a valid player so we do not just blindly use any object number from a possibly uninitialized player structure
 
