@@ -20,6 +20,7 @@ static char rcsid[] = "$Id: scroll.c,v 1.1.1.1 2006/03/17 19:52:16 zicodxx Exp $
 
 #include "fix.h"
 #include "pstypes.h"
+#include "event.h"
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
@@ -97,14 +98,13 @@ UI_GADGET_SCROLLBAR * ui_add_gadget_scrollbar( UI_DIALOG * dlg, short x, short y
 
 }
 
-void ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, int keypress )
+int ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, d_event *event )
 {
 	int OnMe, OnSlider, keyfocus;
-
 	int oldpos, op;
-
+	int rval = 0;
+		
 	keyfocus = 0;
-	keypress = keypress;
 
 	if (CurWindow->keyboard_focus_gadget==(UI_GADGET *)scrollbar)
 		keyfocus = 1;
@@ -114,7 +114,7 @@ void ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, int keypress )
 		scrollbar->position = 0;
 		scrollbar->fake_position = 0;
 		ui_draw_scrollbar( scrollbar );
-		return;
+		return 0;
 	}
 
 	op = scrollbar->position;
@@ -239,5 +239,6 @@ void ui_scrollbar_do( UI_GADGET_SCROLLBAR * scrollbar, int keypress )
 		scrollbar->status = 1;
 	ui_draw_scrollbar( scrollbar );
 
+	return rval;
 }
 

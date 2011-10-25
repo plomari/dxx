@@ -49,6 +49,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -92,6 +93,13 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of 25c1b74e5... Pass the event to ui_dialog_do_gadgets and use it in that immediate function
 =======
+||||||| parent of b8b6a234c... Pass the event to the individual gadgets' 'do' functions, fix compile warnings introduced in last commit
+=======
+20111025
+--------
+include/ui.h, ui/button.c, ui/checkbox.c, ui/dialog.c, ui/gadget.c, ui/icon.c, ui/inputbox.c, ui/keytrap.c, ui/listbox.c, ui/radio.c, ui/scroll.c, ui/userbox.c: Pass the event to the individual gadgets' 'do' functions, fix compile warnings introduced in last commit
+
+>>>>>>> b8b6a234c... Pass the event to the individual gadgets' 'do' functions, fix compile warnings introduced in last commit
 20111023
 --------
 include/ui.h, ui/dialog.c, ui/gadget.c: Pass the event to ui_dialog_do_gadgets and use it in that immediate function

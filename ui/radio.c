@@ -15,6 +15,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include "fix.h"
 #include "pstypes.h"
+#include "event.h"
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
@@ -79,13 +80,13 @@ UI_GADGET_RADIO * ui_add_gadget_radio( UI_DIALOG * dlg, short x, short y, short 
 }
 
 
-void ui_radio_do( UI_GADGET_RADIO * radio, int keypress )
+int ui_radio_do( UI_GADGET_RADIO * radio, d_event *event )
 {
 	UI_GADGET * tmp;
 	UI_GADGET_RADIO * tmpr;
 	int OnMe, ButtonLastSelected;
-	keypress  = keypress;
-
+	int rval = 0;
+	
 	OnMe = ui_mouse_on_gadget( (UI_GADGET *)radio );
 
 	radio->oldposition = radio->position;
@@ -142,6 +143,7 @@ void ui_radio_do( UI_GADGET_RADIO * radio, int keypress )
 
 	ui_draw_radio( radio );
 
+	return rval;
 }
 
 void ui_radio_set_value(UI_GADGET_RADIO *radio, sbyte value)

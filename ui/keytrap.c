@@ -5,6 +5,7 @@
 
 #include "fix.h"
 #include "pstypes.h"
+#include "event.h"
 #include "gr.h"
 #include "ui.h"
 #include "key.h"
@@ -24,12 +25,19 @@ UI_GADGET_KEYTRAP * ui_add_gadget_keytrap( UI_DIALOG * dlg, int key_to_trap, int
 
 }
 
-void ui_keytrap_do( UI_GADGET_KEYTRAP * keytrap, int keypress )
+int ui_keytrap_do( UI_GADGET_KEYTRAP * keytrap, d_event *event )
 {
-	int result;
+	int keypress = 0;
+	int rval = 0;
+	
+	if (event->type == EVENT_KEY_COMMAND)
+		keypress = event_key_get(event);
 
 	if ( keypress == keytrap->trap_key )
 	{
-		result = keytrap->user_function();
+		keytrap->user_function();
+		rval = 1;
 	}
+
+	return rval;
 }
