@@ -51,6 +51,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -98,6 +99,29 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of 6978ef2dd... Return 1 (event handled) in ui_dialog_handler for mouse button events if the mouse was in the dialog
 =======
+||||||| parent of 008b24a45... Make B1_JUST_PRESSED event-based, leave ui_dialog_do_gadgets early if a key makes another gadget current, make ui_button_do fully event-responsive (but won't *send* events yet)
+20111103
+--------
+main/net_udp.c, main/net_udp.h: Do not attempt to check for MULTI_PROTO_VERSION when requesting lite_info
+
+20111102
+--------
+SConstruct, arch/carbon/conf.h, main/gameseq.c, main/inferno.c, main/inferno.h, main/menu.c, main/multi.h, main/net_udp.c, main/net_udp.h, main/vers_id.h: Introduced extra short based on MULTI_PROTO_VERSION for version-independent Multiplayer-compability-check; Changed version to 0.57.2 to make new version checking not cause problems with stable release 0.57.1; Removed old version_major/minor variables from netgame and player structures since DXX handles this independently; Cleaned up old version stuff and copyright messages
+
+=======
+20111103
+--------
+include/ui.h, ui/button.c, ui/dialog.c, ui/gadget.c, ui/scroll.c, ui/userbox.c: Make B1_JUST_PRESSED event-based, leave ui_dialog_do_gadgets early if a key makes another gadget current, make ui_button_do fully event-responsive (but won't *send* events yet)
+
+20111103
+--------
+main/net_udp.c, main/net_udp.h: Do not attempt to check for MULTI_PROTO_VERSION when requesting lite_info
+
+20111102
+--------
+SConstruct, arch/carbon/conf.h, main/gameseq.c, main/inferno.c, main/inferno.h, main/menu.c, main/multi.h, main/net_udp.c, main/net_udp.h, main/vers_id.h: Introduced extra short based on MULTI_PROTO_VERSION for version-independent Multiplayer-compability-check; Changed version to 0.57.2 to make new version checking not cause problems with stable release 0.57.1; Removed old version_major/minor variables from netgame and player structures since DXX handles this independently; Cleaned up old version stuff and copyright messages
+
+>>>>>>> 008b24a45... Make B1_JUST_PRESSED event-based, leave ui_dialog_do_gadgets early if a key makes another gadget current, make ui_button_do fully event-responsive (but won't *send* events yet)
 20111030
 --------
 arch/include/mouse.h, arch/sdl/mouse.c, ui/dialog.c: Return 1 (event handled) in ui_dialog_handler for mouse button events if the mouse was in the dialog

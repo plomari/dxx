@@ -225,6 +225,7 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 			break;
 			
 		case EVENT_KEY_COMMAND:
+		case EVENT_KEY_RELEASE:
 			return ui_dialog_do_gadgets(dlg, event);
 			break;
 
