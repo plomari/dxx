@@ -120,6 +120,7 @@ SConstruct, arch/carbon/conf.h, main/gameseq.c, main/inferno.c, main/inferno.h, 
 20111106
 --------
 include/ui.h, ui/dialog.c, ui/listbox.c: Make ui_listbox_do fully event-responsive
+ui/radio.c: Make ui_radio_do fully event-responsive
 
 >>>>>>> 576054be5... Make ui_listbox_do fully event-responsive
 20111105
