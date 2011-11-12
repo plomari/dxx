@@ -54,6 +54,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -117,6 +118,13 @@ SConstruct, arch/carbon/conf.h, main/gameseq.c, main/inferno.c, main/inferno.h, 
 =======
 ||||||| parent of 576054be5... Make ui_listbox_do fully event-responsive
 =======
+||||||| parent of 3c2f291b5... Make ui_scroll_do fully event-responsive, make sure scrolling actually works by calling all controls' ui_*_do functions (like before)
+=======
+20111112
+--------
+ui/gadget.c, ui/scroll.c: Make ui_scroll_do fully event-responsive, make sure scrolling actually works by calling all controls' ui_*_do functions (like before)
+
+>>>>>>> 3c2f291b5... Make ui_scroll_do fully event-responsive, make sure scrolling actually works by calling all controls' ui_*_do functions (like before)
 20111106
 --------
 include/ui.h, ui/dialog.c, ui/listbox.c: Make ui_listbox_do fully event-responsive
