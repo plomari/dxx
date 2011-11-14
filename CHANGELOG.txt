@@ -126,6 +126,7 @@ SConstruct, arch/carbon/conf.h, main/gameseq.c, main/inferno.c, main/inferno.h, 
 20111114
 --------
 ui/userbox.c: Make ui_userbox_do fully event-responsive
+main/newmenu.c: Sliders can now be operated with Numpad arrows if numlock if off
 
 >>>>>>> 4a3b1532b... Make ui_userbox_do fully event-responsive
 20111112
