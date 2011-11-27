@@ -57,6 +57,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -126,6 +127,13 @@ SConstruct, arch/carbon/conf.h, main/gameseq.c, main/inferno.c, main/inferno.h, 
 =======
 ||||||| parent of 7eff144bb... Smoothed disabling of friendly fire to re-enable splash damage possible when friendly fire is disabled
 =======
+||||||| parent of 4366adbea... break out of loop in event_send() in case window_send_event() closed the window to prevent invalid read on memory
+=======
+20111127
+--------
+arch/sdl/event.c: break out of loop in event_send() in case window_send_event() closed the window to prevent invalid read on memory
+
+>>>>>>> 4366adbea... break out of loop in event_send() in case window_send_event() closed the window to prevent invalid read on memory
 20111124
 --------
 main/collide.c, main/collide.h, main/fireball.c, main/game.c: Smoothed disabling of friendly fire to re-enable splash damage possible when friendly fire is disabled
