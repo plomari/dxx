@@ -62,6 +62,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -141,6 +142,13 @@ SConstruct, arch/carbon/conf.h, main/gameseq.c, main/inferno.c, main/inferno.h, 
 =======
 ||||||| parent of 11daae4a2... Give the dialog in (presently unused) GetKeyCode a callback
 =======
+||||||| parent of c0d7659a9... Give the last use of a dialog in ui, in PopupMenu, a callback
+=======
+20120109
+--------
+ui/popup.c: Give the last use of a dialog in ui, in PopupMenu, a callback
+
+>>>>>>> c0d7659a9... Give the last use of a dialog in ui, in PopupMenu, a callback
 20120103
 --------
 ui/keypress.c: Give the dialog in (presently unused) GetKeyCode a callback
