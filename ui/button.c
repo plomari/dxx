@@ -45,7 +45,7 @@ void ui_get_button_size( char * text, int * width, int * height )
 }
 
 
-void ui_draw_button( UI_GADGET_BUTTON * button )
+void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 {
 	int color;
 
@@ -56,7 +56,7 @@ void ui_draw_button( UI_GADGET_BUTTON * button )
 		gr_set_current_canvas( button->canvas );
 		color = button->canvas->cv_color;
 
-		if (CurWindow->keyboard_focus_gadget == (UI_GADGET *)button)
+		if (dlg->keyboard_focus_gadget == (UI_GADGET *)button)
 			gr_set_fontcolor( CRED, -1 );
 		else
 		{
@@ -123,7 +123,7 @@ UI_GADGET_BUTTON * ui_add_gadget_button( UI_DIALOG * dlg, short x, short y, shor
 }
 
 
-int ui_button_do( UI_GADGET_BUTTON * button, d_event *event )
+int ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button, d_event *event)
 {
 	int rval = 0;
 	
@@ -159,7 +159,7 @@ int ui_button_do( UI_GADGET_BUTTON * button, d_event *event )
 
 		if	((keypress == button->hotkey) ||
 			((keypress == button->hotkey1) && button->user_function1) || 
-			((CurWindow->keyboard_focus_gadget==(UI_GADGET *)button) && ((keypress==KEY_SPACEBAR) || (keypress==KEY_ENTER)) ))
+			((dlg->keyboard_focus_gadget==(UI_GADGET *)button) && ((keypress==KEY_SPACEBAR) || (keypress==KEY_ENTER)) ))
 		{
 			button->position = 2;
 			rval = 1;
@@ -174,7 +174,7 @@ int ui_button_do( UI_GADGET_BUTTON * button, d_event *event )
 		button->position = 0;
 
 		if	((keypress == button->hotkey) ||
-			((CurWindow->keyboard_focus_gadget==(UI_GADGET *)button) && ((keypress==KEY_SPACEBAR) || (keypress==KEY_ENTER)) ))
+			((dlg->keyboard_focus_gadget==(UI_GADGET *)button) && ((keypress==KEY_SPACEBAR) || (keypress==KEY_ENTER)) ))
 			button->pressed = 1;
 
 		if ((keypress == button->hotkey1) && button->user_function1)
@@ -184,11 +184,16 @@ int ui_button_do( UI_GADGET_BUTTON * button, d_event *event )
 		}
 	}
 
-	ui_draw_button( button );
+	ui_draw_button( dlg, button );
 
 	if (button->pressed && button->user_function )
 	{
 		button->user_function();
+		rval = 1;
+	}
+	else if (button->pressed)
+	{
+		ui_gadget_send_event(dlg, EVENT_UI_GADGET_PRESSED, (UI_GADGET *)button);
 		rval = 1;
 	}
 	

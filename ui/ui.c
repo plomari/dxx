@@ -52,8 +52,6 @@ void ui_init()
 
 	gr_set_fontcolor( CBLACK, CWHITE );
 
-	CurWindow = NULL;
-
 	ui_pad_init();
 	
 	atexit(ui_close );
