@@ -1045,8 +1045,6 @@ void editor(void)
 		gr_set_curfont(editor_font);
 		event_process();
 		last_keypress &= ~KEY_DEBUGGED;		//	mask off delete key bit which has no function in editor.
-		do_robot_window();
-		do_object_window();
 		do_wall_window();
 		check_wall_validity();
 		Assert(Num_walls>=0);
