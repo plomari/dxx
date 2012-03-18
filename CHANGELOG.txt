@@ -65,6 +65,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -123,6 +124,13 @@ main/net_udp.c, main/net_udp.h: Do not attempt to check for MULTI_PROTO_VERSION 
 =======
 ||||||| parent of 97d3f3b4e... Make do_trigger_window into a proper callback
 =======
+||||||| parent of cb0f7a4b0... Do a bit of a tidy up for the editor, dump code from editor() within the loop into new editor_handler()
+=======
+20120318
+--------
+editor/med.c, editor/texpage.c, include/editor/editor.h, main/game.c: Do a bit of a tidy up for the editor, dump code from editor() within the loop into new editor_handler()
+
+>>>>>>> cb0f7a4b0... Do a bit of a tidy up for the editor, dump code from editor() within the loop into new editor_handler()
 20120317
 --------
 editor/eswitch, editor/med.c: Make do_trigger_window into a proper callback
