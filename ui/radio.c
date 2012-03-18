@@ -31,7 +31,7 @@ void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 	{
 		radio->status = 0;
 
-		ui_mouse_hide();
+		mouse_toggle_cursor(0);
 		gr_set_current_canvas( radio->canvas );
 
 		if (dlg->keyboard_focus_gadget == (UI_GADGET *) radio)
@@ -56,7 +56,7 @@ void ui_draw_radio( UI_DIALOG *dlg, UI_GADGET_RADIO * radio )
 
 		gr_ustring( radio->width+4, 2, radio->text );
 
-		ui_mouse_show();
+		mouse_toggle_cursor(1);
 	}
 }
 

@@ -19,6 +19,8 @@
 #ifndef _EVENT_H
 #define _EVENT_H
 
+#include <stdint.h>
+
 typedef enum event_type
 {
 	EVENT_IDLE = 0,
@@ -75,5 +77,9 @@ void event_send(d_event *event);
 void event_process();
 
 void event_toggle_focus(int activate_focus);
+
+// See how long we were idle for
+void event_reset_idle_seconds();
+int32_t event_get_idle_seconds();
 
 #endif

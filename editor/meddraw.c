@@ -31,6 +31,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "switch.h"
 #include "key.h"
+#include "mouse.h"
 #include "error.h"
 #include "medlisp.h"
 #include "u_mem.h"
@@ -804,7 +805,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 	gr_set_current_canvas(screen_canvas);
 #endif
 
-	ui_mouse_hide();
+	mouse_toggle_cursor(0);
 
 	//g3_set_points(Segment_points,Vertices);
 
@@ -911,7 +912,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 
 #endif
 
-	ui_mouse_show();
+	mouse_toggle_cursor(1);
 
 }
 
@@ -933,7 +934,7 @@ void find_segments(short x,short y,grs_canvas *screen_canvas,editor_view *v,segm
 	gr_set_current_canvas(screen_canvas);
 #endif
 
-	ui_mouse_hide();
+	mouse_toggle_cursor(0);
 
 	//g3_set_points(Segment_points,Vertices);
 
