@@ -132,6 +132,7 @@ main/net_udp.c, main/net_udp.h: Do not attempt to check for MULTI_PROTO_VERSION 
 20120319
 --------
 editor/med.c, include/editor/editor.h, include/ui.h, main/gamecntl.c, main/gameseq.c, main/inferno.c, main/menu.c: The editor now falls back to the main event loop in inferno.c, File->Exit now works as intended and get closer to making the editor and game work together
+editor/med.c, main/endlevel.c, main/gamecntl.c, main/gamesave.c, main/inferno.c, main/inferno.h, main/menu.c, main/powerup.c, main/render.c, main/slew.c: Remove all remaining uses of Function_mode, checking for the existence of EditorWindow where necessary instead
 
 >>>>>>> e28ba6350... The editor now falls back to the main event loop in inferno.c, File->Exit now works as intended and get closer to making the editor and game work together
 20120318
