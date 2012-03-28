@@ -144,7 +144,12 @@ main/slew.c: Fix compile-time error when building without editor
 =======
 main/slew.c: Fix compile-time error when building without editor
 arch/sdl/jukebox.c, main/songs.c: Allow .flac to be a filename extension for sng file and jukebox
+<<<<<<< HEAD
 >>>>>>> 4852ceb34... Allow .flac to be a filename extension for sng file and jukebox
+||||||| parent of a5369e13d... properly disable cheats when loading a saved game so only cheats that were stored are re-enabled
+=======
+main/state.c: properly disable cheats when loading a saved game so only cheats that were stored are re-enabled
+>>>>>>> a5369e13d... properly disable cheats when loading a saved game so only cheats that were stored are re-enabled
 
 >>>>>>> 7d823c593... Call all necessary MVE functions when initializing robot movies to prevent crashes if a robot movie is the first one the program plays
 20120324

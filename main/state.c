@@ -79,6 +79,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "physfsx.h"
 
+extern void game_disable_cheats();
+
 #define STATE_VERSION 25
 #define STATE_COMPATIBLE_VERSION 20
 // 0 - Put DGSS (Descent Game State Save) id at tof.
@@ -922,6 +924,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 // Restore the cheats enabled flag
 
+	game_disable_cheats(); // disable cheats first
 	PHYSFS_read(fp, &Cheats_enabled, sizeof(int), 1);
 
 	if ( !between_levels )	{
