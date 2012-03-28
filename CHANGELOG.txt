@@ -149,7 +149,12 @@ arch/sdl/jukebox.c, main/songs.c: Allow .flac to be a filename extension for sng
 ||||||| parent of a5369e13d... properly disable cheats when loading a saved game so only cheats that were stored are re-enabled
 =======
 main/state.c: properly disable cheats when loading a saved game so only cheats that were stored are re-enabled
+<<<<<<< HEAD
 >>>>>>> a5369e13d... properly disable cheats when loading a saved game so only cheats that were stored are re-enabled
+||||||| parent of d3666c403... Fixed double wall-object-damage introduced 20111124 by applying more strict rules to wall-colliding and wall-scraping where latter now is player-exclusive
+=======
+main/collide.c, main/physics.c: Fixed double wall-object-damage introduced 20111124 by applying more strict rules to wall-colliding and wall-scraping where latter now is player-exclusive
+>>>>>>> d3666c403... Fixed double wall-object-damage introduced 20111124 by applying more strict rules to wall-colliding and wall-scraping where latter now is player-exclusive
 
 >>>>>>> 7d823c593... Call all necessary MVE functions when initializing robot movies to prevent crashes if a robot movie is the first one the program plays
 20120324
