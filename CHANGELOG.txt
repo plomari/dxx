@@ -161,7 +161,12 @@ main/gamecntl.c: Fixed unhandled case in key reading when escort hotkeys are dis
 =======
 main/gamecntl.c: Fixed unhandled case in key reading when escort hotkeys are disabled
 main/net_udp.c: Since the kicked message is shown after player is technically removed from the game we do not know hosts name anymore. Message changed accordingly
+<<<<<<< HEAD
 >>>>>>> 4323096cc... Since the kicked message is shown after player is technically removed from the game we do not know hosts name anymore. Message changed accordingly
+||||||| parent of 26bb1f6a3... Allow a total of 32 different player ship textures and stored N_PLAYER_SHIP_TEXTURES in player.h
+=======
+main/multi.c, main/multi.h, main/newdemo.c, main/player.h: Allow a total of 32 different player ship textures and stored N_PLAYER_SHIP_TEXTURES in player.h
+>>>>>>> 26bb1f6a3... Allow a total of 32 different player ship textures and stored N_PLAYER_SHIP_TEXTURES in player.h
 
 >>>>>>> 7d823c593... Call all necessary MVE functions when initializing robot movies to prevent crashes if a robot movie is the first one the program plays
 20120324
