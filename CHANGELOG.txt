@@ -68,6 +68,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -132,6 +133,13 @@ main/net_udp.c, main/net_udp.h: Do not attempt to check for MULTI_PROTO_VERSION 
 =======
 ||||||| parent of c0ed4870c... Draw the editor menubar properly - by drawing in response to EVENT_WINDOW_DRAW and initialising the screen canvas properly. The latter fixes a lot of other editor drawing issues as well
 =======
+||||||| parent of 7d823c593... Call all necessary MVE functions when initializing robot movies to prevent crashes if a robot movie is the first one the program plays
+=======
+20120328
+--------
+main/movie.c: Call all necessary MVE functions when initializing robot movies to prevent crashes if a robot movie is the first one the program plays
+
+>>>>>>> 7d823c593... Call all necessary MVE functions when initializing robot movies to prevent crashes if a robot movie is the first one the program plays
 20120324
 --------
 arch/ogl/gr.c, arch/sdl/gr.c, ui/menubar.c: Draw the editor menubar properly - by drawing in response to EVENT_WINDOW_DRAW and initialising the screen canvas properly. The latter fixes a lot of other editor drawing issues as well

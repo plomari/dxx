@@ -536,6 +536,10 @@ int InitRobotMovie(char *filename)
 
 	con_printf(CON_DEBUG, "RoboFile=%s\n", filename);
 
+	MVE_memCallbacks(MPlayAlloc, MPlayFree);
+	MVE_ioCallbacks(FileRead);
+	MVE_sfCallbacks(MovieShowFrame);
+	MVE_palCallbacks(MovieSetPalette);
 	MVE_sndInit(-1);        //tell movies to play no sound for robots
 
 	RoboFile = rwops_openRead(filename);
