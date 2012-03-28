@@ -138,6 +138,13 @@ main/net_udp.c, main/net_udp.h: Do not attempt to check for MULTI_PROTO_VERSION 
 20120328
 --------
 main/movie.c: Call all necessary MVE functions when initializing robot movies to prevent crashes if a robot movie is the first one the program plays
+<<<<<<< HEAD
+||||||| parent of 4852ceb34... Allow .flac to be a filename extension for sng file and jukebox
+main/slew.c: Fix compile-time error when building without editor
+=======
+main/slew.c: Fix compile-time error when building without editor
+arch/sdl/jukebox.c, main/songs.c: Allow .flac to be a filename extension for sng file and jukebox
+>>>>>>> 4852ceb34... Allow .flac to be a filename extension for sng file and jukebox
 
 >>>>>>> 7d823c593... Call all necessary MVE functions when initializing robot movies to prevent crashes if a robot movie is the first one the program plays
 20120324
