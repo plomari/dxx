@@ -119,7 +119,14 @@ D2X-Rebirth Changelog
 ||||||| parent of 008b24a45... Make B1_JUST_PRESSED event-based, leave ui_dialog_do_gadgets early if a key makes another gadget current, make ui_button_do fully event-responsive (but won't *send* events yet)
 20111103
 --------
+<<<<<<< HEAD
 main/net_udp.c, main/net_udp.h: Do not attempt to check for MULTI_PROTO_VERSION when requesting lite_info
+||||||| parent of 565f62968... Fixed Redbook playback which was not repeating the CD after finishing
+main/multi.c, main/multi.h, main/net_udp.c, main/net_udp.h: Immediately relay pdata packets from clients to others which should reduce artificial delay; allow sending of pdata packet when firing if enough time has passed since last update; only answer full game info requests 2 times per second and lite info 8 times per second
+=======
+main/multi.c, main/multi.h, main/net_udp.c, main/net_udp.h: Immediately relay pdata packets from clients to others which should reduce artificial delay; allow sending of pdata packet when firing if enough time has passed since last update; only answer full game info requests 2 times per second and lite info 8 times per second
+main/songs.c: Fixed Redbook playback which was not repeating the CD after finishing
+>>>>>>> 565f62968... Fixed Redbook playback which was not repeating the CD after finishing
 
 20111102
 ||||||| parent of ffab79044... Use the gadget-sent events in the dialogs in ui
