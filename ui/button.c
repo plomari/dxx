@@ -49,10 +49,11 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 {
 	int color;
 
+#ifndef OGL
 	if ((button->status==1) || (button->position != button->oldposition))
+#endif
 	{
 		ui_button_any_drawn = 1;
-		mouse_toggle_cursor(0);
 		gr_set_current_canvas( button->canvas );
 		color = button->canvas->cv_color;
 
@@ -90,7 +91,6 @@ void ui_draw_button(UI_DIALOG *dlg, UI_GADGET_BUTTON * button)
 			}			
 		}
 		button->canvas->cv_color = color;
-		mouse_toggle_cursor(1);
 	}
 }
 
@@ -184,7 +184,8 @@ int ui_button_do(UI_DIALOG *dlg, UI_GADGET_BUTTON * button, d_event *event)
 		}
 	}
 
-	ui_draw_button( dlg, button );
+	if (event->type == EVENT_WINDOW_DRAW)
+		ui_draw_button( dlg, button );
 
 	if (button->pressed && button->user_function )
 	{
