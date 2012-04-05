@@ -71,6 +71,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -125,6 +126,13 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of 206287691... Make sure the ogl font code recognises the editor font is fixed width, fixing a crash; take the plunge and make D2X Rebirth compile with editor for Mac OpenGL build (won't work yet)
 =======
+||||||| parent of 39b0dacd6... variable declarations come first
+=======
+20120405
+--------
+main/multi.c: variable declarations come first
+
+>>>>>>> 39b0dacd6... variable declarations come first
 20120331
 --------
 d2x-rebirth.xcodeproj/project.pbxproj, 2d/font.c: Make sure the ogl font code recognises the editor font is fixed width, fixing a crash; take the plunge and make D2X Rebirth compile with editor for Mac OpenGL build (won't work yet)
