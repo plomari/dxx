@@ -72,6 +72,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -128,6 +129,13 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of 39b0dacd6... variable declarations come first
 =======
+||||||| parent of 45e351e46... in choose_drop_segment let fallback correctly check for reactor segment
+=======
+20120407
+--------
+main/fireball.c: in choose_drop_segment let fallback correctly check for reactor segment
+
+>>>>>>> 45e351e46... in choose_drop_segment let fallback correctly check for reactor segment
 20120405
 --------
 main/multi.c: variable declarations come first
