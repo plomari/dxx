@@ -36,13 +36,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "console.h"
 #include "config.h"
+#include "inferno.h"
 #include "ogl_init.h"
 
 #define FONTSCALE_X(x) ((float)(x)*(FNTScaleX))
 #define FONTSCALE_Y(x) ((float)(x)*(FNTScaleY))
 
 #define MAX_OPEN_FONTS	50
-#define FILENAME_LEN	13
 
 typedef struct openfont {
 	char filename[FILENAME_LEN];

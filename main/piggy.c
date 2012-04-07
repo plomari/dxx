@@ -317,8 +317,6 @@ int piggy_find_sound( char * name )
 
 CFILE * Piggy_fp = NULL;
 
-#define FILENAME_LEN 13
-
 char Current_pigfile[FILENAME_LEN] = "";
 
 void piggy_close_file()
@@ -486,7 +484,6 @@ void piggy_init_pigfile(char *filename)
 	Pigfile_initialized=1;
 }
 
-#define FILENAME_LEN 13
 #define MAX_BITMAPS_PER_BRUSH 30
 
 extern int compute_average_pixel(grs_bitmap *new);
