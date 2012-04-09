@@ -74,6 +74,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -134,6 +135,18 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of 6a4ea459e... added specification for Descent: Destination Saturn briefing screen to properly show briefings; added different briefing structure for Descent 1 Shareware which has a slightly different order of the usual briefings
 =======
+||||||| parent of ea2de8cb4... Get the clock, 'keypad' info, texture choosing page and object choosing page to draw (latter two just show black squares for ogl)
+20120409
+--------
+main/state.c: in software rendering scale savestate thumbnail to correct size
+
+=======
+20120409
+--------
+main/state.c: in software rendering scale savestate thumbnail to correct size
+editor/autosave.c, editor/info.c, editor/med.c, editor/objpage.c, editor/texpage.c, include/ui.h, ui/keypad.c, ui/uidraw.c: Get the clock, 'keypad' info, texture choosing page and object choosing page to draw (latter two just show black squares for ogl)
+
+>>>>>>> ea2de8cb4... Get the clock, 'keypad' info, texture choosing page and object choosing page to draw (latter two just show black squares for ogl)
 20120408
 --------
 main/mission.c, main/mission.h, main/titles.c: added specification for Descent: Destination Saturn briefing screen to properly show briefings; added different briefing structure for Descent 1 Shareware which has a slightly different order of the usual briefings
