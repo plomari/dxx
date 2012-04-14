@@ -76,6 +76,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -138,6 +139,22 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of ea2de8cb4... Get the clock, 'keypad' info, texture choosing page and object choosing page to draw (latter two just show black squares for ogl)
 20120409
+||||||| parent of 2ab19658d... Only do an Int3 in write_game_text_file when PHYSFS_close returns 0, which is an error, not when it returns 1
+20120414
+--------
+main/gamesave.c: Fix crash when loading a level in the editor
+editor/segment.c, include/editor/editor.h, main/gamesave.c: Set Gamesave_current_version to correct version when making a new mine, move create_new_mine to gamesave.c
+
+20120412
+=======
+20120414
+--------
+main/gamesave.c: Fix crash when loading a level in the editor
+editor/segment.c, include/editor/editor.h, main/gamesave.c: Set Gamesave_current_version to correct version when making a new mine, move create_new_mine to gamesave.c
+main/dumpmine.c: Only do an Int3 in write_game_text_file when PHYSFS_close returns 0, which is an error, not when it returns 1
+
+20120412
+>>>>>>> 2ab19658d... Only do an Int3 in write_game_text_file when PHYSFS_close returns 0, which is an error, not when it returns 1
 --------
 <<<<<<< HEAD
 main/state.c: in software rendering scale savestate thumbnail to correct size
