@@ -470,9 +470,14 @@ extern void game_disable_cheats();
 void
 multi_new_game(void)
 {
-	int i;
+	int i, save_pnum = Player_num;
+	extern int Final_boss_is_dead;
 
 	// Reset variables for a new net game
+
+	for (Player_num = 0; Player_num < MAX_NUM_NET_PLAYERS; Player_num++)
+		init_player_stats_game();
+	Player_num = save_pnum;
 
 	memset(kill_matrix, 0, MAX_NUM_NET_PLAYERS*MAX_NUM_NET_PLAYERS*2); // Clear kill matrix
 
@@ -493,14 +498,23 @@ multi_new_game(void)
 		robot_fired[i] = 0;
 	}
 
+	for (i=0;i<MAX_POWERUP_TYPES;i++)
+	{
+		MaxPowerupsAllowed[i]=0;
+		PowerupsInMine[i]=0;
+	}
+
 	team_kills[0] = team_kills[1] = 0;
+	Final_boss_is_dead=0;
 	Endlevel_sequence = 0;
+	Control_center_destroyed = 0;
 	Player_is_dead = 0;
 	multi_quit_game = 0;
 	Show_kill_list = 1;
 	game_disable_cheats();
 	Player_exploded = 0;
 	Dead_player_camera = 0;
+	Network_new_game = 1;
 }
 
 void
@@ -904,8 +918,10 @@ void multi_do_frame(void)
 void
 multi_send_data(char *buf, int len, int priority)
 {
-	Assert(len == message_length[(int)buf[0]]);
-	Assert(buf[0] <= MULTI_MAX_TYPE);
+	if (len != message_length[(int)buf[0]])
+		Error("multi_send_data: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
+	if (buf[0] < 0 || buf[0] > MULTI_MAX_TYPE)
+		Error("multi_send_data: Illegal packet type %i\n", buf[0]);
 
 	if (Game_mode & GM_NETWORK)
 	{
@@ -925,9 +941,12 @@ multi_send_data(char *buf, int len, int priority)
 
 void multi_send_data_direct(unsigned char *buf, int len, int pnum, int priority)
 {
-	Assert(len == message_length[(int)buf[0]]);
-	Assert(buf[0] <= MULTI_MAX_TYPE);
-	Assert(pnum >= 0 && pnum < MAX_NUM_NET_PLAYERS);
+	if (len != message_length[(int)buf[0]])
+		Error("multi_send_data_direct: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
+	if (buf[0] < 0 || buf[0] > MULTI_MAX_TYPE)
+		Error("multi_send_data_direct: Illegal packet type %i\n", buf[0]);
+	if (pnum < 0 && pnum > MAX_NUM_NET_PLAYERS)
+		Error("multi_send_data_direct: Illegal player num: %i\n", pnum);
 
 	net_udp_send_mdata_direct((ubyte *)multibuf, len, pnum, priority);
 }
@@ -2305,7 +2324,9 @@ multi_process_bigdata(char *buf, int len)
 	while( bytes_processed < len )  {
 		type = buf[bytes_processed];
 
-		if ( (type<0) || (type>MULTI_MAX_TYPE)) {
+		if ( (type<0) || (type>MULTI_MAX_TYPE))
+		{
+			con_printf( CON_DEBUG,"multi_process_bigdata: Invalid packet type %d!\n", type );
 			return;
 		}
 		sub_len = message_length[type];
@@ -2313,6 +2334,7 @@ multi_process_bigdata(char *buf, int len)
 		Assert(sub_len > 0);
 
 		if ( (bytes_processed+sub_len) > len )  {
+			con_printf(CON_DEBUG, "multi_process_bigdata: packet type %d too short (%d>%d)!\n", type, (bytes_processed+sub_len), len );
 			Int3();
 			return;
 		}
@@ -2329,6 +2351,8 @@ multi_process_bigdata(char *buf, int len)
 
 void multi_send_fire(int laser_gun, int laser_level, int laser_flags, int laser_fired, short laser_track)
 {
+	multi_do_protocol_frame(1, 0); // provoke positional update if possible
+
 	multibuf[0] = (char)MULTI_FIRE;
 	multibuf[1] = (char)Player_num;
 	multibuf[2] = (char)laser_gun;

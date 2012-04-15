@@ -1107,7 +1107,7 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 				}
 			}
 		}
-printf("best objnum %i\n",best_objnum);
+
 	}
 
 	return best_objnum;
