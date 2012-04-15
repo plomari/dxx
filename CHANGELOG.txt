@@ -142,8 +142,16 @@ D2X-Rebirth Changelog
 ||||||| parent of 2ab19658d... Only do an Int3 in write_game_text_file when PHYSFS_close returns 0, which is an error, not when it returns 1
 20120414
 --------
+<<<<<<< HEAD
 main/gamesave.c: Fix crash when loading a level in the editor
 editor/segment.c, include/editor/editor.h, main/gamesave.c: Set Gamesave_current_version to correct version when making a new mine, move create_new_mine to gamesave.c
+||||||| parent of b20044e14... Set edge_list_size to Num_segments*12 to avoid crashes in the editor with certain third party levels
+main/multi.c, main/multi.h, main/net_udp.c: When possibly sending player positions prior to firing, do that before messing multibuf; Added more strict sanity checks for outgoing and incoming multi packets; Moved some general game stuff from net_udp_init() to multi_new_game()
+=======
+main/multi.c, main/multi.h, main/net_udp.c: When possibly sending player positions prior to firing, do that before messing multibuf; Added more strict sanity checks for outgoing and incoming multi packets; Moved some general game stuff from net_udp_init() to multi_new_game()
+editor/meddraw.c: Set edge_list_size to Num_segments*12 to avoid crashes in the editor with certain third party levels
+
+>>>>>>> b20044e14... Set edge_list_size to Num_segments*12 to avoid crashes in the editor with certain third party levels
 
 20120412
 =======
