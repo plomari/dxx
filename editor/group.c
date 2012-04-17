@@ -554,7 +554,7 @@ int med_copy_group(int delta_flag, segment *base_seg, int base_side, segment *gr
 	}
 
 	if (num_groups == MAX_GROUPS) {
-		x = MessageBox( -2, -2, 2, "Warning: You have reached the MAXIMUM group number limit. Continue?", "No", "Yes" );
+		x = ui_messagebox( -2, -2, 2, "Warning: You have reached the MAXIMUM group number limit. Continue?", "No", "Yes" );
 		if (x==1)
 			return 0;
 	}
@@ -1061,7 +1061,7 @@ int med_save_group( char *filename, int *vertex_ids, short *segment_ids, int num
 	if (!SaveFile)
 	{
 		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
-		MessageBox( -2, -2, 1, ErrorMessage, "Ok" );
+		ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
 		return 1;
 	}
 
@@ -1200,7 +1200,7 @@ int med_load_group( char *filename, int *vertex_ids, short *segment_ids, int *nu
 	if (!LoadFile)
 	{
 		sprintf( ErrorMessage, "ERROR: Unable to open %s\n", filename );
-		MessageBox( -2, -2, 1, ErrorMessage, "Ok" );
+		ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
 		return 1;
 	}
 
@@ -1238,13 +1238,13 @@ int med_load_group( char *filename, int *vertex_ids, short *segment_ids, int *nu
 						  "with the current expected version %d groups.", \
 						  filename, group_top_fileinfo.fileinfo_version, MINE_VERSION );
 
-		if (MessageBox( -2, -2, 2, ErrorMessage, "Forget it", "Try anyway" )==1)
+		if (ui_messagebox( -2, -2, 2, ErrorMessage, "Forget it", "Try anyway" )==1)
 		{
 			cfclose( LoadFile );
 			return 1;
 		}
 
-		MessageBox( -2, -2, 1, "Good luck!", "I need it" );
+		ui_messagebox( -2, -2, 1, "Good luck!", "I need it" );
 	}
 
 	// Now, Read in the fileinfo
@@ -1464,7 +1464,7 @@ int SaveGroup()
 	if (current_group == -1)
 		{
 		sprintf( ErrorMessage, "ERROR: No current group." );
-		MessageBox( -2, -2, 1, ErrorMessage, "Ok" );
+		ui_messagebox( -2, -2, 1, ErrorMessage, "Ok" );
  		return 0;
 		}
 
@@ -1505,7 +1505,7 @@ int LoadGroup()
 
 	if (num_groups == MAX_GROUPS)
 		{
-		x = MessageBox( -2, -2, 2, "Warning: You are about to wipe out a group.", "ARGH! NO!", "No problemo." );
+		x = ui_messagebox( -2, -2, 2, "Warning: You are about to wipe out a group.", "ARGH! NO!", "No problemo." );
 		if (x==1) return 0;
 		}
 
@@ -1754,7 +1754,7 @@ int SubtractFromGroup(void)
 	autosave_mine(mine_filename);
 
 	if (num_groups == MAX_GROUPS) {
-		x = MessageBox( -2, -2, 2, "Warning: You are about to wipe out a group.", "ARGH! NO!", "No problemo." );
+		x = ui_messagebox( -2, -2, 2, "Warning: You are about to wipe out a group.", "ARGH! NO!", "No problemo." );
 		if (x==1) return 0;
 	}					   
 
@@ -1842,7 +1842,7 @@ int CreateGroup(void)
 	autosave_mine(mine_filename);
 
 	if (num_groups == MAX_GROUPS) {
-		x = MessageBox( -2, -2, 2, "Warning: You are about to wipe out a group.", "ARGH! NO!", "No problemo." );
+		x = ui_messagebox( -2, -2, 2, "Warning: You are about to wipe out a group.", "ARGH! NO!", "No problemo." );
 		if (x==1)
 			return 0;				// Aborting at user's request.
 	}					   
