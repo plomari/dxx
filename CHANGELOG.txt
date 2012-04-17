@@ -155,6 +155,7 @@ main/gameseq.c, main/multi.c, main/multi.h: fixed two bugs caused by recent Mult
 20120417
 --------
 main/game.c: Make sure Cursegp is initialised if using it to set an object when loading a game (EDITOR build). Thought I already committed this
+main/gameseq.c: Finish the game cleanly, closing Game_wind, if Current_level_num is 0
 
 >>>>>>> e55406d1e... Make sure Cursegp is initialised if using it to set an object when loading a game (EDITOR build). Thought I already committed this
 20120416

@@ -1370,7 +1370,7 @@ void AdvanceLevel(int secret_flag)
 	#ifdef EDITOR
 	if (Current_level_num == 0)
 	{
-		return;		//not a real level
+		window_close(Game_wind);		//not a real level
 	}
 	#endif
 
