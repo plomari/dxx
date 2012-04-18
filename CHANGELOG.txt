@@ -79,6 +79,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -152,6 +153,13 @@ main/gameseq.c, main/multi.c, main/multi.h: fixed two bugs caused by recent Mult
 =======
 ||||||| parent of e55406d1e... Make sure Cursegp is initialised if using it to set an object when loading a game (EDITOR build). Thought I already committed this
 =======
+||||||| parent of b02060216... Removed usage of 'oldmaxnet' variable when switching between coop and other game modes which would not be correctly set when coop mode is loaded from a netgame profile; Removed 'MaxNumNetPlayers' variable as already replaced by Netgame.max_numplayers
+=======
+20120418
+--------
+main/gameseq.c, main/gameseq.h, main/gauges.c, main/multi.c, main/net_udp.c, main/state.c: Removed usage of 'oldmaxnet' variable when switching between coop and other game modes which would not be correctly set when coop mode is loaded from a netgame profile; Removed 'MaxNumNetPlayers' variable as already replaced by Netgame.max_numplayers
+
+>>>>>>> b02060216... Removed usage of 'oldmaxnet' variable when switching between coop and other game modes which would not be correctly set when coop mode is loaded from a netgame profile; Removed 'MaxNumNetPlayers' variable as already replaced by Netgame.max_numplayers
 20120417
 --------
 main/game.c: Make sure Cursegp is initialised if using it to set an object when loading a game (EDITOR build). Thought I already committed this
