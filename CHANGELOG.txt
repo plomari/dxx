@@ -81,6 +81,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -147,6 +148,15 @@ D2X-Rebirth Changelog
 20120414
 ||||||| parent of 82cce8afb... Make movement in the editor's game screen use the player controls, make that movement more like the automap and resolve some likely conflicting key commands
 20120416
+||||||| parent of 6e0abf59c... little reorganization for draw_hud(): draw multiplayer names first, reticle last to prevent anything being drawn over by floating names and reticle not messed by anything else
+20120423
+=======
+20120424
+--------
+main/gauges.c: little reorganization for draw_hud(): draw multiplayer names first, reticle last to prevent anything being drawn over by floating names and reticle not messed by anything else
+
+20120423
+>>>>>>> 6e0abf59c... little reorganization for draw_hud(): draw multiplayer names first, reticle last to prevent anything being drawn over by floating names and reticle not messed by anything else
 --------
 main/gameseq.c, main/multi.c, main/multi.h: fixed two bugs caused by recent Multiplayer cleanup: Set more player-death-related veriables outside of dead_player_end() when creating new ship as not covered in subfunction is Palyer_is_dead is not true; also init my own inventory properly in multi_prep_level to get our inventory straight after receiving netgame information
 
