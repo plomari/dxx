@@ -82,6 +82,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -151,6 +152,29 @@ D2X-Rebirth Changelog
 ||||||| parent of 6e0abf59c... little reorganization for draw_hud(): draw multiplayer names first, reticle last to prevent anything being drawn over by floating names and reticle not messed by anything else
 20120423
 =======
+||||||| parent of 1475eccac... Added more versatility in picking targets for the creation of smart blobs - especially for Multiplayer; cleaned that code a bit; made dodging of homing projectiles a little easier
+20120430
+--------
+main/net_udp.c: fixed copy/paste mistake
+
+20120427
+--------
+main/multi.c, main/multi.h: Similar to Network_new_game introduced imulti_new_game to exclusivly use in multi.c to execute stuff in new level only when starting a new game - for example resetting player ship inventory which is not supposed to happen on each level
+
+=======
+20120509
+--------
+main/laser.c, main/multi.h: Added more versatility in picking targets for the creation of smart blobs - especially for Multiplayer; cleaned that code a bit; made dodging of homing projectiles a little easier
+
+20120430
+--------
+main/net_udp.c: fixed copy/paste mistake
+
+20120427
+--------
+main/multi.c, main/multi.h: Similar to Network_new_game introduced imulti_new_game to exclusivly use in multi.c to execute stuff in new level only when starting a new game - for example resetting player ship inventory which is not supposed to happen on each level
+
+>>>>>>> 1475eccac... Added more versatility in picking targets for the creation of smart blobs - especially for Multiplayer; cleaned that code a bit; made dodging of homing projectiles a little easier
 20120424
 --------
 main/gauges.c: little reorganization for draw_hud(): draw multiplayer names first, reticle last to prevent anything being drawn over by floating names and reticle not messed by anything else
