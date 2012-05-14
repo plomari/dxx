@@ -38,19 +38,14 @@ extern struct window *Game_wind;
 // from mglobal.c
 extern fix FrameTime;           // time in seconds since last frame
 extern fix GameTime;            // time in game (sum of FrameTime)
-extern int FrameCount;          // how many frames rendered
-extern int FixedStep;		//fixed time bytes stored here
+extern int d_tick_count; // increments every 50ms
+extern int d_tick_step;  // true once every 50ms
 extern fix Next_laser_fire_time;    // Time at which player can next fire his selected laser.
 extern fix Last_laser_fired_time;
 extern fix Next_missile_fire_time;  // Time at which player can next fire his selected missile.
 extern fix Next_flare_fire_time;
 extern fix Laser_delay_time;        // Delay between laser fires.
 extern int Cheats_enabled;
-
-// bits for FixedStep
-#define EPS4	1
-#define EPS20	2
-#define EPS30	4
 
 extern struct object *Missile_viewer;
 extern int Missile_viewer_sig;
@@ -126,7 +121,7 @@ void game(void);
 void close_game(void);
 void init_cockpit(void);
 void calc_frame_time(void);
-void FixedStepCalc();
+void calc_d_tick();
 int do_flythrough(struct object *obj,int first_time);
 
 extern int Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest

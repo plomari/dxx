@@ -71,6 +71,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "../3d/globvars.h"
 #include "gamefont.h"
+#include "timer.h"
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -1740,8 +1741,6 @@ void dead_player_frame(void)
 		time_dead = 0;
 }
 
-int Killed_in_frame = -1;
-short Killed_objnum = -1;
 extern char Multi_killed_yourself;
 
 //	------------------------------------------------------------------------------------------------------------------
@@ -1762,8 +1761,6 @@ void start_player_death_sequence(object *player)
 	if (!(Game_mode & GM_MULTI))
 		HUD_clear_messages();
 
-	Killed_in_frame = FrameCount;
-	Killed_objnum = player-Objects;
 	Death_sequence_aborted = 0;
 
 	#ifdef NETWORK
@@ -2445,7 +2442,7 @@ void wake_up_rendered_objects(object *viewer, int window_num)
 	int	i;
 
 	//	Make sure that we are processing current data.
-	if (FrameCount != Window_rendered_data[window_num].frame) {
+	if (timer_query() != Window_rendered_data[window_num].time) {
 		return;
 	}
 
@@ -2454,7 +2451,7 @@ void wake_up_rendered_objects(object *viewer, int window_num)
 	for (i=0; i<Window_rendered_data[window_num].num_objects; i++) {
 		int	objnum;
 		object *objp;
-		int	fcval = FrameCount & 3;
+		int	fcval = d_tick_count & 3;
 
 		objnum = Window_rendered_data[window_num].rendered_objects[i];
 		if ((objnum & 3) == fcval) {
