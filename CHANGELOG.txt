@@ -84,6 +84,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -162,6 +163,13 @@ main/net_udp.c: Do not send endlevel packets to disconnected (but still saved) c
 
 20120514
 =======
+||||||| parent of ef8c3bc43... fixed incorrect canvase for opengl-scaled savestate thumbnail; rebuild free objects after restoring and remapping the coop players
+=======
+20120518
+--------
+main/state.c: fixed incorrect canvase for opengl-scaled savestate thumbnail; rebuild free objects after restoring and remapping the coop players
+
+>>>>>>> ef8c3bc43... fixed incorrect canvase for opengl-scaled savestate thumbnail; rebuild free objects after restoring and remapping the coop players
 20120516
 --------
 main/game.c: In Multiplayer when taking damage, the game will only leave menus when shield drop below 5
