@@ -87,6 +87,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -169,6 +170,13 @@ main/state.c: now properly initialize all other parts of the new/old player obje
 =======
 ||||||| parent of 4554227d1... in StartLevel() only call disable_matcens() and clear_transient_objects() in Singleplayer to keep consistency with remote clients
 =======
+||||||| parent of 1431d3bc3... Cancel out do_controlcen_dead_frame() when not playing and only check triggers for playing players for further host-authority stuff; Made GameProcessFrame not cause endless loop by closing kmatrix over and over again due to game_leave_menus(); Also only close menus when level ends and when we die only the automap will close - otherwise menus can stay (user request)
+=======
+20120525
+--------
+main/cntrlcen.c, main/game.c, main/switch.c: Cancel out do_controlcen_dead_frame() when not playing and only check triggers for playing players for further host-authority stuff; Made GameProcessFrame not cause endless loop by closing kmatrix over and over again due to game_leave_menus(); Also only close menus when level ends and when we die only the automap will close - otherwise menus can stay (user request)
+
+>>>>>>> 1431d3bc3... Cancel out do_controlcen_dead_frame() when not playing and only check triggers for playing players for further host-authority stuff; Made GameProcessFrame not cause endless loop by closing kmatrix over and over again due to game_leave_menus(); Also only close menus when level ends and when we die only the automap will close - otherwise menus can stay (user request)
 20120524
 --------
 main/gameseq.c, main/gameseq.h: in StartLevel() only call disable_matcens() and clear_transient_objects() in Singleplayer to keep consistency with remote clients
