@@ -778,9 +778,6 @@ void update_cockpits()
 	PIGGY_PAGE_IN(cockpit_bitmap[cock_index]);
 	bm=&GameBitmaps[cockpit_bitmap[cock_index].index];
 
-	//Redraw the on-screen cockpit bitmaps
-	if (VR_render_mode != VR_NONE )	return;
-
 	switch( PlayerCfg.CockpitMode[1] )	{
 		case CM_FULL_COCKPIT:
 			gr_set_current_canvas(NULL);
@@ -821,11 +818,8 @@ void update_cockpits()
 void game_render_frame()
 {
 	set_screen_mode( SCREEN_GAME );
-
 	play_homing_warning();
-
-	if (VR_render_mode == VR_NONE )
-		game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
+	game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
 }
 
 //show a message in a nice little box

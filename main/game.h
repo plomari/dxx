@@ -240,7 +240,7 @@ void flickering_light_write(flickering_light *fl, PHYSFS_file *fp);
 
 void game_render_frame_mono(int flip);
 
-void game_init_render_buffers(int render_w, int render_h, int render_method );
+void game_init_render_buffers(int render_w, int render_h);
 
 void game_leave_menus(void);
 
