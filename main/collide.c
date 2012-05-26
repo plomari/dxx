@@ -1755,9 +1755,9 @@ void collide_player_and_player( object * player1, object * player2, vms_vector *
 		if (player1->id < 0 || player1->id > MAX_PLAYERS || player2->id < 0 || player2->id > MAX_PLAYERS)
 			return;
 		otherpl = (player1->id==Player_num)?player2->id:player1->id;
-		if (last_player_bump[otherpl] + (F1_0/Netgame.PacketsPerSec) < GameTime64 || last_player_bump[otherpl] > GameTime64)
+		if (last_player_bump[otherpl] + (F1_0/Netgame.PacketsPerSec) < GameTime || last_player_bump[otherpl] > GameTime)
 		{
-			last_player_bump[otherpl] = GameTime64;
+			last_player_bump[otherpl] = GameTime;
 			damage_flag = 1;
 		}
 	}
