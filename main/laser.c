@@ -210,9 +210,6 @@ int laser_are_related( int o1, int o2 )
 	return 1;
 }
 
-//--unused-- int Muzzle_scale=2;
-int Laser_offset=0;
-
 void do_muzzle_stuff(int segnum, vms_vector *pos)
 {
 	Muzzle_data[Muzzle_queue_index].create_time = timer_query();
@@ -745,7 +742,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 		vms_vector	end_pos;
 		int			end_segnum;
 
-	 	vm_vec_scale_add( &end_pos, &obj->pos, direction, Laser_offset+(laser_length/2) );
+	 	vm_vec_scale_add( &end_pos, &obj->pos, direction, (laser_length/2) );
 		end_segnum = find_point_seg(&end_pos, obj->segnum);
 		if (end_segnum != obj->segnum) {
 			if (end_segnum != -1) {
@@ -1680,8 +1677,6 @@ int do_laser_firing(int objnum, int weapon_num, int level, int flags, int nfires
 	switch (weapon_num) {
 		case LASER_INDEX: {
 			int weapon_num;
-
-			Laser_offset = ((F1_0*2)*(d_rand()%8))/8;
 
 			if (level <= MAX_LASER_LEVEL)
 				weapon_num = LASER_ID + level;
