@@ -184,6 +184,7 @@ main/state.c: now properly initialize all other parts of the new/old player obje
 20120601
 --------
 main/kconfig.c, main/kconfig.h, main/menu.c, main/playsave.c, main/playsave.h: Introduced sensitivity sliders for keyboard which cause movement increase the longer the designated key is pressed
+main/gauges.c, main/menu.c, main/net_udp.c, main/songs.c, misc/physfsx.c: use size of output buffer for snprintf; on the way changed rebirth-specific song file to dxx-r.sng to respect hog 8+3 file convention
 
 >>>>>>> 8b3b6c5c1... Introduced sensitivity sliders for keyboard which cause movement increase the longer the designated key is pressed
 20120527
