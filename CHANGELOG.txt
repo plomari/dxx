@@ -90,6 +90,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -178,6 +179,13 @@ main/state.c: now properly initialize all other parts of the new/old player obje
 =======
 ||||||| parent of 6ee7c2f09... Removed remnants of the old and obsolete VR implementation
 =======
+||||||| parent of 8b3b6c5c1... Introduced sensitivity sliders for keyboard which cause movement increase the longer the designated key is pressed
+=======
+20120601
+--------
+main/kconfig.c, main/kconfig.h, main/menu.c, main/playsave.c, main/playsave.h: Introduced sensitivity sliders for keyboard which cause movement increase the longer the designated key is pressed
+
+>>>>>>> 8b3b6c5c1... Introduced sensitivity sliders for keyboard which cause movement increase the longer the designated key is pressed
 20120527
 --------
 editor/med.c, main/game.c, main/gamecntl.c, main/gamerend.c, main/gauges.c, main/kconfig.c, main/menu.c, main/screens.h: Removed remnants of the old and obsolete VR implementation
