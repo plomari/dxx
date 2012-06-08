@@ -1349,7 +1349,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		if ( Controls.key_pitch_forward_state ) 
 		{
 			if ( Controls.key_pitch_forward_down_time < F1_0 )
-				Controls.key_pitch_forward_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[1]/4);
+				Controls.key_pitch_forward_down_time += (!Controls.key_pitch_forward_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[1]/16)+1:FrameTime/4;
 			Controls.pitch_time += speed_factor*FrameTime/2*(Controls.key_pitch_forward_down_time/F1_0);
 		}
 		else
@@ -1357,7 +1357,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		if ( Controls.key_pitch_backward_state )
 		{
 			if ( Controls.key_pitch_backward_down_time < F1_0 )
-				Controls.key_pitch_backward_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[1]/4);
+				Controls.key_pitch_backward_down_time += (!Controls.key_pitch_backward_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[1]/16)+1:FrameTime/4;
 			Controls.pitch_time -= speed_factor*FrameTime/2*(Controls.key_pitch_backward_down_time/F1_0);
 		}
 		else
@@ -1383,7 +1383,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		if ( Controls.key_pitch_forward_state ) 
 		{
 			if (Controls.key_pitch_forward_down_time < F1_0)
-				Controls.key_pitch_forward_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[3]/4);
+				Controls.key_pitch_forward_down_time += (!Controls.key_pitch_forward_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[3]/16)+1:FrameTime/4;
 			Controls.vertical_thrust_time += speed_factor*FrameTime*(Controls.key_pitch_forward_down_time/F1_0);
 		}
 		else
@@ -1391,7 +1391,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		if ( Controls.key_pitch_backward_state )
 		{
 			if ( Controls.key_pitch_backward_down_time < F1_0 )
-				Controls.key_pitch_backward_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[3]/4);
+				Controls.key_pitch_backward_down_time += (!Controls.key_pitch_backward_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[3]/16)+1:FrameTime/4;
 			Controls.vertical_thrust_time -= speed_factor*FrameTime*(Controls.key_pitch_backward_down_time/F1_0);
 		}
 		else
@@ -1411,7 +1411,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.key_slide_up_state ) 
 	{
 		if (Controls.key_slide_up_down_time < F1_0)
-			Controls.key_slide_up_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[3]/4);
+			Controls.key_slide_up_down_time += (!Controls.key_slide_up_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[3]/16)+1:FrameTime/4;
 		Controls.vertical_thrust_time += speed_factor*FrameTime*(Controls.key_slide_up_down_time/F1_0);
 	}
 	else
@@ -1419,7 +1419,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.key_slide_down_state )
 	{
 		if ( Controls.key_slide_down_down_time < F1_0 )
-			Controls.key_slide_down_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[3]/4);
+			Controls.key_slide_down_down_time += (!Controls.key_slide_down_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[3]/16)+1:FrameTime/4;
 		Controls.vertical_thrust_time -= speed_factor*FrameTime*(Controls.key_slide_down_down_time/F1_0);
 	}
 	else
@@ -1445,7 +1445,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		if ( Controls.key_heading_right_state ) 
 		{
 			if (Controls.key_heading_right_down_time < F1_0)
-				Controls.key_heading_right_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[0]/4);
+				Controls.key_heading_right_down_time += (!Controls.key_heading_right_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[0]/16)+1:FrameTime/4;
 			Controls.heading_time += speed_factor*FrameTime*(Controls.key_heading_right_down_time/F1_0);
 		}
 		else
@@ -1453,7 +1453,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		if ( Controls.key_heading_left_state )
 		{
 			if ( Controls.key_heading_left_down_time < F1_0 )
-				Controls.key_heading_left_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[0]/4);
+				Controls.key_heading_left_down_time += (!Controls.key_heading_left_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[0]/16)+1:FrameTime/4;
 			Controls.heading_time -= speed_factor*FrameTime*(Controls.key_heading_left_down_time/F1_0);
 		}
 		else
@@ -1478,7 +1478,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		if ( Controls.key_heading_right_state ) 
 		{
 			if (Controls.key_heading_right_down_time < F1_0)
-				Controls.key_heading_right_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[2]/4);
+				Controls.key_heading_right_down_time += (!Controls.key_heading_right_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[2]/16)+1:FrameTime/4;
 			Controls.sideways_thrust_time += speed_factor*FrameTime*(Controls.key_heading_right_down_time/F1_0);
 		}
 		else
@@ -1486,7 +1486,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		if ( Controls.key_heading_left_state )
 		{
 			if ( Controls.key_heading_left_down_time < F1_0 )
-				Controls.key_heading_left_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[2]/4);
+				Controls.key_heading_left_down_time += (!Controls.key_heading_left_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[2]/16)+1:FrameTime/4;
 			Controls.sideways_thrust_time -= speed_factor*FrameTime*(Controls.key_heading_left_down_time/F1_0);
 		}
 		else
@@ -1506,7 +1506,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.key_slide_right_state ) 
 	{
 		if (Controls.key_slide_right_down_time < F1_0)
-			Controls.key_slide_right_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[2]/4);
+			Controls.key_slide_right_down_time += (!Controls.key_slide_right_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[2]/16)+1:FrameTime/4;
 		Controls.sideways_thrust_time += speed_factor*FrameTime*(Controls.key_slide_right_down_time/F1_0);
 	}
 	else
@@ -1514,7 +1514,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.key_slide_left_state )
 	{
 		if ( Controls.key_slide_left_down_time < F1_0 )
-			Controls.key_slide_left_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[2]/4);
+			Controls.key_slide_left_down_time += (!Controls.key_slide_left_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[1]/16)+1:FrameTime/4;
 		Controls.sideways_thrust_time -= speed_factor*FrameTime*(Controls.key_slide_left_down_time/F1_0);
 	}
 	else
@@ -1540,7 +1540,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		if ( Controls.key_heading_left_state )
 		{
 			if ( Controls.key_heading_left_down_time < F1_0 )
-				Controls.key_heading_left_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[4]/4);
+				Controls.key_heading_left_down_time += (!Controls.key_heading_left_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[4]/16)+1:FrameTime/4;
 			Controls.bank_time += speed_factor*FrameTime*(Controls.key_heading_left_down_time/F1_0);
 		}
 		else
@@ -1548,7 +1548,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		if ( Controls.key_heading_right_state ) 
 		{
 			if (Controls.key_heading_right_down_time < F1_0)
-				Controls.key_heading_right_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[4]/4);
+				Controls.key_heading_right_down_time += (!Controls.key_heading_right_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[4]/16)+1:FrameTime/4;
 			Controls.bank_time -= speed_factor*FrameTime*(Controls.key_heading_right_down_time/F1_0);
 		}
 		else
@@ -1568,7 +1568,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.key_bank_left_state )
 	{
 		if ( Controls.key_bank_left_down_time < F1_0 )
-			Controls.key_bank_left_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[4]/4);
+			Controls.key_bank_left_down_time += (!Controls.key_bank_left_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[4]/16)+1:FrameTime/4;
 		Controls.bank_time += speed_factor*FrameTime*(Controls.key_bank_left_down_time/F1_0);
 	}
 	else
@@ -1576,7 +1576,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.key_bank_right_state ) 
 	{
 		if (Controls.key_bank_right_down_time < F1_0)
-			Controls.key_bank_right_down_time += FrameTime*((float)PlayerCfg.KeyboardSens[4]/4);
+			Controls.key_bank_right_down_time += (!Controls.key_bank_right_down_time)?F1_0*((float)PlayerCfg.KeyboardSens[4]/16)+1:FrameTime/4;
 		Controls.bank_time -= speed_factor*FrameTime*(Controls.key_bank_right_down_time/F1_0);
 	}
 	else

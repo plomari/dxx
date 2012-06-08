@@ -187,6 +187,7 @@ main/state.c: now properly initialize all other parts of the new/old player obje
 20120608
 --------
 main/multi.c, main/object.c: cleanly decide it to drop a hoard orb depending on wether we were killed by ourselves, en enemy or team-mate without any ugly and unreliable hacks
+main/kconfig.c: Switching keyboard sensitivity function from variable increase to variable offset, making the ship more responsive in higher settings
 
 >>>>>>> d910fd0e7... cleanly decide it to drop a hoard orb depending on wether we were killed by ourselves, en enemy or team-mate without any ugly and unreliable hacks
 20120601
