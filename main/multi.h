@@ -346,6 +346,7 @@ void multi_send_hostage_door_status(int wallnum);
 void multi_send_netplayer_stats_request(ubyte player_num);
 void multi_send_drop_weapon (int objnum,int seed);
 void multi_send_drop_marker (int player,vms_vector position,char messagenum,char text[]);
+void multi_send_markers();
 void multi_send_guided_info (object *miss,char);
 void multi_send_bounty( void );
 

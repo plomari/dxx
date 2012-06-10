@@ -92,6 +92,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -184,6 +185,13 @@ main/state.c: now properly initialize all other parts of the new/old player obje
 =======
 ||||||| parent of d910fd0e7... cleanly decide it to drop a hoard orb depending on wether we were killed by ourselves, en enemy or team-mate without any ugly and unreliable hacks
 =======
+||||||| parent of b0288d8df... removed MarkerOwner; some code cleaning in that regard
+=======
+20120610
+--------
+main/automap.c, main/automap.h, main/multi.c, main/multi.h, main/net_udp.c, main/state.c: removed MarkerOwner; some code cleaning in that regard
+
+>>>>>>> b0288d8df... removed MarkerOwner; some code cleaning in that regard
 20120608
 --------
 main/multi.c, main/object.c: cleanly decide it to drop a hoard orb depending on wether we were killed by ourselves, en enemy or team-mate without any ugly and unreliable hacks
