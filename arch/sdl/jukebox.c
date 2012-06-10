@@ -6,12 +6,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <SDL_mixer.h>
 #include "physfsx.h"
 #include "args.h"
 #include "dl_list.h"
 #include "hudmsg.h"
-#include "digi_mixer_music.h"
+#include "songs.h"
 #include "jukebox.h"
 #include "error.h"
 #include "console.h"
@@ -52,7 +51,7 @@ void jukebox_unload()
 	JukeboxSongs.num_songs = JukeboxSongs.max_songs = JukeboxSongs.max_buf = 0;
 }
 
-char *jukebox_exts[] = { ".mp3", ".ogg", ".wav", ".aif", ".mid", ".flac", NULL };
+char *jukebox_exts[] = { SONG_EXT_HMP, SONG_EXT_MID, SONG_EXT_OGG, SONG_EXT_FLAC, SONG_EXT_MP3, NULL };
 
 int read_m3u(void)
 {
@@ -251,7 +250,7 @@ int jukebox_play()
 	else											// if it's from a specified path
 		snprintf(full_filename, strlen(GameCfg.CMLevelMusicPath)+strlen(music_filename)+1, "%s%s", GameCfg.CMLevelMusicPath, music_filename);
 
-	if (!mix_play_file(full_filename, ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?1:0), ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?NULL:jukebox_hook_next)))
+	if (!songs_play_file(full_filename, ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?1:0), ((GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)?NULL:jukebox_hook_next)))
 	{
 		d_free(full_filename);
 		return 0;	// whoops, got an error
