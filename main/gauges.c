@@ -1045,12 +1045,23 @@ void hud_show_afterburner(void)
 		newdemo_record_player_afterburner(Afterburner_charge);
 }
 
-char *d2_very_short_secondary_weapon_names[] =
-		{"Flash","Guided","SmrtMine","Mercury","Shaker"};
-
-#define SECONDARY_WEAPON_NAMES_VERY_SHORT(weapon_num) 					\
-	((weapon_num <= MEGA_INDEX)?(*(&TXT_CONCUSSION + (weapon_num))):	\
-	d2_very_short_secondary_weapon_names[weapon_num-SMISSILE1_INDEX])
+static inline const char *SECONDARY_WEAPON_NAMES_VERY_SHORT(const unsigned u)
+{
+	switch(u)
+	{
+		default:
+		case 0: return TXT_CONCUSSION;
+		case 1: return TXT_HOMING;
+		case 2: return TXT_PROXBOMB;
+		case 3: return TXT_SMART;
+		case 4: return TXT_MEGA;
+		case 5: return "Flash";
+		case 6: return "Guided";
+		case 7: return "SmrtMine";
+		case 8: return "Mercury";
+		case 9: return "Shaker";
+	}
+}
 
 //return which bomb will be dropped next time the bomb key is pressed
 extern int which_bomb();
@@ -1246,7 +1257,7 @@ void hud_show_weapons(void)
 {
 	int	w, h, aw;
 	int	y;
-	char	*weapon_name;
+	const char	*weapon_name;
 	char	weapon_str[32];
 
 	gr_set_curfont( GAME_FONT );
