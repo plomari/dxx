@@ -22,7 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 
 #include "ogl_init.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "3d.h"
 #include "inferno.h"
 #include "u_mem.h"

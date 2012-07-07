@@ -12,16 +12,12 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-#ifdef RCS
-static char rcsid[] = "$Id: mouse.c,v 1.1.1.1 2006/03/17 19:52:18 zicodxx Exp $";
-#endif
-
 #include <stdlib.h>
 #include <SDL.h>
 
 #include "event.h"
 #include "u_mem.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "console.h"
 #include "fix.h"
 #include "pstypes.h"

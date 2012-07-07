@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "grdef.h"
 #include "cfile.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "fix.h"
 #include "palette.h"
 

@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "cfile.h"
 #include "func.h"
-#include "error.h"
+#include "dxxerror.h"
 
 
 #define MAXMENUS 30

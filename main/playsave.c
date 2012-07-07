@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include <errno.h>
 
-#include "error.h"
+#include "dxxerror.h"
 #include "strutil.h"
 #include "game.h"
 #include "gameseq.h"

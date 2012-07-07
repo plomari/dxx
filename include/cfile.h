@@ -29,7 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "console.h"
 #include "u_mem.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "args.h"
 
 typedef struct CFILE CFILE;

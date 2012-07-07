@@ -17,7 +17,7 @@
 #include <SDL_mixer.h>
 
 #include "pstypes.h"
-#include "error.h"
+#include "dxxerror.h"
 #include "sounds.h"
 #include "digi.h"
 #include "digi_mixer.h"
