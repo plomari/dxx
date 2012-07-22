@@ -400,7 +400,7 @@ void draw_player( object * obj )
 }
 
 //name for each group.  maybe move somewhere else
-char *system_name[] = {
+static const char *const system_name[] = {
 			"Zeta Aquilae",
 			"Quartzon System",
 			"Brimspark System",

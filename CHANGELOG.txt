@@ -93,6 +93,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -168,6 +169,15 @@ D2X-Rebirth Changelog
 20120515
 ||||||| parent of 1296f3e3b... Introduced quaternion functions to replace vector matrix where size matters - created by Florian Feucht; Added option for pdata packets based on quaternion in Multiplayer game; Removed PF_LEVELLING from new player objects to prevent jittering in player banking
 20120521
+||||||| parent of 7c5aaa29d... Redefined lotsa variables, functions and parameters as const and/or static - patch by Kp
+20120618
+=======
+20120723
+--------
+2d/font.c, 2d/pcx.c, 3d/points.c, arch/include/jukebox.h, arch/sdl/jukebox.c, iff/iff.c, include/3d.h, include/error.h, include/gr.h, include/iff.h, include/pcx.h, include/physfsx.h, include/vecmat.h, main/ai.c, main/ai.h, main/ai2.c, main/automap.c, main/config.c, main/dumpmine.c, main/endlevel.c, main/escort.c, main/gamefont.c, main/gamerend.c, main/gamesave.c, main/gamesave.h, main/gauges.c, main/gauges.h, main/kconfig.c, main/kconfig.h, main/menu.c, main/multi.c, main/multi.h, main/newdemo.c, main/newmenu.c, main/newmenu.h, maths/vecmat.c, misc/error.c, misc/physfsx.c: Redefined lotsa variables, functions and parameters as const and/or static - patch by Kp
+
+20120618
+>>>>>>> 7c5aaa29d... Redefined lotsa variables, functions and parameters as const and/or static - patch by Kp
 --------
 main/state.c: now properly initialize all other parts of the new/old player object when restoring a coop savestate
 

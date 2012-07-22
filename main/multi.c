@@ -166,7 +166,7 @@ bitmap_index multi_player_textures[MAX_NUM_NET_PLAYERS][N_PLAYER_SHIP_TEXTURES];
 char RefuseThisPlayer=0,WaitForRefuseAnswer=0,RefuseTeam,RefusePlayerName[12];
 fix64 RefuseTimeLimit=0;
 
-int message_length[MULTI_MAX_TYPE+1] = {
+static const int message_length[MULTI_MAX_TYPE+1] = {
 	25, // POSITION
 	3,  // REAPPEAR
 	8,  // FIRE

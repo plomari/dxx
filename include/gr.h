@@ -292,7 +292,7 @@ void gr_uscanline( int x1, int x2, int y );
 
 
 // Reads in a font file... current font set to this one.
-grs_font * gr_init_font( char * fontfile );
+grs_font * gr_init_font( const char * fontfile );
 void gr_close_font( grs_font * font );
 
 //remap a font, re-reading its data & palette
@@ -305,11 +305,11 @@ void gr_remap_mono_fonts();
 // Writes a string using current font. Returns the next column after last char.
 void gr_set_curfont( grs_font * new );
 void gr_set_fontcolor( int fg_color, int bg_color );
-int gr_string(int x, int y, char *s );
-int gr_ustring(int x, int y, char *s );
-int gr_printf( int x, int y, char * format, ... );
-int gr_uprintf( int x, int y, char * format, ... );
-void gr_get_string_size(char *s, int *string_width, int *string_height, int *average_width );
+int gr_string(int x, int y, const char *s );
+int gr_ustring(int x, int y, const char *s );
+int gr_printf( int x, int y, const char * format, ... );
+int gr_uprintf( int x, int y, const char * format, ... );
+void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width );
 
 typedef struct vms_vector vms_vector;
 int gr_3d_string(vms_vector *at, vms_vector *dir_x, vms_vector *dir_y, char *s );
