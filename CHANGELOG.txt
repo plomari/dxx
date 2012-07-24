@@ -184,6 +184,7 @@ English.lproj/InfoPlist.strings, d2x-Info.plist, d2xgl-Info.plist: Increment ver
 English.lproj/InfoPlist.strings, d2x-Info.plist, d2xgl-Info.plist: Increment version number for Mac files (should have committed this ages ago)
 main/bm.c, main/bmread.c: If bitmaps.tbl happens to be available, don't try and re-make the pig if EDITOR is defined because it would cause problems
 main/collide.c, ui/gadget.c, ui/radio.c: Fix warnings (no checking ubyte 'id' is < 0, include d_strdup prototype for radio.c and make sure that 'text' gets freed)
+main/polyobj.c: Don't draw objects with a modelnum of -1, improving stability when a third party mission is played with shareware data
 
 >>>>>>> 42d7f5bff... If bitmaps.tbl happens to be available, don't try and re-make the pig if EDITOR is defined because it would cause problems
 20120723
