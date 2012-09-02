@@ -40,7 +40,7 @@ struct Arg GameArg;
 
 void ReadCmdArgs(void);
 
-int FindArg(char *s)
+static int FindArg(const char *const s)
 {
 	int i;
 

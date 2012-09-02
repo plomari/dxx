@@ -180,7 +180,14 @@ D2X-Rebirth Changelog
 ||||||| parent of c4307f392... Use enum for object types, powerup types, weapon types
 20120901
 --------
+<<<<<<< HEAD
 main/vers_id.h: Fixed incorrect patch merge introduced in the last commit
+||||||| parent of 5a7cc639c... Made FindArg static - patch by Kp
+arch/sdl/jukebox.c, main/gauges.c: Avoid some unnecessary strlen's
+=======
+arch/sdl/jukebox.c, main/gauges.c: Avoid some unnecessary strlen's - (slightly changed) patch by Kp
+misc/args.c: Made FindArg static - patch by Kp
+>>>>>>> 5a7cc639c... Made FindArg static - patch by Kp
 
 20120728
 =======
