@@ -97,6 +97,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -179,6 +180,15 @@ D2X-Rebirth Changelog
 20120724
 ||||||| parent of c4307f392... Use enum for object types, powerup types, weapon types
 20120901
+||||||| parent of d91b472f3... Fixed inconsistency in hostage_rescue() definition and revoked recent patch for u_mem.h due to infinite loops in mem.c caused by this
+20120903
+=======
+20121031
+--------
+main/hostage.h, include/u_mem.h: Fixed inconsistency in hostage_rescue() definition and revoked recent patch for u_mem.h due to infinite loops in mem.c caused by this
+
+20120903
+>>>>>>> d91b472f3... Fixed inconsistency in hostage_rescue() definition and revoked recent patch for u_mem.h due to infinite loops in mem.c caused by this
 --------
 <<<<<<< HEAD
 main/vers_id.h: Fixed incorrect patch merge introduced in the last commit
