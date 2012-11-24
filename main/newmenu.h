@@ -153,6 +153,58 @@ newmenu *nm_messagebox_fixedfont(char *title, int nchoices, ...);
 //should be called whenever the palette changes
 extern void newmenu_free_background();
 
+static inline void nm_set_item_menu(newmenu_item *ni, const char *text)
+{
+	ni->type = NM_TYPE_MENU;
+	ni->text = (char *)text;
+}
+
+static inline void nm_set_item_input(newmenu_item *ni, unsigned len, char *text)
+{
+	ni->type = NM_TYPE_INPUT;
+	ni->text = text;
+	ni->text_len = len;
+}
+
+static inline void nm_set_item_checkbox(newmenu_item *ni, const char *text, unsigned checked)
+{
+	ni->type = NM_TYPE_CHECK;
+	ni->text = (char *)text;
+	ni->value = checked;
+}
+
+static inline void nm_set_item_text(newmenu_item *ni, const char *text)
+{
+	ni->type = NM_TYPE_TEXT;
+	ni->text = (char *)text;
+}
+
+static inline void nm_set_item_radio(newmenu_item *ni, const char *text, unsigned checked, unsigned grp)
+{
+	ni->type = NM_TYPE_RADIO;
+	ni->text = (char *)text;
+	ni->value = checked;
+	ni->group = grp;
+}
+
+static inline void nm_set_item_number(newmenu_item *ni, const char *text, unsigned now, unsigned low, unsigned high)
+{
+	ni->type = NM_TYPE_NUMBER;
+	ni->text = (char *)text;
+	ni->value = now;
+	ni->min_value = low;
+	ni->max_value = high;
+}
+
+static inline void nm_set_item_slider(newmenu_item *ni, const char *text, unsigned now, unsigned low, unsigned high)
+{
+	ni->type = NM_TYPE_SLIDER;
+	ni->text = (char *)text;
+	ni->value = now;
+	ni->min_value = low;
+	ni->max_value = high;
+}
+
 #define NEWMENU_MOUSE
 
 // #define NORMAL_CHECK_BOX    "Å"

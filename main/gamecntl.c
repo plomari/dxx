@@ -624,15 +624,15 @@ int HandleDemoKey(int key)
 			newmenu_item m[6];
 
 			filename[0] = '\0';
-			m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "output file name";
-			m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = 8; m[1].text = filename;
+			nm_set_item_text(& m[ 0], "output file name");
+			nm_set_item_input(&m[ 1], 8, filename);
 			c = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
 			if (c == -2)
 				break;
 			strcat(filename, DEMO_EXT);
 			num[0] = '\0';
-			m[ 0].type = NM_TYPE_TEXT; m[ 0].text = "strip how many bytes";
-			m[ 1].type = NM_TYPE_INPUT;m[ 1].text_len = 16; m[1].text = num;
+			nm_set_item_text(& m[ 0], "strip how many bytes");
+			nm_set_item_input(&m[ 1], 16, num);
 			c = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
 			if (c == -2)
 				break;
@@ -1459,7 +1459,7 @@ int HandleTestKey(int key)
 			newmenu_item m;
 			char text[FILENAME_LEN]="";
 			int item;
-			m.type=NM_TYPE_INPUT; m.text_len = FILENAME_LEN; m.text = text;
+			nm_set_item_input(&m, FILENAME_LEN, text);
 			item = newmenu_do( NULL, "Briefing to play?", 1, &m, NULL, NULL );
 			if (item != -1) {
 				do_briefing_screens(text,1);
@@ -1674,8 +1674,7 @@ void FinalCheats(int key)
 		char text[10]="";
 		int new_level_num;
 		int item;
-		//digi_play_sample( SOUND_CHEATER, F1_0);
-		m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
+		nm_set_item_input(&m, 10, text);
 		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, 1, &m, NULL, NULL );
 		if (item != -1) {
 			new_level_num = atoi(m.text);
@@ -1918,20 +1917,15 @@ void do_cheat_menu()
 
 	sprintf( score_text, "%d", Players[Player_num].score );
 
-	mm[0].type=NM_TYPE_CHECK; mm[0].value=Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE; mm[0].text="Invulnerability";
-	mm[1].type=NM_TYPE_CHECK; mm[1].value=Players[Player_num].flags & PLAYER_FLAGS_CLOAKED; mm[1].text="Cloaked";
-	mm[2].type=NM_TYPE_CHECK; mm[2].value=0; mm[2].text="All keys";
-	mm[3].type=NM_TYPE_NUMBER; mm[3].value=f2i(Players[Player_num].energy); mm[3].text="% Energy"; mm[3].min_value=0; mm[3].max_value=200;
-	mm[4].type=NM_TYPE_NUMBER; mm[4].value=f2i(Players[Player_num].shields); mm[4].text="% Shields"; mm[4].min_value=0; mm[4].max_value=200;
-	mm[5].type=NM_TYPE_TEXT; mm[5].text = "Score:";
-	mm[6].type=NM_TYPE_INPUT; mm[6].text_len = 10; mm[6].text = score_text;
-	//mm[7].type=NM_TYPE_RADIO; mm[7].value=(Players[Player_num].laser_level==0); mm[7].group=0; mm[7].text="Laser level 1";
-	//mm[8].type=NM_TYPE_RADIO; mm[8].value=(Players[Player_num].laser_level==1); mm[8].group=0; mm[8].text="Laser level 2";
-	//mm[9].type=NM_TYPE_RADIO; mm[9].value=(Players[Player_num].laser_level==2); mm[9].group=0; mm[9].text="Laser level 3";
-	//mm[10].type=NM_TYPE_RADIO; mm[10].value=(Players[Player_num].laser_level==3); mm[10].group=0; mm[10].text="Laser level 4";
-
-	mm[7].type=NM_TYPE_NUMBER; mm[7].value=Players[Player_num].laser_level+1; mm[7].text="Laser Level"; mm[7].min_value=0; mm[7].max_value=MAX_SUPER_LASER_LEVEL+1;
-	mm[8].type=NM_TYPE_NUMBER; mm[8].value=Players[Player_num].secondary_ammo[CONCUSSION_INDEX]; mm[8].text="Missiles"; mm[8].min_value=0; mm[8].max_value=200;
+	nm_set_item_checkbox(&mm[0],TXT_INVULNERABILITY,Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE);
+	nm_set_item_checkbox(&mm[1],TXT_CLOAKED,Players[Player_num].flags & PLAYER_FLAGS_CLOAKED);
+	nm_set_item_checkbox(&mm[2],"All keys",0);
+	nm_set_item_number(&mm[3], "% Energy", f2i(Players[Player_num].energy), 0, 200);
+	nm_set_item_number(&mm[4], "% Shields", f2i(Players[Player_num].shields), 0, 200);
+	nm_set_item_text(& mm[5], "Score:");
+	nm_set_item_input(&mm[6], 10, score_text);
+	nm_set_item_number(&mm[7], "Laser Level", Players[Player_num].laser_level+1, 0, MAX_SUPER_LASER_LEVEL+1);
+	nm_set_item_number(&mm[8], "Missiles", Players[Player_num].secondary_ammo[CONCUSSION_INDEX], 0, 200);
 
 	mmn = newmenu_do("Wimp Menu",NULL,9, mm, NULL, NULL );
 

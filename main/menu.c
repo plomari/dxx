@@ -178,7 +178,7 @@ int MakeNewPlayerFile(int allow_abort)
 	strncpy(text, Players[Player_num].callsign,CALLSIGN_LEN);
 
 try_again:
-	m.type=NM_TYPE_INPUT; m.text_len = CALLSIGN_LEN; m.text = text;
+	nm_set_item_input(&m, CALLSIGN_LEN, text);
 
 	Newmenu_allowed_chars = playername_allowed_chars;
 	x = newmenu_do( NULL, TXT_ENTER_PILOT_NAME, 1, &m, NULL, NULL );
@@ -828,9 +828,9 @@ int do_new_game_menu()
 try_again:
 		sprintf(info_text,"%s %d",TXT_START_ANY_LEVEL, player_highest_level);
 
-		m[0].type=NM_TYPE_TEXT; m[0].text = info_text;
-		m[1].type=NM_TYPE_INPUT; m[1].text_len = 10; m[1].text = num_text;
-		n_items = 2;
+			nm_set_item_text(& m[0], info_text);
+			nm_set_item_input(&m[1], 10, num_text);
+			n_items = 2;
 
                 snprintf(num_text, sizeof(num_text), "%d", GameCfg.LastLevel);
 
@@ -934,7 +934,7 @@ int gcd(int a, int b)
 void change_res()
 {
 	u_int32_t modes[50], new_mode = 0;
-	int i = 0, mc = 0, num_presets = 0, citem = -1, opt_cval = -1, opt_cres = -1, opt_casp = -1, opt_fullscr = -1;
+	int i = 0, mc = 0, num_presets = 0, citem = -1, opt_cval = -1, opt_cres = -1, opt_fullscr = -1;
 
 	num_presets = gr_list_modes( modes );
 
@@ -944,10 +944,8 @@ void change_res()
 	for (i = 0; i <= num_presets-1; i++)
 	{
 		snprintf(restext[mc], sizeof(restext[mc]), "%ix%i", SM_W(modes[i]), SM_H(modes[i]));
-		m[mc].type = NM_TYPE_RADIO;
-		m[mc].text = restext[mc];
-		m[mc].value = ((citem == -1) && (Game_screen_mode == modes[i]) && GameCfg.AspectY == SM_W(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i])) && GameCfg.AspectX == SM_H(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i])));
-		m[mc].group = 0;
+
+		nm_set_item_radio(&m[mc], restext[mc], ((citem == -1) && (Game_screen_mode == modes[i]) && GameCfg.AspectY == SM_W(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i])) && GameCfg.AspectX == SM_H(modes[i])/gcd(SM_W(modes[i]),SM_H(modes[i]))), 0);
 		if (m[mc].value)
 			citem = mc;
 		mc++;
@@ -956,19 +954,17 @@ void change_res()
 	m[mc].type = NM_TYPE_TEXT; m[mc].text = ""; mc++; // little space for overview
 	// the fields for custom resolution and aspect
 	opt_cval = mc;
-	m[mc].type = NM_TYPE_RADIO; m[mc].text = "use custom values"; m[mc].value = (citem == -1); m[mc].group = 0; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "resolution:"; mc++;
+	nm_set_item_radio(&m[mc], "use custom values", (citem == -1), 0); mc++;
+	nm_set_item_text(& m[mc], "resolution:"); mc++;
 	snprintf(crestext, sizeof(crestext), "%ix%i", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
-	opt_cres = mc;
-	m[mc].type = NM_TYPE_INPUT; m[mc].text = crestext; m[mc].text_len = 11; modes[mc] = 0; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = "aspect:"; mc++;
-	opt_casp = mc;
+	nm_set_item_input(&m[mc], 11, crestext); modes[mc] = 0; mc++;
+	nm_set_item_text(& m[mc], "aspect:"); mc++;
 	snprintf(casptext, sizeof(casptext), "%ix%i", GameCfg.AspectY, GameCfg.AspectX);
-	m[mc].type = NM_TYPE_INPUT; m[mc].text = casptext; m[mc].text_len = 11; modes[mc] = 0; mc++;
-	m[mc].type = NM_TYPE_TEXT; m[mc].text = ""; mc++; // little space for overview
+	nm_set_item_input(&m[mc], 11, casptext); modes[mc] = 0; mc++;
+	nm_set_item_text(& m[mc], ""); mc++; // little space for overview
 	// fullscreen
 	opt_fullscr = mc;
-	m[mc].type = NM_TYPE_CHECK; m[mc].text = "Fullscreen"; m[mc].value = gr_check_fullscreen(); mc++;
+	nm_set_item_checkbox(&m[mc], "Fullscreen", gr_check_fullscreen()); mc++;
 
 	// create the menu
 	newmenu_do1(NULL, "Screen Resolution", mc, m, NULL, NULL, 0);
@@ -1038,42 +1034,42 @@ void input_config_sensitivity()
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Keyboard Sensitivity:"; nitems++;
 	keysens = nitems;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_TURN_LR; m[nitems].value = PlayerCfg.KeyboardSens[0]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_PITCH_UD; m[nitems].value = PlayerCfg.KeyboardSens[1]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_LR; m[nitems].value = PlayerCfg.KeyboardSens[2]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_UD; m[nitems].value = PlayerCfg.KeyboardSens[3]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_BANK_LR; m[nitems].value = PlayerCfg.KeyboardSens[4]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Joystick Sensitivity:"; nitems++;
+	nm_set_item_slider(&m[nitems], TXT_TURN_LR, PlayerCfg.KeyboardSens[0], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_PITCH_UD, PlayerCfg.KeyboardSens[1], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_SLIDE_LR, PlayerCfg.KeyboardSens[2], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_SLIDE_UD, PlayerCfg.KeyboardSens[3], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_BANK_LR, PlayerCfg.KeyboardSens[4], 0, 16); nitems++;
+	nm_set_item_text(& m[nitems++], "");
+	nm_set_item_text(& m[nitems++], "Joystick Sensitivity:");
 	joysens = nitems;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_TURN_LR; m[nitems].value = PlayerCfg.JoystickSens[0]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_PITCH_UD; m[nitems].value = PlayerCfg.JoystickSens[1]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_LR; m[nitems].value = PlayerCfg.JoystickSens[2]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_UD; m[nitems].value = PlayerCfg.JoystickSens[3]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_BANK_LR; m[nitems].value = PlayerCfg.JoystickSens[4]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_THROTTLE; m[nitems].value = PlayerCfg.JoystickSens[5]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Joystick Deadzone:"; nitems++;
+	nm_set_item_slider(&m[nitems], TXT_TURN_LR, PlayerCfg.JoystickSens[0], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_PITCH_UD, PlayerCfg.JoystickSens[1], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_SLIDE_LR, PlayerCfg.JoystickSens[2], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_SLIDE_UD, PlayerCfg.JoystickSens[3], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_BANK_LR, PlayerCfg.JoystickSens[4], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_THROTTLE, PlayerCfg.JoystickSens[5], 0, 16); nitems++;
+	nm_set_item_text(& m[nitems], ""); nitems++;
+	nm_set_item_text(& m[nitems], "Joystick Deadzone:"); nitems++;
 	joydead = nitems;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_TURN_LR; m[nitems].value = PlayerCfg.JoystickDead[0]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_PITCH_UD; m[nitems].value = PlayerCfg.JoystickDead[1]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_LR; m[nitems].value = PlayerCfg.JoystickDead[2]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_UD; m[nitems].value = PlayerCfg.JoystickDead[3]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_BANK_LR; m[nitems].value = PlayerCfg.JoystickDead[4]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_THROTTLE; m[nitems].value = PlayerCfg.JoystickDead[5]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Mouse Sensitivity:"; nitems++;
+	nm_set_item_slider(&m[nitems], TXT_TURN_LR, PlayerCfg.JoystickDead[0], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_PITCH_UD, PlayerCfg.JoystickDead[1], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_SLIDE_LR, PlayerCfg.JoystickDead[2], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_SLIDE_UD, PlayerCfg.JoystickDead[3], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_BANK_LR, PlayerCfg.JoystickDead[4], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_THROTTLE, PlayerCfg.JoystickDead[5], 0, 16); nitems++;
+	nm_set_item_text(& m[nitems], ""); nitems++;
+	nm_set_item_text(& m[nitems], "Mouse Sensitivity:"); nitems++;
 	mousesens = nitems;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_TURN_LR; m[nitems].value = PlayerCfg.MouseSens[0]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_PITCH_UD; m[nitems].value = PlayerCfg.MouseSens[1]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_LR; m[nitems].value = PlayerCfg.MouseSens[2]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_SLIDE_UD; m[nitems].value = PlayerCfg.MouseSens[3]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_BANK_LR; m[nitems].value = PlayerCfg.MouseSens[4]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_THROTTLE; m[nitems].value = PlayerCfg.MouseSens[5]; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Mouse FlightSim Deadzone:"; nitems++;
+	nm_set_item_slider(&m[nitems], TXT_TURN_LR, PlayerCfg.MouseSens[0], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_PITCH_UD, PlayerCfg.MouseSens[1], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_SLIDE_LR, PlayerCfg.MouseSens[2], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_SLIDE_UD, PlayerCfg.MouseSens[3], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_BANK_LR, PlayerCfg.MouseSens[4], 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], TXT_THROTTLE, PlayerCfg.MouseSens[5], 0, 16); nitems++;
+	nm_set_item_text(& m[nitems], ""); nitems++;
+	nm_set_item_text(& m[nitems], "Mouse FlightSim Deadzone:"); nitems++;
 	mousefsdead = nitems;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "X/Y"; m[nitems].value = PlayerCfg.MouseFSDead; m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	nm_set_item_slider(&m[nitems], "X/Y", PlayerCfg.MouseFSDead, 0, 16); nitems++;
 
 	newmenu_do1(NULL, "SENSITIVITY & DEADZONE", nitems, m, NULL, NULL, 1);
 
@@ -1146,10 +1142,10 @@ void input_config()
 	int nitems = 0;
 
 	opt_ic_usejoy = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "USE JOYSTICK"; m[nitems].value = (PlayerCfg.ControlType&CONTROL_USING_JOYSTICK); nitems++;
+	nm_set_item_checkbox(&m[nitems], "USE JOYSTICK", (PlayerCfg.ControlType&CONTROL_USING_JOYSTICK)); nitems++;
 	opt_ic_usemouse = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "USE MOUSE"; m[nitems].value = (PlayerCfg.ControlType&CONTROL_USING_MOUSE); nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	nm_set_item_checkbox(&m[nitems], "USE MOUSE", (PlayerCfg.ControlType&CONTROL_USING_MOUSE)); nitems++;
+	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ic_confkey = nitems;
 	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "CUSTOMIZE KEYBOARD"; nitems++;
 	opt_ic_confjoy = nitems;
@@ -1161,17 +1157,17 @@ void input_config()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "MOUSE CONTROL TYPE:"; nitems++;
 	opt_ic_mouseflightsim = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "normal"; m[nitems].value = !PlayerCfg.MouseFlightSim; m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "FlightSim"; m[nitems].value = PlayerCfg.MouseFlightSim; m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	nm_set_item_radio(&m[nitems], "normal", !PlayerCfg.MouseFlightSim, 0); nitems++;
+	nm_set_item_radio(&m[nitems], "FlightSim", PlayerCfg.MouseFlightSim, 0); nitems++;
+	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ic_joymousesens = nitems;
 	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "SENSITIVITY & DEADZONE"; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
 	opt_ic_grabinput = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Keep Keyboard/Mouse focus"; m[nitems].value = GameCfg.Grabinput; nitems++;
+	nm_set_item_checkbox(&m[nitems], "Keep Keyboard/Mouse focus", GameCfg.Grabinput); nitems++;
 	opt_ic_mousefsgauge = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text= "Mouse FlightSim Indicator"; m[nitems].value = PlayerCfg.MouseFSIndicator; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	nm_set_item_checkbox(&m[nitems], "Mouse FlightSim Indicator", PlayerCfg.MouseFSIndicator); nitems++;
+	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ic_help0 = nitems;
 	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "GAME SYSTEM KEYS"; nitems++;
 	opt_ic_help1 = nitems;
@@ -1193,27 +1189,27 @@ void reticle_config()
 	
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Reticle Type:"; nitems++;
 	opt_ret_type = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Classic"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	nm_set_item_radio(&m[nitems], "Classic", 0, 0); nitems++;
 #ifdef OGL
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Classic Reboot"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	nm_set_item_radio(&m[nitems], "Classic Reboot", 0, 0); nitems++;
 #endif
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "None"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "X"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Dot"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Circle"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Cross V1"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Cross V2"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Angle"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Reticle Color:"; nitems++;
+	nm_set_item_radio(&m[nitems], "None", 0, 0); nitems++;
+	nm_set_item_radio(&m[nitems], "X", 0, 0); nitems++;
+	nm_set_item_radio(&m[nitems], "Dot", 0, 0); nitems++;
+	nm_set_item_radio(&m[nitems], "Circle", 0, 0); nitems++;
+	nm_set_item_radio(&m[nitems], "Cross V1", 0, 0); nitems++;
+	nm_set_item_radio(&m[nitems], "Cross V2", 0, 0); nitems++;
+	nm_set_item_radio(&m[nitems], "Angle", 0, 0); nitems++;
+	nm_set_item_text(& m[nitems], ""); nitems++;
+	nm_set_item_text(& m[nitems], "Reticle Color:"); nitems++;
 	opt_ret_rgba = nitems;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "Red"; m[nitems].value = (PlayerCfg.ReticleRGBA[0]/2); m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "Green"; m[nitems].value = (PlayerCfg.ReticleRGBA[1]/2); m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "Blue"; m[nitems].value = (PlayerCfg.ReticleRGBA[2]/2); m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "Alpha"; m[nitems].value = (PlayerCfg.ReticleRGBA[3]/2); m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	nm_set_item_slider(&m[nitems], "Red", (PlayerCfg.ReticleRGBA[0]/2), 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], "Green", (PlayerCfg.ReticleRGBA[1]/2), 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], "Blue", (PlayerCfg.ReticleRGBA[2]/2), 0, 16); nitems++;
+	nm_set_item_slider(&m[nitems], "Alpha", (PlayerCfg.ReticleRGBA[3]/2), 0, 16); nitems++;
+	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_ret_size = nitems;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "Reticle Size:"; m[nitems].value = PlayerCfg.ReticleSize; m[nitems].min_value = 0; m[nitems].max_value = 4; nitems++;
+	nm_set_item_slider(&m[nitems], "Reticle Size:", PlayerCfg.ReticleSize, 0, 4); nitems++;
 
 	i = PlayerCfg.ReticleType;
 #ifndef OGL
@@ -1290,28 +1286,31 @@ void graphics_config()
 #ifdef OGL
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Texture Filtering:"; nitems++;
 	opt_gr_texfilt = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "None (Classical)"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Bilinear"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Trilinear"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "Anisotropic"; m[nitems].value = 0; m[nitems].group = 0; nitems++;
+	nm_set_item_radio(&m[nitems++], "None (Classical)", 0, 0);
+	nm_set_item_radio(&m[nitems++], "Bilinear", 0, 0);
+	nm_set_item_radio(&m[nitems++], "Trilinear", 0, 0);
+	nm_set_item_radio(&m[nitems++], "Anisotropic", 0, 0);
 	opt_gr_movietexfilt = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "Movie Filter"; m[nitems].value = GameCfg.MovieTexFilt; nitems++;
-	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	nm_set_item_checkbox(&m[nitems++], "Movie Filter", GameCfg.MovieTexFilt);
+	nm_set_item_text(& m[nitems], ""); nitems++;
 #endif
 	opt_gr_brightness = nitems;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_BRIGHTNESS; m[nitems].value = gr_palette_get_gamma(); m[nitems].min_value = 0; m[nitems].max_value = 16; nitems++;
+	nm_set_item_slider(&m[nitems], TXT_BRIGHTNESS, gr_palette_get_gamma(), 0, 16); nitems++;
 	opt_gr_reticlemenu = nitems;
 	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "Reticle Options"; nitems++;
 #ifdef OGL
 	opt_gr_alphafx = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "Transparency Effects"; m[nitems].value = PlayerCfg.AlphaEffects; nitems++;
+	nm_set_item_checkbox(&m[nitems], "Transparency Effects", PlayerCfg.AlphaEffects); nitems++;
 	opt_gr_dynlightcolor = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "Colored Dynamic Light"; m[nitems].value = PlayerCfg.DynLightColor; nitems++;
+	nm_set_item_checkbox(&m[nitems], "Colored Dynamic Light", PlayerCfg.DynLightColor); nitems++;
 	opt_gr_vsync = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="VSync"; m[nitems].value = GameCfg.VSync; nitems++;
+	nm_set_item_checkbox(&m[nitems],"VSync", GameCfg.VSync); nitems++;
 	opt_gr_multisample = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text="4x multisampling"; m[nitems].value = GameCfg.Multisample; nitems++;
-
+	nm_set_item_checkbox(&m[nitems],"4x multisampling", GameCfg.Multisample); nitems++;
+#endif
+	opt_gr_fpsindi = nitems;
+	nm_set_item_checkbox(&m[nitems],"FPS Counter", GameArg.SysFPSIndicator); nitems++;
+#ifdef OGL
 	m[opt_gr_texfilt+GameCfg.TexFilt].value=1;
 #endif
 
@@ -1425,7 +1424,7 @@ int select_file_handler(listbox *menu, d_event *event, browser *b)
 				MALLOC(text, char, 2);
 				MALLOC(m, newmenu_item, 1);
 				snprintf(text, sizeof(char)*PATH_MAX, "c");
-				m->type=NM_TYPE_INPUT; m->text_len = 3; m->text = text;
+				nm_set_item_input(m, 3, text);
 				rval = newmenu_do( NULL, "Enter drive letter", 1, m, NULL, NULL );
 				text[1] = '\0'; 
 				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
@@ -1813,32 +1812,32 @@ void do_sound_menu()
 		return;
 
 	opt_sm_digivol = nitems;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = TXT_FX_VOLUME; m[nitems].value = GameCfg.DigiVolume; m[nitems].min_value = 0; m[nitems++].max_value = 8;
+	nm_set_item_slider(&m[nitems++], TXT_FX_VOLUME, GameCfg.DigiVolume, 0, 8);
 
 	opt_sm_musicvol = nitems;
-	m[nitems].type = NM_TYPE_SLIDER; m[nitems].text = "music volume"; m[nitems].value = GameCfg.MusicVolume; m[nitems].min_value = 0; m[nitems++].max_value = 8;
+	nm_set_item_slider(&m[nitems++], "music volume", GameCfg.MusicVolume, 0, 8);
 
 	opt_sm_revstereo = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = TXT_REVERSE_STEREO; m[nitems++].value = GameCfg.ReverseStereo;
+	nm_set_item_checkbox(&m[nitems++], TXT_REVERSE_STEREO, GameCfg.ReverseStereo);
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "music type:";
 
 	opt_sm_mtype0 = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "no music"; m[nitems].value = (GameCfg.MusicType == MUSIC_TYPE_NONE); m[nitems].group = 0; nitems++;
+	nm_set_item_radio(&m[nitems], "no music", (GameCfg.MusicType == MUSIC_TYPE_NONE), 0); nitems++;
 
 #if defined(USE_SDLMIXER) || defined(_WIN32)
 	opt_sm_mtype1 = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "built-in/addon music"; m[nitems].value = (GameCfg.MusicType == MUSIC_TYPE_BUILTIN); m[nitems].group = 0; nitems++;
+	nm_set_item_radio(&m[nitems], "built-in/addon music", (GameCfg.MusicType == MUSIC_TYPE_BUILTIN), 0); nitems++;
 #endif
 
 	opt_sm_mtype2 = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "cd music"; m[nitems].value = (GameCfg.MusicType == MUSIC_TYPE_REDBOOK); m[nitems].group = 0; nitems++;
+	nm_set_item_radio(&m[nitems], "cd music", (GameCfg.MusicType == MUSIC_TYPE_REDBOOK), 0); nitems++;
 
 #ifdef USE_SDLMIXER
 	opt_sm_mtype3 = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "jukebox"; m[nitems].value = (GameCfg.MusicType == MUSIC_TYPE_CUSTOM); m[nitems].group = 0; nitems++;
+	nm_set_item_radio(&m[nitems], "jukebox", (GameCfg.MusicType == MUSIC_TYPE_CUSTOM), 0); nitems++;
 
 #endif
 
@@ -1850,7 +1849,8 @@ void do_sound_menu()
 #endif
 
 	opt_sm_redbook_playorder = nitems;
-	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "force descent ][ cd track order"; m[nitems++].value = GameCfg.OrigTrackOrder;
+#define REDBOOK_PLAYORDER_TEXT	"force descent ][ cd track order"
+	nm_set_item_checkbox(&m[nitems++], REDBOOK_PLAYORDER_TEXT, GameCfg.OrigTrackOrder);
 
 #ifdef USE_SDLMIXER
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
@@ -1860,20 +1860,20 @@ void do_sound_menu()
 	opt_sm_mtype3_lmpath = nitems;
 	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "path for level music" BROWSE_TXT;
 
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMLevelMusicPath; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMLevelMusicPath);
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "level music play order:";
 
 	opt_sm_mtype3_lmplayorder1 = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "continuously"; m[nitems].value = (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT); m[nitems].group = 1; nitems++;
+	nm_set_item_radio(&m[nitems], "continuously", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT), 1); nitems++;
 
 	opt_sm_mtype3_lmplayorder2 = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "one track per level"; m[nitems].value = (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL); m[nitems].group = 1; nitems++;
+	nm_set_item_radio(&m[nitems], "one track per level", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL), 1); nitems++;
 
 	opt_sm_mtype3_lmplayorder3 = nitems;
-	m[nitems].type = NM_TYPE_RADIO; m[nitems].text = "random"; m[nitems].value = (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND); m[nitems].group = 1; nitems++;
+	nm_set_item_radio(&m[nitems], "random", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND), 1); nitems++;
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
 
@@ -1883,31 +1883,31 @@ void do_sound_menu()
 	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "main menu" BROWSE_TXT;
 
 	opt_sm_cm_mtype3_file1 = nitems;
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_TITLE]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_TITLE]);
 
 	opt_sm_cm_mtype3_file2_b = nitems;
 	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "briefing" BROWSE_TXT;
 
 	opt_sm_cm_mtype3_file2 = nitems;
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_BRIEFING]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_BRIEFING]);
 
 	opt_sm_cm_mtype3_file3_b = nitems;
 	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "credits" BROWSE_TXT;
 
 	opt_sm_cm_mtype3_file3 = nitems;
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_CREDITS]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_CREDITS]);
 
 	opt_sm_cm_mtype3_file4_b = nitems;
 	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "escape sequence" BROWSE_TXT;
 
 	opt_sm_cm_mtype3_file4 = nitems;
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_ENDLEVEL]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_ENDLEVEL]);
 
 	opt_sm_cm_mtype3_file5_b = nitems;
 	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "game ending" BROWSE_TXT;
 
 	opt_sm_cm_mtype3_file5 = nitems;
-	m[nitems].type = NM_TYPE_INPUT; m[nitems].text = GameCfg.CMMiscMusic[SONG_ENDGAME]; m[nitems++].text_len = NM_MAX_TEXT_LEN-1;
+	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_ENDGAME]);
 #endif
 
 	Assert(nitems == SOUND_MENU_NITEMS);
