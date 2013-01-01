@@ -523,7 +523,7 @@ extern int med_create_duplicate_segment(segment *sp);
 extern int get_free_segment_number(void);
 
 //      Diagnostic message.
-extern void diagnostic_message(const char *format, ... );
+#define diagnostic_message editor_status
 
 //      Status Icon.
 extern void print_status_icon( char icon[1], int position );
