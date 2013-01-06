@@ -264,7 +264,7 @@ int udp_open_socket(int socknum, int port)
 	memset (&(sAddr.sin_zero), '\0', 8); // zero the rest of the struct
 #endif
 	
-	if (bind (UDP_Socket[socknum], (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) < 0) 
+	if (bind (UDP_Socket[socknum], (struct sockaddr *) &sAddr, sizeof (sAddr)) < 0) 
 	{      
 		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed\n");
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Could not bind name to socket");
