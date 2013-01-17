@@ -99,6 +99,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -235,6 +236,13 @@ main/menu.c, main/multi.h, main/net_udp.c: Moved vers_id.h inclusion to where it
 2d/bitblt.c, include/rle.h: Move declaration of gr_rle_expand_scanline_generic() to rle.h - patch by Kp
 
 =======
+||||||| parent of 06b1efad8... Fix click-selection in the editor for OpenGL implementations that insist on point blending
+=======
+20130117
+--------
+main/render.c: Fix click-selection in the editor for OpenGL implementations that insist on point blending
+
+>>>>>>> 06b1efad8... Fix click-selection in the editor for OpenGL implementations that insist on point blending
 20130112
 --------
 arch/carbon/conf.h: Use new D1XMAJORi / D1XMINORi / D1XMICROi version constants for Mac
