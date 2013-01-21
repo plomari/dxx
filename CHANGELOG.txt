@@ -193,6 +193,7 @@ arch/carbon/conf.h: Use new D1XMAJORi / D1XMINORi / D1XMICROi version constants 
 
 20130108
 --------
+<<<<<<< HEAD
 main/gamerend.c, main/multi.c, net_udp.c: Fixed some minor HUD-text related issues: For team assignment messages, joining player name would appear; team color assignment in netgame info screen could be wrong due to wrong syntax handling; when rewrapping text messages to specific player, game would not add space behind colon
 main/kmatrix.c: Defer free of kmatrix data until window is fully gone - patch by Kp
 main/inferno.c: Disable fullscreen toggling via ALT+ENTER if Game_wind is on top so toggling cannot be done accidentially ingame
@@ -235,6 +236,12 @@ include/console.h, main/console.c: Marked con_printf fmt as const, Increased con
 main/menu.c, main/multi.h, main/net_udp.c: Moved vers_id.h inclusion to where it is needed - patch by Kp
 2d/bitmap.c: Include bitmap.h - patch by Kp
 2d/bitblt.c, include/rle.h: Move declaration of gr_rle_expand_scanline_generic() to rle.h - patch by Kp
+||||||| parent of 0a56099ad... Increased ship wiggle from 20FPS- to 30FPS-base as I think this more representy the 486 play style - feels way more natural to me, too
+README.RPi, SConstruct, arch/ogl/gr.c: Support for Raspberry Pi - patch by derhass
+=======
+README.RPi, SConstruct, arch/ogl/gr.c: Support for Raspberry Pi - patch by derhass
+main/controls.c: Increased ship wiggle from 20FPS- to 30FPS-base as I think this more representy the 486 play style - feels way more natural to me, too
+>>>>>>> 0a56099ad... Increased ship wiggle from 20FPS- to 30FPS-base as I think this more representy the 486 play style - feels way more natural to me, too
 
 =======
 ||||||| parent of 06b1efad8... Fix click-selection in the editor for OpenGL implementations that insist on point blending
