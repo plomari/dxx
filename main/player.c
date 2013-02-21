@@ -8,9 +8,6 @@
 #include "player.h"
 #include "cfile.h"
 
-#ifdef RCS
-static char rcsid[] = "$Id: player.c,v 1.1.1.1 2006/03/17 19:56:48 zicodxx Exp $";
-#endif
 
 /*
  * reads a player_ship structure from a CFILE
