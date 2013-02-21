@@ -335,9 +335,9 @@ void render_countdown_gauge()
 
 void game_draw_hud_stuff()
 {
-	#ifndef NDEBUG
+#ifndef NDEBUG
 	draw_window_label();
-	#endif
+#endif
 
 #ifdef NETWORK
 	game_draw_multi_message();
@@ -662,7 +662,7 @@ void update_cockpits();
 void game_render_frame_mono(int flip)
 {
 	int no_draw_hud=0;
-	
+
 	gr_set_current_canvas(&Screen_3d_window);
 	
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow) {
@@ -722,7 +722,7 @@ void game_render_frame_mono(int flip)
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = GM_NORMAL;
-		
+
 	gr_set_current_canvas(&Screen_3d_window);
 	if (!no_draw_hud)
 		game_draw_hud_stuff();
@@ -732,7 +732,7 @@ void game_render_frame_mono(int flip)
 	show_extra_views();		//missile view, buddy bot, etc.
 
 #ifdef NETWORK
-        if (netplayerinfo_on && Game_mode & GM_MULTI)
+	if (netplayerinfo_on && Game_mode & GM_MULTI)
 		show_netplayerinfo();
 #endif
 }

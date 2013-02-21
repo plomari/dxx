@@ -480,7 +480,7 @@ int write_player_d2x(char *filename)
 		PHYSFSX_printf(fout,"plx version=%s\n", VERSION);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[end]\n");
-		
+
 		PHYSFS_close(fout);
 		if(rc==0)
 		{
@@ -708,15 +708,15 @@ int find_hli_entry()
 		if (!stricmp(PlayerCfg.HighestLevels[i].Shortname, Current_mission_filename))
 			break;
 
-	if (i==PlayerCfg.NHighestLevels) {		//not found.  create entry
+	if (i==PlayerCfg.NHighestLevels) { //not found. create entry
 
 		if (i==MAX_MISSIONS)
-			i--;		//take last entry
+			i--; //take last entry
 		else
 			PlayerCfg.NHighestLevels++;
 
 		strcpy(PlayerCfg.HighestLevels[i].Shortname, Current_mission_filename);
-		PlayerCfg.HighestLevels[i].LevelNum			= 0;
+		PlayerCfg.HighestLevels[i].LevelNum = 0;
 	}
 
 	return i;
@@ -731,10 +731,10 @@ void set_highest_level(int levelnum)
 		if (ret != ENOENT)		//if file doesn't exist, that's ok
 			return;
 
-	i			= find_hli_entry();
+	i = find_hli_entry();
 
 	if (levelnum > PlayerCfg.HighestLevels[i].LevelNum)
-		PlayerCfg.HighestLevels[i].LevelNum			= levelnum;
+		PlayerCfg.HighestLevels[i].LevelNum = levelnum;
 
 	write_player_file();
 }
@@ -743,7 +743,7 @@ void set_highest_level(int levelnum)
 int get_highest_level(void)
 {
 	int i;
-	int highest_saturn_level			= 0;
+	int highest_saturn_level = 0;
 	read_player_file();
 #ifndef SATURN
 	if (strlen(Current_mission_filename)==0 )	{
@@ -752,9 +752,9 @@ int get_highest_level(void)
 		 		highest_saturn_level			= PlayerCfg.HighestLevels[i].LevelNum; 
 	}
 #endif
-   i			= PlayerCfg.HighestLevels[find_hli_entry()].LevelNum;
+	i = PlayerCfg.HighestLevels[find_hli_entry()].LevelNum;
 	if ( highest_saturn_level > i )
-   	i			= highest_saturn_level;
+		i = highest_saturn_level;
 	return i;
 }
 

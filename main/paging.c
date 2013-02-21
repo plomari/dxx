@@ -394,10 +394,10 @@ void paging_touch_all()
 		strcat( fname, ".pag" );
 
 		fp = PHYSFSX_openWriteBuffered( fname );
-		for (i=0; i<MAX_BITMAP_FILES;i++ )      {
+		for (i=0; i<MAX_BITMAP_FILES;i++ ) {
 			Used[i] = 0;
 		}
-		for (i=0; i<MAX_BITMAP_FILES;i++ )      {
+		for (i=0; i<MAX_BITMAP_FILES;i++ ) {
 			Used[GameBitmapXlat[i]]++;
 		}
 
@@ -434,12 +434,12 @@ void paging_touch_all()
 			PIGGY_PAGE_IN(bonk2);
 		}
 
-		for (i=0; i<MAX_BITMAP_FILES;i++ )      {
+		for (i=0; i<MAX_BITMAP_FILES;i++ ) {
 			int paged_in = 1;
 			// cmp debug
 			//piggy_get_bitmap_name(i,fname);
 
-			if (GameBitmaps[i].bm_flags & BM_FLAG_PAGED_OUT )
+			if (GameBitmaps[i].bm_flags & BM_FLAG_PAGED_OUT)
 				paged_in = 0;
 
 //                      if (GameBitmapXlat[i]!=i)
