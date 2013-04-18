@@ -101,6 +101,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -188,6 +189,25 @@ D2X-Rebirth Changelog
 =======
 ||||||| parent of f6702eee8... Increased the maximum number of levels and secret levels per mission to 127 each, using MALLOC'd arrays; defined 'd_fname' type (mainly for my pointers to arrays of 13 character filenames, but could be convenient elsewhere)
 20130112
+||||||| parent of a7692274f... Removed light_frame_count due to being unnecessary since lighting is now time-based and messed up deletion of dynamic light
+20130408
+--------
+main/gamecntl.c, main/gamerend.c, main/gauges.c, main/gauges.h: Added 4th alternative HUD mode for no HUD rendering, aka Immersion mode
+main/menu.c, main/playsave.c, main/playsave.h, main/weapons.c: Added option to ignore cycling weapons that are not on autoselect list
+
+20130407
+=======
+20130418
+--------
+main/lighting.c, main/render.c: Removed light_frame_count due to being unnecessary since lighting is now time-based and messed up deletion of dynamic light
+
+20130408
+--------
+main/gamecntl.c, main/gamerend.c, main/gauges.c, main/gauges.h: Added 4th alternative HUD mode for no HUD rendering, aka Immersion mode
+main/menu.c, main/playsave.c, main/playsave.h, main/weapons.c: Added option to ignore cycling weapons that are not on autoselect list
+
+20130407
+>>>>>>> a7692274f... Removed light_frame_count due to being unnecessary since lighting is now time-based and messed up deletion of dynamic light
 --------
 arch/carbon/conf.h: Use new D1XMAJORi / D1XMINORi / D1XMICROi version constants for Mac
 
