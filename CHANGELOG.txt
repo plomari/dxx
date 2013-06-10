@@ -103,6 +103,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -195,6 +196,13 @@ D2X-Rebirth Changelog
 ||||||| parent of fc26c7c60... Made hmp code actually read tempo. Due to missing documentation of the format I can only guess it's a 4 bit int
 20130422
 =======
+||||||| parent of c7f2ed7bb... Fixed briefing_screens array for Descent 1 Shareware
+=======
+20130611
+--------
+main/titles.c: Fixed briefing_screens array for Descent 1 Shareware
+
+>>>>>>> c7f2ed7bb... Fixed briefing_screens array for Descent 1 Shareware
 20130610
 --------
 misc/hmp.c: Made hmp code actually read tempo. Due to missing documentation of the format I can only guess it's a 4 bit int
