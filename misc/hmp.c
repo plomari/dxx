@@ -45,7 +45,7 @@ void hmp_close(hmp_file *hmp)
 }
 
 hmp_file *hmp_open(const char *filename) {
-	int i, data, num_tracks;
+	int i, data, num_tracks, tempo;
 	char buf[256];
 	CFILE *fp;
 	hmp_file *hmp;
@@ -89,9 +89,21 @@ hmp_file *hmp_open(const char *filename) {
 		hmp_close(hmp);
 		return NULL;
 	}
-
 	hmp->num_trks = num_tracks;
-	hmp->tempo = 120;
+
+	if (PHYSFSX_fseek(fp, 0x38, SEEK_SET))
+	{
+		PHYSFS_close(fp);
+		hmp_close(hmp);
+		return NULL;
+	}
+	if (PHYSFS_read(fp, &tempo, 4, 1) != 1)
+	{
+		PHYSFS_close(fp);
+		hmp_close(hmp);
+		return NULL;
+	}
+	hmp->tempo = tempo;
 
 	if (cfseek(fp, 0x308, SEEK_SET))
 	{
@@ -721,6 +733,7 @@ void hmp2mid(char *hmp_name, unsigned char **midbuf, unsigned int *midlen)
 		return;
 
 	*midlen = 0;
+	time_div = hmp->tempo*1.6;
 
 	// write MIDI-header
 	*midbuf = d_realloc(*midbuf, *midlen + 4);

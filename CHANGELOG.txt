@@ -102,6 +102,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of cf50cda2c... Introduced HUD message class HM_MAYDUPL for messages that may appear once per frame but the player might not able to supress via option
 20110411
 ||||||| parent of d9bbc359a... When leaving game and still sending extras, don't forget to update the timer so we won't get stuck in an infinite loop
@@ -191,6 +192,15 @@ D2X-Rebirth Changelog
 20130112
 ||||||| parent of a7692274f... Removed light_frame_count due to being unnecessary since lighting is now time-based and messed up deletion of dynamic light
 20130408
+||||||| parent of fc26c7c60... Made hmp code actually read tempo. Due to missing documentation of the format I can only guess it's a 4 bit int
+20130422
+=======
+20130610
+--------
+misc/hmp.c: Made hmp code actually read tempo. Due to missing documentation of the format I can only guess it's a 4 bit int
+
+20130422
+>>>>>>> fc26c7c60... Made hmp code actually read tempo. Due to missing documentation of the format I can only guess it's a 4 bit int
 --------
 main/gamecntl.c, main/gamerend.c, main/gauges.c, main/gauges.h: Added 4th alternative HUD mode for no HUD rendering, aka Immersion mode
 main/menu.c, main/playsave.c, main/playsave.h, main/weapons.c: Added option to ignore cycling weapons that are not on autoselect list
