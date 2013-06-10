@@ -1402,8 +1402,6 @@ void AdvanceLevel(int secret_flag)
 	}
 }
 
-void digi_stop_digi_sounds();
-
 void DoPlayerDead()
 {
 	if (Game_wind)
@@ -1412,9 +1410,6 @@ void DoPlayerDead()
 	reset_palette_add();
 
 	gr_palette_load (gr_palette);
-
-//	digi_pause_digi_sounds();		//kill any continuing sounds (eg. forcefield hum)
-	digi_stop_digi_sounds();		//kill any continuing sounds (eg. forcefield hum)
 
 	dead_player_end();		//terminate death sequence (if playing)
 
