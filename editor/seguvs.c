@@ -131,7 +131,7 @@ fix get_average_light_at_vertex(int vnum, short *segs)
 			for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 				if (!IS_CHILD(segp->children[sidenum])) {
 					side	*sidep = &segp->sides[sidenum];
-					sbyte	*vp = Side_to_verts[sidenum];
+					const sbyte	*vp = Side_to_verts[sidenum];
 					int	v;
 
 					for (v=0; v<4; v++)
@@ -180,7 +180,7 @@ void set_average_light_at_vertex(int vnum)
 			for (sidenum=0; sidenum < MAX_SIDES_PER_SEGMENT; sidenum++) {
 				if (!IS_CHILD(segp->children[sidenum])) {
 					side *sidep = &segp->sides[sidenum];
-					sbyte	*vp = Side_to_verts[sidenum];
+					const sbyte	*vp = Side_to_verts[sidenum];
 					int	v;
 
 					for (v=0; v<4; v++)
@@ -245,7 +245,7 @@ void set_average_light_on_all_fast(void)
 						for (si=0; si<MAX_SIDES_PER_SEGMENT; si++) {
 							if (!IS_CHILD(segp->children[si])) {
 								side	*sidep = &segp->sides[si];
-								sbyte	*vp = Side_to_verts[si];
+								const sbyte	*vp = Side_to_verts[si];
 								int	vv;
 
 								for (vv=0; vv<4; vv++)
@@ -282,7 +282,7 @@ void set_average_light_on_all_fast(void)
 					wid_result = WALL_IS_DOORWAY(segp, sidenum);
 					if ((wid_result != WID_FLY_FLAG) && (wid_result != WID_NO_WALL)) {
 						side *sidep = &segp->sides[sidenum];
-						sbyte	*vp = Side_to_verts[sidenum];
+						const sbyte	*vp = Side_to_verts[sidenum];
 						int	v;
 
 						for (v=0; v<4; v++)
@@ -639,7 +639,7 @@ int Vmag = VMAG;
 void assign_default_uvs_to_side(segment *segp,int side)
 {
 	uvl			uv0,uv1;
-	sbyte			*vp;
+	const sbyte			*vp;
 
 	uv0.u = 0;
 	uv0.v = 0;
@@ -836,7 +836,7 @@ void med_assign_uvs_to_side(segment *con_seg, int con_common_side, segment *base
 //	great confusion.
 void get_side_ids(segment *base_seg, segment *con_seg, int base_side, int con_side, int abs_id1, int abs_id2, int *base_common_side, int *con_common_side)
 {
-	sbyte	*base_vp,*con_vp;
+	const sbyte	*base_vp,*con_vp;
 	int		v0,side;
 
 	*base_common_side = -1;
@@ -1045,7 +1045,7 @@ found1: ;
 //	segment to get the wall in the connected segment which shares the edge, and get tmap_num from there.
 void propagate_tmaps_to_segment_sides(segment *base_seg, int base_side, segment *con_seg, int con_side, int uv_only_flag)
 {
-	sbyte		*base_vp,*con_vp;
+	const sbyte		*base_vp;
 	int		abs_id1,abs_id2;
 	int		v;
 
