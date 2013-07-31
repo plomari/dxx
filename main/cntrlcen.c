@@ -463,7 +463,7 @@ void init_controlcen_for_level(void)
 			Objects[cntrlcen_objnum].render_type = RT_NONE;
 			Control_center_present = 0;
 		}
-	} else {
+	} else if (cntrlcen_objnum != -1) {
 		//	Compute all gun positions.
 		objp = &Objects[cntrlcen_objnum];
 		N_controlcen_guns = Reactors[objp->id].n_guns;
