@@ -927,11 +927,15 @@ int state_restore_all_sub(char *filename, int secret_restore)
 			// If weapon, restore the most recent hitobj to the list
 			if (obj->type == OBJ_WEAPON)
 			{
+				Assert(obj->control_type == CT_WEAPON);
+
 				if (obj->ctype.laser_info.last_hitobj > 0 && obj->ctype.laser_info.last_hitobj < MAX_OBJECTS)
 				{
 					memset(&hitobj_list[i], 0, sizeof(ubyte)*MAX_OBJECTS);
 					hitobj_list[i][obj->ctype.laser_info.last_hitobj] = 1;
 				}
+
+				obj->ctype.laser_info.track_turn_time  = HOMING_TURN_TIME;
 			}
 		}	
 		special_reset_objects();
