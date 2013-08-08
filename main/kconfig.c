@@ -1175,7 +1175,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 				Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0]*FrameTime)/4;
 				Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1]*FrameTime)/4;
 				Controls.mouse_axis[2] = (Controls.raw_mouse_axis[2]*FrameTime);
-				Controls.mouse_delta_time = timer_query() + (F1_0/30);
+				Controls.mouse_delta_time = timer_query() + DESIGNATED_GAME_FRAMETIME;
 			}
 			break;
 		}

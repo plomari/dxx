@@ -107,7 +107,7 @@ void print_commandline_help()
 {
 	printf( "\n System Options:\n\n");
 	printf( "  -nonicefps             %s\n", "Don't free CPU-cycles");
-	printf( "  -maxfps <n>            %s\n", "Set maximum framerate (1-200)");
+	printf( "  -maxfps <n>                   Set maximum framerate to <n>\n\t\t\t\t(default: %i, availble: 1-%i)\n", MAXIMUM_FPS, MAXIMUM_FPS);
 	printf( "  -hogdir <s>            %s\n", "set shared data directory to <dir>");
 	printf( "  -nohogdir              %s\n", "don't try to use shared data directory");
 	printf( "  -use_players_dir       %s\n", "put player files and saved games in Players subdirectory");
