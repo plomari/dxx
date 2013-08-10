@@ -1865,18 +1865,6 @@ multi_do_remobj(char *buf)
 	if (Objects[local_objnum].type==OBJ_POWERUP)
 		if (Game_mode & GM_NETWORK)
 		{
-#ifdef OLDPOWCAP
-			if (PowerupsInMine[Objects[local_objnum].id]>0)
-				PowerupsInMine[Objects[local_objnum].id]--;
-
-			if (multi_powerup_is_4pack (Objects[local_objnum].id))
-			{
-				if (PowerupsInMine[Objects[local_objnum].id-1]-4<0)
-					PowerupsInMine[Objects[local_objnum].id-1]=0;
-				else
-					PowerupsInMine[Objects[local_objnum].id-1]-=4;
-			}
-#else
 			if (multi_powerup_is_4pack (Objects[local_objnum].id))
 			{
 				if (PowerupsInMine[Objects[local_objnum].id-1]-4<0)
@@ -1889,7 +1877,6 @@ multi_do_remobj(char *buf)
 				if (PowerupsInMine[Objects[local_objnum].id]>0)
 					PowerupsInMine[Objects[local_objnum].id]--;
 			}
-#endif
 		}
 
 	Objects[local_objnum].flags |= OF_SHOULD_BE_DEAD; // quick and painless
@@ -2111,10 +2098,6 @@ multi_do_create_powerup(char *buf)
 
 	object_create_explosion(segnum, &new_pos, i2f(5), VCLIP_POWERUP_DISAPPEARANCE);
 
-#ifdef OLDPOWCAP
-	if (Game_mode & GM_NETWORK)
-		PowerupsInMine[(int)powerup_type]++;
-#else
 	if (Game_mode & GM_NETWORK)
 	{
 		if (multi_powerup_is_4pack((int)powerup_type))
@@ -2122,7 +2105,6 @@ multi_do_create_powerup(char *buf)
 		else
 			PowerupsInMine[(int)powerup_type]++;
 	}
-#endif
 }
 
 void
@@ -2532,16 +2514,10 @@ void multi_powcap_count_powerups_in_mine(void)
 	{
 		if (Objects[i].type==OBJ_POWERUP)
 		{
-#ifdef OLDPOWCAP
-			PowerupsInMine[Objects[i].id]++;
-			if (multi_powerup_is_4pack(Objects[i].id))
-				PowerupsInMine[Objects[i].id-1]+=4;
-#else
 			if (multi_powerup_is_4pack(Objects[i].id))
 				PowerupsInMine[Objects[i].id-1]+=4;
 			else
 				PowerupsInMine[Objects[i].id]++;
-#endif
 		}
 	}
 }
@@ -2861,18 +2837,6 @@ multi_send_remobj(int objnum)
 
 	if (Objects[objnum].type==OBJ_POWERUP && (Game_mode & GM_NETWORK))
 	{
-#ifdef OLDPOWCAP
-		if (PowerupsInMine[Objects[objnum].id]>0)
-			PowerupsInMine[Objects[objnum].id]--;
-
-		if (multi_powerup_is_4pack (Objects[objnum].id))
-		{
-			if (PowerupsInMine[Objects[objnum].id-1]-4<0)
-				PowerupsInMine[Objects[objnum].id-1]=0;
-			else
-				PowerupsInMine[Objects[objnum].id-1]-=4;
-		}
-#else
 		if (multi_powerup_is_4pack (Objects[objnum].id))
 		{
 			if (PowerupsInMine[Objects[objnum].id-1]-4<0)
@@ -2885,7 +2849,6 @@ multi_send_remobj(int objnum)
 			if (PowerupsInMine[Objects[objnum].id]>0)
 				PowerupsInMine[Objects[objnum].id]--;
 		}
-#endif
 	}
 
 	multibuf[0] = (char)MULTI_REMOVE_OBJECT;
@@ -3033,14 +2996,10 @@ multi_send_create_powerup(int powerup_type, int segnum, int objnum, vms_vector *
 
 	if (Game_mode & GM_NETWORK)
 	{
-#ifdef OLDPOWCAP
-		PowerupsInMine[powerup_type]++;
-#else
 		if (multi_powerup_is_4pack(powerup_type))
 			PowerupsInMine[powerup_type-1]+=4;
 		else
 			PowerupsInMine[powerup_type]++;
-#endif
 	}
 
 	multibuf[count] = MULTI_CREATE_POWERUP;         count += 1;
@@ -3606,14 +3565,10 @@ void multi_send_drop_weapon (int objnum,int seed)
 
 	if (Game_mode & GM_NETWORK)
 	{
-#ifdef OLDPOWCAP
-		PowerupsInMine[objp->id]++;
-#else
 		if (multi_powerup_is_4pack(objp->id))
 			PowerupsInMine[objp->id-1]+=4;
 		else
 			PowerupsInMine[objp->id]++;
-#endif
 	}
 
 	multi_send_data(multibuf, 12, 2);
@@ -3642,14 +3597,10 @@ void multi_do_drop_weapon (char *buf)
 
 	if (Game_mode & GM_NETWORK)
 	{
-#ifdef OLDPOWCAP
-		PowerupsInMine[powerup_id]++;
-#else
 		if (multi_powerup_is_4pack(powerup_id))
 			PowerupsInMine[powerup_id-1]+=4;
 		else
 			PowerupsInMine[powerup_id]++;
-#endif
 	}
 
 }
