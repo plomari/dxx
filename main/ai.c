@@ -1377,7 +1377,6 @@ void do_ai_frame_all(void)
 
 
 extern int Final_boss_is_dead;
-extern fix Boss_invulnerable_dot;
 
 // Initializations to be performed for all robots for a new level.
 void init_robots_for_level(void)
@@ -1388,7 +1387,6 @@ void init_robots_for_level(void)
 	Buddy_objnum = 0;
 	Buddy_allowed_to_talk = 0;
 
-	Boss_invulnerable_dot = F1_0/4 - i2f(Difficulty_level)/8;
 	Boss_dying_start_time = 0;
 	
 	Ai_last_missile_camera = -1;
