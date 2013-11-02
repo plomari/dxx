@@ -681,12 +681,12 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 	
 	if (PlayerCfg.AutomapFreeFlight)
 	{
-		if ( am->controls.fire_primary_count > 0)
+		if ( am->controls.fire_primary_state)
 		{
 			// Reset orientation
 			am->viewMatrix = Objects[Players[Player_num].objnum].orient;
 			vm_vec_scale_add(&am->view_position, &Objects[Players[Player_num].objnum].pos, &am->viewMatrix.fvec, -ZOOM_DEFAULT );
-			am->controls.fire_primary_count = 0;
+			am->controls.fire_primary_state = 0;
 		}
 		
 		if (am->controls.pitch_time || am->controls.heading_time || am->controls.bank_time)
@@ -721,7 +721,7 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 	}
 	else
 	{
-		if ( am->controls.fire_primary_count > 0)
+		if ( am->controls.fire_primary_state)
 		{
 			// Reset orientation
 			am->viewDist = ZOOM_DEFAULT;
@@ -729,7 +729,7 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 			am->tangles.h  = 0;
 			am->tangles.b  = 0;
 			am->view_target = Objects[Players[Player_num].objnum].pos;
-			am->controls.fire_primary_count = 0;
+			am->controls.fire_primary_state = 0;
 		}
 
 		am->viewDist -= am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR;
