@@ -1101,7 +1101,7 @@ static void kc_drawitem( kc_item *item, int is_current )
 	btext = get_item_text(item, buf, sizeof(buf));
 	if (!btext)
 		return;
-	if (item->w1)
+
 	{
 		gr_get_string_size(btext, &w, &h, &aw  );
 
