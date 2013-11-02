@@ -340,7 +340,7 @@ kc_item kc_joystick[] = {
 	{174,126,278, 26, 48, 13, 54, 13,"Toggle Bomb", BT_JOY_BUTTON, 255, NULL, 0, &Controls.toggle_bomb_count },
 #endif
 };
-kc_item kc_mouse[NUM_MOUSE_CONTROLS] = {
+kc_item kc_mouse[] = {
 	{ 25, 46, 110, 26, 19,  1, 20,  5,"Fire primary", BT_MOUSE_BUTTON, 255, &Controls.fire_primary_state, STATE_BIT5, NULL },
 	{ 25, 54, 110, 26,  0,  4,  5,  6,"Fire secondary", BT_MOUSE_BUTTON, 255, &Controls.fire_secondary_state, STATE_BIT5, NULL },
 	{ 25, 78, 110, 26, 26,  3,  8,  9,"Accelerate", BT_MOUSE_BUTTON, 255, &Controls.accelerate_state, STATE_BIT5, NULL },
@@ -836,7 +836,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 					menu->items[i].value = DefaultKeySettings[1][i];
 
 			if ( menu->items==kc_mouse )
-				for (i=0; i<NUM_MOUSE_CONTROLS; i++ )
+				for (unsigned i=0; i<(sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++ )
 					menu->items[i].value = DefaultKeySettings[2][i];
 			if ( menu->items==kc_d2x )
 				for(i=0;i<NUM_D2X_CONTROLS;i++)
@@ -889,11 +889,11 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 					kc_joystick[i].l = find_next_item_left( kc_joystick, i);
 					kc_joystick[i].r = find_next_item_right( kc_joystick, i);
 				}
-				for (i=0; i<NUM_MOUSE_CONTROLS; i++ )	{
-					kc_mouse[i].u = find_next_item_up( kc_mouse,NUM_MOUSE_CONTROLS, i);
-					kc_mouse[i].d = find_next_item_down( kc_mouse,NUM_MOUSE_CONTROLS, i);
-					kc_mouse[i].l = find_next_item_left( kc_mouse,NUM_MOUSE_CONTROLS, i);
-					kc_mouse[i].r = find_next_item_right( kc_mouse,NUM_MOUSE_CONTROLS, i);
+				for (unsigned i=0; i<(sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++ )	{
+					kc_mouse[i].u = find_next_item_up( kc_mouse, i);
+					kc_mouse[i].d = find_next_item_down( kc_mouse, i);
+					kc_mouse[i].l = find_next_item_left( kc_mouse, i);
+					kc_mouse[i].r = find_next_item_right( kc_mouse, i);
 				}
 				for (i=0; i<NUM_D2X_CONTROLS; i++ )	{
 					kc_d2x[i].u = find_next_item_up( kc_d2x,NUM_D2X_CONTROLS, i);
@@ -937,16 +937,16 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 								34, kc_joystick[i].text, 34, btype_text[kc_joystick[i].type] );
 				}
 				PHYSFSX_printf( fp, "};" );
-#endif
-				PHYSFSX_printf( fp, "\nkc_item kc_mouse[NUM_MOUSE_CONTROLS] = {\n" );
-				for (unsigned i=0; i<NUM_MOUSE_CONTROLS; i++ )	{
-					PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
+
+				PHYSFSX_printf( fp, "\nkc_item kc_mouse[] = {\n" );
+				for (unsigned i=0; i<(sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++ )	{
+					PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n",
 							kc_mouse[i].x, kc_mouse[i].y, kc_mouse[i].xinput, kc_mouse[i].w2,
 							kc_mouse[i].u, kc_mouse[i].d, kc_mouse[i].l, kc_mouse[i].r,
 							34, kc_mouse[i].text, 34, btype_text[kc_mouse[i].type] );
 				}
 				PHYSFSX_printf( fp, "};" );
-				
+#endif
 				PHYSFSX_printf( fp, "\nkc_item kc_rebirth[NUM_DXX_REBIRTH_CONTROLS] = {\n" );
 				for (unsigned i=0; i<NUM_DXX_REBIRTH_CONTROLS; i++ )	{
 					PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
@@ -1058,7 +1058,7 @@ static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			for (unsigned i=0; i<(sizeof(kc_joystick) / sizeof(kc_joystick[0])); i++ )
 				PlayerCfg.KeySettings[1][i] = kc_joystick[i].value;
 
-			for (i=0; i<NUM_MOUSE_CONTROLS; i++ ) 
+			for (unsigned i=0; i<(sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++ ) 
 				PlayerCfg.KeySettings[2][i] = kc_mouse[i].value;
 			
 			for (i=0; i<NUM_D2X_CONTROLS; i++)
@@ -1286,7 +1286,7 @@ void kconfig(int n, char * title)
     	{
 		case 0:kconfig_sub( kc_keyboard,title); break;
 		case 1:kconfig_sub( kc_joystick,title); break;
-		case 2:kconfig_sub_n( kc_mouse,   NUM_MOUSE_CONTROLS,    title); break;
+		case 2:kconfig_sub( kc_mouse,   title); break;
 		case 3:kconfig_sub_n( kc_rebirth, NUM_DXX_REBIRTH_CONTROLS, title ); break;
 		default:
 			Int3();
@@ -1368,7 +1368,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		case EVENT_MOUSE_BUTTON_UP:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_MOUSE))
 				break;
-			for (i = 0; i < NUM_MOUSE_CONTROLS; i++)
+			for (i = 0; i < (sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++)
 			{
 				if (kc_mouse[i].value < 255 && kc_mouse[i].type == BT_MOUSE_BUTTON && kc_mouse[i].value == event_mouse_get_button(event))
 				{
@@ -1781,7 +1781,7 @@ void kc_set_controls()
 		}
 	}
 
-	for (i=0; i<NUM_MOUSE_CONTROLS; i++ )
+	for (unsigned i=0; i<(sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++ )
 	{
 		kc_mouse[i].value = PlayerCfg.KeySettings[2][i];
 		if (kc_mouse[i].type == BT_INVERT )

@@ -49,7 +49,6 @@ typedef struct _control_info {
 #define MOUSEFS_DELTA_RANGE 512
 #define NUM_D2X_CONTROLS    30
 #define MAX_D2X_CONTROLS    30
-#define NUM_MOUSE_CONTROLS  30
 #define MAX_CONTROLS        60		// there are actually 48, so this leaves room for more
 
 extern control_info Controls;
