@@ -604,11 +604,23 @@ static void kconfig_start_changing(kc_menu *menu)
 	gr_force_grab_keys(1);
 }
 
+static inline int in_bounds(unsigned mx, unsigned my, unsigned x1, unsigned xw, unsigned y1, unsigned yh)
+{
+	if (mx <= x1)
+		return 0;
+	if (my <= y1)
+		return 0;
+	if (mx >= x1 + xw)
+		return 0;
+	if (my >= y1 + yh)
+		return 0;
+	return 1;
+}
+
 static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 {
 	grs_canvas * save_canvas = grd_curcanv;
-	int mx, my, mz, x1, x2, y1, y2;
-	int i;
+	int mx, my, mz, x1, y1;
 	int rval = 0;
 
 	gr_set_current_canvas(window_get_canvas(wind));
@@ -618,13 +630,11 @@ static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 		int item_height;
 		
 		mouse_get_pos(&mx, &my, &mz);
-		for (i=0; i<menu->nitems; i++ )	{
+		for (int i=0; i<menu->nitems; i++ )	{
 			item_height = get_item_height( &menu->items[i] );
 			x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(menu->items[i].x) + FSPACX(menu->items[i].w1);
-			x2 = x1 + FSPACX(menu->items[i].w2);
 			y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(menu->items[i].y);
-			y2 = y1 + item_height;
-			if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
+			if (in_bounds(mx, my, x1, FSPACX(menu->items[i].w2), y1, item_height)) {
 				menu->citem = i;
 				rval = 1;
 				break;
@@ -638,10 +648,8 @@ static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 		mouse_get_pos(&mx, &my, &mz);
 		item_height = get_item_height( &menu->items[menu->citem] );
 		x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(menu->items[menu->citem].x) + FSPACX(menu->items[menu->citem].w1);
-		x2 = x1 + FSPACX(menu->items[menu->citem].w2);
 		y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(menu->items[menu->citem].y);
-		y2 = y1 + item_height;
-		if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
+		if (in_bounds(mx, my, x1, FSPACX(menu->items[menu->citem].w2), y1, item_height)) {
 			kconfig_start_changing(menu);
 			rval = 1;
 		}
