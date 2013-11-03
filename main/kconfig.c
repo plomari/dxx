@@ -1288,6 +1288,16 @@ static void adjust_axis_field_n(fix *time, const fix *axes, int num_axes, unsign
 #define adjust_axis_field(time, axes, value, invert, sensitivity) \
 	adjust_axis_field_n(time, axes, ARRAY_ELEMS(axes), value, invert, sensitivity)
 
+static void clamp_value(fix *value, fix lower, fix upper)
+{
+	*value = min(max(*value, lower), upper);
+}
+
+static void clamp_symmetric_value(fix *value, fix bound)
+{
+	clamp_value(value, -bound, bound);
+}
+
 void kconfig_read_controls(d_event *event, int automap_flag)
 {
 	int i = 0, j = 0, speed_factor = Game_turbo_mode?2:1;
@@ -1679,23 +1689,16 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.cruise_plus_state ) Cruise_speed += speed_factor*FrameTime*80;
 	if ( Controls.cruise_minus_state ) Cruise_speed -= speed_factor*FrameTime*80;
 	if ( Controls.cruise_off_count > 0 ) Controls.cruise_off_count = Cruise_speed = 0;
-	if (Cruise_speed > i2f(100) ) Cruise_speed = i2f(100);
-	if (Cruise_speed < 0 ) Cruise_speed = 0;
+	clamp_value(&Cruise_speed, 0, i2f(100));
 	if (Controls.forward_thrust_time==0) Controls.forward_thrust_time = fixmul(Cruise_speed,FrameTime)/100;
 
 	//----------- Clamp values between -FrameTime and FrameTime
-	if (Controls.pitch_time > FrameTime/2 ) Controls.pitch_time = FrameTime/2;
-	if (Controls.heading_time > FrameTime ) Controls.heading_time = FrameTime;
-	if (Controls.pitch_time < -FrameTime/2 ) Controls.pitch_time = -FrameTime/2;
-	if (Controls.heading_time < -FrameTime ) Controls.heading_time = -FrameTime;
-	if (Controls.vertical_thrust_time > FrameTime ) Controls.vertical_thrust_time = FrameTime;
-	if (Controls.sideways_thrust_time > FrameTime ) Controls.sideways_thrust_time = FrameTime;
-	if (Controls.bank_time > FrameTime ) Controls.bank_time = FrameTime;
-	if (Controls.forward_thrust_time > FrameTime ) Controls.forward_thrust_time = FrameTime;
-	if (Controls.vertical_thrust_time < -FrameTime ) Controls.vertical_thrust_time = -FrameTime;
-	if (Controls.sideways_thrust_time < -FrameTime ) Controls.sideways_thrust_time = -FrameTime;
-	if (Controls.bank_time < -FrameTime ) Controls.bank_time = -FrameTime;
-	if (Controls.forward_thrust_time < -FrameTime ) Controls.forward_thrust_time = -FrameTime;
+	clamp_symmetric_value(&Controls.pitch_time, FrameTime/2);
+	clamp_symmetric_value(&Controls.heading_time, FrameTime);
+	clamp_symmetric_value(&Controls.vertical_thrust_time, FrameTime);
+	clamp_symmetric_value(&Controls.sideways_thrust_time, FrameTime);
+	clamp_symmetric_value(&Controls.bank_time, FrameTime);
+	clamp_symmetric_value(&Controls.forward_thrust_time, FrameTime);
 }
 
 void reset_cruise(void)
