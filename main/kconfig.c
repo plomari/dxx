@@ -1272,14 +1272,21 @@ void kconfig(int n, char * title)
 	}
 }
 
-static void adjust_axis_field(fix *time, const fix *axes, unsigned value, unsigned invert, int sensitivity)
+static void adjust_axis_field_n(fix *time, const fix *axes, int num_axes, unsigned value, unsigned invert, int sensitivity)
 {
+	if (value == 255)
+		return;
+	if (value >= num_axes)
+		Int3();
 	fix amount = (axes[value]*sensitivity)/8;
 	if ( !invert ) // If not inverted...
 		time -= amount;
 	else
 		time += amount;
 }
+
+#define adjust_axis_field(time, axes, value, invert, sensitivity) \
+	adjust_axis_field_n(time, axes, ARRAY_ELEMS(axes), value, invert, sensitivity)
 
 void kconfig_read_controls(d_event *event, int automap_flag)
 {
@@ -1555,7 +1562,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		// From joystick...
 		adjust_axis_field(&Controls.heading_time, Controls.joy_axis, kc_joystick[15].value, !kc_joystick[16].value, PlayerCfg.JoystickSens[0]);
 		// From mouse...
-		adjust_axis_field(Controls.heading_time, Controls.mouse_axis, kc_mouse[15].value, !kc_mouse[16].value, PlayerCfg.MouseSens[0]);
+		adjust_axis_field(&Controls.heading_time, Controls.mouse_axis, kc_mouse[15].value, !kc_mouse[16].value, PlayerCfg.MouseSens[0]);
 	}
 	else Controls.heading_time = 0;
 
