@@ -28,11 +28,36 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "joy.h"
 #include "mouse.h"
 
-typedef struct _control_info {
-	fix joy_axis[JOY_MAX_AXES], raw_joy_axis[JOY_MAX_AXES], mouse_axis[3], raw_mouse_axis[3];
-	float key_pitch_forward_down_time, key_pitch_backward_down_time, key_heading_left_down_time, key_heading_right_down_time, key_slide_left_down_time, key_slide_right_down_time, key_slide_up_down_time, key_slide_down_down_time, key_bank_left_down_time, key_bank_right_down_time; // to scale movement depending on how long the key is pressed
+struct ramp_state {
+	ubyte 	key_pitch_forward,
+			key_pitch_backward,
+			key_heading_left,
+			key_heading_right,
+			key_slide_left,
+			key_slide_right,
+			key_slide_up,
+			key_slide_down,
+			key_bank_left,
+			key_bank_right;
+};
+
+struct ramp_dtime {
+	float 	key_pitch_forward,
+			key_pitch_backward,
+			key_heading_left,
+			key_heading_right,
+			key_slide_left,
+			key_slide_right,
+			key_slide_up,
+			key_slide_down,
+			key_bank_left,
+			key_bank_right;
+};
+
+typedef struct control_info_ {
+	struct ramp_dtime down_time; // to scale movement depending on how long the key is pressed
 	fix pitch_time, vertical_thrust_time, heading_time, sideways_thrust_time, bank_time, forward_thrust_time;
-	ubyte key_pitch_forward_state, key_pitch_backward_state, key_heading_left_state, key_heading_right_state, key_slide_left_state, key_slide_right_state, key_slide_up_state, key_slide_down_state, key_bank_left_state, key_bank_right_state; // to scale movement for keys only we need them to be seperate from joystick/mouse buttons
+	struct ramp_state state; // to scale movement for keys only we need them to be seperate from joystick/mouse buttons
 	ubyte btn_slide_left_state, btn_slide_right_state, btn_slide_up_state, btn_slide_down_state, btn_bank_left_state, btn_bank_right_state;
 	ubyte slide_on_state, bank_on_state;
 	ubyte accelerate_state, reverse_state, cruise_plus_state, cruise_minus_state, cruise_off_count;
@@ -40,8 +65,9 @@ typedef struct _control_info {
 	ubyte fire_primary_state, fire_secondary_state, fire_flare_count, drop_bomb_count;
 	ubyte automap_state;
 	ubyte cycle_primary_count, cycle_secondary_count, select_weapon_count;
- 	ubyte toggle_bomb_count;
- 	ubyte afterburner_state, headlight_count, energy_to_shield_state;
+	ubyte toggle_bomb_count;
+	ubyte afterburner_state, headlight_count, energy_to_shield_state;
+	fix joy_axis[JOY_MAX_AXES], raw_joy_axis[JOY_MAX_AXES], mouse_axis[3], raw_mouse_axis[3];
 } control_info;
 
 #define CONTROL_USING_JOYSTICK	1
