@@ -467,6 +467,16 @@ void scrape_player_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 	}
 }
 
+static int effect_parent_is_guidebot(const object *effect)
+{
+	if (effect->ctype.laser_info.parent_type != OBJ_ROBOT)
+		return 0;
+	const object *robot = &Objects[effect->ctype.laser_info.parent_num];
+	if (robot->signature != effect->ctype.laser_info.parent_signature)
+		return 0; /* parent replaced, no idea what it once was */
+	return Robot_info[robot->id].companion;
+}
+
 //if an effect is hit, and it can blow up, then blow it up
 //returns true if it blew up
 int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, int force_blowup_flag)
@@ -477,11 +487,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 
 	//	If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
 	{
-		int	ok_to_blow = 0;
-
-		if (blower->ctype.laser_info.parent_type == OBJ_ROBOT)
-			if (Robot_info[Objects[blower->ctype.laser_info.parent_num].id].companion)
-				ok_to_blow = 1;
+		int	ok_to_blow = effect_parent_is_guidebot(blower);
 
 		if (!(ok_to_blow || (blower->ctype.laser_info.parent_type == OBJ_PLAYER))) {
 			int	trigger_num, wall_num;
