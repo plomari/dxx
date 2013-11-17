@@ -261,8 +261,7 @@ void init_boss_segments(short segptr[], int *num_segs, int size_check, int one_w
 		Selected_segs[N_selected_segs++] = original_boss_seg;
 		#endif
 
-		for (i=0; i<=Highest_segment_index; i++)
-			visited[i] = 0;
+		struct segment_bit_array visited = {{0}};
 
 		while (tail != head) {
 			int		sidenum;
@@ -281,9 +280,9 @@ void init_boss_segments(short segptr[], int *num_segs, int size_check, int one_w
 					} else
 						continue;
 
-					if (visited[segp->children[sidenum]] == 0) {
+					if (!SEGMENT_BIT_ARRAY_GET(&visited, segp->children[sidenum])) {
+						SEGMENT_BIT_ARRAY_SET(&visited, segp->children[sidenum]);
 						seg_queue[head++] = segp->children[sidenum];
-						visited[segp->children[sidenum]] = 1;
 						head &= QUEUE_SIZE-1;
 						if (head > tail) {
 							if (head == tail + QUEUE_SIZE-1)

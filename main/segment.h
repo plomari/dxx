@@ -302,4 +302,11 @@ void segment2_write(segment2 *s2, PHYSFS_file *fp);
 void delta_light_write(delta_light *dl, PHYSFS_file *fp);
 void dl_index_write(dl_index *di, PHYSFS_file *fp);
 
+struct segment_bit_array {
+	uint8_t bits[(MAX_SEGMENTS + 7) / 8];
+};
+
+#define SEGMENT_BIT_ARRAY_GET(arr, n) ((arr)->bits[(n) / 8] & (1 << ((n) % 8)))
+#define SEGMENT_BIT_ARRAY_SET(arr, n) ((arr)->bits[(n) / 8] |= (1 << ((n) % 8)))
+
 #endif

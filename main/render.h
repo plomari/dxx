@@ -63,10 +63,6 @@ int toggle_show_only_curside(void);
 // should access Render_viewer_object members.
 extern fix Render_zoom;     // the player's zoom factor
 
-// This is used internally to render_frame(), but is included here so AI
-// can use it for its own purposes.
-extern unsigned char visited[MAX_SEGMENTS];
-
 extern int N_render_segs;
 extern short Render_list[MAX_RENDER_SEGS];
 
