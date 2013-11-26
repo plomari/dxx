@@ -849,6 +849,16 @@ static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 	return rval;
 }
 
+static void reset_mitem_values_n(kc_mitem *mitems, size_t num_items,
+								 const ubyte *defs, size_t num_defs)
+{
+	for (unsigned i=0; i < min(num_items, num_defs); i++)
+		mitems[i].value = defs[i];
+}
+
+#define reset_mitem_values(items, defs) \
+	reset_mitem_values_n(items, ARRAY_ELEMS(items), defs, ARRAY_ELEMS(defs))
+
 static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 {
 	int k;
@@ -866,19 +876,15 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 			return 1;
 		case KEY_CTRLED+KEY_R:	
 			if ( menu->items==kc_keyboard )
-				for (unsigned i=0; i < lengthof(kc_keyboard); i++ )
-					menu->mitems[i].value=DefaultKeySettings[0][i];
+				reset_mitem_values(kcm_keyboard, DefaultKeySettings[0]);
 
 			if ( menu->items==kc_joystick )
-				for (unsigned i=0; i < lengthof(kc_joystick); i++)
-					menu->mitems[i].value = DefaultKeySettings[1][i];
+				reset_mitem_values(kcm_joystick, DefaultKeySettings[1]);
 
 			if ( menu->items==kc_mouse )
-				for (unsigned i=0; i < lengthof(kc_mouse); i++)
-					menu->mitems[i].value = DefaultKeySettings[2][i];
+				reset_mitem_values(kcm_mouse, DefaultKeySettings[2]);
 			if ( menu->items==kc_rebirth )
-				for(unsigned i=0;i < lengthof(kc_rebirth); i++)
-					menu->mitems[i].value=DefaultKeySettingsD2X[i];
+				reset_mitem_values(kcm_rebirth, DefaultKeySettingsD2X);
 			return 1;
 		case KEY_DELETE:
 			menu->mitems[menu->citem].value=255;
