@@ -1020,7 +1020,9 @@ void do_screen_message(char *fmt, ...)
 	vsprintf(msg, fmt, arglist);
 	va_end(arglist);
 	
-	nm_messagebox1(NULL, (int (*)(newmenu *, d_event *, void *))draw_stars_bg, &background, 1, TXT_OK, msg);
+	newmenu_item nm_message_items[1];
+	nm_set_item_menu(& nm_message_items[0], TXT_OK);
+	newmenu_do( NULL, msg, 1, nm_message_items, (int (*)(newmenu *, d_event *, void *))draw_stars_bg, &background);
 	gr_free_bitmap_data(&background);
 }
 

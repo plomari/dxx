@@ -103,9 +103,7 @@ extern int newmenu_doreorder(char * title, char * subtitle, int nitems, newmenu_
 // Example:
 // nm_messagebox( "Title", "Subtitle", 2, "Ok", "Cancel", "There are %d objects", nobjects );
 // Returns 0 through nchoices-1.
-int nm_messagebox(char *title, int nchoices, ...);
-// Same as above, but you can pass a function
-int nm_messagebox1(char *title, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int nchoices, ...);
+int nm_messagebox(const char *title, int nchoices, ...);
 
 newmenu_item *newmenu_get_items(newmenu *menu);
 int newmenu_get_nitems(newmenu *menu);

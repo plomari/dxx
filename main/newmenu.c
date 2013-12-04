@@ -1606,35 +1606,7 @@ newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * 
 	return menu;
 }
 
-
-int nm_messagebox1( char *title, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int nchoices, ... )
-{
-	int i;
-	char * format;
-	va_list args;
-	char *s;
-	char nm_text[MESSAGEBOX_TEXT_SIZE];
-	newmenu_item nm_message_items[5];
-
-	va_start(args, nchoices );
-
-	Assert( nchoices <= 5 );
-
-	for (i=0; i<nchoices; i++ )	{
-		s = va_arg( args, char * );
-		nm_message_items[i].type = NM_TYPE_MENU; nm_message_items[i].text = s;
-	}
-	format = va_arg( args, char * );
-	strcpy( nm_text, "" );
-	vsprintf(nm_text,format,args);
-	va_end(args);
-
-	Assert(strlen(nm_text) < MESSAGEBOX_TEXT_SIZE);
-
-	return newmenu_do( title, nm_text, nchoices, nm_message_items, subfunction, userdata );
-}
-
-int nm_messagebox( char *title, int nchoices, ... )
+int nm_messagebox( const char *title, int nchoices, ... )
 {
 	int i;
 	char * format;

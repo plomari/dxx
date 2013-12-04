@@ -5474,7 +5474,9 @@ int net_udp_show_game_info()
 	info+=sprintf (info,"\nGame Mode: %s",GMNames[netgame->gamemode]);
 	info+=sprintf (info,"\nPlayers: %i/%i",netgame->numconnected,netgame->max_numplayers);
 
-	c=nm_messagebox1("WELCOME", (int (*)(newmenu *, d_event *, void *))show_game_info_handler, netgame, 2, "JOIN GAME", "GAME INFO", rinfo);
+	newmenu_item nm_message_items[1];
+	nm_set_item_menu(& nm_message_items[0], "GAME INFO");
+	c=newmenu_do("WELCOME", rinfo, (int (*)(newmenu *, d_event *, void *))show_game_info_handler, netgame, 2, "JOIN GAME");
 	if (c==0)
 		return 1;
 	//else if (c==1)
