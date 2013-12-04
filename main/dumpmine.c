@@ -557,11 +557,8 @@ void write_game_text_file(char *filename)
 	my_file = PHYSFSX_openWriteBuffered( my_filename );
 
 	if (!my_file)	{
-		char  ErrorMessage[200];
-
-		sprintf(ErrorMessage, "ERROR: Unable to open %s\nErrno = %i", my_filename, errno);
 		gr_palette_load(gr_palette);
-		nm_messagebox( NULL, 1, "Ok", ErrorMessage );
+		nm_messagebox( NULL, 1, "Ok", "ERROR: Unable to open %s\nErrno = %i", my_filename, errno);
 
 		return;
 	}
@@ -1010,11 +1007,8 @@ void say_totals_all(void)
 	my_file = PHYSFSX_openWriteBuffered( "levels.all" );
 
 	if (!my_file)	{
-		char  ErrorMessage[200];
-
-		sprintf( ErrorMessage, "ERROR: Unable to open levels.all\nErrno=%i", errno );
 		gr_palette_load(gr_palette);
-		nm_messagebox( NULL, 1, "Ok", ErrorMessage );
+		nm_messagebox( NULL, 1, "Ok", "ERROR: Unable to open levels.all\nErrno=%i", errno );
 
 		return;
 	}
@@ -1068,11 +1062,8 @@ say_totals_all();
 	my_file = PHYSFSX_openWriteBuffered( "textures.dmp" );
 
 	if (!my_file)	{
-		char  ErrorMessage[200];
-
-		sprintf( ErrorMessage, "ERROR: Can't open textures.dmp\nErrno=%i", errno);
 		gr_palette_load(gr_palette);
-		nm_messagebox( NULL, 1, "Ok", ErrorMessage );
+		nm_messagebox( NULL, 1, "Ok", "ERROR: Can't open textures.dmp\nErrno=%i", errno);
 
 		return;
 	}
