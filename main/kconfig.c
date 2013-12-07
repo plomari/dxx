@@ -1274,6 +1274,24 @@ void kconfig(int n, char * title)
 	}
 }
 
+static void adjust_ramped_keyboard_field_c(int sign, float *keydown_time, ubyte state, fix *time, int sensitivity, int speed_factor, int speed_divisor)
+{
+	if (state)
+	{
+		if (*keydown_time < F1_0)
+			*keydown_time += (!*keydown_time)?F1_0*((float)sensitivity/16)+1:FrameTime/4;
+		*time = *time + sign*speed_factor*FrameTime/speed_divisor*(*keydown_time/F1_0);
+	}
+	else
+		keydown_time = 0;
+}
+
+#define adjust_ramped_keyboard_field(sign, M, time, sens, speed) \
+	adjust_ramped_keyboard_field_c(sign, &Controls.down_time.M, Controls.state.M, time, sens, speed, 1)
+
+#define adjust_ramped_keyboard_field_div(sign, M, time, sens, speed, div) \
+	adjust_ramped_keyboard_field_c(sign, &Controls.down_time.M, Controls.state.M, time, sens, speed, div)
+
 static void adjust_axis_field_n(fix *time, const fix *axes, int num_axes, unsigned value, unsigned invert, int sensitivity)
 {
 	if (value == 255)
@@ -1476,22 +1494,8 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( !Controls.slide_on_state )
 	{
 		// From keyboard...
-		if ( Controls.state.key_pitch_forward ) 
-		{
-			if ( Controls.down_time.key_pitch_forward < F1_0 )
-				Controls.down_time.key_pitch_forward += (!Controls.down_time.key_pitch_forward)?F1_0*((float)PlayerCfg.KeyboardSens[1]/16)+1:FrameTime/4;
-			Controls.pitch_time += speed_factor*FrameTime/2*(Controls.down_time.key_pitch_forward/F1_0);
-		}
-		else
-			Controls.down_time.key_pitch_forward = 0;
-		if ( Controls.state.key_pitch_backward )
-		{
-			if ( Controls.down_time.key_pitch_backward < F1_0 )
-				Controls.down_time.key_pitch_backward += (!Controls.down_time.key_pitch_backward)?F1_0*((float)PlayerCfg.KeyboardSens[1]/16)+1:FrameTime/4;
-			Controls.pitch_time -= speed_factor*FrameTime/2*(Controls.down_time.key_pitch_backward/F1_0);
-		}
-		else
-			Controls.down_time.key_pitch_backward = 0;
+		adjust_ramped_keyboard_field_div(+1, key_pitch_forward, &Controls.pitch_time, PlayerCfg.KeyboardSens[1], speed_factor, 2);
+		adjust_ramped_keyboard_field_div(-1, key_pitch_backward, &Controls.pitch_time, PlayerCfg.KeyboardSens[1], speed_factor, 2);
 		// From joystick...
 		adjust_axis_field(&Controls.pitch_time, Controls.joy_axis, kc_joystick[13].value, kc_joystick[14].value, PlayerCfg.JoystickSens[1]);
 		// From mouse...
@@ -1504,22 +1508,8 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.slide_on_state )
 	{
 		// From keyboard...
-		if ( Controls.state.key_pitch_forward ) 
-		{
-			if (Controls.down_time.key_pitch_forward < F1_0)
-				Controls.down_time.key_pitch_forward += (!Controls.down_time.key_pitch_forward)?F1_0*((float)PlayerCfg.KeyboardSens[3]/16)+1:FrameTime/4;
-			Controls.vertical_thrust_time += speed_factor*FrameTime*(Controls.down_time.key_pitch_forward/F1_0);
-		}
-		else
-			Controls.down_time.key_pitch_forward = 0;
-		if ( Controls.state.key_pitch_backward )
-		{
-			if ( Controls.down_time.key_pitch_backward < F1_0 )
-				Controls.down_time.key_pitch_backward += (!Controls.down_time.key_pitch_backward)?F1_0*((float)PlayerCfg.KeyboardSens[3]/16)+1:FrameTime/4;
-			Controls.vertical_thrust_time -= speed_factor*FrameTime*(Controls.down_time.key_pitch_backward/F1_0);
-		}
-		else
-			Controls.down_time.key_pitch_backward = 0;
+		adjust_ramped_keyboard_field(+1, key_pitch_forward, &Controls.vertical_thrust_time, PlayerCfg.KeyboardSens[3], speed_factor);
+		adjust_ramped_keyboard_field(-1, key_pitch_backward, &Controls.vertical_thrust_time, PlayerCfg.KeyboardSens[3], speed_factor);
 		// From joystick...
 		// NOTE: Use Slide U/D invert setting
 		adjust_axis_field(&Controls.vertical_thrust_time, Controls.joy_axis, kc_joystick[13].value, !kc_joystick[20].value, PlayerCfg.JoystickSens[3]);
@@ -1527,22 +1517,8 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		adjust_axis_field(&Controls.vertical_thrust_time, Controls.mouse_axis, kc_mouse[13].value, kc_mouse[20].value, PlayerCfg.MouseSens[3]);
 	}
 	// From keyboard...
-	if ( Controls.state.key_slide_up ) 
-	{
-		if (Controls.down_time.key_slide_up < F1_0)
-			Controls.down_time.key_slide_up += (!Controls.down_time.key_slide_up)?F1_0*((float)PlayerCfg.KeyboardSens[3]/16)+1:FrameTime/4;
-		Controls.vertical_thrust_time += speed_factor*FrameTime*(Controls.down_time.key_slide_up/F1_0);
-	}
-	else
-		Controls.down_time.key_slide_up = 0;
-	if ( Controls.state.key_slide_down )
-	{
-		if ( Controls.down_time.key_slide_down < F1_0 )
-			Controls.down_time.key_slide_down += (!Controls.down_time.key_slide_down)?F1_0*((float)PlayerCfg.KeyboardSens[3]/16)+1:FrameTime/4;
-		Controls.vertical_thrust_time -= speed_factor*FrameTime*(Controls.down_time.key_slide_down/F1_0);
-	}
-	else
-		Controls.down_time.key_slide_down = 0;
+	adjust_ramped_keyboard_field(+1, key_slide_up, &Controls.vertical_thrust_time, PlayerCfg.KeyboardSens[3], speed_factor);
+	adjust_ramped_keyboard_field(-1, key_slide_down, &Controls.vertical_thrust_time, PlayerCfg.KeyboardSens[3], speed_factor);
 	// From buttons...
 	if ( Controls.btn_slide_up_state ) Controls.vertical_thrust_time += speed_factor*FrameTime;
 	if ( Controls.btn_slide_down_state ) Controls.vertical_thrust_time -= speed_factor*FrameTime;
@@ -1555,22 +1531,8 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if (!Controls.slide_on_state && !Controls.bank_on_state)
 	{
 		// From keyboard...
-		if ( Controls.state.key_heading_right ) 
-		{
-			if (Controls.down_time.key_heading_right < F1_0)
-				Controls.down_time.key_heading_right += (!Controls.down_time.key_heading_right)?F1_0*((float)PlayerCfg.KeyboardSens[0]/16)+1:FrameTime/4;
-			Controls.heading_time += speed_factor*FrameTime*(Controls.down_time.key_heading_right/F1_0);
-		}
-		else
-			Controls.down_time.key_heading_right = 0;
-		if ( Controls.state.key_heading_left )
-		{
-			if ( Controls.down_time.key_heading_left < F1_0 )
-				Controls.down_time.key_heading_left += (!Controls.down_time.key_heading_left)?F1_0*((float)PlayerCfg.KeyboardSens[0]/16)+1:FrameTime/4;
-			Controls.heading_time -= speed_factor*FrameTime*(Controls.down_time.key_heading_left/F1_0);
-		}
-		else
-			Controls.down_time.key_heading_left = 0;
+		adjust_ramped_keyboard_field(+1, key_heading_right, &Controls.heading_time, PlayerCfg.KeyboardSens[0], speed_factor);
+		adjust_ramped_keyboard_field(-1, key_heading_left, &Controls.heading_time, PlayerCfg.KeyboardSens[0], speed_factor);
 		// From joystick...
 		adjust_axis_field(&Controls.heading_time, Controls.joy_axis, kc_joystick[15].value, !kc_joystick[16].value, PlayerCfg.JoystickSens[0]);
 		// From mouse...
@@ -1582,44 +1544,16 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.slide_on_state )
 	{
 		// From keyboard...
-		if ( Controls.state.key_heading_right ) 
-		{
-			if (Controls.down_time.key_heading_right < F1_0)
-				Controls.down_time.key_heading_right += (!Controls.down_time.key_heading_right)?F1_0*((float)PlayerCfg.KeyboardSens[2]/16)+1:FrameTime/4;
-			Controls.sideways_thrust_time += speed_factor*FrameTime*(Controls.down_time.key_heading_right/F1_0);
-		}
-		else
-			Controls.down_time.key_heading_right = 0;
-		if ( Controls.state.key_heading_left )
-		{
-			if ( Controls.down_time.key_heading_left < F1_0 )
-				Controls.down_time.key_heading_left += (!Controls.down_time.key_heading_left)?F1_0*((float)PlayerCfg.KeyboardSens[2]/16)+1:FrameTime/4;
-			Controls.sideways_thrust_time -= speed_factor*FrameTime*(Controls.down_time.key_heading_left/F1_0);
-		}
-		else
-			Controls.down_time.key_heading_left = 0;
+		adjust_ramped_keyboard_field(+1, key_heading_right, &Controls.sideways_thrust_time, PlayerCfg.KeyboardSens[2], speed_factor);
+		adjust_ramped_keyboard_field(-1, key_heading_left, &Controls.sideways_thrust_time, PlayerCfg.KeyboardSens[2], speed_factor);
 		// From joystick...
 		adjust_axis_field(&Controls.sideways_thrust_time, Controls.joy_axis, kc_joystick[15].value, !kc_joystick[18].value, PlayerCfg.JoystickSens[2]);
 		// From mouse...
 		adjust_axis_field(&Controls.sideways_thrust_time, Controls.mouse_axis, kc_mouse[15].value, !kc_mouse[18].value, PlayerCfg.MouseSens[2]);
 	}
 	// From keyboard...
-	if ( Controls.state.key_slide_right ) 
-	{
-		if (Controls.down_time.key_slide_right < F1_0)
-			Controls.down_time.key_slide_right += (!Controls.down_time.key_slide_right)?F1_0*((float)PlayerCfg.KeyboardSens[2]/16)+1:FrameTime/4;
-		Controls.sideways_thrust_time += speed_factor*FrameTime*(Controls.down_time.key_slide_right/F1_0);
-	}
-	else
-		Controls.down_time.key_slide_right = 0;
-	if ( Controls.state.key_slide_left )
-	{
-		if ( Controls.down_time.key_slide_left < F1_0 )
-			Controls.down_time.key_slide_left += (!Controls.down_time.key_slide_left)?F1_0*((float)PlayerCfg.KeyboardSens[2]/16)+1:FrameTime/4;
-		Controls.sideways_thrust_time -= speed_factor*FrameTime*(Controls.down_time.key_slide_left/F1_0);
-	}
-	else
-		Controls.down_time.key_slide_left = 0;
+	adjust_ramped_keyboard_field(+1, key_slide_right, &Controls.sideways_thrust_time, PlayerCfg.KeyboardSens[2], speed_factor);
+	adjust_ramped_keyboard_field(-1, key_slide_left, &Controls.sideways_thrust_time, PlayerCfg.KeyboardSens[2], speed_factor);
 	// From buttons...
 	if ( Controls.btn_slide_left_state ) Controls.sideways_thrust_time -= speed_factor*FrameTime;
 	if ( Controls.btn_slide_right_state ) Controls.sideways_thrust_time += speed_factor*FrameTime;
@@ -1632,44 +1566,16 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( Controls.bank_on_state )
 	{
 		// From keyboard...
-		if ( Controls.state.key_heading_left )
-		{
-			if ( Controls.down_time.key_heading_left < F1_0 )
-				Controls.down_time.key_heading_left += (!Controls.down_time.key_heading_left)?F1_0*((float)PlayerCfg.KeyboardSens[4]/16)+1:FrameTime/4;
-			Controls.bank_time += speed_factor*FrameTime*(Controls.down_time.key_heading_left/F1_0);
-		}
-		else
-			Controls.down_time.key_bank_left = 0;
-		if ( Controls.state.key_heading_right ) 
-		{
-			if (Controls.down_time.key_heading_right < F1_0)
-				Controls.down_time.key_heading_right += (!Controls.down_time.key_heading_right)?F1_0*((float)PlayerCfg.KeyboardSens[4]/16)+1:FrameTime/4;
-			Controls.bank_time -= speed_factor*FrameTime*(Controls.down_time.key_heading_right/F1_0);
-		}
-		else
-			Controls.down_time.key_heading_right = 0;
+		adjust_ramped_keyboard_field(+1, key_heading_left, &Controls.bank_time, PlayerCfg.KeyboardSens[4], speed_factor);
+		adjust_ramped_keyboard_field(-1, key_heading_right, &Controls.bank_time, PlayerCfg.KeyboardSens[4], speed_factor);
 		// From joystick...
 		adjust_axis_field(&Controls.bank_time, Controls.joy_axis, kc_joystick[15].value, kc_joystick[22].value, PlayerCfg.JoystickSens[4]);
 		// From mouse...
 		adjust_axis_field(&Controls.bank_time, Controls.mouse_axis, kc_mouse[15].value, !kc_mouse[22].value, PlayerCfg.MouseSens[4]);
 	}
 	// From keyboard...
-	if ( Controls.state.key_bank_left )
-	{
-		if ( Controls.down_time.key_bank_left < F1_0 )
-			Controls.down_time.key_bank_left += (!Controls.down_time.key_bank_left)?F1_0*((float)PlayerCfg.KeyboardSens[4]/16)+1:FrameTime/4;
-		Controls.bank_time += speed_factor*FrameTime*(Controls.down_time.key_bank_left/F1_0);
-	}
-	else
-		Controls.down_time.key_bank_left = 0;
-	if ( Controls.state.key_bank_right ) 
-	{
-		if (Controls.down_time.key_bank_right < F1_0)
-			Controls.down_time.key_bank_right += (!Controls.down_time.key_bank_right)?F1_0*((float)PlayerCfg.KeyboardSens[4]/16)+1:FrameTime/4;
-		Controls.bank_time -= speed_factor*FrameTime*(Controls.down_time.key_bank_right/F1_0);
-	}
-	else
-		Controls.down_time.key_bank_right = 0;
+	adjust_ramped_keyboard_field(+1, key_bank_left, &Controls.bank_time, PlayerCfg.KeyboardSens[4], speed_factor);
+	adjust_ramped_keyboard_field(-1, key_bank_right, &Controls.bank_time, PlayerCfg.KeyboardSens[4], speed_factor);
 	// From buttons...
 	if ( Controls.btn_bank_left_state ) Controls.bank_time += speed_factor*FrameTime;
 	if ( Controls.btn_bank_right_state ) Controls.bank_time -= speed_factor*FrameTime;
