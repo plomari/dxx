@@ -53,9 +53,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CENTERING_OFFSET(x) ((300 - (70 + (x)*25 ))/2)
 #define CENTERSCREEN (SWIDTH/2)
 #define KMATRIX_VIEW_SEC 7 // Time after reactor explosion until new level - in seconds
-void kmatrix_phallic ();
-void kmatrix_redraw_coop();
-fix64 StartAbortMenuTime;
+
+static void kmatrix_redraw_coop();
 
 void kmatrix_draw_item( int  i, int *sorted )
 {
@@ -281,7 +280,6 @@ int kmatrix_handler(window *wind, d_event *event, kmatrix_screen *km)
 				case KEY_ESC:
 					if (km->network)
 					{
-						StartAbortMenuTime=timer_query();
 						newmenu_item nm_message_items[2];
 						nm_set_item_menu(& nm_message_items[0], TXT_YES);
 						nm_set_item_menu(& nm_message_items[1], TXT_NO);
