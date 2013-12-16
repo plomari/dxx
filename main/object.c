@@ -408,7 +408,7 @@ void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix cloak_start_ti
 void draw_polygon_object(object *obj)
 {
 	g3s_lrgb light;
-	fix engine_glow_value[2];		//element 0 is for engine glow, 1 for headlight
+	fix engine_glow_value[2] = { 0, -1 };		//element 0 is for engine glow, 1 for headlight
 
 	light = compute_object_light(obj,NULL);
 
