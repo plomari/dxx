@@ -402,7 +402,7 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 				Assert( nv < MAX_POINTS_PER_POLY );
 				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
 					int i;
-					if (glow_values[glow_num] == -2)
+					if (glow_values && glow_values[glow_num] == -2)
 						gr_setcolor(255);
 					else
 					{
@@ -423,7 +423,7 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 					for (i=0;i<nv;i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
-					if (glow_values[glow_num] != -3)
+					if (!glow_values || glow_values[glow_num] != -3)
 						g3_draw_poly(nv,point_list);
 				}
 
