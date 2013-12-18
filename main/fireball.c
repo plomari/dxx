@@ -426,11 +426,10 @@ int pick_connected_segment(object *objp, int max_depth)
 	int		start_seg;
 	int		head, tail;
 	int		seg_queue[QUEUE_SIZE*2] = {0};
-	sbyte   visited[MAX_SEGMENTS];
 	sbyte   depth[MAX_SEGMENTS];
 	sbyte   side_rand[MAX_SIDES_PER_SEGMENT];
 
-	memset(visited, 0, Highest_segment_index+1);
+	struct segment_bit_array visited = {{0}};
 	memset(depth, 0, Highest_segment_index+1);
 
 	start_seg = objp->segnum;
@@ -486,9 +485,9 @@ int pick_connected_segment(object *objp, int max_depth)
 
 			if ((wall_num == -1 || door_is_openable_by_player(segp, snrand)) && segp->children[snrand] > -1)
 			{
-				if (visited[segp->children[snrand]] == 0) {
+				if (!SEGMENT_BIT_ARRAY_GET(&visited, segp->children[snrand])) {
 					seg_queue[head++] = segp->children[snrand];
-					visited[segp->children[snrand]] = 1;
+					SEGMENT_BIT_ARRAY_SET(&visited, segp->children[snrand]);
 					depth[segp->children[snrand]] = cur_depth+1;
 					head &= QUEUE_SIZE-1;
 					if (head > tail) {
