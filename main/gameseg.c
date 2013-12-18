@@ -1905,7 +1905,7 @@ int set_segment_depths(int start_seg, ubyte *segbuf)
 			int	childnum;
 
 			childnum = Segments[curseg].children[i];
-			if (childnum != -1)
+			if (childnum != -1 && childnum != -2)
 				if (segbuf[childnum])
 					if (!visited[childnum]) {
 						visited[childnum] = 1;
