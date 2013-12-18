@@ -76,6 +76,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
+#define ARRAY_ELEMS(x) (sizeof(x) / sizeof((x)[0]))
+
 void obj_detach_all(object *parent);
 void obj_detach_one(object *sub);
 
@@ -295,7 +297,7 @@ extern fix Max_thrust;
 #define	CLOAK_FADEOUT_DURATION_ROBOT	F1_0
 
 //do special cloaked render
-void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix cloak_start_time,fix cloak_end_time)
+void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,size_t num_glow, fix cloak_start_time,fix cloak_end_time)
 {
 	fix cloak_delta_time,total_cloaked_time;
 	fix light_scale=F1_0;
@@ -383,7 +385,7 @@ void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix cloak_start_ti
 				   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
 				   new_light,
-				   glow,
+				   glow, num_glow,
 				   alt_textures );
 		glow[0] = save_glow;
 	}
@@ -396,7 +398,7 @@ void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix cloak_start_ti
 				   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
 				   light,
-				   glow,
+				   glow, num_glow,
 				   NULL );
 		g3_set_flat_shading(false);
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
@@ -491,18 +493,18 @@ void draw_polygon_object(object *obj)
 				   obj->rtype.pobj_info.model_num,
 				   obj->rtype.pobj_info.subobj_flags,
 				   light,
-				   engine_glow_value,
+				   engine_glow_value, ARRAY_ELEMS(engine_glow_value),
 				   bm_ptrs);
 	}
 	else {
 
 		if (obj->type==OBJ_PLAYER && (Players[obj->id].flags&PLAYER_FLAGS_CLOAKED))
-			draw_cloaked_object(obj,light,engine_glow_value,Players[obj->id].cloak_time,Players[obj->id].cloak_time+CLOAK_TIME_MAX);
+			draw_cloaked_object(obj,light,engine_glow_value,ARRAY_ELEMS(engine_glow_value),Players[obj->id].cloak_time,Players[obj->id].cloak_time+CLOAK_TIME_MAX);
 		else if ((obj->type == OBJ_ROBOT) && (obj->ctype.ai_info.CLOAKED)) {
 			if (Robot_info[obj->id].boss_flag)
-				draw_cloaked_object(obj,light,engine_glow_value, Boss_cloak_start_time, Boss_cloak_end_time);
+				draw_cloaked_object(obj,light,engine_glow_value, ARRAY_ELEMS(engine_glow_value), Boss_cloak_start_time, Boss_cloak_end_time);
 			else
-				draw_cloaked_object(obj,light,engine_glow_value, GameTime-F1_0*10, GameTime+F1_0*10);
+				draw_cloaked_object(obj,light,engine_glow_value, ARRAY_ELEMS(engine_glow_value), GameTime-F1_0*10, GameTime+F1_0*10);
 		} else {
 			bitmap_index * alt_textures = NULL;
 	
@@ -531,7 +533,7 @@ void draw_polygon_object(object *obj)
 							   Weapon_info[obj->id].model_num_inner,
 							   obj->rtype.pobj_info.subobj_flags,
 							   light,
-							   engine_glow_value,
+							   engine_glow_value, ARRAY_ELEMS(engine_glow_value),
 							   alt_textures);
 			}
 			
@@ -540,7 +542,7 @@ void draw_polygon_object(object *obj)
 					   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
 					   obj->rtype.pobj_info.subobj_flags,
 					   light,
-					   engine_glow_value,
+					   engine_glow_value, ARRAY_ELEMS(engine_glow_value),
 					   alt_textures);
 
 #ifndef OGL // in software rendering must draw inner model last
@@ -554,7 +556,7 @@ void draw_polygon_object(object *obj)
 							   Weapon_info[obj->id].model_num_inner,
 							   obj->rtype.pobj_info.subobj_flags,
 							   light,
-							   engine_glow_value,
+							   engine_glow_value, ARRAY_ELEMS(engine_glow_value),
 							   alt_textures);
 			}
 #endif

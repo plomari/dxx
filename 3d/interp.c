@@ -68,8 +68,6 @@ static const vms_angvec zero_angles = {0,0,0};
 
 static const g3s_point *point_list[MAX_POINTS_PER_POLY];
 
-int glow_num = -1;
-
 #ifdef WORDS_BIGENDIAN
 void short_swap(short *s)
 {
@@ -369,9 +367,9 @@ int g3_poly_get_color(void *model_ptr)
 
 //calls the object interpreter to render an object.  The object renderer
 //is really a seperate pipeline. returns true if drew
-bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,fix *glow_values)
+bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,fix *glow_values, size_t num_glow_values)
 {
-	glow_num = -1;		//glow off by default
+	int glow_num = -1;		//glow off by default
 
 	while (w(p) != OP_EOF)
 
@@ -402,7 +400,7 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 				Assert( nv < MAX_POINTS_PER_POLY );
 				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
 					int i;
-					if (glow_values && glow_values[glow_num] == -2)
+					if (glow_num >= 0 && glow_num < num_glow_values && glow_values[glow_num] == -2)
 						gr_setcolor(255);
 					else
 					{
@@ -423,7 +421,7 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 					for (i=0;i<nv;i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
 
-					if (!glow_values || glow_values[glow_num] != -3)
+					if (!(glow_num >= 0 && glow_num < num_glow_values && glow_values[glow_num] == -3))
 						g3_draw_poly(nv,point_list);
 				}
 
@@ -443,7 +441,8 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 
 					MALLOC(lrgb_list, g3s_lrgb, nv);
 					//calculate light from surface normal
-					if (glow_num < 0) //no glow
+
+					if (!(glow_num >= 0 && glow_num < num_glow_values)) //no glow
 					{
 						light.r = light.g = light.b = -vm_vec_dot(&View_matrix.fvec,vp(p+16));
 						light.r = f1_0/4 + (light.r*3)/4;
@@ -488,14 +487,14 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 
 					//draw back then front
 
-					g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values);
-					g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values);
+					g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values, num_glow_values);
+					g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values, num_glow_values);
 
 				}
 				else {			//not facing.  draw front then back
 
-					g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values);
-					g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values);
+					g3_draw_polygon_model(p+w(p+28),model_bitmaps,anim_angles,model_light,glow_values, num_glow_values);
+					g3_draw_polygon_model(p+w(p+30),model_bitmaps,anim_angles,model_light,glow_values, num_glow_values);
 				}
 
 				p += 32;
@@ -526,7 +525,7 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 
 				g3_start_instance_angles(vp(p+4),a);
 
-				g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values);
+				g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values, num_glow_values);
 
 				g3_done_instance();
 
@@ -538,8 +537,10 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 
 			case OP_GLOW:
 
-				if (glow_values)
+				if (glow_values) {
 					glow_num = w(p+2);
+					Assert(glow_num >= 0 && glow_num < num_glow_values);
+				}
 				p += 4;
 				break;
 
@@ -557,8 +558,8 @@ int nest_count;
 bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points)
 {
 	fix *glow_values = NULL;
-
-	glow_num = -1;		//glow off by default
+	int num_glow_values = 0;
+	unsigned glow_num = -1;		//glow off by default
 
 	while (w(p) != OP_EOF)
 
@@ -617,7 +618,7 @@ bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 				MALLOC(lrgb_list, g3s_lrgb, nv);
 
 				//calculate light from surface normal
-				if (glow_num < 0) //no glow
+				if (!(glow_num >= 0 && glow_num < num_glow_values)) //no glow
 				{
 					light.r = light.g = light.b = -vm_vec_dot(&View_matrix.fvec,vp(p+16));
 					light.r = f1_0/4 + (light.r*3)/4;
@@ -718,7 +719,7 @@ bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 
 				g3_start_instance_angles(vp(p+4),a);
 
-				g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values);
+				g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values, num_glow_values);
 
 				g3_done_instance();
 
@@ -730,8 +731,10 @@ bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 
 			case OP_GLOW:
 
-				if (glow_values)
+				if (glow_values) {
 					glow_num = w(p+2);
+					Assert(glow_num >= 0 && glow_num < num_glow_values);
+				}
 				p += 4;
 				break;
 		}

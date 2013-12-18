@@ -509,7 +509,7 @@ bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 
 //draw a polygon model
 
-void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angles,int model_num,int flags,g3s_lrgb light,fix *glow_values,bitmap_index alt_textures[])
+void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angles,int model_num,int flags,g3s_lrgb light,fix *glow_values, size_t num_glow_values, bitmap_index alt_textures[])
 {
 	polymodel *po;
 	int i;
@@ -572,7 +572,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 
 	if (flags == 0)		//draw entire object
 
-		g3_draw_polygon_model(po->model_data,texture_list,anim_angles,light,glow_values);
+		g3_draw_polygon_model(po->model_data,texture_list,anim_angles,light,glow_values, num_glow_values);
 
 	else {
 		int i;
@@ -589,7 +589,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 				vm_vec_negate(&ofs);
 				g3_start_instance_matrix(&ofs,NULL);
 	
-				g3_draw_polygon_model(&po->model_data[po->submodel_ptrs[i]],texture_list,anim_angles,light,glow_values);
+				g3_draw_polygon_model(&po->model_data[po->submodel_ptrs[i]],texture_list,anim_angles,light,glow_values, num_glow_values);
 	
 				g3_done_instance();
 			}	
@@ -741,7 +741,7 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
 	vm_angles_2_matrix(&temp_orient, orient_angles);
-	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL);
+	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,0,NULL);
 	g3_end_frame();
 }
 
