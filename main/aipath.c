@@ -278,7 +278,6 @@ int create_path_points(object *objp, int start_seg, int end_seg, point_seg *pseg
 	int		sidenum;
 	int		qtail = 0, qhead = 0;
 	int		i;
-	sbyte   visited[MAX_SEGMENTS];
 	seg_seg	seg_queue[MAX_SEGMENTS];
 	short		depth[MAX_SEGMENTS];
 	int		cur_depth;
@@ -304,17 +303,16 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 //safety_flag = Safety_flag_override; //!! debug!!
 
 //	for (i=0; i<=Highest_segment_index; i++) {
-//		visited[i] = 0;
 //		depth[i] = 0;
 //	}
-	memset(visited, 0, sizeof(visited[0])*(Highest_segment_index+1));
+	struct segment_bit_array visited = {{0}};
 	memset(depth, 0, sizeof(depth[0])*(Highest_segment_index+1));
 
 	//	If there is a segment we're not allowed to visit, mark it.
 	if (avoid_seg != -1) {
 		Assert(avoid_seg <= Highest_segment_index);
 		if ((start_seg != avoid_seg) && (end_seg != avoid_seg)) {
-			visited[avoid_seg] = 1;
+			SEGMENT_BIT_ARRAY_SET(&visited, avoid_seg);
 			depth[avoid_seg] = 0;
 		}
 	}
@@ -323,7 +321,7 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 		create_random_xlate(random_xlate);
 
 	cur_seg = start_seg;
-	visited[cur_seg] = 1;
+	SEGMENT_BIT_ARRAY_SET(&visited, cur_seg);
 	cur_depth = 0;
 
 	while (cur_seg != end_seg) {
@@ -366,10 +364,10 @@ if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM))
 					}
 				}
 
-				if (!visited[this_seg]) {
+				if (!SEGMENT_BIT_ARRAY_GET(&visited, this_seg)) {
 					seg_queue[qtail].start = cur_seg;
 					seg_queue[qtail].end = this_seg;
-					visited[this_seg] = 1;
+					SEGMENT_BIT_ARRAY_SET(&visited, this_seg);
 					depth[qtail++] = cur_depth+1;
 					if (depth[qtail-1] == max_depth) {
 						end_seg = seg_queue[qtail-1].end;
