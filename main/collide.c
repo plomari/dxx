@@ -625,7 +625,6 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 	int blew_up;
 	int wall_type;
 	int playernum;
-	int	robot_escort;
 
 	if (weapon->id == OMEGA_ID)
 		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
@@ -681,8 +680,8 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 
 	//if ((seg->sides[hitwall].tmap_num2==0) && (TmapInfo[seg->sides[hitwall].tmap_num].flags & TMI_VOLATILE)) {
 
-	if ((weapon->ctype.laser_info.parent_type == OBJ_ROBOT) && (Robot_info[Objects[weapon->ctype.laser_info.parent_num].id].companion==1)) {
-		robot_escort = 1;
+	int	robot_escort = effect_parent_is_guidebot(weapon);
+	if (robot_escort) {
 
 		if (Game_mode & GM_MULTI)
 		 {
@@ -694,8 +693,6 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 		playernum = Player_num;		//if single player, he's the player's buddy
 	}
 	else {
-		robot_escort = 0;
-
 		if (Objects[weapon->ctype.laser_info.parent_num].type == OBJ_PLAYER)
 			playernum = Objects[weapon->ctype.laser_info.parent_num].id;
 		else
