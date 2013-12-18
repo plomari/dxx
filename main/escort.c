@@ -191,17 +191,14 @@ int segment_is_reachable(int curseg, int sidenum)
 //		length:		number of elements in bfs_list
 void create_bfs_list(int start_seg, short bfs_list[], int *length, int max_segs)
 {
-	int	i, head, tail;
-	sbyte   visited[MAX_SEGMENTS];
-
-	for (i=0; i<MAX_SEGMENTS; i++)
-		visited[i] = 0;
+	int	head, tail;
+	struct segment_bit_array visited = {{0}};
 
 	head = 0;
 	tail = 0;
 
 	bfs_list[head++] = start_seg;
-	visited[start_seg] = 1;
+	SEGMENT_BIT_ARRAY_SET(&visited, start_seg);
 
 	while ((head != tail) && (head < max_segs)) {
 		int		i;
@@ -216,12 +213,12 @@ void create_bfs_list(int start_seg, short bfs_list[], int *length, int max_segs)
 
 			connected_seg = cursegp->children[i];
 
-			if (IS_CHILD(connected_seg) && (visited[connected_seg] == 0)) {
+			if (IS_CHILD(connected_seg) && !SEGMENT_BIT_ARRAY_GET(&visited, connected_seg)) {
 				if (segment_is_reachable(curseg, i)) {
 					bfs_list[head++] = connected_seg;
 					if (head >= max_segs)
 						break;
-					visited[connected_seg] = 1;
+					SEGMENT_BIT_ARRAY_SET(&visited, connected_seg);
 					Assert(head < MAX_SEGMENTS);
 				}
 			}
