@@ -1871,7 +1871,6 @@ void pick_random_point_in_seg(vms_vector *new_pos, int segnum)
 int set_segment_depths(int start_seg, ubyte *segbuf)
 {
 	int	i, curseg;
-	ubyte	visited[MAX_SEGMENTS];
 	int	queue[MAX_SEGMENTS];
 	int	head, tail;
 	int	depth;
@@ -1881,14 +1880,13 @@ int set_segment_depths(int start_seg, ubyte *segbuf)
 	head = 0;
 	tail = 0;
 
-	for (i=0; i<=Highest_segment_index; i++)
-		visited[i] = 0;
+	struct segment_bit_array visited = {{0}};
 
 	if (segbuf[start_seg] == 0)
 		return 1;
 
 	queue[tail++] = start_seg;
-	visited[start_seg] = 1;
+	SEGMENT_BIT_ARRAY_SET(&visited, start_seg);
 	segbuf[start_seg] = depth++;
 
 	if (depth == 0)
@@ -1904,8 +1902,8 @@ int set_segment_depths(int start_seg, ubyte *segbuf)
 			childnum = Segments[curseg].children[i];
 			if (childnum != -1 && childnum != -2)
 				if (segbuf[childnum])
-					if (!visited[childnum]) {
-						visited[childnum] = 1;
+					if (!SEGMENT_BIT_ARRAY_GET(&visited, childnum)) {
+						SEGMENT_BIT_ARRAY_SET(&visited, childnum);
 						segbuf[childnum] = parent_depth+1;
 						queue[tail++] = childnum;
 					}
