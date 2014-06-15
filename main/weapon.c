@@ -318,7 +318,7 @@ void select_weapon(int weapon_num, int secondary_flag, int print_message, int wa
 			if (wait_for_rearm) digi_play_sample_once( SOUND_GOOD_SELECTION_SECONDARY, F1_0 );
 #ifdef NETWORK
 			if (Game_mode & GM_MULTI)	{
-				if (wait_for_rearm) multi_send_play_sound(SOUND_GOOD_SELECTION_PRIMARY, F1_0);
+				if (wait_for_rearm) multi_send_play_sound(SOUND_GOOD_SELECTION_SECONDARY, F1_0);
 			}
 #endif
 			if (wait_for_rearm)
