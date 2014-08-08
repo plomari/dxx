@@ -391,7 +391,7 @@ typedef struct msgstream {
 	int y;
 	int color;
 	int ch;
-} __pack__ msgstream;
+} msgstream;
 
 typedef struct briefing
 {
@@ -405,8 +405,8 @@ typedef struct briefing
 	char	*text;
 	char	*message;
 	int		text_x, text_y;
-	msgstream messagestream[2048];
-	int		streamcount;
+	unsigned		streamcount;
+	msgstream		messagestream[2048];
 	short	tab_stop;
 	ubyte	flashing_cursor;
 	ubyte	new_page;
@@ -582,7 +582,7 @@ int check_text_pos(briefing *br)
 	return 0;
 }
 
-void put_char_delay(briefing *br, int ch)
+static void put_char_delay(briefing *br, char ch)
 {
 	char str[2];
 	int	w, h, aw;
@@ -594,6 +594,8 @@ void put_char_delay(briefing *br, int ch)
 		return;
 	}
 
+	if (br->streamcount >= ARRAY_ELEMS(br->messagestream))
+		return;
 	br->messagestream[br->streamcount].x = br->text_x;
 	br->messagestream[br->streamcount].y = br->text_y;
 	br->messagestream[br->streamcount].color = Briefing_text_colors[Current_color];
@@ -620,11 +622,8 @@ int load_briefing_screen(briefing *br, char *fname);
 // Return 1 when page is finished, 0 otherwise
 int briefing_process_char(briefing *br)
 {
-	int	ch;
-
 	gr_set_curfont( GAME_FONT );
-
-	ch = *br->message++;
+	char ch = *br->message++;
 	if (ch == '$') {
 		ch = *br->message++;
 		if (ch=='D') {
@@ -869,18 +868,14 @@ void set_briefing_fontcolor (briefing *br)
 	Erase_color = gr_find_closest_color_current(0, 0, 0);
 }
 
-void redraw_messagestream(msgstream *stream, int count)
+static void redraw_messagestream(const msgstream *stream, unsigned *lastcolor)
 {
-	char msgbuf[2];
-	int i;
-
-	for (i=0; i<count; i++) {
-		msgbuf[0] = stream[i].ch;
-		msgbuf[1] = 0;
-		if (i > 0 && stream[i-1].color != stream[i].color)
-			gr_set_fontcolor(stream[i].color,-1);
-		gr_printf(stream[i].x+1,stream[i].y,"%s",msgbuf);
+	char msgbuf[2] = {stream->ch, 0};
+	if (*lastcolor != stream->color) {
+		*lastcolor = stream->color;
+		gr_set_fontcolor(stream->color,-1);
 	}
+	gr_string(stream->x+1,stream->y,msgbuf);
 }
 
 void flash_cursor(briefing *br, int cursor_flag)
@@ -1349,7 +1344,8 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 			gr_set_curfont( GAME_FONT );
 
 			gr_set_fontcolor(Briefing_text_colors[Current_color], -1);
-			redraw_messagestream(br->messagestream, br->streamcount);
+			for (size_t n = 0; n < br->streamcount; n++)
+				redraw_messagestream(&br->messagestream[n], &(unsigned){~0u});
 
 			if (br->new_page || br->new_screen)
 				flash_cursor(br, br->flashing_cursor);
