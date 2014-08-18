@@ -1178,7 +1178,17 @@ void collide_weapon_and_controlcen( object * weapon, object *controlcen, vms_vec
 			Control_center_been_hit = 1;
 
 		if ( Weapon_info[weapon->id].damage_radius )
+		{
+			vms_vector obj2weapon;
+			vm_vec_sub(&obj2weapon, collision_point, &controlcen->pos);
+			fix mag = vm_vec_mag(&obj2weapon); 
+			if(mag < controlcen->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
+			{
+				vm_vec_scale_add(collision_point, &controlcen->pos, &obj2weapon, fixdiv(controlcen->size, mag)); 
+				weapon->pos = *collision_point;
+			}
 			explode_badass_weapon(weapon,collision_point);
+		}
 		else
 			object_create_explosion( controlcen->segnum, collision_point, controlcen->size*3/20, VCLIP_SMALL_EXPLOSION );
 
@@ -1585,6 +1595,14 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 	//	unless this is trapped elsewhere.
 	if ( Weapon_info[weapon->id].damage_radius )
 	{
+		vms_vector obj2weapon;
+		vm_vec_sub(&obj2weapon, collision_point, &robot->pos);
+		fix mag = vm_vec_mag(&obj2weapon); 
+		if(mag < robot->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
+		{
+			vm_vec_scale_add(collision_point, &robot->pos, &obj2weapon, fixdiv(robot->size, mag)); 
+			weapon->pos = *collision_point;
+		}
 		if (boss_invul_flag) {			//don't make badass sound
 			weapon_info *wi = &Weapon_info[weapon->id];
 
@@ -2163,7 +2181,17 @@ void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector 
 
 	object_create_explosion( playerobj->segnum, collision_point, i2f(10)/2, VCLIP_PLAYER_HIT );
 	if ( Weapon_info[weapon->id].damage_radius )
+	{
+		vms_vector obj2weapon;
+		vm_vec_sub(&obj2weapon, collision_point, &playerobj->pos);
+		fix mag = vm_vec_mag(&obj2weapon); 
+		if(mag < playerobj->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
+		{
+			vm_vec_scale_add(collision_point, &playerobj->pos, &obj2weapon, fixdiv(playerobj->size, mag)); 
+			weapon->pos = *collision_point;
+		}
 		explode_badass_weapon(weapon,collision_point);
+	}
 
 	maybe_kill_weapon(weapon,playerobj);
 
