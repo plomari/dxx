@@ -621,6 +621,12 @@ fix check_vector_to_object(vms_vector *intp,vms_vector *p0,vms_vector *p1,fix ra
 	for (i = 0; i < ARRAY_ELEMS(ignoreobjs); i++)
 		if (obj->type == ignoreobjs[i] || otherobj->type == ignoreobjs[i])
 			haveignoreobj = 1;
+	if (obj->type == OBJ_WEAPON)
+		if (obj->mtype.phys_info.flags & PF_PERSISTENT)
+			haveignoreobj = 1;
+	if (otherobj->type == OBJ_WEAPON)
+		if (otherobj->mtype.phys_info.flags & PF_PERSISTENT)
+			haveignoreobj = 1;
 
 	return check_vector_to_sphere_1(intp,p0,p1,&obj->pos,size+rad,haveignoreobj);
 
