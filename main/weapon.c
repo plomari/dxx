@@ -844,19 +844,16 @@ void seismic_disturbance_frame(void)
 //	Call this when a smega detonates to start the process of rocking the mine.
 void smega_rock_stuff(void)
 {
-	int	i;
+	fix *least = &Smega_detonate_times[0];
+	for (int i = 0; i < MAX_SMEGA_DETONATES; i++) {
+		fix *t = &Smega_detonate_times[i];
 
-	for (i=0; i<MAX_SMEGA_DETONATES; i++) {
-		if (Smega_detonate_times[i] + SMEGA_SHAKE_TIME < GameTime)
-			Smega_detonate_times[i] = 0;
+		if (*t + SMEGA_SHAKE_TIME < GameTime)
+			*t = 0;
+		if (*least > *t)
+			least = t;
 	}
-
-	for (i=0; i<MAX_SMEGA_DETONATES; i++) {
-		if (Smega_detonate_times[i] == 0) {
-			Smega_detonate_times[i] = GameTime;
-			break;
-		}
-	}
+	*least = GameTime;
 }
 
 int	Super_mines_yes = 1;
@@ -893,11 +890,12 @@ void process_super_mines_frame(void)
 
 				for (j=0; j<=Highest_object_index; j++) {
 					if ((Objects[j].type == OBJ_PLAYER) || (Objects[j].type == OBJ_ROBOT)) {
+						if (j == parent_num)
+							continue;
 						fix	dist;
 
 						dist = vm_vec_dist_quick(bombpos, &Objects[j].pos);
 
-						if (j != parent_num)
 							if (dist - Objects[j].size < F1_0*20)
 							{
 								if (Objects[i].segnum == Objects[j].segnum)
