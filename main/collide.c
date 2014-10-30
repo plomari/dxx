@@ -2229,33 +2229,38 @@ void collide_player_and_nasty_robot( object * playerobj, object * robot, vms_vec
 	return;
 }
 
+static vms_vector find_exit_direction(vms_vector result, object *objp, segment *segp)
+{
+	for (unsigned side = MAX_SIDES_PER_SEGMENT; side --;)
+		if (WALL_IS_DOORWAY(segp, side) & WID_FLY_FLAG) {
+			vms_vector	exit_point;
+			compute_center_point_on_side(&exit_point, segp, side);
+			vm_vec_sub2(&exit_point, &objp->pos);
+			vm_vec_normalize_quick(&exit_point);
+			vm_vec_add2(&result, &exit_point);
+			break;
+		}
+	return result;
+}
+
 void collide_player_and_materialization_center(object *objp)
 {
-	int	side;
-	vms_vector	exit_dir;
 	segment	*segp = &Segments[objp->segnum];
 
 	digi_link_sound_to_pos(SOUND_PLAYER_GOT_HIT, objp->segnum, 0, &objp->pos, 0, F1_0);
-//	digi_play_sample( SOUND_PLAYER_GOT_HIT, F1_0 );
 
 	object_create_explosion( objp->segnum, &objp->pos, i2f(10)/2, VCLIP_PLAYER_HIT );
 
 	if (objp->id != Player_num)
 		return;
 
-	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++)
-		if (WALL_IS_DOORWAY(segp, side) & WID_FLY_FLAG) {
-			vms_vector	exit_point, rand_vec;
-
-			compute_center_point_on_side(&exit_point, segp, side);
-			vm_vec_sub(&exit_dir, &exit_point, &objp->pos);
-			vm_vec_normalize_quick(&exit_dir);
-			make_random_vector(&rand_vec);
-			rand_vec.x /= 4;	rand_vec.y /= 4;	rand_vec.z /= 4;
-			vm_vec_add2(&exit_dir, &rand_vec);
-			vm_vec_normalize_quick(&exit_dir);
-		}
-
+	vms_vector rand_vec;
+	make_random_vector(&rand_vec);
+	rand_vec.x /= 4;
+	rand_vec.y /= 4;
+	rand_vec.z /= 4;
+	vms_vector exit_dir = find_exit_direction(rand_vec, objp, segp);
+	vm_vec_normalize_quick(&exit_dir);
 	bump_one_object(objp, &exit_dir, 64*F1_0);
 
 	apply_damage_to_player( objp, objp, 4*F1_0, 0);	//	Changed, MK, 2/19/96, make killer the player, so if you die in matcen, will say you killed yourself
@@ -2266,25 +2271,14 @@ void collide_player_and_materialization_center(object *objp)
 
 void collide_robot_and_materialization_center(object *objp)
 {
-	int	side;
-	vms_vector	exit_dir;
 	segment *segp=&Segments[objp->segnum];
 
-	vm_vec_zero(&exit_dir);
 	digi_link_sound_to_pos(SOUND_ROBOT_HIT, objp->segnum, 0, &objp->pos, 0, F1_0);
 
 	if ( Robot_info[objp->id].exp1_vclip_num > -1 )
 		object_create_explosion( objp->segnum, &objp->pos, (objp->size/2*3)/4, Robot_info[objp->id].exp1_vclip_num );
 
-	for (side=0; side<MAX_SIDES_PER_SEGMENT; side++)
-		if (WALL_IS_DOORWAY(segp, side) & WID_FLY_FLAG) {
-			vms_vector	exit_point;
-
-			compute_center_point_on_side(&exit_point, segp, side);
-			vm_vec_sub(&exit_dir, &exit_point, &objp->pos);
-			vm_vec_normalize_quick(&exit_dir);
-		}
-
+	vms_vector exit_dir = find_exit_direction((vms_vector){0}, objp, segp);
 	bump_one_object(objp, &exit_dir, 8*F1_0);
 
 	apply_damage_to_robot( objp, F1_0, -1);
