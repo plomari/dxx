@@ -704,8 +704,6 @@ void render_side(segment *segp, int sidenum)
 {
 	int		vertnum_list[4];
 	side		*sidep = &segp->sides[sidenum];
-	vms_vector	tvec;
-	fix		v_dot_n0, v_dot_n1;
 	uvl		temp_uvls[3];
 	fix		min_dot, max_dot;
 	vms_vector	normals[2];
@@ -726,11 +724,20 @@ void render_side(segment *segp, int sidenum)
 	normals[0] = segp->sides[sidenum].normals[0];
 	normals[1] = segp->sides[sidenum].normals[1];
 
+ 	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
+ 	//	deal with it, get the dot product.
+	int which_vertnum =
+		/* Silly, but consistent with how it was at release */
+		(sidep->type == SIDE_IS_QUAD) ? 0 :
+		(sidep->type == SIDE_IS_TRI_13) ? 1 : 0;
+	vms_vector tvec;
+	vm_vec_sub(&tvec, &Viewer_eye, &Vertices[vertnum_list[which_vertnum]]);
+	vm_vec_normalize_quick(&tvec);
+	fix v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
 	//	========== Mark: Here is the change...beginning here: ==========
 
 	if (sidep->type == SIDE_IS_QUAD) {
 
-		vm_vec_sub(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][0]]]);
 
 		// -- Old, slow way --	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
 		// -- Old, slow way --	//	deal with it, get the dot product.
@@ -739,7 +746,6 @@ void render_side(segment *segp, int sidenum)
 		// -- Old, slow way --	else
 		// -- Old, slow way --		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][0]]]);
 
-		v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
 
 // -- flare creates point -- {
 // -- flare creates point -- 	int	flare_index;
@@ -788,22 +794,13 @@ void render_side(segment *segp, int sidenum)
 			#endif
 		}
 	} else {
-		//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
-		//	deal with it, get the dot product.
-		if (sidep->type == SIDE_IS_TRI_13)
-			vm_vec_normalized_dir_quick(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][1]]]);
-		else
-			vm_vec_normalized_dir_quick(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][0]]]);
-
-		v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
-
 		//	========== Mark: The change ends here. ==========
 
 		//	Although this side has been triangulated, because it is not planar, see if it is acceptable
 		//	to render it as a single quadrilateral.  This is a function of how far away the viewer is, how non-planar
 		//	the face is, how normal to the surfaces the view is.
 		//	Now, if both dot products are close to 1.0, then render two triangles as a single quad.
-		v_dot_n1 = vm_vec_dot(&tvec, &normals[1]);
+		fix v_dot_n1 = vm_vec_dot(&tvec, &normals[1]);
 
 		if (v_dot_n0 < v_dot_n1) {
 			min_dot = v_dot_n0;
