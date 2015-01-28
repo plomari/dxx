@@ -547,7 +547,8 @@ int exists_in_mine_2(int segnum, int objtype, int objid, int special)
 		while (objnum != -1) {
 			object	*curobjp = &Objects[objnum];
 
-			if (special == ESCORT_GOAL_PLAYER_SPEW) {
+			if (special == ESCORT_GOAL_PLAYER_SPEW && curobjp->type == OBJ_POWERUP)
+			{
 				if (curobjp->flags & OF_PLAYER_DROPPED)
 					return objnum;
 			}
@@ -565,7 +566,7 @@ int exists_in_mine_2(int segnum, int objtype, int objid, int special)
 					return objnum;
 			}
 
-			if (objtype == OBJ_POWERUP)
+			if (objtype == OBJ_POWERUP && curobjp->type == OBJ_ROBOT)
 				if (curobjp->contains_count)
 					if (curobjp->contains_type == OBJ_POWERUP)
 						if (curobjp->contains_id == objid)
