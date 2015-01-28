@@ -309,7 +309,7 @@ void ogl_cache_level_textures(void)
 		ogl_cache_vclipn_textures(Player_ship->expl_vclip_num);
 
 		for (i=0;i<=Highest_object_index;i++){
-			if(Objects[i].render_type==RT_POWERUP){
+			if(Objects[i].type == OBJ_POWERUP && Objects[i].render_type==RT_POWERUP){
 				ogl_cache_vclipn_textures(Objects[i].rtype.vclip_info.vclip_num);
 				switch (Objects[i].id){
 					case POW_VULCAN_WEAPON:
@@ -339,7 +339,7 @@ void ogl_cache_level_textures(void)
 						break;
 				}
 			}
-			else if(Objects[i].render_type==RT_POLYOBJ){
+			else if (Objects[i].type != OBJ_NONE && Objects[i].render_type==RT_POLYOBJ){
 				if (Objects[i].type == OBJ_ROBOT)
 				{
 					ogl_cache_vclipn_textures(Robot_info[Objects[i].id].exp1_vclip_num);

@@ -1387,7 +1387,7 @@ void ai_reset_all_paths(void)
 	int	i;
 
 	for (i=0; i<=Highest_object_index; i++)
-		if (Objects[i].control_type == CT_AI) {
+		if (Objects[i].type == OBJ_ROBOT && Objects[i].control_type == CT_AI) {
 			Objects[i].ctype.ai_info.hide_index = -1;
 			Objects[i].ctype.ai_info.path_length = 0;
 		}

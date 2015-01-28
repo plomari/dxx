@@ -1322,11 +1322,13 @@ int obj_create(enum object_type_t type,ubyte id,int segnum,const vms_vector *pos
 
 	Assert(obj->segnum == -1);
 
+	int signature = obj_get_signature();
+
 	// Zero out object structure to keep weird bugs from happening
 	// in uninitialized fields.
 	memset( obj, 0, sizeof(object) );
 
-	obj->signature				= obj_get_signature();
+	obj->signature				= signature;
 	obj->type 					= type;
 	obj->id 						= id;
 	obj->last_pos				= *pos;

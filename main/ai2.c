@@ -328,7 +328,7 @@ void init_ai_objects(void)
 	for (i=0; i<MAX_OBJECTS; i++) {
 		object *objp = &Objects[i];
 
-		if (objp->control_type == CT_AI)
+		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
 			init_ai_object(i, objp->ctype.ai_info.behavior, objp->ctype.ai_info.hide_segment);
 	}
 
