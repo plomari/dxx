@@ -1679,9 +1679,9 @@ int escort_menu_handler(window *wind, d_event *event, escort_menu *menu)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
+			d_free(menu);
 			return 0;	// continue closing
-			break;
-			
+
 		default:
 			return 0;
 			break;
