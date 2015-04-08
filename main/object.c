@@ -1755,8 +1755,7 @@ void start_player_death_sequence(object *player)
 	int	objnum;
 
 	Assert(player == ConsoleObject);
-        printf("death: %d %p \n", Player_is_dead, Dead_player_camera);
-	if ((Player_is_dead != 0) || (Dead_player_camera != NULL))
+	if ((Player_is_dead != 0) || (Dead_player_camera != NULL) || ((Game_mode & GM_MULTI) && (Players[Player_num].connected != CONNECT_PLAYING)))
 		return;
 
 	//Assert(Player_is_dead == 0);
