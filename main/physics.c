@@ -480,7 +480,7 @@ void do_physics_sim(object *obj)
 		if (obj->type == OBJ_PLAYER) {
 			int i;
 
-			if (n_phys_segs && phys_seglist[n_phys_segs-1]==hit_info.seglist[0])
+			if (n_phys_segs && hit_info.n_segs && phys_seglist[n_phys_segs-1]==hit_info.seglist[0])
 				n_phys_segs--;
 
 			for (i=0;(i<hit_info.n_segs) && (n_phys_segs<MAX_FVI_SEGS-1);  )
