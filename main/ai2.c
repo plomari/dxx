@@ -325,7 +325,7 @@ void init_ai_objects(void)
 
 	Point_segs_free_ptr = Point_segs;
 
-	for (i=0; i<MAX_OBJECTS; i++) {
+	for (i=0; i<=Highest_object_index; i++) {
 		object *objp = &Objects[i];
 
 		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
