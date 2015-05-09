@@ -194,7 +194,8 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 								break;
 								}
 							case OBJ_CNTRLCEN:
-								if ( obj0p->shields >= 0 ) {
+								if (parent != -1 && obj0p->shields >= 0)
+								{
 									apply_damage_to_controlcen(obj0p, damage, parent );
 								}
 								break;
