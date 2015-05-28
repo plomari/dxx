@@ -936,6 +936,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 				}
 
 				obj->ctype.laser_info.track_turn_time  = HOMING_TURN_TIME;
+				obj->ctype.laser_info.track_turn_tick  = 0;
 			}
 		}	
 		special_reset_objects();
