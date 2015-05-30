@@ -34,8 +34,8 @@ g3s_point Segment_points[MAX_VERTICES];
 fix FrameTime = 0x1000;	// Time since last frame, in seconds
 fix GameTime = 0;			//	Time in game, in seconds
 
-int d_tick_count = 0; // increments every 50ms
-int d_tick_step = 0;  // true once every 50ms
+int d_tick_count = 0; // increments every 33.33ms
+int d_tick_step = 0;  // true once every 33.33ms
 
 segment	Segments[MAX_SEGMENTS];
 
