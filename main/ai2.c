@@ -1997,22 +1997,11 @@ void start_boss_death_sequence(object *objp)
 //	scale: F1_0*4 for boss, much smaller for much smaller guys
 int do_robot_dying_frame(object *objp, fix start_time, fix roll_duration, sbyte *dying_sound_playing, int death_sound, fix expl_scale, fix sound_scale)
 {
-	fix	roll_val, temp;
-	fix	sound_duration;
-
-	if (!roll_duration)
-		roll_duration = F1_0/4;
-
-	roll_val = fixdiv(GameTime - start_time, roll_duration);
-
-	fix_sincos(fixmul(roll_val, roll_val), &temp, &objp->mtype.phys_info.rotvel.x);
-	fix_sincos(roll_val, &temp, &objp->mtype.phys_info.rotvel.y);
-	fix_sincos(roll_val-F1_0/8, &temp, &objp->mtype.phys_info.rotvel.z);
-
 	objp->mtype.phys_info.rotvel.x = (GameTime - start_time)/9;
 	objp->mtype.phys_info.rotvel.y = (GameTime - start_time)/5;
 	objp->mtype.phys_info.rotvel.z = (GameTime - start_time)/7;
 
+	fix sound_duration;
 	if (GameArg.SndDigiSampleRate)
 		sound_duration = fixdiv(GameSounds[digi_xlat_sound(death_sound)].length,GameArg.SndDigiSampleRate);
 	else
