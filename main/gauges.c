@@ -1470,6 +1470,7 @@ void show_time()
 	gr_set_fontcolor(Color_0_31_0, -1 );
 
 	gr_printf(SWIDTH-FSPACX(30),GHEIGHT-(LINE_SPACING*11),"%d:%02d", mins, secs);
+	gr_printf(FSPACX(2),(LINE_SPACING*15),"%d:%02d", mins, secs);
 }
 #endif
 
