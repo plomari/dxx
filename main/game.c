@@ -1118,8 +1118,6 @@ void GameProcessFrame(void)
 	else
 	{ // Note the link to above!
 
-		Players[Player_num].homing_object_dist = -1;		//	Assume not being tracked.  Laser_do_weapon_sequence modifies this.
-
 		object_move_all();
 		powerup_grab_cheat_all();
 

@@ -1127,6 +1127,8 @@ void calc_d_homer_tick()
                 if (d_homer_tick_count > F1_0)
                         d_homer_tick_count = 0;
                 timer -= HOMING_TURN_TIME;
+
+                Players[Player_num].homing_object_dist = -1;		//	Assume not being tracked.  Laser_do_weapon_sequence modifies this.
         }
 
         // Don't let slowdowns have a lasting impact; allow you to build up at most 3 frames worth
