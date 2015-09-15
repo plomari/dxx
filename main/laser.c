@@ -1393,6 +1393,18 @@ void Flare_create(object *obj)
 
 #define	HOMING_MISSILE_SCALE	16
 
+static bool is_any_guided_missile(object *objp)
+{
+	if (objp->id != GUIDEDMISS_ID)
+		return false;
+	if (objp->ctype.laser_info.parent_type != OBJ_PLAYER)
+		return false;
+	int pnum = Objects[objp->ctype.laser_info.parent_num].id;
+	if (objp != Guided_missile[pnum])
+		return false;
+	return objp->signature == Guided_missile_sig[pnum];
+}
+
 //--------------------------------------------------------------------
 //	Set object *objp's orientation to (or towards if I'm ambitious) its velocity.
 static void homing_missile_turn_towards_velocity(object *objp, vms_vector *norm_vel, fix ft)
@@ -1445,7 +1457,7 @@ void Laser_do_weapon_sequence(object *obj)
 	}
 
 	//	For homing missiles, turn towards target. (unless it's the guided missile)
-	if (Weapon_info[obj->id].homing_flag && !(obj->id==GUIDEDMISS_ID && obj->ctype.laser_info.parent_type==OBJ_PLAYER && obj==Guided_missile[Objects[obj->ctype.laser_info.parent_num].id] && obj->signature==Guided_missile[Objects[obj->ctype.laser_info.parent_num].id]->signature))
+	if (Weapon_info[obj->id].homing_flag && !is_any_guided_missile(obj))
 	{
 		vms_vector		vector_to_object, temp_vec;
 		fix				dot=F1_0;
