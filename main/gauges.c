@@ -1315,11 +1315,12 @@ void hud_show_cloak_invuln(void)
 		else
 			y -= LINE_SPACING*4;
 
-		if (Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime > F1_0*3 ||
-			Players[Player_num].cloak_time+CLOAK_TIME_MAX-GameTime < 0 ||
-			GameTime & 0x8000)
-		{
-			gr_printf(FSPACX(1), y, "%s", TXT_CLOAKED);
+ 		fix effect_end = Players[Player_num].cloak_time + CLOAK_TIME_MAX - GameTime;
+		if (effect_end > F1_0*3 || effect_end < 0 || GameTime & 0x8000) {
+			if (PlayerCfg.CloakInvulTimer)
+				gr_printf(FSPACX(1), y, "%s (%lu)", TXT_CLOAKED, (unsigned long)(effect_end / F1_0));
+			else
+				gr_string(FSPACX(1), y, TXT_CLOAKED);
 		}
 	}
 
@@ -1331,14 +1332,14 @@ void hud_show_cloak_invuln(void)
 		else
 			y -= LINE_SPACING*5;
 
-		if (Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime > F1_0*4 ||
-			Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime < 0 ||
-			GameTime & 0x8000)
-		{
-			gr_printf(FSPACX(1), y, "%s", TXT_INVULNERABLE);
+		fix effect_end = Players[Player_num].invulnerable_time + INVULNERABLE_TIME_MAX - GameTime;
+		if (effect_end > F1_0*4 || effect_end < 0 || GameTime & 0x8000) {
+			if (PlayerCfg.CloakInvulTimer)
+				gr_printf(FSPACX(1), y - LINE_SPACING, "%s (%lu)", TXT_INVULNERABLE, (unsigned long)(effect_end / F1_0));
+			else
+				gr_string(FSPACX(1), y - LINE_SPACING, TXT_INVULNERABLE);
 		}
 	}
-
 }
 
 void hud_show_shield(void)

@@ -84,6 +84,7 @@ typedef struct player_config
 	ubyte AutomapObjects;
 	ubyte NoFireAutoselect;
 	int AlphaEffects;
+	int CloakInvulTimer;
 	int DynLightColor;
 	int OldKeyboardRamping;
 	enum key_stick_type KeyStickRearView;

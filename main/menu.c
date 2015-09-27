@@ -1046,7 +1046,7 @@ void reticle_config()
 	PlayerCfg.ReticleSize = m[opt_ret_size].value;
 }
 
-int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_dynlightcolor, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi;
+int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_dynlightcolor, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi, opt_cloakinvultimer;
 
 int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 {
@@ -1082,7 +1082,7 @@ int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 
 void graphics_config()
 {
-	newmenu_item m[15];
+	newmenu_item m[16];
 	int i = 0;
 	int nitems = 0;
 	int opt_fullscr;
@@ -1111,6 +1111,8 @@ void graphics_config()
 	m[opt_gr_texfilt+GameCfg.TexFilt].value=1;
 	opt_fullscr = nitems;
 	nm_set_item_checkbox(&m[nitems], "Fullscreen", gr_check_fullscreen()); nitems++;
+	opt_cloakinvultimer = nitems;
+	nm_set_item_checkbox(&m[nitems], "Cloak/Invulnerability Timers", PlayerCfg.CloakInvulTimer); nitems++;
 
 	newmenu_do1( NULL, "Graphics Options", nitems, m, graphics_config_menuset, NULL, 1 );
 
@@ -1129,6 +1131,7 @@ void graphics_config()
 	GameCfg.Multisample = m[opt_gr_multisample].value;
 	GameCfg.GammaLevel = m[opt_gr_brightness].value;
 	gr_set_attributes();
+	PlayerCfg.CloakInvulTimer = m[opt_cloakinvultimer].value;
 }
 
 #define PATH_HEADER_TYPE NM_TYPE_TEXT

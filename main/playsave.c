@@ -117,6 +117,7 @@ int new_player_config()
 	PlayerCfg.AutomapFreeFlight = 0;
 	PlayerCfg.AutomapObjects = 0;
 	PlayerCfg.NoFireAutoselect = 0;
+	PlayerCfg.CloakInvulTimer = 0;
 	PlayerCfg.AlphaEffects = 0;
 	PlayerCfg.DynLightColor = 0;
 	PlayerCfg.OldKeyboardRamping = 1;
@@ -338,6 +339,8 @@ int read_player_d2x(char *filename)
 					PlayerCfg.SkipLevelMovies = atoi(line);
 				if (!strcmp(word,"SKIPLEVELBRIEFING"))
 					PlayerCfg.SkipLevelBriefing = atoi(line);
+				if (!strcmp(word,"CLOAKINVULTIMER"))
+					PlayerCfg.CloakInvulTimer = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -497,6 +500,7 @@ int write_player_d2x(char *filename)
 		PHYSFSX_printf(fout,"extendedammorack=%i\n", PlayerCfg.ExtendedAmmoRack);
 		PHYSFSX_printf(fout,"skiplevelmovies=%i\n", PlayerCfg.SkipLevelMovies);
 		PHYSFSX_printf(fout,"skiplevelbriefing=%i\n", PlayerCfg.SkipLevelBriefing);
+		PHYSFSX_printf(fout,"cloakinvultimer=%i\n", PlayerCfg.CloakInvulTimer);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[graphics]\n");
 		PHYSFSX_printf(fout,"alphaeffects=%i\n",PlayerCfg.AlphaEffects);
