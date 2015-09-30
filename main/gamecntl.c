@@ -2080,13 +2080,14 @@ int ReadControls(d_event *event)
 		if ( Controls.automap_count > 0 )
 		{
 			Controls.automap_count = 0;
-			if (!((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10)))
+			if (Player_is_dead || (!((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10))))
 			{
 				do_automap(0);
 				return 1;
 			}
 		}
-
+		if (Player_is_dead)
+			return 0;
 		do_weapon_n_item_stuff();
 	}
 
