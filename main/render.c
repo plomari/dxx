@@ -1993,8 +1993,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	if (Render_sky_seg >= 0)
 		render_segment(Render_sky_seg, window_num);
 
-	// Sorting elements for Alpha - 3 passes
-	// First Pass: render opaque level geometry + transculent level geometry with high Alpha-Test func
+	// Two pass rendering. Since sprites and some level geometry can have transparency (blending), we need some fancy sorting.
+	// GL_DEPTH_TEST helps to sort everything in view but we should make sure translucent sprites are rendered after geometry to prevent them to turn walls invisible (if rendered BEFORE geometry but still in FRONT of it).
+	// If walls use blending, they should be rendered along with objects (in same pass) to prevent some ugly clipping.
+
+    // First Pass: render opaque level geometry and level geometry with alpha pixels (high Alpha-Test func)
 	for (nn=N_render_segs;nn--;)
 	{
 		int segnum;
@@ -2023,13 +2026,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 				if (! cc.and) {		//all off screen?
 
-				  if (Viewer->type!=OBJ_ROBOT)
-					Automap_visited[segnum]=1;
-
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 						if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL ||
 						WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
 						{
+							// Note: geometry with alpha blending should render in the second pass instead
 							glAlphaFunc(GL_GEQUAL,0.8);
 							render_side(seg, sn);
 							glAlphaFunc(GL_GEQUAL,0.02);
@@ -2038,55 +2039,12 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 							render_side(seg, sn);
 				}
 			}
-			visited[segnum]=255;
 		}
 	}
 
 	memset(visited, 0, sizeof(visited[0])*(Highest_segment_index+1));
-	
-	// Second Pass: Objects
-	for (nn=N_render_segs;nn--;)
-	{
-		int segnum;
-		int objnp;
 
-		segnum = Render_list[nn];
-
-		if (segnum!=-1 && (_search_mode || visited[segnum]!=255))
-		{
-			//set global render window vars
-
-
-			visited[segnum]=255;
-
-
-				Window_clip_left  = Window_clip_top = 0;
-				Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
-				Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
-
-			// render objects
-				int index;
-				int save_linear_depth = Max_linear_depth;
-
-				Max_linear_depth = Max_linear_depth_objects;
-
-				index = render_seg_to_render_objs[nn];
-
-				for (;index >= 0;index = render_objs[index].next) {
-					int ObjNumber = render_objs[index].objnum;
-
-					do_render_object(ObjNumber, window_num);	// note link to above else
-
-					objnp++;
-				}
-
-				Max_linear_depth = save_linear_depth;
-		}
-	}
-
-	memset(visited, 0, sizeof(visited[0])*(Highest_segment_index+1));
-	
-	// Third Pass - Render Transculent level geometry with normal Alpha-Func
+    // Second pass: Render objects and level geometry with alpha pixels (normal Alpha-Test func) and eclips with blending
 	for (nn=N_render_segs;nn--;)
 	{
 		int segnum;
@@ -2095,7 +2053,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 		if (segnum!=-1 && (_search_mode || visited[segnum]!=255))
 		{
-			//set global render window vars
 
 				Window_clip_left  = render_windows[nn].left;
 				Window_clip_top   = render_windows[nn].top;
@@ -2119,9 +2076,36 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 						if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL ||
 						WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
+						{
 							render_side(seg, sn);
+						}
 				}
+
 			visited[segnum]=255;
+
+			int index = render_seg_to_render_objs[nn];
+
+			if (index < 0)
+				continue;
+
+			//reset for objects
+			Window_clip_left  = Window_clip_top = 0;
+			Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
+			Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
+
+			// render objects
+			int save_linear_depth = Max_linear_depth;
+
+			Max_linear_depth = Max_linear_depth_objects;
+
+			for (;index >= 0;index = render_objs[index].next) {
+				int ObjNumber = render_objs[index].objnum;
+
+				do_render_object(ObjNumber, window_num);	// note link to above else
+			}
+
+			Max_linear_depth = save_linear_depth;
+
 		}
 	}
 
