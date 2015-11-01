@@ -425,7 +425,7 @@ static const kc_item kc_rebirth[] = {
 	{ 15, 93,273, 26,  8, 14, 10, 12,WEAPON_STRING_PLASMA, BT_MOUSE_BUTTON, 0, {&Controls.select_weapon_count} },
 	{ 15,101,157, 26,  9, 15, 11, 13,WEAPON_STRING_FUSION, BT_KEY, 0, {&Controls.select_weapon_count} },
 	{ 15,101,215, 26, 10, 16, 12, 14,WEAPON_STRING_FUSION, BT_JOY_BUTTON, 0, {&Controls.select_weapon_count} },
-	{ 15,101,273, 26, 11, 17, 13, 15,WEAPON_STRING_FUSION, BT_JOY_BUTTON, 0, {&Controls.select_weapon_count} },
+	{ 15,101,273, 26, 11, 17, 13, 15,WEAPON_STRING_FUSION, BT_MOUSE_BUTTON, 0, {&Controls.select_weapon_count} },
 	{ 15,109,157, 26, 12, 18, 14, 16,WEAPON_STRING_CONCUSSION, BT_KEY, 0, {&Controls.select_weapon_count} },
 	{ 15,109,215, 26, 13, 19, 15, 17,WEAPON_STRING_CONCUSSION, BT_JOY_BUTTON, 0, {&Controls.select_weapon_count} },
 	{ 15,109,273, 26, 14, 20, 16, 18,WEAPON_STRING_CONCUSSION, BT_MOUSE_BUTTON, 0, {&Controls.select_weapon_count} },
