@@ -1308,9 +1308,10 @@ static void adjust_ramped_keyboard_field_c(int sign, float *keydown_time, ubyte 
 {
 	if (state)
 	{
+		// values based on observation that the original game uses a keyboard ramp of 8 frames. Full sensitivity should reflect 60FPS behaviour, half sensitivity reflects 30FPS behaviour (give or take a frame).
 		if (*keydown_time < F1_0)
-			*keydown_time += (!*keydown_time)?F1_0*(sensitivity/16)+1:FrameTime/4;
-		*time = *time + sign*speed_factor*FrameTime/speed_divisor*(*keydown_time/F1_0);
+			*keydown_time += ((float)FrameTime*6.66)*((float)(sensitivity+1)/17);
+		*time = *time + sign * speed_factor * FrameTime / speed_divisor * (*keydown_time / F1_0);
 	}
 	else
 		keydown_time = 0;
@@ -1500,8 +1501,8 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	if ( !Controls.slide_on_state )
 	{
 		// From keyboard...
-		adjust_ramped_keyboard_field_div(+1, key_pitch_forward, &Controls.pitch_time, (PlayerCfg.KeyboardSens[1]==16?15.5:PlayerCfg.KeyboardSens[1]), speed_factor, 2);
-		adjust_ramped_keyboard_field_div(-1, key_pitch_backward, &Controls.pitch_time, (PlayerCfg.KeyboardSens[1]==16?15.5:PlayerCfg.KeyboardSens[1]), speed_factor, 2);
+		adjust_ramped_keyboard_field_div(+1, key_pitch_forward, &Controls.pitch_time, PlayerCfg.KeyboardSens[1], speed_factor, 2);
+		adjust_ramped_keyboard_field_div(-1, key_pitch_backward, &Controls.pitch_time, PlayerCfg.KeyboardSens[1], speed_factor, 2);
 		// From joystick...
 		adjust_axis_field(&Controls.pitch_time, Controls.joy_axis, kcm_joystick[13].value, kcm_joystick[14].value, PlayerCfg.JoystickSens[1]);
 		// From mouse...
