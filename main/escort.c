@@ -1594,7 +1594,7 @@ void drop_stolen_items(object *objp)
 
 	for (i=0; i<MAX_STOLEN_ITEMS; i++) {
 		if (Stolen_items[i] != 255)
-			drop_powerup(OBJ_POWERUP, Stolen_items[i], 1, &objp->mtype.phys_info.velocity, &objp->pos, objp->segnum);
+			drop_powerup(OBJ_POWERUP, Stolen_items[i], 1, &objp->mtype.phys_info.velocity, &objp->pos, objp->segnum, true);
 		Stolen_items[i] = 255;
 	}
 

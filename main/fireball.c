@@ -759,7 +759,7 @@ void maybe_replace_powerup_with_energy(object *del_obj)
 	}
 }
 
-int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, int segnum)
+int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, int segnum, bool player)
 {
 	int		objnum=-1;
 	object	*obj;
@@ -889,6 +889,8 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 					Int3();
 					return objnum;
 				}
+				if (player)
+					obj->flags |= OF_PLAYER_DROPPED;
 
 #ifdef NETWORK
 				if (Game_mode & GM_MULTI)
@@ -936,7 +938,7 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 			// At JasenW's request, robots which contain robots
 			// sometimes drop shields.
 			if (d_rand() > 16384)
-				drop_powerup(OBJ_POWERUP, POW_SHIELD_BOOST, 1, init_vel, pos, segnum);
+				drop_powerup(OBJ_POWERUP, POW_SHIELD_BOOST, 1, init_vel, pos, segnum, false);
 
 			break;
 
@@ -982,13 +984,10 @@ int object_create_egg(object *objp)
 		}
 	}
 
-	rval = drop_powerup(objp->contains_type, objp->contains_id, objp->contains_count, &objp->mtype.phys_info.velocity, &objp->pos, objp->segnum);
+	rval = drop_powerup(objp->contains_type, objp->contains_id, objp->contains_count, &objp->mtype.phys_info.velocity, &objp->pos, objp->segnum, objp->type == OBJ_PLAYER);
 
 	if (rval != -1)
 	{
-		if ((objp->type == OBJ_PLAYER) && (objp->id == Player_num))
-			Objects[rval].flags |= OF_PLAYER_DROPPED;
-
 		if (objp->type == OBJ_ROBOT && objp->contains_type==OBJ_POWERUP)
 		{
 			if (objp->contains_id==POW_VULCAN_WEAPON || objp->contains_id==POW_GAUSS_WEAPON)

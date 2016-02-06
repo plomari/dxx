@@ -64,7 +64,7 @@ extern void maybe_drop_net_powerup(int powerup_type);
 extern void maybe_replace_powerup_with_energy(object *del_obj);
 
 extern int get_explosion_vclip(object *obj, int stage);
-extern int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, int segnum);
+extern int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *pos, int segnum, bool player);
 
 // creates afterburner blobs behind the specified object
 void drop_afterburner_blobs(object *obj, int count, fix size_scale, fix lifetime);
