@@ -2185,7 +2185,8 @@ void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector 
 		vms_vector obj2weapon;
 		vm_vec_sub(&obj2weapon, collision_point, &playerobj->pos);
 		fix mag = vm_vec_mag(&obj2weapon); 
-		if(mag < playerobj->size && mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
+
+		if(mag > 0) // FVI code does not necessarily update the collision point for object2object collisions. Do that now.
 		{
 			vm_vec_scale_add(collision_point, &playerobj->pos, &obj2weapon, fixdiv(playerobj->size, mag)); 
 			weapon->pos = *collision_point;
