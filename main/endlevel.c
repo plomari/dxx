@@ -546,7 +546,6 @@ void do_endlevel_frame()
 
 	if (ext_expl_playing) {
 
-		external_explosion.lifeleft -= FrameTime;
 		do_explosion_sequence(&external_explosion);
 
 		if (external_explosion.lifeleft < ext_expl_halflife)
