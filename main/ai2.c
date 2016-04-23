@@ -85,6 +85,23 @@ short	Boss_teleport_segs[MAX_BOSS_TELEPORT_SEGS];
 int	Num_boss_gate_segs;
 short	Boss_gate_segs[MAX_BOSS_TELEPORT_SEGS];
 
+static void frame_animation_angle(fix frametime, fixang deltaang, fixang goalang, fixang *curang)
+{
+	fix delta_to_goal = goalang - *curang;
+	if (delta_to_goal > 32767)
+		delta_to_goal = delta_to_goal - 65536;
+	else if (delta_to_goal < -32767)
+		delta_to_goal = 65536 + delta_to_goal;
+	if (delta_to_goal)
+	{
+		fix scaled_delta_angle = fixmul(deltaang, frametime) * DELTA_ANG_SCALE;
+		if (abs(delta_to_goal) < abs(scaled_delta_angle))
+			*curang = goalang;
+		else
+			*curang += scaled_delta_angle;
+	}
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 //	Given a behavior, set initial mode.
 int ai_behavior_to_mode(int behavior)
@@ -713,53 +730,14 @@ void ai_frame_animation(object *objp)
 	num_joints = Polygon_models[objp->rtype.pobj_info.model_num].n_models;
 
 	for (joint=1; joint<num_joints; joint++) {
-		fix			delta_to_goal;
-		fix			scaled_delta_angle;
-		vms_angvec	*curangp = &objp->rtype.pobj_info.anim_angles[joint];
-		vms_angvec	*goalangp = &Ai_local_info[objnum].goal_angles[joint];
-		vms_angvec	*deltaangp = &Ai_local_info[objnum].delta_angles[joint];
+		vms_angvec	*curang = &objp->rtype.pobj_info.anim_angles[joint];
+		vms_angvec	goalang = Ai_local_info[objnum].goal_angles[joint];
+		vms_angvec	deltaang = Ai_local_info[objnum].delta_angles[joint];
 
-		delta_to_goal = goalangp->p - curangp->p;
-		if (delta_to_goal > 32767)
-			delta_to_goal = delta_to_goal - 65536;
-		else if (delta_to_goal < -32767)
-			delta_to_goal = 65536 + delta_to_goal;
-
-		if (delta_to_goal) {
-			scaled_delta_angle = fixmul(deltaangp->p, FrameTime) * DELTA_ANG_SCALE;
-			curangp->p += scaled_delta_angle;
-			if (abs(delta_to_goal) < abs(scaled_delta_angle))
-				curangp->p = goalangp->p;
-		}
-
-		delta_to_goal = goalangp->b - curangp->b;
-		if (delta_to_goal > 32767)
-			delta_to_goal = delta_to_goal - 65536;
-		else if (delta_to_goal < -32767)
-			delta_to_goal = 65536 + delta_to_goal;
-
-		if (delta_to_goal) {
-			scaled_delta_angle = fixmul(deltaangp->b, FrameTime) * DELTA_ANG_SCALE;
-			curangp->b += scaled_delta_angle;
-			if (abs(delta_to_goal) < abs(scaled_delta_angle))
-				curangp->b = goalangp->b;
-		}
-
-		delta_to_goal = goalangp->h - curangp->h;
-		if (delta_to_goal > 32767)
-			delta_to_goal = delta_to_goal - 65536;
-		else if (delta_to_goal < -32767)
-			delta_to_goal = 65536 + delta_to_goal;
-
-		if (delta_to_goal) {
-			scaled_delta_angle = fixmul(deltaangp->h, FrameTime) * DELTA_ANG_SCALE;
-			curangp->h += scaled_delta_angle;
-			if (abs(delta_to_goal) < abs(scaled_delta_angle))
-				curangp->h = goalangp->h;
-		}
-
+		frame_animation_angle(FrameTime, deltaang.p, goalang.p, &curang->p);
+		frame_animation_angle(FrameTime, deltaang.b, goalang.b, &curang->b);
+		frame_animation_angle(FrameTime, deltaang.h, goalang.h, &curang->h);
 	}
-
 }
 
 // ----------------------------------------------------------------------------------
