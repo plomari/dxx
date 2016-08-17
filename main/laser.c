@@ -55,8 +55,10 @@ int Laser_rapid_fire = 0;
 object *Guided_missile[MAX_PLAYERS]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 int Guided_missile_sig[MAX_PLAYERS]={-1,-1,-1,-1,-1,-1,-1,-1};
 int Network_laser_track = -1;
+#ifdef NEWHOMER
 static ubyte d_homer_tick_step = 0;
 static fix d_homer_tick_count = 0;
+#endif
 
 int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_obj_type1, int track_obj_type2);
 
@@ -1108,6 +1110,7 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 	return best_objnum;
 }
 
+#ifdef NEWHOMER
 // Similar to calc_d_tick but made just for the homers.
 // Causes d_homer_tick_step to be true in intervals dictated by HOMING_TURN_TIME
 // and increments d_homer_tick_count accordingly
@@ -1133,6 +1136,7 @@ void calc_d_homer_tick()
         if(timer > HOMING_TURN_TIME*3)
                 timer = HOMING_TURN_TIME*3;
 }
+#endif
 
 //	------------------------------------------------------------------------------------------------------------
 //	See if legal to keep tracking currently tracked object.  If not, see if another object is trackable.  If not, return -1,
@@ -1448,7 +1452,6 @@ void Laser_do_weapon_sequence(object *obj)
                                                 Players[Player_num].homing_object_dist = dist_to_player;
                                 }
 
-
                                 if (track_goal > -1)
                                 {
                                         vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
@@ -1468,8 +1471,9 @@ void Laser_do_weapon_sequence(object *obj)
                                         if (Weapon_info[obj->id].render_type != WEAPON_RENDER_POLYMODEL)
                                                 vm_vec_add2(&temp_vec, &vector_to_object);
                                         vm_vec_normalize_quick(&temp_vec);
-                                        vm_vec_scale(&temp_vec, speed);
-                                        obj->mtype.phys_info.velocity = temp_vec;
+
+										obj->mtype.phys_info.velocity = temp_vec;
+										vm_vec_scale(&obj->mtype.phys_info.velocity, speed);
 
                                         //	Subtract off life proportional to amount turned.
                                         //	For hardest turn, it will lose 2 seconds per second.
@@ -1487,9 +1491,9 @@ void Laser_do_weapon_sequence(object *obj)
                                                 homing_missile_turn_towards_velocity(obj, &temp_vec);		//	temp_vec is normalized velocity.
                                 }
                         }
-#else // old FPS-dependent homers
+#else // old FPS-dependent homers - NOTE: I know this is very redundant but I want to keep the historical code 100% preserved to compare against potential changes in the above.
 			//	Make sure the object we are tracking is still trackable.
-			track_goal = track_track_goal(track_goal, obj, &dot, d_tick_count);
+			int track_goal = track_track_goal(obj->ctype.laser_info.track_goal, obj, &dot, d_tick_count);
 
 			if (track_goal == Players[Player_num].objnum) {
 				fix	dist_to_player;
@@ -1499,7 +1503,6 @@ void Laser_do_weapon_sequence(object *obj)
 					Players[Player_num].homing_object_dist = dist_to_player;
 
 			}
-
 
 			if (track_goal > -1)
                         {
@@ -1514,15 +1517,14 @@ void Laser_do_weapon_sequence(object *obj)
 						speed = max_speed;
 				}
 
-				dot = vm_vec_dot(&temp_vec, &vector_to_object);
-
 				vm_vec_add2(&temp_vec, &vector_to_object);
 				//	The boss' smart children track better...
 				if (Weapon_info[obj->id].render_type != WEAPON_RENDER_POLYMODEL)
 					vm_vec_add2(&temp_vec, &vector_to_object);
 				vm_vec_normalize_quick(&temp_vec);
-				vm_vec_scale(&temp_vec, speed);
+
 				obj->mtype.phys_info.velocity = temp_vec;
+				vm_vec_scale(&obj->mtype.phys_info.velocity, speed);
 
 				//	Subtract off life proportional to amount turned.
 				//	For hardest turn, it will lose 2 seconds per second.

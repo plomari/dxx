@@ -319,7 +319,9 @@ void calc_frame_time()
 		GameTime = FrameTime;	//wrap when goes negative, or ~9hrs
 
 	calc_d_tick();
+#ifdef NEWHOMER
         calc_d_homer_tick();
+#endif
 }
 
 //initialize flying
