@@ -94,8 +94,7 @@ extern void calc_d_homer_tick(void);
 #define NEWHOMER // activates the 30FPS-base capped homing projective code. Remove to restore original behavior.
 
 // Constants governing homing missile behavior.
-#define HOMING_MAX_TRACKABLE_DOT        (7*F1_0/8)
-#define HOMING_MIN_TRACKABLE_DOT        (3*(F1_0 - HOMING_MAX_TRACKABLE_DOT)/4 + HOMING_MAX_TRACKABLE_DOT)
+#define HOMING_MIN_TRACKABLE_DOT        (7*F1_0/8)
 #define HOMING_MAX_TRACKABLE_DIST       (F1_0*250)
 #define HOMING_FLY_STRAIGHT_TIME        (F1_0/8)
 #ifdef NEWHOMER

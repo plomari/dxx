@@ -860,6 +860,22 @@ int object_to_object_visibility(object *obj1, object *obj2, int trans_type)
 	return 0;
 }
 
+static fix get_scaled_min_trackable_dot()
+{
+	fix curFT = FrameTime;
+#ifdef NEWHOMER
+	curFT = HOMING_TURN_TIME;
+#endif
+	if (curFT <= F1_0/64)
+		return (HOMING_MIN_TRACKABLE_DOT);
+	else if (curFT < F1_0/32)
+		return (HOMING_MIN_TRACKABLE_DOT + F1_0/64 - 2*curFT);
+	else if (curFT < F1_0/4)
+		return (HOMING_MIN_TRACKABLE_DOT + F1_0/64 - F1_0/16 - curFT);
+	else
+		return (HOMING_MIN_TRACKABLE_DOT + F1_0/64 - F1_0/8);
+}
+
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Return true if weapon *tracker is able to track object Objects[track_goal], else return false.
@@ -895,12 +911,12 @@ int object_is_trackable(int track_goal, object *tracker, fix *dot)
 	vm_vec_normalize_quick(&vector_to_goal);
 	*dot = vm_vec_dot(&vector_to_goal, &tracker->orient.fvec);
 
-	if ((*dot < HOMING_MIN_TRACKABLE_DOT) && (*dot > F1_0*9/10)) {
+	if ((*dot < get_scaled_min_trackable_dot()) && (*dot > F1_0*9/10)) {
 		vm_vec_normalize(&vector_to_goal);
 		*dot = vm_vec_dot(&vector_to_goal, &tracker->orient.fvec);
 	}
 
-	if (*dot >= HOMING_MIN_TRACKABLE_DOT) {
+	if (*dot >= get_scaled_min_trackable_dot()) {
 		int	rval;
 		//	dot is in legal range, now see if object is visible
 		rval =  object_to_object_visibility(tracker, objp, FQ_TRANSWALL);
@@ -951,7 +967,7 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 	if (Game_mode & GM_MULTI)
 		return call_find_homing_object_complete(tracker, curpos);
 	else {
-		int cur_min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
+		int cur_min_trackable_dot = HOMING_MIN_TRACKABLE_DOT;
 
 		if ((tracker->type == OBJ_WEAPON) && (tracker->id == OMEGA_ID))
 			cur_min_trackable_dot = OMEGA_MIN_TRACKABLE_DOT;
@@ -1041,7 +1057,7 @@ int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_o
 	Assert((Weapon_info[tracker->id].homing_flag) || (tracker->id == OMEGA_ID));
 
 	max_trackable_dist = HOMING_MAX_TRACKABLE_DIST;
-	min_trackable_dot = HOMING_MAX_TRACKABLE_DOT;
+	min_trackable_dot = HOMING_MIN_TRACKABLE_DOT;
 
 	if (tracker->id == OMEGA_ID) {
 		max_trackable_dist = OMEGA_MAX_TRACKABLE_DIST;
