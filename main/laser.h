@@ -98,6 +98,8 @@ extern void calc_d_homer_tick(void);
 #define HOMING_FLY_STRAIGHT_TIME        (F1_0/8)
 #define HOMING_TURN_TIME                (F1_0/30)
 
+#define NEWHOMER
+
 struct object;
 
 extern fix Min_trackable_dot;   //  MIN_TRACKABLE_DOT inversely scaled by FrameTime

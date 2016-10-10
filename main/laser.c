@@ -50,8 +50,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "multi.h"
 
-#define NEWHOMER
-
 int Laser_rapid_fire = 0;
 
 object *Guided_missile[MAX_PLAYERS]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
