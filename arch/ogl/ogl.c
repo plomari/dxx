@@ -347,7 +347,11 @@ void ogl_cache_level_textures(void)
 					ogl_cache_weapon_textures(Robot_info[Objects[i].id].weapon_type);
 				}
 				if (Objects[i].rtype.pobj_info.tmap_override != -1)
-					ogl_loadbmtexture(&GameBitmaps[Textures[Objects[i].rtype.pobj_info.tmap_override].index]);
+				{
+					bitmap_index t = Textures[Objects[i].rtype.pobj_info.tmap_override];
+					PIGGY_PAGE_IN(t);
+					ogl_loadbmtexture(&GameBitmaps[t.index]);
+				}
 				else
 					ogl_cache_polymodel_textures(Objects[i].rtype.pobj_info.model_num);
 			}
@@ -1303,6 +1307,9 @@ unsigned char decodebuf[1024*1024];
 void ogl_loadbmtexture_f(grs_bitmap *bm, int texfilt)
 {
 	unsigned char *buf;
+
+	Assert(!(bm->bm_flags & BM_FLAG_PAGED_OUT));
+	Assert(bm->bm_data);
 
 	while (bm->bm_parent)
 		bm=bm->bm_parent;
