@@ -468,7 +468,7 @@ fix	Omega_charge = MAX_OMEGA_CHARGE;
 
 #define	OMEGA_CHARGE_SCALE	4
 
-int	Last_omega_fire_time=0;
+static fix Omega_recharge_delay;
 
 // ---------------------------------------------------------------------------------
 //	Call this every frame to recharge the Omega Cannon.
@@ -486,10 +486,15 @@ void omega_charge_frame(void)
 		return;
 
 	//	Don't charge while firing. Wait 1/3 second after firing before recharging
-	if (Last_omega_fire_time > GameTime)
-		Last_omega_fire_time = GameTime;
-	if (Last_omega_fire_time + F1_0/3 > GameTime)
-		return;
+	if (Omega_recharge_delay)
+	{
+		if (Omega_recharge_delay > FrameTime)
+		{
+			Omega_recharge_delay -= FrameTime;
+			return;
+		}
+		Omega_recharge_delay = 0;
+	}
 
 	if (Players[Player_num].energy) {
 		fix	energy_used;
@@ -535,7 +540,7 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 		if (Omega_charge < 0)
 			Omega_charge = 0;
 
-		Last_omega_fire_time = GameTime;
+		Omega_recharge_delay = F1_0 / 3;
 	}
 
 	weapon_objp->ctype.laser_info.parent_type = OBJ_PLAYER;
