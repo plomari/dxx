@@ -523,7 +523,6 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 	int			lock_objnum, firing_segnum;
 	vms_vector	goal_pos;
 	int			pnum = parent_objp->id;
-	fix fire_frame_overhead = 0;
 
 	if (pnum == Player_num) {
 		//	If charge >= min, or (some charge and zero energy), allow to fire.
@@ -536,10 +535,6 @@ void do_omega_stuff(object *parent_objp, vms_vector *firing_pos, object *weapon_
 		if (Omega_charge < 0)
 			Omega_charge = 0;
 
-		if (GameTime - Last_omega_fire_time + OMEGA_BASE_TIME <= FrameTime) // if firing is prolonged by FrameTime overhead, let's try to fix that. Since Next_laser_firing_time is probably changed already (in do_laser_firing_player), we need to calculate the overhead slightly different.
-			fire_frame_overhead = GameTime - Last_omega_fire_time + OMEGA_BASE_TIME;
-
-		Next_laser_fire_time = GameTime+OMEGA_BASE_TIME-fire_frame_overhead;
 		Last_omega_fire_time = GameTime;
 	}
 
@@ -1588,10 +1583,15 @@ int do_laser_firing_player(void)
 
                         Last_laser_fired_time = GameTime;
 
-			if (Laser_rapid_fire!=0xBADA55)
-				Next_laser_fire_time = GameTime + Weapon_info[weapon_index].fire_wait - fire_frame_overhead;
-			else
-				Next_laser_fire_time = GameTime + (F1_0/25) - fire_frame_overhead;
+			Next_laser_fire_time = GameTime - fire_frame_overhead + (Laser_rapid_fire==0xBADA55
+				? (F1_0 / 25)
+				: (
+					weapon_index == OMEGA_ID
+					? OMEGA_BASE_TIME
+					:
+					Weapon_info[weapon_index].fire_wait
+				)
+			);
 
 			laser_level = Players[Player_num].laser_level;
 
