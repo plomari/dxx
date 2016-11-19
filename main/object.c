@@ -511,6 +511,8 @@ void draw_polygon_object(object *obj)
 				alt_textures = multi_player_textures[obj->rtype.pobj_info.alt_textures-1];
 #endif
 
+			if (obj->type == OBJ_ROBOT)
+			{
 			//	Snipers get bright when they fire.
 			if (Ai_local_info[obj-Objects].next_fire < F1_0/8) {
 				if (obj->ctype.ai_info.behavior == AIB_SNIPE)
@@ -519,6 +521,7 @@ void draw_polygon_object(object *obj)
 					light.g = 2*light.g + F1_0;
 					light.b = 2*light.b + F1_0;
 				}
+			}
 			}
 
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
