@@ -1511,33 +1511,20 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 	if (weapon->id == EARTHSHAKER_ID)
 		smega_rock_stuff();
 
-#if 1
 	/*
 	 * Check if persistent weapon already hit this object. If yes, abort.
 	 * If no, add this object to hitobj_list and do it's damage.
 	 */
 	if (weapon->mtype.phys_info.flags & PF_PERSISTENT)
 	{
-		if (!hitobj_list[weapon-Objects][robot-Objects])
+		if (hitobj_list[weapon-Objects][robot-Objects])
+			return;
+		else
 		{
 			hitobj_list[weapon-Objects][robot-Objects] = 1;
 			weapon->ctype.laser_info.last_hitobj = robot-Objects;
 		}
-		else
-		{
-			return;
-		}
 	}
-#else
-	//	If a persistent weapon hit robot most recently, quick abort, else we cream the same robot many times,
-	//	depending on frame rate.
-	if (weapon->mtype.phys_info.flags & PF_PERSISTENT) {
-		if (weapon->ctype.laser_info.last_hitobj == robot-Objects)
-			return;
-		else
-			weapon->ctype.laser_info.last_hitobj = robot-Objects;
-	}
-#endif
 
 	if (weapon->ctype.laser_info.parent_signature == robot->signature)
 		return;
