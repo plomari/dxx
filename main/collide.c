@@ -1376,22 +1376,27 @@ extern int boss_spew_robot(object *objp, vms_vector *pos);
 //--ubyte	Boss_invulnerable_spot[NUM_D2_BOSSES] = 	{0,0,0,0,1,1};		//	Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 
 //#define	BOSS_INVULNERABLE_DOT	0		//	If a boss is invulnerable over most of his body, fvec(dot)vec_to_collision must be less than this for damage to occur.
+
+enum boss_weapon_collision_result
+{
+	boss_weapon_collision_result_normal,
+	boss_weapon_collision_result_invulnerable,
+	boss_weapon_collision_result_reflect,	// implies invulnerable
+};
+
 static int Boss_invulnerable_dot(void)
 {
 	return F1_0/4 - i2f(Difficulty_level)/8;
 }
 
-int	Buddy_gave_hint_count = 5;
-fix	Last_time_buddy_gave_hint = 0;
+static int	Buddy_gave_hint_count = 5;
+static fix	Last_time_buddy_gave_hint;
 
 //	------------------------------------------------------------------------------------------------------
 //	Return true if damage done to boss, else return false.
-int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *collision_point)
+static enum boss_weapon_collision_result do_boss_weapon_collision(object *robot, object *weapon, vms_vector *collision_point)
 {
 	int	d2_boss_index;
-	int	damage_flag;
-
-	damage_flag = 1;
 
 	d2_boss_index = Robot_info[robot->id].boss_flag - BOSS_D2;
 
@@ -1417,12 +1422,10 @@ int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *collisio
 		vm_vec_normalize_quick(&tvec1);	//	Note, if BOSS_INVULNERABLE_DOT is close to F1_0 (in magnitude), then should probably use non-quick version.
 		dot = vm_vec_dot(&tvec1, &robot->orient.fvec);
 		if (dot > Boss_invulnerable_dot()) {
-			int	new_obj;
 			int	segnum;
 
 			segnum = find_point_seg(collision_point, robot->segnum);
 			digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, collision_point, 0, F1_0);
-			damage_flag = 0;
 
 			if (Last_time_buddy_gave_hint == 0)
 				Last_time_buddy_gave_hint = d_rand()*32 + F1_0*16;
@@ -1446,24 +1449,10 @@ int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *collisio
 			}
 
 			//	Cause weapon to bounce.
-			//	Make a copy of this weapon, because the physics wants to destroy it.
 			if (!Weapon_info[weapon->id].matter) {
-				new_obj = obj_create(weapon->type, weapon->id, weapon->segnum, &weapon->pos,
-					&weapon->orient, weapon->size, weapon->control_type, weapon->movement_type, weapon->render_type);
-
-				if (new_obj != -1) {
 					vms_vector	vec_to_point;
 					vms_vector	weap_vec;
 					fix			speed;
-
-					if (weapon->render_type == RT_POLYOBJ) {
-						Objects[new_obj].rtype.pobj_info.model_num = Weapon_info[Objects[new_obj].id].model_num;
-						Objects[new_obj].size = fixdiv(Polygon_models[Objects[new_obj].rtype.pobj_info.model_num].rad,Weapon_info[Objects[new_obj].id].po_len_to_width_ratio);
-					}
-
-					Objects[new_obj].mtype.phys_info.mass = Weapon_info[weapon->type].mass;
-					Objects[new_obj].mtype.phys_info.drag = Weapon_info[weapon->type].drag;
-					vm_vec_zero(&Objects[new_obj].mtype.phys_info.thrust);
 
 					vm_vec_sub(&vec_to_point, collision_point, &robot->pos);
 					vm_vec_normalize_quick(&vec_to_point);
@@ -1471,19 +1460,19 @@ int do_boss_weapon_collision(object *robot, object *weapon, vms_vector *collisio
 					speed = vm_vec_normalize_quick(&weap_vec);
 					vm_vec_scale_add2(&vec_to_point, &weap_vec, -F1_0*2);
 					vm_vec_scale(&vec_to_point, speed/4);
-					Objects[new_obj].mtype.phys_info.velocity = vec_to_point;
-				}
+					weapon->mtype.phys_info.velocity = vec_to_point;
+				return boss_weapon_collision_result_reflect;
 			}
+			return boss_weapon_collision_result_invulnerable;
 		}
 	} else if ((Weapon_info[weapon->id].matter && Boss_invulnerable_matter[d2_boss_index]) || (!Weapon_info[weapon->id].matter && Boss_invulnerable_energy[d2_boss_index])) {
 		int	segnum;
 
 		segnum = find_point_seg(collision_point, robot->segnum);
 		digi_link_sound_to_pos( SOUND_WEAPON_HIT_DOOR, segnum, 0, collision_point, 0, F1_0);
-		damage_flag = 0;
+		return boss_weapon_collision_result_invulnerable;
 	}
-
-	return damage_flag;
+	return boss_weapon_collision_result_normal;
 }
 
 extern int Robots_kill_robots_cheat;
@@ -1491,20 +1480,17 @@ extern int Robots_kill_robots_cheat;
 //	------------------------------------------------------------------------------------------------------
 void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *collision_point )
 {
-	int	damage_flag=1;
-	int	boss_invul_flag=0;
-
 	if (weapon->id == OMEGA_ID)
 		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return;
 
 	if (Robot_info[robot->id].boss_flag) {
 		Boss_hit_time = GameTime;
-		if (Robot_info[robot->id].boss_flag >= BOSS_D2) {
-			damage_flag = do_boss_weapon_collision(robot, weapon, collision_point);
-			boss_invul_flag = !damage_flag;
-		}
 	}
+
+	enum boss_weapon_collision_result damage_flag = (Robot_info[robot->id].boss_flag >= BOSS_D2)
+		? do_boss_weapon_collision(robot, weapon, collision_point)
+		: boss_weapon_collision_result_normal;
 
 	//	Put in at request of Jasen (and Adam) because the Buddy-Bot gets in their way.
 	//	MK has so much fun whacking his butt around the mine he never cared...
@@ -1562,7 +1548,7 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 			vm_vec_scale_add(collision_point, &robot->pos, &obj2weapon, fixdiv(robot->size, mag)); 
 			weapon->pos = *collision_point;
 		}
-		if (boss_invul_flag) {			//don't make badass sound
+		if (damage_flag != boss_weapon_collision_result_normal) {			//don't make badass sound
 			weapon_info *wi = &Weapon_info[weapon->id];
 
 			//this code copied from explode_badass_weapon()
@@ -1599,16 +1585,14 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 		if (expl_obj)
 			obj_attach(robot,expl_obj);
 
-		if ( damage_flag && (Robot_info[robot->id].exp1_sound_num > -1 ))
+		if (damage_flag == boss_weapon_collision_result_normal &&
+			Robot_info[robot->id].exp1_sound_num > -1)
 			digi_link_sound_to_pos( Robot_info[robot->id].exp1_sound_num, robot->segnum, 0, collision_point, 0, F1_0 );
 
 		if (!(weapon->flags & OF_HARMLESS)) {
 			fix	damage = weapon->shields;
 
-			if (damage_flag)
 				damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
-			else
-				damage = 0;
 
 			//	Cut Gauss damage on bosses because it just breaks the game.  Bosses are so easy to
 			//	hit, and missing a robot is what prevents the Gauss from being game-breaking.
@@ -1641,7 +1625,8 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 
 	}
 
-	maybe_kill_weapon(weapon,robot);
+	if (damage_flag != boss_weapon_collision_result_reflect)
+		maybe_kill_weapon(weapon,robot);
 
 	return;
 }
