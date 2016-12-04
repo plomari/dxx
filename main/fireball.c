@@ -840,6 +840,9 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 				obj->rtype.vclip_info.frametime = Vclip[obj->rtype.vclip_info.vclip_num].frame_time;
 				obj->rtype.vclip_info.framenum = 0;
 
+				if (player)
+					obj->flags |= OF_PLAYER_DROPPED;
+
 				switch (obj->id) {
 					case POW_MISSILE_1:
 					case POW_MISSILE_4:
