@@ -94,7 +94,8 @@ static void frame_animation_angle(fix frametime, fixang deltaang, fixang goalang
 		delta_to_goal = 65536 + delta_to_goal;
 	if (delta_to_goal)
 	{
-		fix scaled_delta_angle = fixmul(deltaang, frametime) * DELTA_ANG_SCALE;
+		// Due to deltaang.*a being usually small values and frametime getting smaller with higher FPS, the usual use of fixmul will have scaled_delta_angle result in 0 way too often and long, making the robot animation run circles around itself. So multiply deltaang by DELTA_ANG_SCALE when passed to fixmul.
+		fix scaled_delta_angle = fixmul(deltaang * DELTA_ANG_SCALE, frametime);
 		if (abs(delta_to_goal) < abs(scaled_delta_angle))
 			*curang = goalang;
 		else
