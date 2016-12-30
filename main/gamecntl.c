@@ -1224,6 +1224,21 @@ int HandleTestKey(int key)
 				Game_suspended |= SUSP_ROBOTS;		//robots don't move
 			break;
 
+		case KEY_DEBUGGED+KEY_M:
+		{
+			static int i = 0;
+			segment *segp = &Segments[ConsoleObject->segnum];
+			vms_vector pos;
+			compute_segment_center(&pos, segp);
+			object *new_obj = create_morph_robot(segp, &pos, i);
+			if (new_obj)
+				morph_start( new_obj );
+			i++;
+			if (i >= N_robot_types)
+				i = 0;
+			break;
+		}
+
 		case KEY_DEBUGGED+KEY_R:
 			Robot_firing_enabled = !Robot_firing_enabled;
 			break;
