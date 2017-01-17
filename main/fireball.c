@@ -909,6 +909,7 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 				//@@if (Robot_info[obj->id].flags & RIF_BIG_RADIUS)
 				//@@	obj->size = (obj->size*3)/2;
 
+				init_ai_object(objnum, AIB_NORMAL, -1);
 				//Set polygon-object-specific data
 
 				obj->rtype.pobj_info.model_num = Robot_info[obj->id].model_num;
@@ -925,7 +926,6 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 
 				obj->shields = Robot_info[obj->id].strength;
 
-				obj->ctype.ai_info.behavior = AIB_NORMAL;
 				Ai_local_info[obj-Objects].player_awareness_type = PA_WEAPON_ROBOT_COLLISION;
 				Ai_local_info[obj-Objects].player_awareness_time = F1_0*3;
 				obj->ctype.ai_info.CURRENT_STATE = AIS_LOCK;
