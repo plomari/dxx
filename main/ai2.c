@@ -185,12 +185,10 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 	ailp->next_misc_sound_time = GameTime;
 	ailp->time_player_sound_attacked = GameTime;
 
-	if ((behavior == AIB_SNIPE) || (behavior == AIB_STATION) || (behavior == AIB_RUN_FROM) || (behavior == AIB_FOLLOW)) {
-		aip->hide_segment = hide_segment;
-		ailp->goal_segment = hide_segment;
-		aip->hide_index = -1;			// This means the path has not yet been created.
-		aip->cur_path_index = 0;
-	}
+	aip->hide_segment = hide_segment;
+	ailp->goal_segment = hide_segment;
+	aip->hide_index = -1;			// This means the path has not yet been created.
+	aip->cur_path_index = 0;
 
 	aip->SKIP_AI_COUNT = 0;
 
