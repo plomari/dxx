@@ -898,6 +898,12 @@ int state_restore_all_sub(char *filename, int secret_restore)
 				Players[Player_num].hours_total = dummy_player.hours_total;
 				do_cloak_invul_secret_stuff(old_gametime);
 			} else {
+				// Keep keys even if they died on secret level (otherwise game becomes impossible)
+				// Example: Cameron 'Stryker' Fultz's Area 51
+				dummy_player.flags |= (Players[Player_num].flags &
+										  (PLAYER_FLAGS_BLUE_KEY |
+										   PLAYER_FLAGS_RED_KEY |
+										   PLAYER_FLAGS_GOLD_KEY));
 				Players[Player_num] = dummy_player;
 			}
 		} else {
