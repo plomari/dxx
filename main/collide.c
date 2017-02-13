@@ -368,7 +368,8 @@ void collide_player_and_wall( object * playerobj, fix hitspeed, short hitseg, sh
 	return;
 }
 
-fix	Last_volatile_scrape_sound_time = 0;
+static fix64	Last_volatile_scrape_time = 0;
+static fix64	Last_volatile_scrape_sound_time = 0;
 
 void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
 void collide_debris_and_wall( object * debris, fix hitspeed, short hitseg, short hitwall, vms_vector * hitpt);
@@ -392,7 +393,7 @@ int check_volatile_wall(object *obj,int segnum,int sidenum,vms_vector *hitpt)
 		if (obj->id == Player_num) {
 
 			if (d > 0) {
-				fix damage = fixmul(d,FrameTime);
+				fix damage = fixmul(d,((FrameTime>DESIGNATED_GAME_FRAMETIME)?FrameTime:DESIGNATED_GAME_FRAMETIME));
 
 				if (Difficulty_level == 0)
 					damage /= 2;
@@ -422,6 +423,10 @@ void scrape_player_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 
 	if (obj->type != OBJ_PLAYER || obj->id != Player_num)
 		return;
+
+	if (!((GameTime > Last_volatile_scrape_time + DESIGNATED_GAME_FRAMETIME) || (GameTime < Last_volatile_scrape_time)))
+		return false;
+	Last_volatile_scrape_time = GameTime;
 
 	if ((type=check_volatile_wall(obj,hitseg,hitside,hitpt))!=0) {
 		vms_vector	hit_dir, rand_vec;
