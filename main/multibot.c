@@ -1009,7 +1009,7 @@ multi_do_boss_actions(char *buf)
 
 				digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, teleport_segnum, 0, &boss_obj->pos, 0 , F1_0);
 				digi_kill_sound_linked_to_object( boss_obj-Objects);
-				digi_link_sound_to_object2( SOUND_BOSS_SHARE_SEE, boss_obj-Objects, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
+				boss_link_see_sound(boss_obj);
 				Ai_local_info[boss_obj-Objects].next_fire = 0;
 
 				if (boss_obj->ctype.ai_info.REMOTE_OWNER == Player_num)

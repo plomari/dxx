@@ -1508,5 +1508,17 @@ int ai_restore_state(PHYSFS_file *fp, int version)
 			PHYSFS_read(fp, Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs);
 	}
 
+	// If boss teleported, set the looping 'see' sound
+	if (Last_teleport_time != 0 && Last_teleport_time != Boss_cloak_start_time) {
+		for (i=0; i<=Highest_object_index; i++) {
+			object *objp = &Objects[i];
+			if (objp->type == OBJ_ROBOT) {
+				int boss_id = Robot_info[objp->id].boss_flag;
+				if (boss_id >= BOSS_D2 && Boss_teleports[boss_id - BOSS_D2])
+					boss_link_see_sound(objp);
+			}
+		}
+	}
+
 	return 1;
 }

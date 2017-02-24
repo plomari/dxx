@@ -1954,12 +1954,12 @@ void teleport_boss(object *objp)
 
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, rand_segnum, 0, &objp->pos, 0 , F1_0);
 	digi_kill_sound_linked_to_object( objp-Objects);
-	digi_link_sound_to_object2( Robot_info[objp->id].see_sound, objp-Objects, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
 
 	//	After a teleport, boss can fire right away.
 	Ai_local_info[objp-Objects].next_fire = 0;
 	Ai_local_info[objp-Objects].next_fire2 = 0;
 
+	boss_link_see_sound(objp);
 }
 
 //	----------------------------------------------------------------------

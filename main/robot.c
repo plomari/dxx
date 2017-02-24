@@ -329,3 +329,8 @@ int jointpos_read_n(jointpos *jp, int n, CFILE *fp)
 	}
 	return i;
 }
+
+void boss_link_see_sound(object *objp)
+{
+	digi_link_sound_to_object2( Robot_info[objp->id].see_sound, objp-Objects, 1, F1_0, F1_0*512 );	//	F1_0*512 means play twice as loud
+}
