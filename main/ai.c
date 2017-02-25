@@ -95,7 +95,7 @@ int	Spew_bots[NUM_D2_BOSSES][MAX_SPEW_BOT] = {
 int	Max_spew_bots[NUM_D2_BOSSES] = {2, 1, 2, 3, 3, 3,  3, 3};
 
 extern void init_buddy_for_level(void);
-void init_boss_segments(short segptr[], int *num_segs, int size_check, int one_wall_hack);
+static void init_boss_segments(int boss_objnum, short segptr[], int *num_segs, int size_check, int one_wall_hack);
 
 enum {
 	Flinch_scale = 4,
@@ -262,6 +262,19 @@ void ai_init_boss_for_ship(void)
 
 }
 
+void boss_init_all_segments(int boss_objnum)
+{
+	if (Num_boss_teleport_segs)
+		return;	// already have boss segs
+
+	init_boss_segments(boss_objnum, Boss_gate_segs, &Num_boss_gate_segs, 0, 0);
+	
+	init_boss_segments(boss_objnum, Boss_teleport_segs, &Num_boss_teleport_segs, 1, 0);
+
+	if (Num_boss_teleport_segs < 2)
+		init_boss_segments(boss_objnum, Boss_teleport_segs, &Num_boss_teleport_segs, 1, 1);
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 //	initial_mode == -1 means leave mode unchanged.
 void init_ai_object(int objnum, int behavior, int hide_segment)
@@ -336,12 +349,18 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 	aip->dying_sound_playing = 0;
 	aip->dying_start_time = 0;
 	aip->danger_laser_num = -1;
+
+	if (robptr->boss_flag)
+		boss_init_all_segments(objnum);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 void init_ai_objects(void)
 {
 	int	i;
+
+	Num_boss_gate_segs = 0;
+	Num_boss_teleport_segs = 0;
 
 	Point_segs_free_ptr = Point_segs;
 
@@ -351,12 +370,6 @@ void init_ai_objects(void)
 		if (objp->type == OBJ_ROBOT && objp->control_type == CT_AI)
 			init_ai_object(i, objp->ctype.ai_info.behavior, objp->ctype.ai_info.hide_segment);
 	}
-
-	init_boss_segments(Boss_gate_segs, &Num_boss_gate_segs, 0, 0);
-
-	init_boss_segments(Boss_teleport_segs, &Num_boss_teleport_segs, 1, 0);
-	if (Num_boss_teleport_segs == 1)
-		init_boss_segments(Boss_teleport_segs, &Num_boss_teleport_segs, 1, 1);
 
 	Boss_dying_sound_playing = 0;
 	Boss_dying = 0;
@@ -1782,25 +1795,21 @@ void create_buddy_bot(void)
 //	Boss is allowed to teleport to segments he fits in (calls object_intersects_wall) and
 //	he can reach from his initial position (calls find_connected_distance).
 //	If size_check is set, then only add segment if boss can fit in it, else any segment is legal.
-void init_boss_segments(short segptr[], int *num_segs, int size_check, int one_wall_hack)
+static void init_boss_segments(int boss_objnum, short segptr[], int *num_segs, int size_check, int one_wall_hack)
 {
-	int			boss_objnum=-1;
-	int			i;
+	object		*boss_objp = &Objects[boss_objnum];
 
 	*num_segs = 0;
 #ifdef EDITOR
 	N_selected_segs = 0;
 #endif
 
-	//	See if there is a boss.  If not, quick out.
-	for (i=0; i<=Highest_object_index; i++)
-		if ((Objects[i].type == OBJ_ROBOT) && (Robot_info[Objects[i].id].boss_flag))
-			boss_objnum = i; // if != 1 then there is more than one boss here.
+	Assert(boss_objp->type == OBJ_ROBOT && Robot_info[boss_objp->id].boss_flag);
 
-	if (boss_objnum != -1) {
+	{
 		int			original_boss_seg;
 		vms_vector	original_boss_pos;
-		object		*boss_objp = &Objects[boss_objnum];
+
 		int			head, tail;
 		int			seg_queue[QUEUE_SIZE];
 		//ALREADY IN RENDER.H sbyte   visited[MAX_SEGMENTS];
@@ -2556,6 +2565,38 @@ _exit_cheat:
 		vm_vec_zero(&gun_point);
 	}
 
+	switch (Robot_info[obj->id].boss_flag) {
+	case 0:
+		break;
+
+	case 1:
+	case 2:
+		// FIXME!!!!
+		break;
+
+	default:
+		{
+			int	pv;
+
+			if (aip->GOAL_STATE == AIS_FLIN)
+				aip->GOAL_STATE = AIS_FIRE;
+			if (aip->CURRENT_STATE == AIS_FLIN)
+				aip->CURRENT_STATE = AIS_FIRE;
+
+			compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
+
+			pv = player_visibility;
+
+			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
+			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
+				pv = 0;
+			}
+
+			do_boss_stuff(obj, pv);
+		}
+		break;
+	}
+
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - 
 	// Occasionally make non-still robots make a path to the player.  Based on agitation and distance from player.
 	if ((aip->behavior != AIB_SNIPE) && (aip->behavior != AIB_RUN_FROM) && (aip->behavior != AIB_STILL) && !(Game_mode & GM_MULTI) && (robptr->companion != 1) && (robptr->thief != 1))
@@ -2724,38 +2765,6 @@ _exit_cheat:
 		// we must change its state, else it will never update.
 		aip->CURRENT_STATE = aip->GOAL_STATE;
 		object_animates = 0;        // If we're not doing the animation, then should pretend it doesn't animate.
-	}
-
-	switch (Robot_info[obj->id].boss_flag) {
-	case 0:
-		break;
-
-	case 1:
-	case 2:
-		// FIXME!!!!
-		break;
-
-	default:
-		{
-			int	pv;
-
-			if (aip->GOAL_STATE == AIS_FLIN)
-				aip->GOAL_STATE = AIS_FIRE;
-			if (aip->CURRENT_STATE == AIS_FLIN)
-				aip->CURRENT_STATE = AIS_FIRE;
-
-			compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
-
-			pv = player_visibility;
-
-			// If player cloaked, visibility is screwed up and superboss will gate in robots when not supposed to.
-			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-				pv = 0;
-			}
-
-			do_boss_stuff(obj, pv);
-		}
-		break;
 	}
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
@@ -3675,13 +3684,17 @@ int ai_restore_state(PHYSFS_file *fp, int version)
 	}
 
 	// If boss teleported, set the looping 'see' sound
-	if (Last_teleport_time != 0 && Last_teleport_time != Boss_cloak_start_time) {
+	// Also make sure any bosses that were generated/released during the game have teleport segs
+	{
 		for (i=0; i<=Highest_object_index; i++) {
 			object *objp = &Objects[i];
 			if (objp->type == OBJ_ROBOT) {
 				int boss_id = Robot_info[objp->id].boss_flag;
-				if (boss_id >= BOSS_D2 && Boss_teleports[boss_id - BOSS_D2])
-					boss_link_see_sound(objp);
+				if (boss_id >= BOSS_D2 && Boss_teleports[boss_id - BOSS_D2]) {
+					if (Last_teleport_time != 0 && Last_teleport_time != Boss_cloak_start_time)
+						boss_link_see_sound(objp);
+					boss_init_all_segments(i);
+				}
 			}
 		}
 	}

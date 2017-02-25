@@ -63,6 +63,7 @@ extern fix Last_teleport_time;
 extern fix Boss_cloak_duration;
 
 extern ai_local Ai_local_info[MAX_OBJECTS];
+
 extern vms_vector Believed_player_pos;
 extern int Believed_player_seg;
 
@@ -118,6 +119,7 @@ extern void do_thief_frame(object *objp, fix dist_to_player, int player_visibili
 
 extern void start_boss_death_sequence(object *objp);
 extern void ai_init_boss_for_ship(void);
+extern void boss_init_all_segments(int boss_objnum);
 extern int Boss_been_hit;
 extern fix AI_proc_time;
 
