@@ -1823,10 +1823,12 @@ static void init_boss_segments(int boss_objnum, short segptr[], int *num_segs, i
 		tail = 0;
 		seg_queue[head++] = original_boss_seg;
 
-		segptr[(*num_segs)++] = original_boss_seg;
-		#ifdef EDITOR
-		Selected_segs[N_selected_segs++] = original_boss_seg;
-		#endif
+		if ((!size_check) || boss_fits_in_seg(boss_objp, original_boss_seg)) {
+			segptr[(*num_segs)++] = original_boss_seg;
+			#ifdef EDITOR
+			Selected_segs[N_selected_segs++] = original_boss_seg;
+			#endif
+		}
 
 		struct segment_bit_array visited = {{0}};
 
@@ -1879,8 +1881,10 @@ static void init_boss_segments(int boss_objnum, short segptr[], int *num_segs, i
 		boss_objp->pos = original_boss_pos;
 		obj_relink(boss_objnum, original_boss_seg);
 
+		// Last resort - add original seg even if boss doesn't fit in it
+		if (!*num_segs)
+			segptr[(*num_segs)++] = original_boss_seg;
 	}
-
 }
 
 // --------------------------------------------------------------------------------------------------------------------
