@@ -1072,7 +1072,7 @@ int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
 
 //new function for Mike
 //note: n_segs_visited must be set to zero before this is called
-int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,int *hside,int *hface)
+static int sphere_intersects_wall_r(vms_vector *pnt,int segnum,fix rad,int *hseg,int *hside,int *hface)
 {
 	int facemask;
 	segment *seg;
@@ -1127,7 +1127,7 @@ int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,int *hsi
 							}
 							else {
 
-								if (sphere_intersects_wall(pnt,child,rad,hseg,hside,hface))
+								if (sphere_intersects_wall_r(pnt,child,rad,hseg,hside,hface))
 									return 1;
 							}
 						}
@@ -1140,17 +1140,20 @@ int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,int *hsi
 	return 0;
 }
 
-//Returns true if the object is through any walls
-int object_intersects_wall(object *objp)
+int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,int *hside,int *hface)
 {
 	n_segs_visited = 0;
 
+	return sphere_intersects_wall_r(pnt, segnum, rad, hseg, hside, hface);
+}
+
+//Returns true if the object is through any walls
+int object_intersects_wall(object *objp)
+{
 	return sphere_intersects_wall(&objp->pos,objp->segnum,objp->size,NULL,NULL,NULL);
 }
 
 int object_intersects_wall_d(object *objp,int *hseg,int *hside,int *hface)
 {
-	n_segs_visited = 0;
-
 	return sphere_intersects_wall(&objp->pos,objp->segnum,objp->size,hseg,hside,hface);
 }

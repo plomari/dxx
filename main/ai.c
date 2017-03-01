@@ -1741,23 +1741,23 @@ int gate_in_robot(int type, int segnum)
 int boss_fits_in_seg(object *boss_objp, int segnum)
 {
 	vms_vector	segcenter;
-	int			boss_objnum = boss_objp-Objects;
 	int			posnum;
 
 	compute_segment_center(&segcenter, &Segments[segnum]);
 
+	vms_vector pos = segcenter;
+
 	for (posnum=0; posnum<9; posnum++) {
+		int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,int *hside,int *hface);
 		if (posnum > 0) {
 			vms_vector	vertex_pos;
 
 			Assert((posnum-1 >= 0) && (posnum-1 < 8));
 			vertex_pos = Vertices[Segments[segnum].verts[posnum-1]];
-			vm_vec_avg(&boss_objp->pos, &vertex_pos, &segcenter);
-		} else
-			boss_objp->pos = segcenter;
+			vm_vec_avg(&pos, &vertex_pos, &segcenter);
+		}
 
-		obj_relink(boss_objnum, segnum);
-		if (!object_intersects_wall(boss_objp))
+		if (!sphere_intersects_wall(&pos, segnum, boss_objp->size, NULL, NULL, NULL))
 			return 1;
 	}
 
