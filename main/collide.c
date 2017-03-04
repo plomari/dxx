@@ -1586,10 +1586,11 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 			obj_attach(robot,expl_obj);
 
 		if (damage_flag == boss_weapon_collision_result_normal &&
-			Robot_info[robot->id].exp1_sound_num > -1)
-			digi_link_sound_to_pos( Robot_info[robot->id].exp1_sound_num, robot->segnum, 0, collision_point, 0, F1_0 );
+			!(weapon->flags & OF_HARMLESS))
+		{
+			if (Robot_info[robot->id].exp1_sound_num > -1)
+				digi_link_sound_to_pos( Robot_info[robot->id].exp1_sound_num, robot->segnum, 0, collision_point, 0, F1_0 );
 
-		if (!(weapon->flags & OF_HARMLESS)) {
 			fix	damage = weapon->shields;
 
 				damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
