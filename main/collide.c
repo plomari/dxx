@@ -391,6 +391,10 @@ int check_volatile_wall(object *obj,int segnum,int sidenum,vms_vector *hitpt)
 	if (d > 0 || water) {
 
 		if (obj->id == Player_num) {
+			if (!((GameTime > Last_volatile_scrape_time + DESIGNATED_GAME_FRAMETIME) || (GameTime < Last_volatile_scrape_time)))
+				return 0;
+			Last_volatile_scrape_time = GameTime;
+
 
 			if (d > 0) {
 				fix damage = fixmul(d,((FrameTime>DESIGNATED_GAME_FRAMETIME)?FrameTime:DESIGNATED_GAME_FRAMETIME));
@@ -423,10 +427,6 @@ void scrape_player_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 
 	if (obj->type != OBJ_PLAYER || obj->id != Player_num)
 		return;
-
-	if (!((GameTime > Last_volatile_scrape_time + DESIGNATED_GAME_FRAMETIME) || (GameTime < Last_volatile_scrape_time)))
-		return false;
-	Last_volatile_scrape_time = GameTime;
 
 	if ((type=check_volatile_wall(obj,hitseg,hitside,hitpt))!=0) {
 		vms_vector	hit_dir, rand_vec;
