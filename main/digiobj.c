@@ -95,6 +95,8 @@ int digi_xlat_sound(int soundno)
 	}
 
 	Assert(Sounds[soundno] != 255);	//if hit this, probably using undefined sound
+        if (Sounds[soundno] == 255)
+            return -1;
 
 	return Sounds[soundno];
 }

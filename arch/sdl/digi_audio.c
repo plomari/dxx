@@ -247,6 +247,7 @@ extern void digi_end_soundobj(int channel);
 extern int SoundQ_channel;
 extern void SoundQ_end();
 int verify_sound_channel_free(int channel);
+extern int Num_sound_files;
 
 // Volume 0-F1_0
 int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int loop_start, int loop_end, int soundobj)
@@ -256,6 +257,8 @@ int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int
 	if (!digi_initialised) return -1;
 
 	if (soundnum < 0) return -1;
+        Assert(soundnum < Num_sound_files);
+        if (soundnum >= Num_sound_files) return -1;
 
 	SDL_LockAudio();
 
