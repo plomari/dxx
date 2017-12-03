@@ -121,4 +121,10 @@ static __inline void _Int3()
 //void Int3();
 #endif
 
+#undef Int3
+#define Int3() do { fprintf(stderr, "%s:%d(%s): Int3\n", __FILE__, __LINE__, __func__); } while(0)
+
+#undef Assert
+#define Assert(expr) ((expr)?(void)0:(void)fprintf(stderr,"%s:%d(%s): Assert(%s)\n",__FILE__,__LINE__,__func__,#expr))
+
 #endif /* _ERROR_H */

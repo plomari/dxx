@@ -477,7 +477,9 @@ void draw_polygon_object(object *obj)
 
 		int i;
 
+#ifndef NDEBUG
 		Assert(pm->n_textures<=12);
+#endif
 
 		for (i=0;i<12;i++)		//fill whole array, in case simple model needs more
 			bm_ptrs[i] = Textures[obj->rtype.pobj_info.tmap_override];
@@ -1210,8 +1212,10 @@ int obj_create(ubyte type,ubyte id,int segnum,vms_vector *pos,
 	// Find next free object
 	objnum = obj_allocate();
 
-	if (objnum == -1)		//no free objects
+	if (objnum == -1) {		//no free objects
+                Int3(); // so we notice
 		return -1;
+        }
 
 	Assert(Objects[objnum].type == OBJ_NONE);		//make sure unused
 
