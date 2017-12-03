@@ -520,7 +520,7 @@ int pick_up_secondary(int weapon_index,int count)
 	max = Secondary_ammo_max[weapon_index];
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK)
-		max *= 2;
+		max = 400;
 
 	if (Players[Player_num].secondary_ammo[weapon_index] >= max) {
 		HUD_init_message("%s %i %ss!", TXT_ALREADY_HAVE, Players[Player_num].secondary_ammo[weapon_index],SECONDARY_WEAPON_NAMES(weapon_index));
