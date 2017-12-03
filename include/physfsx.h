@@ -335,10 +335,13 @@ static inline PHYSFS_sint64 PHYSFSX_getFreeDiskSpace()
 }
 
 //Open a file for reading, set up a buffer
-static inline PHYSFS_file *PHYSFSX_openReadBuffered(char *filename)
+static inline PHYSFS_file *PHYSFSX_openReadBuffered(char *filenamex)
 {
 	PHYSFS_file *fp;
 	PHYSFS_uint64 bufSize;
+        char filename_buf[2048];
+        char *filename = filename_buf;
+        snprintf(filename_buf, sizeof(filename_buf), "%s", filenamex);
 
 	if (filename[0] == '\x01')
 	{
