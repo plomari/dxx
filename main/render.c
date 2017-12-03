@@ -939,7 +939,21 @@ short render_pos[MAX_SEGMENTS];	//where in render_list does this segment appear?
 //ubyte no_render_flag[MAX_RENDER_SEGS];
 window render_windows[MAX_RENDER_SEGS];
 
-short render_obj_list[MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS][OBJS_PER_SEG];
+// render_seg_to_render_obj_list[render_seg_id] = -1 or index into render_objs
+static int render_seg_to_render_objs[MAX_RENDER_SEGS];
+// each entry is starts a list
+struct render_obj_item {
+    int objnum; // index into Objects[]
+    int next;   // next list item in render_objs
+};
+// there needs to be an entry for each time an object is in some segment
+// an object can be in multiple segments, in the worst (unrealistic) case, all
+// objects are large enough to be in all segments (MAX_SEGMENTS*MAX_OBJECTS)
+// this attempts to provide some sort of reasonable limit
+// (do not confuse with MAX_RENDERED_OBJECTS)
+#define MAX_RENDER_OBJS (MAX_RENDER_SEGS+MAX_OBJECTS)
+static struct render_obj_item render_objs[MAX_RENDER_OBJS];
+static int render_objs_next;
 
 //for objects
 
@@ -1211,58 +1225,20 @@ int sort_seg_children(segment *seg,int n_children,short *child_list)
 
 void add_obj_to_seglist(int objnum,int listnum)
 {
-	int i,checkn,marker;
+    int index;
 
-	checkn = listnum;
+    if (render_objs_next >= MAX_RENDER_OBJS) {
+        Int3();
+        return;
+    }
 
-	//first, find a slot
+    index = render_objs_next++;
+    render_objs[index].objnum = objnum;
+    render_objs[index].next = render_seg_to_render_objs[listnum];
 
-	do {
-
-		for (i=0;render_obj_list[checkn][i] >= 0;i++);
-	
-		Assert(i < OBJS_PER_SEG);
-	
-		marker = render_obj_list[checkn][i];
-
-		if (marker != -1) {
-			checkn = -marker;
-			//Assert(checkn < MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS);
-			if (checkn >= MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS) {
-				Int3();
-				return;
-			}
-		}
-
-	} while (marker != -1);
-
-	//now we have found a slot.  put object in it
-
-	if (i != OBJS_PER_SEG-1) {
-
-		render_obj_list[checkn][i] = objnum;
-		render_obj_list[checkn][i+1] = -1;
-	}
-	else {				//chain to additional list
-		int lookn;
-
-		//find an available sublist
-
-		for (lookn=MAX_RENDER_SEGS;render_obj_list[lookn][0]!=-1 && lookn<MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS;lookn++);
-
-		//Assert(lookn<MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS);
-		if (lookn >= MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS) {
-			Int3();
-			return;
-		}
-
-		render_obj_list[checkn][i] = -lookn;
-		render_obj_list[lookn][0] = objnum;
-		render_obj_list[lookn][1] = -1;
-
-	}
-
+    render_seg_to_render_objs[listnum] = index;
 }
+
 #ifdef __sun__
 // the following is a drop-in replacement for the broken libc qsort on solaris
 // taken from http://www.snippets.org/snippets/portable/RG_QSORT+C.php3
@@ -1348,7 +1324,7 @@ void qsort(void *basep, size_t nelems, size_t size,
 }
 #endif // __sun__ qsort drop-in replacement
 
-#define SORT_LIST_SIZE 100
+#define SORT_LIST_SIZE MAX_RENDER_OBJS
 
 typedef struct sort_item {
 	int objnum;
@@ -1393,8 +1369,9 @@ void build_object_lists(int n_segs)
 {
 	int nn;
 
-	for (nn=0;nn<MAX_RENDER_SEGS+N_EXTRA_OBJ_LISTS;nn++)
-		render_obj_list[nn][0] = -1;
+	for (nn=0;nn<MAX_RENDER_SEGS;nn++)
+		render_seg_to_render_objs[nn] = -1;
+        render_objs_next = 0;
 
 	for (nn=0;nn<n_segs;nn++) {
 		int segnum;
@@ -1467,64 +1444,19 @@ void build_object_lists(int n_segs)
 
 			//first count the number of objects & copy into sort list
 
-			lookn = nn;
-			i = n_sort_items = 0;
-			while ((t=render_obj_list[lookn][i++])!=-1)
-				if (t<0)
-					{lookn = -t; i=0;}
-				else
-					if (n_sort_items < SORT_LIST_SIZE-1) {		//add if room
+			lookn = render_seg_to_render_objs[nn];
+			n_sort_items = 0;
+                        // the code below copies it into the sort list unconditionally
+                        static int assert_enough[SORT_LIST_SIZE >= MAX_RENDER_OBJS ? 1 : -1];
+
+			while (lookn!=-1) {
+                            int t = render_objs[lookn].objnum;
 						sort_list[n_sort_items].objnum = t;
 						//NOTE: maybe use depth, not dist - quicker computation
 						sort_list[n_sort_items].dist = vm_vec_dist_quick(&Objects[t].pos,&Viewer_eye);
 						n_sort_items++;
-					}
-					else {			//no room for object
-						int ii;
-
-						#ifndef NDEBUG
-						FILE *tfile=fopen("sortlist.out","wt");
-
-						//I find this strange, so I'm going to write out
-						//some information to look at later
-						if (tfile) {
-							for (ii=0;ii<SORT_LIST_SIZE;ii++) {
-								int objnum = sort_list[ii].objnum;
-
-								fprintf(tfile,"Obj %3d  Type = %2d  Id = %2d  Dist = %08x  Segnum = %3d\n",
-									objnum,Objects[objnum].type,Objects[objnum].id,sort_list[ii].dist,Objects[objnum].segnum);
-							}
-							fclose(tfile);
-						}
-						#endif
-
-						Int3();	//Get Matt!!!
-
-						//Now try to find a place for this object by getting rid
-						//of an object we don't care about
-
-						for (ii=0;ii<SORT_LIST_SIZE;ii++) {
-							int objnum = sort_list[ii].objnum;
-							object *obj = &Objects[objnum];
-							int type = obj->type;
-
-							//replace debris & fireballs
-							if (type == OBJ_DEBRIS || type == OBJ_FIREBALL) {
-								fix dist = vm_vec_dist_quick(&Objects[t].pos,&Viewer_eye);
-
-								//don't replace same kind of object unless new 
-								//one is closer
-
-								if (Objects[t].type != type || dist < sort_list[ii].dist) {
-									sort_list[ii].objnum = t;
-									sort_list[ii].dist = dist;
-									break;
-								}
-							}
-						}
-
-						Int3();	//still couldn't find a slot
-					}
+                            lookn = render_objs[lookn].next;
+                        }
 
 
 			//now call qsort
@@ -1538,15 +1470,13 @@ void build_object_lists(int n_segs)
 
 			//now copy back into list
 
-			lookn = nn;
-			i = 0;
-			n = n_sort_items;
-			while ((t=render_obj_list[lookn][i])!=-1 && n>0)
-				if (t<0)
-					{lookn = -t; i=0;}
-				else
-					render_obj_list[lookn][i++] = sort_list[--n].objnum;
-			render_obj_list[lookn][i] = -1;	//mark (possibly new) end
+			lookn = render_seg_to_render_objs[nn];
+			i = n_sort_items - 1;
+			while (lookn!=-1) {
+                            render_objs[lookn].objnum = sort_list[i].objnum;
+                            lookn = render_objs[lookn].next;
+                            i--;
+                        }
 		}
 	}
 }
@@ -2035,17 +1965,15 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 			if (migrate_objects) {
 				//int n_expl_objs=0,expl_objs[5],i;
-				int listnum;
+				int index;
 				int save_linear_depth = Max_linear_depth;
 
 				Max_linear_depth = Max_linear_depth_objects;
 
-				listnum = nn;
+				index = render_seg_to_render_objs[nn];
 
-				for (objnp=0;render_obj_list[listnum][objnp]!=-1;)	{
-					int ObjNumber = render_obj_list[listnum][objnp];
-
-					if (ObjNumber >= 0) {
+				for (;index >= 0;index = render_objs[index].next) {
+					int ObjNumber = render_objs[index].objnum;
 
 						#ifdef LASER_HACK
 						if ( 	(Objects[ObjNumber].type==OBJ_WEAPON) && 								//if its a weapon
@@ -2060,13 +1988,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 							do_render_object(ObjNumber, window_num);	// note link to above else
 
 						objnp++;
-					}
-					else {
-
-						listnum = -ObjNumber;
-						objnp = 0;
-
-					}
 
 				}
 
