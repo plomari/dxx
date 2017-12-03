@@ -342,7 +342,7 @@ if os.environ.has_key('CXXFLAGS'):
 if os.environ.has_key('LDFLAGS'):
 	env['LINKFLAGS'] += SCons.Util.CLVar(os.environ['LDFLAGS'])
 
-env['CCFLAGS'] += ["-Wdeprecated-declarations"]
+env['CCFLAGS'] += ["-Wno-deprecated-declarations"]
 
 # windows or *nix?
 if sys.platform == 'win32':
