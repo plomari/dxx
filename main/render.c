@@ -1239,91 +1239,6 @@ void add_obj_to_seglist(int objnum,int listnum)
     render_seg_to_render_objs[listnum] = index;
 }
 
-#ifdef __sun__
-// the following is a drop-in replacement for the broken libc qsort on solaris
-// taken from http://www.snippets.org/snippets/portable/RG_QSORT+C.php3
-
-#define qsort qsort_dropin
-
-/******************************************************************/
-/* qsort.c  --  Non-Recursive ANSI Quicksort function             */
-/* Public domain by Raymond Gardner, Englewood CO  February 1991  */
-/******************************************************************/
-#define  COMP(a, b)  ((*comp)((void *)(a), (void *)(b)))
-#define  T 7 // subfiles of <= T elements will be insertion sorteded (T >= 3)
-#define  SWAP(a, b)  (swap_bytes((char *)(a), (char *)(b), size))
-
-static void swap_bytes(char *a, char *b, size_t nbytes)
-{
-   char tmp;
-   do {
-      tmp = *a; *a++ = *b; *b++ = tmp;
-   } while ( --nbytes );
-}
-
-void qsort(void *basep, size_t nelems, size_t size,
-                            int (*comp)(const void *, const void *))
-{
-   char *stack[40], **sp;       /* stack and stack pointer        */
-   char *i, *j, *limit;         /* scan and limit pointers        */
-   size_t thresh;               /* size of T elements in bytes    */
-   char *base;                  /* base pointer as char *         */
-   base = (char *)basep;        /* set up char * base pointer     */
-   thresh = T * size;           /* init threshold                 */
-   sp = stack;                  /* init stack pointer             */
-   limit = base + nelems * size;/* pointer past end of array      */
-   for ( ;; ) {                 /* repeat until break...          */
-      if ( limit - base > thresh ) {  /* if more than T elements  */
-                                      /*   swap base with middle  */
-         SWAP((((limit-base)/size)/2)*size+base, base);
-         i = base + size;             /* i scans left to right    */
-         j = limit - size;            /* j scans right to left    */
-         if ( COMP(i, j) > 0 )        /* Sedgewick's              */
-            SWAP(i, j);               /*    three-element sort    */
-         if ( COMP(base, j) > 0 )     /*        sets things up    */
-            SWAP(base, j);            /*            so that       */
-         if ( COMP(i, base) > 0 )     /*      *i <= *base <= *j   */
-            SWAP(i, base);            /* *base is pivot element   */
-         for ( ;; ) {                 /* loop until break         */
-            do                        /* move i right             */
-               i += size;             /*        until *i >= pivot */
-            while ( COMP(i, base) < 0 );
-            do                        /* move j left              */
-               j -= size;             /*        until *j <= pivot */
-            while ( COMP(j, base) > 0 );
-            if ( i > j )              /* if pointers crossed      */
-               break;                 /*     break loop           */
-            SWAP(i, j);       /* else swap elements, keep scanning*/
-         }
-         SWAP(base, j);         /* move pivot into correct place  */
-         if ( j - base > limit - i ) {  /* if left subfile larger */
-            sp[0] = base;             /* stack left subfile base  */
-            sp[1] = j;                /*    and limit             */
-            base = i;                 /* sort the right subfile   */
-         } else {                     /* else right subfile larger*/
-            sp[0] = i;                /* stack right subfile base */
-            sp[1] = limit;            /*    and limit             */
-            limit = j;                /* sort the left subfile    */
-         }
-         sp += 2;                     /* increment stack pointer  */
-      } else {      /* else subfile is small, use insertion sort  */
-         for ( j = base, i = j+size; i < limit; j = i, i += size )
-            for ( ; COMP(j, j+size) > 0; j -= size ) {
-               SWAP(j, j+size);
-               if ( j == base )
-                  break;
-            }
-         if ( sp != stack ) {         /* if any entries on stack  */
-            sp -= 2;                  /* pop the base and limit   */
-            base = sp[0];
-            limit = sp[1];
-         } else                       /* else stack empty, done   */
-            break;
-      }
-   }
-}
-#endif // __sun__ qsort drop-in replacement
-
 #define SORT_LIST_SIZE MAX_RENDER_OBJS
 
 typedef struct sort_item {
@@ -1335,8 +1250,9 @@ sort_item sort_list[SORT_LIST_SIZE];
 int n_sort_items;
 
 //compare function for object sort. 
-int sort_func(const sort_item *a,const sort_item *b)
+static int sort_func(const void *pa, const void *pb)
 {
+    const sort_item *a = pa, *b = pb;
 	fix delta_dist;
 	object *obj_a,*obj_b;
 
@@ -1458,15 +1374,8 @@ void build_object_lists(int n_segs)
                             lookn = render_objs[lookn].next;
                         }
 
-
-			//now call qsort
-		#if defined(__WATCOMC__)
 			qsort(sort_list,n_sort_items,sizeof(*sort_list),
 				   sort_func);
-		#else
-			qsort(sort_list,n_sort_items,sizeof(*sort_list),
-					(int (*)(const void*,const void*))sort_func);
-		#endif	
 
 			//now copy back into list
 
