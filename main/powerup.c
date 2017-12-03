@@ -85,6 +85,9 @@ void do_powerup_frame(object *obj)
 
 		if (vci->framenum < 0)
 			vci->framenum = vc->num_frames-1;
+
+                if (!vc->frame_time)
+                    break;
 	}
 
 	if (obj->lifeleft <= 0) {
