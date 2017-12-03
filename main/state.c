@@ -92,7 +92,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "physfsx.h"
 
-#define STATE_VERSION 22
+#define STATE_VERSION 23
 #define STATE_COMPATIBLE_VERSION 20
 // 0 - Put DGSS (Descent Game State Save) id at tof.
 // 1 - Added Difficulty level save
@@ -114,11 +114,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // 19- Saved cheats_enabled flag
 // 20- First_secret_visit
 // 22- Omega_charge
+// 23- extend object count and make it dynamic (for segments too)
 
 #define NUM_SAVES 10
 #define THUMBNAIL_W 100
 #define THUMBNAIL_H 50
 #define DESC_LENGTH 20
+
+#define END_MAGIC 0xD00FB0A1
 
 extern void apply_all_changed_light(void);
 
@@ -602,7 +605,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		ai_save_state( fp );
 	
 	// Save the automap visited info
-		PHYSFS_write(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS);
+		PHYSFS_write(fp, Automap_visited, sizeof(ubyte), Highest_segment_index + 1);
 
 	}
 	PHYSFS_write(fp, &state_game_id, sizeof(uint), 1);
@@ -629,11 +632,16 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	PHYSFS_write(fp, &PaletteGreenAdd, sizeof(int), 1);
 	PHYSFS_write(fp, &PaletteBlueAdd, sizeof(int), 1);
 
-	PHYSFS_write(fp, Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS);
+        i = Highest_segment_index + 1;
+	PHYSFS_write(fp, Light_subtracted, sizeof(Light_subtracted[0]), i);
 
 	PHYSFS_write(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
 
-	if (PHYSFS_write(fp, &Omega_charge, sizeof(Omega_charge), 1) < 1)
+        PHYSFS_write(fp, &Omega_charge, sizeof(Omega_charge), 1);
+
+        uint32_t magic = END_MAGIC;
+
+	if (PHYSFS_write(fp, &magic, sizeof(magic), 1) < 1)
 	{
 		nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
 		PHYSFS_close(fp);
@@ -999,7 +1007,10 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		ai_restore_state( fp, version );
 	
 		// Restore the automap visited info
-		PHYSFS_read(fp, Automap_visited, sizeof(ubyte), MAX_SEGMENTS);
+                i = MAX_SEGMENTS;
+                if (version >= 23)
+                    i = Highest_segment_index + 1;
+		PHYSFS_read(fp, Automap_visited, sizeof(ubyte), i);
 
 		//	Restore hacked up weapon system stuff.
 		Fusion_next_sound_time = GameTime;
@@ -1069,7 +1080,10 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 	//	Load Light_subtracted
 	if (version >= 16) {
-		PHYSFS_read(fp, Light_subtracted, sizeof(Light_subtracted[0]), MAX_SEGMENTS);
+                i = MAX_SEGMENTS;
+                if (version >= 23)
+                    i = Highest_segment_index + 1;
+		PHYSFS_read(fp, Light_subtracted, sizeof(Light_subtracted[0]), i);
 		apply_all_changed_light();
 	} else {
 		int	i;
@@ -1085,23 +1099,24 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		}
 	}
 
-	if (!secret_restore) {
-		if (version >= 20) {
-			PHYSFS_read(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
-		} else
-			First_secret_visit = 1;
-	} else
+	First_secret_visit = 1;
+        if (version >= 20)
+            PHYSFS_read(fp, &First_secret_visit, sizeof(First_secret_visit), 1);
+
+	if (secret_restore)
 		First_secret_visit = 0;
 
 	if (version >= 22)
-	{
-		if (secret_restore != 1)
-			PHYSFS_read(fp, &Omega_charge, sizeof(fix), 1);
-		else {
-			fix	dummy_fix;
-			PHYSFS_read(fp, &dummy_fix, sizeof(fix), 1);
-		}
-	}
+            PHYSFS_read(fp, &Omega_charge, sizeof(fix), 1);
+
+	if (version >= 23) {
+            uint32_t magic = 0;
+            PHYSFS_read(fp, &magic, sizeof(magic), 1);
+            if (END_MAGIC != magic) {
+                fprintf(stderr, "wrong save game magic\n");
+                Int3();
+            }
+        }
 
 	PHYSFS_close(fp);
 

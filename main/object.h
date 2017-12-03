@@ -33,7 +33,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * CONSTANTS
  */
 
-#define MAX_OBJECTS     350 // increased on 01/24/95 for multiplayer. --MK;  total number of objects in world
+#define MAX_OBJECTS     10000 // increased on 01/24/95 for multiplayer. --MK;  total number of objects in world
+// At least savegames depend on this.
+#define OLD_MAX_OBJECTS 350
 
 // Object types
 #define OBJ_NONE        255 // unused object

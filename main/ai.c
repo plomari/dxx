@@ -1523,10 +1523,13 @@ void init_robots_for_level(void)
 
 int ai_save_state(PHYSFS_file *fp)
 {
+    int i;
 	PHYSFS_write(fp, &Ai_initialized, sizeof(int), 1);
 	PHYSFS_write(fp, &Overall_agitation, sizeof(int), 1);
-	PHYSFS_write(fp, Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1);
-	PHYSFS_write(fp, Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1);
+	PHYSFS_write(fp, Ai_local_info, sizeof(ai_local) * (Highest_object_index+1), 1);
+        i = MAX_POINT_SEGS;
+        PHYSFS_write(fp, &i, sizeof(int), 1);
+	PHYSFS_write(fp, Point_segs, sizeof(point_seg) * i, 1);
 	PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
 	PHYSFS_write(fp, &Boss_cloak_start_time, sizeof(fix), 1);
 	PHYSFS_write(fp, &Boss_cloak_end_time, sizeof(fix), 1);
@@ -1569,10 +1572,18 @@ int ai_save_state(PHYSFS_file *fp)
 
 int ai_restore_state(PHYSFS_file *fp, int version)
 {
+        int i;
 	PHYSFS_read(fp, &Ai_initialized, sizeof(int), 1);
 	PHYSFS_read(fp, &Overall_agitation, sizeof(int), 1);
-	PHYSFS_read(fp, Ai_local_info, sizeof(ai_local) * MAX_OBJECTS, 1);
-	PHYSFS_read(fp, Point_segs, sizeof(point_seg) * MAX_POINT_SEGS, 1);
+        memset(Ai_local_info, 0, sizeof(Ai_local_info));
+        i = OLD_MAX_OBJECTS;
+        if (version >= 23)
+            i = Highest_object_index + 1;
+        PHYSFS_read(fp, Ai_local_info, sizeof(ai_local), i);
+        i = MAX_POINT_SEGS;
+        if (version >= 23)
+            PHYSFS_read(fp, &i, sizeof(int), 1);
+        PHYSFS_read(fp, Point_segs, sizeof(point_seg), i);
 	PHYSFS_read(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
 	PHYSFS_read(fp, &Boss_cloak_start_time, sizeof(fix), 1);
 	PHYSFS_read(fp, &Boss_cloak_end_time, sizeof(fix), 1);
