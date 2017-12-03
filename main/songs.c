@@ -84,7 +84,10 @@ void songs_init()
 		{
 			if ( strlen( inputline ) )
 			{
-				Assert( i < MAX_NUM_SONGS );
+				if (i >= MAX_NUM_SONGS) {
+                                    Int3();
+                                    break;
+                                }
 				sscanf( inputline, "%s %s %s",
 						Songs[i].filename,
 						Songs[i].melodic_bank_file,
