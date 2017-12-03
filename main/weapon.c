@@ -531,10 +531,12 @@ int pick_up_secondary(int weapon_index,int count)
 	Players[Player_num].secondary_ammo[weapon_index] += count;
 
 	num_picked_up = count;
+#if 1
 	if (Players[Player_num].secondary_ammo[weapon_index] > max) {
 		num_picked_up = count - (Players[Player_num].secondary_ammo[weapon_index] - max);
 		Players[Player_num].secondary_ammo[weapon_index] = max;
 	}
+#endif
 
 	if (Players[Player_num].secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
 	{
@@ -712,17 +714,19 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 	if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK)
 		max *= 2;
 
-	if (Players[Player_num].primary_ammo[weapon_index] == max)
+	if (Players[Player_num].primary_ammo[weapon_index] >= max)
 		return 0;
 
 	old_ammo = Players[Player_num].primary_ammo[weapon_index];
 
 	Players[Player_num].primary_ammo[weapon_index] += ammo_count;
 
+#if 0
 	if (Players[Player_num].primary_ammo[weapon_index] > max) {
 		ammo_count += (max - Players[Player_num].primary_ammo[weapon_index]);
 		Players[Player_num].primary_ammo[weapon_index] = max;
 	}
+#endif
 	cutpoint=POrderList (255);
 
 	if (Primary_weapon==LASER_INDEX && Players[Player_num].laser_level>=4)	

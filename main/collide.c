@@ -1793,7 +1793,7 @@ void maybe_drop_secondary_weapon_egg(object *playerobj, int weapon_index, int co
 	if (Players[playerobj->id].secondary_weapon_flags & weapon_flag) {
 		int	i, max_count;
 
-		max_count = min(count, 3);
+		max_count = count; //min(count, 3);
 		for (i=0; i<max_count; i++)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, powerup_num);
 	}
@@ -1806,8 +1806,8 @@ void drop_missile_1_or_4(object *playerobj,int missile_index)
 	num_missiles = Players[playerobj->id].secondary_ammo[missile_index];
 	powerup_id = Secondary_weapon_to_powerup[missile_index];
 
-	if (num_missiles > 10)
-		num_missiles = 10;
+	//if (num_missiles > 10)
+	//	num_missiles = 10;
 
 	call_object_create_egg(playerobj, num_missiles/4, OBJ_POWERUP, powerup_id+1);
 	call_object_create_egg(playerobj, num_missiles%4, OBJ_POWERUP, powerup_id);
@@ -1889,8 +1889,8 @@ void drop_player_eggs(object *playerobj)
 		if (Players[pnum].flags & PLAYER_FLAGS_AFTERBURNER)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_AFTERBURNER);
 
-		if (Players[pnum].flags & PLAYER_FLAGS_AMMO_RACK)
-			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_AMMO_RACK);
+		//if (Players[pnum].flags & PLAYER_FLAGS_AMMO_RACK)
+		//	call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_AMMO_RACK);
 
 		if (Players[pnum].flags & PLAYER_FLAGS_CONVERTER)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_CONVERTER);
