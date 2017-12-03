@@ -1862,6 +1862,17 @@ void FinalCheats(int key)
 			GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator;
 		}
 
+    if (!strcmp(&CheatBuffer[7], "killboss"))
+    {
+        for (i=0; i<=Highest_object_index; i++) {
+            if (Objects[i].type == OBJ_ROBOT && Robot_info[Objects[i].id].boss_flag) {
+                HUD_init_message("Fuck boss fights indeed.");
+                Objects[i].shields=i2f(1);
+                break;
+            }
+        }
+    }
+
   if (Game_mode & GM_MULTI)
    return;
 
