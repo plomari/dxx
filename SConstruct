@@ -342,6 +342,8 @@ if os.environ.has_key('CXXFLAGS'):
 if os.environ.has_key('LDFLAGS'):
 	env['LINKFLAGS'] += SCons.Util.CLVar(os.environ['LDFLAGS'])
 
+env['CCFLAGS'] += ["-Wdeprecated-declarations"]
+
 # windows or *nix?
 if sys.platform == 'win32':
 	print "compiling on Windows"
@@ -390,7 +392,7 @@ else:
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['OGL']
 	common_sources += arch_linux_sources
-	ogllibs = ['GL', 'GLU']
+	ogllibs = ['GL', 'GLU', 'm']
 	libs = generic_libs
 	lflags = '-L/usr/X11R6/lib'
 
