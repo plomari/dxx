@@ -425,7 +425,7 @@ if (debug == 1):
 	env.Append(CPPFLAGS = ['-g', '-fstack-protector-all'])
 else:
 	env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
-	env.Append(CPPFLAGS = ['-O2'])
+	env.Append(CPPFLAGS = ['-O2', '-g', '-ggdb3'])
 
 # profiler?
 if (profiler == 1):
