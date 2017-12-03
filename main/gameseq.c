@@ -1586,7 +1586,9 @@ void DoPlayerDead()
 			}
 		}
 	} else {
+                int preserve_flags = Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK;
 		init_player_stats_new_ship();
+                Players[Player_num].flags |= preserve_flags;
 		StartLevel(1);
 	}
 
