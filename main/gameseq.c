@@ -677,7 +677,7 @@ try_again:
 }
 
 //Inputs the player's name, without putting up the background screen
-int RegisterPlayer()
+int RegisterPlayer(int at_program_start)
 {
 	char filename[14];
 	int allow_abort_flag = 1;
@@ -693,8 +693,13 @@ int RegisterPlayer()
 do_menu_again:
 	;
 
-	if (!newmenu_get_filename(TXT_SELECT_PILOT, ".plr", filename, allow_abort_flag))
-		goto do_menu_again; //return 0;		// They hit Esc in file selector
+        if (at_program_start && !(GameCfg.LastPlayer[0]==0)) {
+            snprintf(filename, sizeof(filename), "%s", GameCfg.LastPlayer);
+        } else {
+            if (!newmenu_get_filename(TXT_SELECT_PILOT, ".plr", filename, allow_abort_flag))
+                    goto do_menu_again; //return 0;		// They hit Esc in file selector
+        }
+        at_program_start = 0;
 	if ( filename[0] == '<' )	{
 		// They selected 'create new pilot'
 		if (!MakeNewPlayerFile(allow_abort_flag))

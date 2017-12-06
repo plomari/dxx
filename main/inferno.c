@@ -396,10 +396,10 @@ int main(int argc, char *argv[])
 				WriteConfigFile();
 			}
 			else //pilot doesn't exist. get pilot.
-				RegisterPlayer();
+				RegisterPlayer(0);
 		}
 		else
-			RegisterPlayer();
+			RegisterPlayer(1);
 	}
 
 	Game_mode = GM_GAME_OVER;

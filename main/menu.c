@@ -230,7 +230,7 @@ int DoMenu()
 	int num_options = 0;
 
 	if ( Players[Player_num].callsign[0]==0 )       {
-		RegisterPlayer();
+		RegisterPlayer(0);
 		return 0;
 	}
 
@@ -291,7 +291,7 @@ void do_option ( int select)
 			Function_mode = FMODE_EXIT;
 			break;
 		case MENU_NEW_PLAYER:
-			RegisterPlayer();               //1 == allow escape out of menu
+			RegisterPlayer(0);
 			break;
 
 #ifndef RELEASE

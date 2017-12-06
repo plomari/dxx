@@ -48,7 +48,8 @@ extern int Player_highest_level;
 //
 
 // called once at program startup to get the player's name
-int RegisterPlayer();
+// at_program_start==1 if it's actually at startup
+int RegisterPlayer(int at_program_start);
 
 // Inputs the player's name, without putting up the background screen
 int RegisterPlayerSub(int allow_abort_flag);
