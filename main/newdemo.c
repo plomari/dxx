@@ -3005,8 +3005,8 @@ void newdemo_start_recording()
 
 	if (outfile == NULL)
 	{
-		nm_messagebox(NULL, 1, TXT_OK, "Cannot open demo temp file");
 		Newdemo_state = ND_STATE_NORMAL;
+		nm_messagebox(NULL, 1, TXT_OK, "Cannot open demo temp file");
 	}
 	else
 		newdemo_record_start_demo();
