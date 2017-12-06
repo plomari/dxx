@@ -428,7 +428,7 @@ try_again:
 		m[1].type=NM_TYPE_INPUT; m[1].text_len = 10; m[1].text = num_text;
 		n_items = 2;
 
-		strcpy(num_text,"1");
+                snprintf(num_text, sizeof(num_text), "%d", GameCfg.LastLevel);
 
 		choice = newmenu_do( NULL, TXT_SELECT_START_LEV, n_items, m, NULL );
 
@@ -449,6 +449,7 @@ try_again:
 	if (!do_difficulty_menu())
 		return;
 
+        GameCfg.LastLevel = new_level_num;
 	StartNewGame(new_level_num);
 
 }

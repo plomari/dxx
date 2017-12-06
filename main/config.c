@@ -55,6 +55,7 @@ static char *ReverseStereoStr = "ReverseStereo";
 static char *GammaLevelStr = "GammaLevel";
 static char *LastPlayerStr = "LastPlayer";
 static char *LastMissionStr = "LastMission";
+static char *LastLevelStr = "LastLevel";
 static char *ResolutionXStr="ResolutionX";
 static char *ResolutionYStr="ResolutionY";
 static char *AspectXStr="AspectX";
@@ -84,6 +85,7 @@ int ReadConfigFile()
 	GameCfg.GammaLevel = 0;
 	memset(GameCfg.LastPlayer,0,CALLSIGN_LEN+1);
 	memset(GameCfg.LastMission,0,MISSION_NAME_LEN+1);
+        GameCfg.LastLevel = 1;
 	GameCfg.ResolutionX = 640;
 	GameCfg.ResolutionY = 480;
 	GameCfg.AspectX = 3;
@@ -143,6 +145,8 @@ int ReadConfigFile()
 				p = strchr( GameCfg.LastMission, '\n');
 				if ( p ) *p = 0;
 			}
+			else if (!strcmp(token, LastLevelStr))
+				GameCfg.LastLevel = strtol(value, NULL, 10);
 			else if (!strcmp(token, ResolutionXStr))
 				GameCfg.ResolutionX = strtol(value, NULL, 10);
 			else if (!strcmp(token, ResolutionYStr))
@@ -208,6 +212,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%d\n", GammaLevelStr, GameCfg.GammaLevel);
 	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, Players[Player_num].callsign);
 	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, GameCfg.LastMission);
+        PHYSFSX_printf(infile, "%s=%i\n", LastLevelStr, GameCfg.LastLevel);
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, GameCfg.AspectX);
