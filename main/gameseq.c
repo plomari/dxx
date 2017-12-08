@@ -348,6 +348,8 @@ void init_ammo_and_energy(void)
 
 extern	ubyte	Last_afterburner_state;
 
+extern int	Player_eggs_dropped;
+
 // Setup player for new level (After completion of previous level)
 void init_player_stats_level(int secret_flag)
 {
@@ -394,6 +396,9 @@ void init_player_stats_level(int secret_flag)
 			Players[Player_num].flags |= (KEY_BLUE | KEY_RED | KEY_GOLD);
 	}
 
+	Player_exploded = 0;
+	Dead_player_camera = NULL;
+        Player_eggs_dropped = 0;
 	Player_is_dead = 0; // Added by RH
 	Players[Player_num].homing_object_dist = -F1_0; // Added by RH
 
