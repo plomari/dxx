@@ -765,6 +765,11 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 
 	switch (type) {
 		case OBJ_POWERUP:
+                        if (id < 0 || id >= N_powerup_types) {
+                            fprintf(stderr, "invalid powerup type %d\n", id);
+                            Int3();
+                            return objnum;
+                        }
 			for (count=0; count<num; count++) {
 				int	rand_scale;
 				new_velocity = *init_vel;
