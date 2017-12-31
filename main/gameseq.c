@@ -737,6 +737,8 @@ void LoadLevel(int level_num,int page_in_textures)
 	gr_set_current_canvas(NULL);
 	gr_clear_canvas(BM_XRGB(0, 0, 0));		//so palette switching is less obvious
 
+	load_level_robots(level_num);
+
 	load_ret = load_level(level_name);		//actually load the data from disk!
 
 	if (load_ret)
@@ -754,8 +756,6 @@ void LoadLevel(int level_num,int page_in_textures)
 		load_d1_bitmap_replacements();
 	else
 		load_bitmap_replacements(level_name);
-
-	load_level_robots(level_num);
 
 	if ( page_in_textures )
 		piggy_load_level_data();
