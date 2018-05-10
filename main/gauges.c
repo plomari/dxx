@@ -309,6 +309,9 @@ bitmap_index Gauges_hires[MAX_GAUGE_BMS];   // hires gauges
 grs_bitmap deccpt;
 grs_bitmap *WinBoxOverlay[2] = { NULL, NULL }; // Overlay subbitmaps for both weapon boxes
 
+#define VULCAN_AMMO_INT() \
+    (f2i((unsigned int)Players[Player_num].primary_ammo[VULCAN_INDEX] * VULCAN_AMMO_SCALE))
+
 /* Use static inline function under GCC to avoid CR/LF issues */
 #ifdef __GNUC__
 #define PAGE_IN_GAUGE(x) _page_in_gauge(x)
@@ -1196,7 +1199,7 @@ void hud_show_weapons_mode(int type,int vertical,int x,int y){
 				x-=w+FSPACX(3);
 			gr_printf(x, y, weapon_str);
 			if (i == 1 && Primary_weapon == i)
-				gr_printf(x+FSPACX(20),y,"%i",f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+				gr_printf(x+FSPACX(20),y,"%i",VULCAN_AMMO_INT());
 		}
 	} else {
 		for (i=4;i>=0;i--){
@@ -1266,7 +1269,7 @@ void hud_show_weapons_mode(int type,int vertical,int x,int y){
 				x-=w+FSPACX(3);
 			gr_printf(x, y, weapon_str);
 			if (i == 6 && Primary_weapon == i)
-				gr_printf(x+FSPACX(5),y,"%i",f2i((unsigned int)Players[Player_num].primary_ammo[1] * VULCAN_AMMO_SCALE));
+				gr_printf(x+FSPACX(5),y,"%i",VULCAN_AMMO_INT());
 		}
 	} else {
 		for (i=9;i>=5;i--){
@@ -1344,7 +1347,7 @@ void hud_show_weapons(void)
 	
 			case VULCAN_INDEX:		
 			case GAUSS_INDEX:			
-				sprintf(weapon_str, "%s: %i", weapon_name, f2i((unsigned) Players[Player_num].primary_ammo[VULCAN_INDEX] * (unsigned) VULCAN_AMMO_SCALE)); 
+				sprintf(weapon_str, "%s: %i", weapon_name, VULCAN_AMMO_INT());
 				convert_1s(weapon_str);
 				break;
 	
@@ -2200,7 +2203,7 @@ void draw_weapon_boxes()
 				if (Newdemo_state == ND_STATE_RECORDING &&
 		Players[Player_num].primary_ammo[VULCAN_INDEX] != old_ammo_count[0])
 					newdemo_record_primary_ammo(old_ammo_count[0], Players[Player_num].primary_ammo[VULCAN_INDEX]);
-				draw_primary_ammo_info(f2i((unsigned) VULCAN_AMMO_SCALE * (unsigned) Players[Player_num].primary_ammo[VULCAN_INDEX]));
+				draw_primary_ammo_info(VULCAN_AMMO_INT());
 				old_ammo_count[0] = Players[Player_num].primary_ammo[VULCAN_INDEX];
 			}
 
