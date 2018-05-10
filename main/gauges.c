@@ -1210,6 +1210,8 @@ void hud_show_weapons_mode(int type,int vertical,int x,int y){
 					gr_set_fontcolor(BM_XRGB(0,15,0),-1);
 				else
 					gr_set_fontcolor(BM_XRGB(0,6,0),-1);
+                                if (i == which_bomb())
+                                    gr_set_fontcolor(BM_XRGB(59,50,21),-1);
 			}
 			sprintf(weapon_str,"%i",Players[Player_num].secondary_ammo[i]);
 			gr_get_string_size(weapon_str, &w, &h, &aw );
@@ -1280,6 +1282,8 @@ void hud_show_weapons_mode(int type,int vertical,int x,int y){
 					gr_set_fontcolor(BM_XRGB(0,15,0),-1);
 				else
 					gr_set_fontcolor(BM_XRGB(0,6,0),-1);
+                                if (i == which_bomb())
+                                    gr_set_fontcolor(BM_XRGB(59,50,21),-1);
 			}
 			sprintf(weapon_str,"%i",Players[Player_num].secondary_ammo[i]);
 			gr_get_string_size(weapon_str, &w, &h, &aw );
