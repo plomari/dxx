@@ -437,4 +437,6 @@ int gr_check_fullscreen(void);
  */
 int gr_toggle_fullscreen(void);
 
+void gr_enable_depth(int enable);
+
 #endif /* def _GR_H */

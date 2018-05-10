@@ -52,6 +52,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "u_mem.h"
 #include "piggy.h"
+#include "gamefont.h"
+#include "switch.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -368,6 +370,87 @@ fix	Min_n0_n1_dot	= (F1_0*15/16);
 extern int contains_flare(segment *segp, int sidenum);
 extern fix	Obj_light_xlate[16];
 
+extern short render_pos[MAX_SEGMENTS];
+
+void highlight_side(segment *segp, int sidenum)
+{
+    if (render_pos[Segments - segp] < 0)
+        return;
+
+    for (int vert = 0; vert < 4; vert++)
+        g3_draw_line(&Segment_points[segp->verts[Side_to_verts[sidenum][vert]]],&Segment_points[segp->verts[Side_to_verts[sidenum][(vert+1)%4]]]);
+    for (int vert = 0; vert < 2; vert++)
+        g3_draw_line(&Segment_points[segp->verts[Side_to_verts[sidenum][vert]]],&Segment_points[segp->verts[Side_to_verts[sidenum][(vert+2)%4]]]);
+}
+
+void highlight_trigger(segment *segp, int sidenum)
+{
+    side		*sidep = &segp->sides[sidenum];
+
+    vms_vector cp;
+    compute_center_point_on_side(&cp, segp, sidenum);
+    g3s_point cpp;
+    g3_rotate_point(&cpp, &cp);
+    g3_project_point(&cpp);
+
+    if (sidep->wall_num == -1)
+        return;
+
+    wall *wallp = &Walls[sidep->wall_num];
+
+    //grd_curcanv->cv_font = GAME_FONT;
+    //gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+    //gr_printf(cpp.p3_sx, cpp.p3_sy, "hifxdfdjkklkjkjjkjkjk");
+    printf("seg %d/%d: wall %d t=%d f=%d s=%d\n", (int)(segp - Segments),
+           sidenum, sidep->wall_num, wallp->type, wallp->flags, wallp->state);
+
+    if (wallp->trigger == -1)
+        return;
+
+    gr_setcolor(BM_XRGB(0,63,0));
+    highlight_side(segp, sidenum);
+
+    trigger *trigp = &Triggers[wallp->trigger];
+    printf("wall %d: trigger %d type %d \n", sidep->wall_num, wallp->trigger, trigp->type);
+
+    gr_setcolor (BM_XRGB(255,0,0));
+    g3_draw_sphere(&cpp, 0x18000);
+
+    for (int i=0; i < trigp->num_links; i++) {
+        segment *tseg = &Segments[trigp->seg[i]];
+        int tside = trigp->side[i];
+
+        gr_setcolor(BM_XRGB(63,0,0));
+        highlight_side(tseg, tside);
+
+
+        gr_setcolor (BM_XRGB(0,0,255));
+
+        vms_vector tcp;
+        compute_center_point_on_side(&tcp, tseg, tside);
+
+        g3s_point tcpp;
+        g3_rotate_point(&tcpp, &tcp);
+        g3_project_point(&tcpp);
+
+        g3_draw_line(&cpp, &tcpp);
+    }
+}
+
+void highlight_all_triggers(void)
+{
+    return;
+    printf("---------\n");
+    gr_enable_depth(1);
+
+    for (int n = 0; n < Num_segments; n++) {
+        for (int i = 0; i < 6; i++)
+            highlight_trigger(&Segments[n], i);
+    }
+
+    //gr_enable_depth(1);
+}
+
 // -----------------------------------------------------------------------------------
 //	Render a side.
 //	Check for normal facing.  If so, render faces on side dictated by sidep->type.
@@ -386,7 +469,7 @@ void render_side(segment *segp, int sidenum)
 	wid_flags = WALL_IS_DOORWAY(segp,sidenum);
 
 	if (!(wid_flags & WID_RENDER_FLAG))		//if (WALL_IS_DOORWAY(segp, sidenum) == WID_NO_WALL)
-		return;
+		goto end;
 
 #ifdef COMPACT_SEGS
 	get_side_normals(segp, sidenum, &normals[0], &normals[1] );
@@ -542,6 +625,23 @@ im_so_ashamed: ;
 		}
 	}
 
+    end:;
+#if 0
+	if (sidep->wall_num != -1) {
+            //gr_enable_depth(0);
+
+            wall *wallp = &Walls[sidep->wall_num];
+
+            if (wallp->type == 1 && wallp->flags == 8) {
+                //wallp->type = 2;
+                //wallp->flags = 0;
+                gr_setcolor(BM_XRGB(0,63,0));
+                highlight_side(segp, sidenum);
+            }
+
+            //gr_enable_depth(1);
+        }
+#endif
 }
 
 #ifdef EDITOR
@@ -1329,7 +1429,7 @@ void build_object_lists(int n_segs)
 								if (WALL_IS_DOORWAY(seg,sn) & WID_FLY_FLAG) {		//can explosion migrate through
 									int child = seg->children[sn];
 									int checknp;
-		
+
 									for (checknp=list_pos;checknp--;)
 										if (Render_list[checknp] == child) {
 											new_segnum = child;
@@ -1343,7 +1443,7 @@ void build_object_lists(int n_segs)
 				} while (0);	//while (did_migrate);
 
 				add_obj_to_seglist(objnum,list_pos);
-	
+
 			}
 
 		}
@@ -1917,11 +2017,14 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 	// -- commented out by mk on 09/14/94...did i do a good thing??  object_render_targets();
 
+    highlight_all_triggers();
+
 #ifdef EDITOR
 	#ifndef NDEBUG
 	//draw curedge stuff
 	if (Outline_mode) outline_seg_side(Cursegp,Curside,Curedge,Curvert);
 	#endif
+
 
 done_rendering:
 	;

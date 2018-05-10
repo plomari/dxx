@@ -1997,6 +1997,15 @@ void FinalCheats(int key)
 				Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
 	}
 
+    if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("unlock")], "unlock"))
+    {
+        do_cheat_penalty();
+        HUD_init_message("Unlock doors!");
+
+        for (int n = 0; n < Num_walls; n++)
+            Walls[n].flags &= ~(unsigned)WALL_DOOR_LOCKED;
+    }
+
 
   if (!(strcmp (cryptstring,InvulCheat)))
 		{

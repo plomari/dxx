@@ -583,8 +583,8 @@ int load_briefing_screen( char *fname )
 	strcpy (CurBriefScreenName,fname);
 
 	if ((pcx_error = pcx_read_bitmap( fname, &briefing_bm, BM_LINEAR,gr_palette))!=PCX_ERROR_NONE)   {
-		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
-	}
+		Warning( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
+	} else
 
 	show_fullscr(&briefing_bm);
 

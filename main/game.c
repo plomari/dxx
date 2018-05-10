@@ -2016,10 +2016,17 @@ int create_special_path(void)
 
 	//	---------- Find exit doors ----------
 	for (i=0; i<=Highest_segment_index; i++)
-		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++)
-			if (Segments[i].children[j] == -2) {
-				return mark_player_path_to_segment(i);
-			}
+		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
+                    int wall_num = Segments[i].sides[j].wall_num;
+                    if (wall_num == -1)
+                        continue;
+                    int trigger_num = Walls[wall_num].trigger;
+                    if (trigger_num == -1)
+                        continue;
+                    trigger *trig = &Triggers[trigger_num];
+                    if (trig->type == TT_EXIT)
+                        return mark_player_path_to_segment(i);
+                }
 
 	return 0;
 }

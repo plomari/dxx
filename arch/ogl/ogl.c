@@ -652,6 +652,18 @@ void ogl_draw_reticle(int cross,int primary,int secondary)
 	glPopMatrix();
 }
 
+void gr_enable_depth(int enable)
+{
+    if (enable) {
+        glDepthMask(GL_TRUE);
+        glEnable(GL_DEPTH_TEST);
+    } else {
+        glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
+    }
+    //glEnable(GL_CULL_FACE);
+}
+
 int g3_draw_sphere(g3s_point *pnt,fix rad){
 	int c;
 	float scale = ((float)grd_curcanv->cv_bitmap.bm_w/grd_curcanv->cv_bitmap.bm_h);
@@ -1531,6 +1543,6 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 	glTexCoord2f(u2, v2); glVertex2f(xf, yf);
 	glTexCoord2f(u1, v2); glVertex2f(xo, yf);
 	glEnd();
-	
+
 	return 0;
 }
