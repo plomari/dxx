@@ -83,7 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define POW_HOARD_ORB           7       // use unused slot
 
 
-#define VULCAN_AMMO_MAX             (392*4)
+#define VULCAN_AMMO_MAX             (392*4*10)
 #define VULCAN_WEAPON_AMMO_AMOUNT   196
 #define VULCAN_AMMO_AMOUNT          (49*2)
 

@@ -310,7 +310,7 @@ grs_bitmap deccpt;
 grs_bitmap *WinBoxOverlay[2] = { NULL, NULL }; // Overlay subbitmaps for both weapon boxes
 
 #define VULCAN_AMMO_INT() \
-    (f2i((unsigned int)Players[Player_num].primary_ammo[VULCAN_INDEX] * VULCAN_AMMO_SCALE))
+    (int)(f2i((unsigned int)Players[Player_num].primary_ammo[VULCAN_INDEX] * (unsigned long long)VULCAN_AMMO_SCALE))
 
 /* Use static inline function under GCC to avoid CR/LF issues */
 #ifdef __GNUC__
