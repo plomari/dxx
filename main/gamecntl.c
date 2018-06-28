@@ -2006,6 +2006,29 @@ void FinalCheats(int key)
             Walls[n].flags &= ~(unsigned)WALL_DOOR_LOCKED;
     }
 
+    if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("freewalk")], "freewalk"))
+    {
+        do_cheat_penalty();
+        HUD_init_message("Who needs walls?");
+
+        for (int n = 0; n < Num_walls; n++)
+            Walls[n].type = WALL_ILLUSION;
+        for (int n = 0; n < Num_triggers; n++) {
+            if (Triggers[n].type == TT_EXIT)
+                Triggers[n].type = NUM_TRIGGER_TYPES;
+        }
+
+    }
+
+    if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("notriggers")], "notriggers"))
+    {
+        do_cheat_penalty();
+        HUD_init_message("Disabling fly triggers.");
+
+        for (int n = 0; n < Num_walls; n++)
+            Walls[n].trigger = -1;
+    }
+
 
   if (!(strcmp (cryptstring,InvulCheat)))
 		{
