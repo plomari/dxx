@@ -404,7 +404,7 @@ void name_frame()
 	int wr,h,aw;
 
 	if (Current_level_num > 0)
-		sprintf(name_level_left, "%s %i",TXT_LEVEL, Current_level_num);
+		sprintf(name_level_left, "%s %i/%i",TXT_LEVEL, Current_level_num, Last_level);
 	else
 		sprintf(name_level_left, "Secret Level %i",-Current_level_num);
 
