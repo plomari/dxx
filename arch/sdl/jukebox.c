@@ -5,7 +5,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <SDL/SDL_mixer.h>
+#include <SDL_mixer.h>
 #include "physfsx.h"
 #include "args.h"
 #include "dl_list.h"

@@ -105,7 +105,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "ui.h"
 #endif
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "vers_id.h"
 

@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include <digi_audio.h>
 
 #ifdef _WIN32

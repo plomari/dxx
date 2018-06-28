@@ -113,7 +113,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #endif
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 extern void full_palette_save(void);
 extern void object_goto_prev_viewer(void);

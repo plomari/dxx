@@ -13,7 +13,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <time.h>
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include "console.h"
 #include "args.h"
 #include "gr.h"

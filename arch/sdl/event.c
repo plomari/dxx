@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include "key.h"
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 extern void key_handler(SDL_KeyboardEvent *event);
 extern void mouse_button_handler(SDL_MouseButtonEvent *mbe);

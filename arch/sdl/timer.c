@@ -8,7 +8,7 @@
 #include <conf.h>
 #endif
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #include "maths.h"
 #include "timer.h"
