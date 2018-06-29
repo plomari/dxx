@@ -439,4 +439,6 @@ int gr_toggle_fullscreen(void);
 
 void gr_enable_depth(int enable);
 
+void gr_sdl_ogl_resize_window(int w, int h);
+
 #endif /* def _GR_H */

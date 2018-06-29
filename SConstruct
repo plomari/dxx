@@ -312,16 +312,16 @@ env["ARCOMSTR"]     = "Archiving $TARGET ..."
 env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
 
 # flags and stuff for all platforms
-env.ParseConfig('sdl-config --cflags')
-env.ParseConfig('sdl-config --libs')
+env.ParseConfig('pkg-config sdl2 --libs --cflags')
 env.Append(CPPFLAGS = ['-Wall', '-funsigned-char'])
 env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('D2XMAJOR', '\\"' + str(D2XMAJOR) + '\\"'), ('D2XMINOR', '\\"' + str(D2XMINOR) + '\\"')])
 #env.Append(CPPDEFINES = [('VERSION', '\\"' + str(VERSION) + '\\"')])
 #env.Append(CPPDEFINES = [('USE_SDLMIXER', sdlmixer)])
 env.Append(CPPDEFINES = ['NETWORK', 'HAVE_NETIPX_IPX_H', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
-generic_libs = ['SDL', 'physfs']
-sdlmixerlib = ['SDL_mixer']
+# scons is too poop to correctly get it from the pkg-config call?
+generic_libs = ['SDL2', 'physfs']
+sdlmixerlib = ['SDL2_mixer']
 
 if sdlmixer:
 	env.Append(CPPDEFINES = ['USE_SDLMIXER'])
@@ -329,6 +329,9 @@ if sdlmixer:
 if (D2XMICRO):
 	env.Append(CPPDEFINES = [('D2XMICRO', '\\"' + str(D2XMICRO) + '\\"')])
 
+env['CCFLAGS'] += ['-Wno-misleading-indentation',
+                   '-Wno-unused-but-set-variable',
+                   '-Werror-implicit-function-declaration']
 
 # Get traditional compiler environment variables
 if os.environ.has_key('CC'):

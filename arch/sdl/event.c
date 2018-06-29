@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "key.h"
+#include "gr.h"
 
 #include <SDL.h>
 
@@ -62,6 +63,15 @@ void event_poll()
 				void quit_request();
 				quit_request();
 			} break;
+                        case SDL_WINDOWEVENT: {
+                            switch (event.window.event) {
+                            case SDL_WINDOWEVENT_SIZE_CHANGED:
+                            case SDL_WINDOWEVENT_RESIZED:
+                                gr_sdl_ogl_resize_window(event.window.data1, event.window.data2);
+                                break;
+                            }
+                            break;
+                        }
 		}
 	}
 }

@@ -149,8 +149,8 @@ int joy_init()
 
 	con_printf(CON_NORMAL, "sdl-joystick: found %d joysticks\n", n);
 	for (i = 0; i < n; i++) {
-		con_printf(CON_NORMAL, "sdl-joystick %d: %s\n", i, SDL_JoystickName(i));
 		SDL_Joysticks[num_joysticks].handle = SDL_JoystickOpen(i);
+                con_printf(CON_NORMAL, "sdl-joystick %d: %s\n", i, SDL_JoystickName(SDL_Joysticks[num_joysticks].handle));
 		if (SDL_Joysticks[num_joysticks].handle) {
 			joy_present = 1;
 

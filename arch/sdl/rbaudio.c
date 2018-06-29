@@ -13,7 +13,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <SDL.h>
+#include "rbaudio.h"
+
+#if 1
+void RBAInit(void) {}
+void RBAExit() {}
+int RBAPlayTrack(int track) {return -1;}
+int RBAPlayTracks(int first, int last) {return 0;}
+int	RBAPeekPlayStatus(void) {return 0;}
+void RBAStop(void) {}
+void RBAEjectDisk(void) {}
+void RBASetVolume(int volume) {}
+int	RBAEnabled(void) {return 0;}
+void RBADisable(void) {}
+void RBAEnable(void) {}
+int	RBAGetNumberOfTracks(void) {return -1;}
+void	RBAPause() {}
+int	RBAResume() {return -1;}
+int	RBAPauseResume() {return 0;}
+int RBAGetTrackNum() {return 0;}
+unsigned long RBAGetDiscID() {return 0;}
+
+#else
+
+#include <SDL/SDL.h>
 
 #ifdef __linux__
 #include <sys/ioctl.h>
@@ -23,7 +46,6 @@
 #include "pstypes.h"
 #include "error.h"
 #include "args.h"
-#include "rbaudio.h"
 #include "console.h"
 
 static SDL_CD *s_cd = NULL;
@@ -269,3 +291,5 @@ unsigned long RBAGetDiscID()
 
 	return ((n % 0xff) << 24 | t << 8 | s_cd->numtracks);
 }
+
+#endif

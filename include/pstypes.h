@@ -80,14 +80,8 @@ typedef unsigned int uint;
 # define FNAME_MAX 32
 #endif
 
-#ifndef __cplusplus
-//define a boolean
-typedef ubyte bool;
-#endif
-
-#ifndef NULL
-#define NULL 0
-#endif
+#include <stdbool.h>
+#include <stddef.h>
 
 // the following stuff has nothing to do with types but needed everywhere,
 // and since this file is included everywhere, it's here.

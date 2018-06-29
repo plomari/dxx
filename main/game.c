@@ -27,6 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ctype.h>
 #include <time.h>
+#include <stdbool.h>
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -375,6 +376,12 @@ void game_init_render_buffers(int render_w, int render_h, int render_method, int
 	game_init_render_sub_buffers( 0, 0, render_w, render_h );
 }
 
+static void grab_mouse(bool grab)
+{
+    // TODO: SDL1.x
+    //SDL_WM_GrabInput(grab ? SDL_GRAB_ON : SDL_GRAB_OFF);
+}
+
 //called to change the screen mode. Parameter sm is the new mode, one of
 //SMODE_GAME or SMODE_EDITOR. returns mode acutally set (could be other
 //mode if cannot init requested mode)
@@ -400,7 +407,7 @@ int set_screen_mode(int sm)
 		case SCREEN_MENU:
 			/* give control back to the WM */
 			if (GameArg.CtlGrabMouse)
-				SDL_WM_GrabInput(SDL_GRAB_OFF);
+				grab_mouse(false);
 
 			if  (grd_curscreen->sc_mode != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
@@ -410,7 +417,7 @@ int set_screen_mode(int sm)
 		case SCREEN_GAME:
 			/* keep the mouse from wandering in SDL */
 			if (GameArg.CtlGrabMouse && (Newdemo_state != ND_STATE_PLAYBACK))
-				SDL_WM_GrabInput(SDL_GRAB_ON);
+				grab_mouse(true);
 
 			if  (grd_curscreen->sc_mode != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
@@ -423,7 +430,7 @@ int set_screen_mode(int sm)
 		case SCREEN_EDITOR:
 			/* give control back to the WM */
 			if (GameArg.CtlGrabMouse)
-				SDL_WM_GrabInput(SDL_GRAB_OFF);
+				grab_mouse(false);
 
 			if (grd_curscreen->sc_mode != SM(800,600))	{
 				int gr_error;
@@ -443,7 +450,7 @@ int set_screen_mode(int sm)
 		case SCREEN_MOVIE:
 			/* give control back to the WM */
 			if (GameArg.CtlGrabMouse)
-				SDL_WM_GrabInput(SDL_GRAB_OFF);
+				grab_mouse(false);
 
 			if (grd_curscreen->sc_mode != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
 				if (gr_set_mode(SM(MOVIE_WIDTH,MOVIE_HEIGHT))) Error("Cannot set screen mode for game!");

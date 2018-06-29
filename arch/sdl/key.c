@@ -54,7 +54,7 @@ static keyboard key_data;
 typedef struct key_props {
 	char *key_text;
 	unsigned char ascii_value;
-	SDLKey sym;
+	SDL_Keycode sym;
 } key_props;
 
 key_props key_properties[256] = {
@@ -127,20 +127,20 @@ key_props key_properties[256] = {
 { "F8",     255,    SDLK_F8            },
 { "F9",     255,    SDLK_F9            },
 { "F10",    255,    SDLK_F10           },
-{ "NMLCK",  255,    SDLK_NUMLOCK       },
-{ "SCLK",   255,    SDLK_SCROLLOCK     }, // 70
-{ "PAD7",   255,    SDLK_KP7           },
-{ "PAD8",   255,    SDLK_KP8           },
-{ "PAD9",   255,    SDLK_KP9           },
+{ "NMLCK",  255,    SDLK_NUMLOCKCLEAR  },
+{ "SCLK",   255,    SDLK_SCROLLLOCK    }, // 70
+{ "PAD7",   255,    SDLK_KP_7          },
+{ "PAD8",   255,    SDLK_KP_8          },
+{ "PAD9",   255,    SDLK_KP_9          },
 { "PAD-",   255,    SDLK_KP_MINUS      },
-{ "PAD4",   255,    SDLK_KP4           },
-{ "PAD5",   255,    SDLK_KP5           },
-{ "PAD6",   255,    SDLK_KP6           },
+{ "PAD4",   255,    SDLK_KP_4          },
+{ "PAD5",   255,    SDLK_KP_5          },
+{ "PAD6",   255,    SDLK_KP_6          },
 { "PAD+",   255,    SDLK_KP_PLUS       },
-{ "PAD1",   255,    SDLK_KP1           },
-{ "PAD2",   255,    SDLK_KP2           }, // 80
-{ "PAD3",   255,    SDLK_KP3           },
-{ "PAD0",   255,    SDLK_KP0           },
+{ "PAD1",   255,    SDLK_KP_1          },
+{ "PAD2",   255,    SDLK_KP_2          }, // 80
+{ "PAD3",   255,    SDLK_KP_3          },
+{ "PAD0",   255,    SDLK_KP_0          },
 { "PAD.",   255,    SDLK_KP_PERIOD     },
 { "",       255,    -1                 },
 { "",       255,    -1                 },
@@ -216,8 +216,8 @@ key_props key_properties[256] = {
 { "",       255,    -1                 },
 { "PAD",    255,    SDLK_KP_ENTER      },
 { "RCTRL",  255,    SDLK_RCTRL         },
-{ "LCMD",   255,    SDLK_LMETA         },
-{ "RCMD",   255,    SDLK_RMETA         },
+{ "LCMD",   255,    -1 /*SDLK_LMETA*/         }, // TODO: SDL1.x
+{ "RCMD",   255,    -1 /*SDLK_RMETA*/         },
 { "",       255,    -1                 }, // 160
 { "",       255,    -1                 },
 { "",       255,    -1                 },
@@ -241,7 +241,7 @@ key_props key_properties[256] = {
 { "",       255,    -1                 }, // 180
 { "PAD/",   255,    SDLK_KP_DIVIDE     },
 { "",       255,    -1                 },
-{ "PRSCR",  255,    SDLK_PRINT         },
+{ "PRSCR",  255,    SDLK_PRINTSCREEN   },
 { "RALT",   255,    SDLK_RALT          },
 { "",       255,    -1                 },
 { "",       255,    -1                 },
@@ -360,11 +360,12 @@ void key_handler(SDL_KeyboardEvent *event, int counter)
         key_state = (event->state == SDL_PRESSED);
 
 	// fill the unicode frame-related unicode buffer 
-	if (key_state && event->keysym.unicode > 31 && event->keysym.unicode < 255)
+        // TODO: SDL1.x used proper unicode (but it didn't work there either)
+	if (key_state && event_keysym > 31 && event_keysym < 255)
 		for (i = 0; i < KEY_BUFFER_SIZE; i++)
 			if (unicode_frame_buffer[i] == '\0')
 			{
-				unicode_frame_buffer[i] = event->keysym.unicode;
+				unicode_frame_buffer[i] = event_keysym;
 				break;
 			}
 
@@ -411,8 +412,9 @@ void key_handler(SDL_KeyboardEvent *event, int counter)
 				keycode |= KEY_CTRLED;
 			if ( keyd_pressed[KEY_DELETE] )
 				keycode |= KEY_DEBUGGED;
-			if ( keyd_pressed[KEY_LMETA] || keyd_pressed[KEY_RMETA])
-					keycode |= KEY_METAED;
+                        // TODO: SDL1.x
+			//if ( keyd_pressed[KEY_LMETA] || keyd_pressed[KEY_RMETA])
+			//		keycode |= KEY_METAED;
 			temp = key_data.keytail+1;
 			if ( temp >= KEY_BUFFER_SIZE ) temp=0;
 			if (temp!=key_data.keyhead)	{
@@ -437,7 +439,6 @@ void key_init()
 	if (Installed) return;
 
 	Installed=1;
-	SDL_EnableUNICODE(1);
 
 	keyd_time_when_last_pressed = timer_get_fixed_seconds();
 	keyd_buffer_type = 1;

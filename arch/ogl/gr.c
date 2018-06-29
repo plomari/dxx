@@ -63,82 +63,52 @@ int gl_initialized=0;
 int ogl_fullscreen;
 static int curx=-1,cury=-1,curfull=0;
 int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated once when resolution changes
-
-void ogl_swap_buffers_internal(void)
-{
-	SDL_GL_SwapBuffers();
-}
-
-int ogl_init_window(int x, int y)
-{
-	if (gl_initialized){
-		if (x==curx && y==cury && curfull==ogl_fullscreen)
-			return 0;
-		ogl_smash_texture_list_internal();//if we are or were fullscreen, changing vid mode will invalidate current textures
-	}
-
-	SDL_WM_SetCaption(DESCENT_VERSION, "Descent II");
-	if (!SDL_SetVideoMode(x, y, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen ? SDL_FULLSCREEN : 0)))
-	{
-		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgGlBpp, SDL_GetError());
-	}
-	SDL_ShowCursor(0);
-
-	curx=x;cury=y;curfull=ogl_fullscreen;
-
-	linedotscale = ((x/640<y/480?x/640:y/480)<1?1:(x/640<y/480?x/640:y/480));
-
-	gl_initialized=1;
-	return 0;
-}
-
-int gr_check_fullscreen(void)
-{
-	return ogl_fullscreen;
-}
-
-void gr_do_fullscreen(int f)
-{
-	ogl_fullscreen=f;
-	if (gl_initialized)
-	{
-		if (!SDL_VideoModeOK(curx, cury, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0)))
-		{
-			con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",curx,cury);
-			curx=640;
-			cury=480;
-			Game_screen_mode=SM(curx,cury);
-		}
-	
-		ogl_init_window(curx,cury);
-	}
-}
-
-int gr_toggle_fullscreen(void)
-{
-	gr_do_fullscreen(!ogl_fullscreen);
-	gr_remap_color_fonts();
-	gr_remap_mono_fonts();
-
-	if (gl_initialized && Screen_mode != SCREEN_GAME) // update viewing values for menus
-	{
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();//clear matrix
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-	GameCfg.WindowMode = !ogl_fullscreen;
-	return ogl_fullscreen;
-}
+static SDL_Window *sdl_window;
 
 extern void ogl_init_pixel_buffers(int w, int h);
 extern void ogl_close_pixel_buffers(void);
+extern int gcd(int a, int b);
 
-void ogl_init_state(void)
+static void ogl_get_verinfo(void);
+
+void ogl_swap_buffers_internal(void)
 {
+	if (sdl_window)
+		SDL_GL_SwapWindow(sdl_window);
+}
+
+void gr_sdl_ogl_resize_window(int w, int h)
+{
+	if (curx == w && cury == h)
+		return;
+
+	curx=w;cury=h;
+
+	if (!gl_initialized)
+		return;
+
+	int screen_mode = SM(w, h);
+
+	GameCfg.AspectY = SM_W(screen_mode)/gcd(SM_W(screen_mode),SM_H(screen_mode));
+	GameCfg.AspectX = SM_H(screen_mode)/gcd(SM_W(screen_mode),SM_H(screen_mode));
+
+	linedotscale = ((w/640<h/480?w/640:h/480)<1?1:(w/640<h/480?w/640:h/480));
+
+	char *gr_bm_data = (char *)grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
+	memset( grd_curscreen, 0, sizeof(grs_screen));
+	grd_curscreen->sc_mode = screen_mode;
+	grd_curscreen->sc_w = w;
+	grd_curscreen->sc_h = h;
+	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
+	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
+	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
+	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
+	grd_curscreen->sc_canvas.cv_bitmap.bm_h = h;
+	grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize = w;
+	grd_curscreen->sc_canvas.cv_bitmap.bm_type = BM_OGL;
+	grd_curscreen->sc_canvas.cv_bitmap.bm_data = d_realloc(gr_bm_data,w*h);
+	gr_set_current_canvas(NULL);
+
 	/* select clearing (background) color   */
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
@@ -153,6 +123,75 @@ void ogl_init_state(void)
 	gr_palette_step_up(0,0,0);//in case its left over from in game
 
 	ogl_init_pixel_buffers(grd_curscreen->sc_w, grd_curscreen->sc_h);
+
+	gamefont_choose_game_font(w,h);
+	gr_remap_color_fonts();
+	gr_remap_mono_fonts();
+
+	OGL_VIEWPORT(0,0,w,h);
+
+	Game_screen_mode = screen_mode;
+	game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode), VR_NONE, 0);
+}
+
+int ogl_init_window(int x, int y)
+{
+	if (gl_initialized && x==curx && y==cury && curfull==ogl_fullscreen)
+		return 0;
+
+	int fs_flags = ogl_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0;
+
+	if (sdl_window) {
+		SDL_SetWindowSize(sdl_window, x, y);
+		SDL_SetWindowFullscreen(sdl_window, fs_flags);
+	} else {
+		sdl_window = SDL_CreateWindow(DESCENT_VERSION,
+                             SDL_WINDOWPOS_UNDEFINED,
+                             SDL_WINDOWPOS_UNDEFINED,
+                             x, y,
+                             SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | fs_flags);
+		// (let the context leak)
+		SDL_GL_CreateContext(sdl_window);
+		ogl_get_verinfo();
+	}
+
+	// Ignore system keys etc. if windows is grabbed.
+	SDL_SetHint(SDL_HINT_GRAB_KEYBOARD, "1");
+
+	SDL_SetWindowGrab(sdl_window, !!ogl_fullscreen);
+
+	SDL_ShowCursor(0);
+
+	gl_initialized = 1;
+
+	curfull = ogl_fullscreen;
+	GameCfg.WindowMode = !ogl_fullscreen;
+
+	SDL_GetWindowSize(sdl_window, &x, &y);
+	gr_sdl_ogl_resize_window(x, y);
+
+	return 0;
+}
+
+int gr_check_fullscreen(void)
+{
+	return ogl_fullscreen;
+}
+
+void gr_do_fullscreen(int f)
+{
+	ogl_fullscreen=f;
+	if (gl_initialized)
+	{
+		ogl_init_window(curx,cury);
+	}
+}
+
+int gr_toggle_fullscreen(void)
+{
+	gr_do_fullscreen(!ogl_fullscreen);
+
+	return ogl_fullscreen;
 }
 
 // Set the buffer to draw to. 0 is front, 1 is back
@@ -163,12 +202,17 @@ void gr_set_draw_buffer(int buf)
 
 const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
 
-void ogl_get_verinfo(void)
+static void ogl_get_verinfo(void)
 {
 	gl_vendor = (const char *) glGetString (GL_VENDOR);
 	gl_renderer = (const char *) glGetString (GL_RENDERER);
 	gl_version = (const char *) glGetString (GL_VERSION);
 	gl_extensions = (const char *) glGetString (GL_EXTENSIONS);
+
+	if (!gl_vendor) {
+		fprintf(stderr, "GL_VENDOR is NULL, no GL initialized!\n");
+		abort();
+	}
 
 	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s\nOpenGL: version: %s\n",gl_vendor,gl_renderer,gl_version);
 
@@ -204,7 +248,6 @@ void ogl_get_verinfo(void)
 int gr_set_mode(u_int32_t mode)
 {
 	unsigned int w, h;
-	char *gr_bm_data;
 
 	if (mode<=0)
 		return 0;
@@ -212,36 +255,7 @@ int gr_set_mode(u_int32_t mode)
 	w=SM_W(mode);
 	h=SM_H(mode);
 
-	if (!SDL_VideoModeOK(w, h, GameArg.DbgGlBpp, SDL_OPENGL | (ogl_fullscreen?SDL_FULLSCREEN:0)))
-	{
-		con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",w,h);
-		w=640;
-		h=480;
-		Game_screen_mode=mode=SM(w,h);
-	}
-
-	gr_bm_data=(char *)grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
-	memset( grd_curscreen, 0, sizeof(grs_screen));
-	grd_curscreen->sc_mode = mode;
-	grd_curscreen->sc_w = w;
-	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
-	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_h = h;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize = w;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_type = BM_OGL;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_data = d_realloc(gr_bm_data,w*h);
-	gr_set_current_canvas(NULL);
-	
 	ogl_init_window(w,h);//platform specific code
-	ogl_get_verinfo();
-	OGL_VIEWPORT(0,0,w,h);
-	ogl_init_state();
-	gamefont_choose_game_font(w,h);
-	gr_remap_color_fonts();
-	gr_remap_mono_fonts();
 
 	return 0;
 }
@@ -331,7 +345,7 @@ void gr_set_attributes(void)
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE,0);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,1);
-	SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL,GameCfg.VSync);
+	SDL_GL_SetSwapInterval(GameCfg.VSync);
 	if (GameCfg.Multisample)
 	{
 		SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
@@ -360,7 +374,7 @@ int gr_init(int mode)
 #endif
 
 	if (!GameCfg.WindowMode && !GameArg.SysWindow)
-		gr_toggle_fullscreen();
+ 		gr_toggle_fullscreen();
 
 	gr_set_attributes();
 
