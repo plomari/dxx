@@ -1,3 +1,39 @@
+About this fork
+---------------
+
+This is based on dxx 0.55.1 (from 2009, i.e. very old), mostly because of #4 on
+the upstream repo.
+
+It includes some fixes and modifications as well. Some are game play changes
+that are enabled by default:
+
+- a raised object limit. This fixes behavior even with some official levels
+  (at least level 12), where dropping a lot of weapons can bring the object
+  count above the limit and you can't shoot anymore.
+- raise the ammo rack weapons limit to basically infinite; you also drop all
+  ammo when you die
+- keep the ammo rack when you die
+- raise vulcan ammo to basically infinite
+- a "killboss" cheat that doesn't trigger cheat penalty, because I hate boss
+  fights
+- logging remaining robot life as HUD messages (actually this is very annoying,
+  but I left it in because it's sometimes useful)
+- fix display of current bomb type (for b/n keys) in a certain cockpit mode
+- show the total number of levels in the automap
+- some shitty cheats (with penatly; see source code)
+- some bug fixes
+
+
+This was also converted to SDL2 (OpenGL/Linux only), possibly with some problems
+that still should be fixed.
+
+If anyone uses this and finds a problem, feel free to open an issue on this
+github repo.
+
+Original
+--------
+
+
                          __________
 __________/ D2X-Rebirth /
 
