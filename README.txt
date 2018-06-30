@@ -22,6 +22,8 @@ that are enabled by default:
 - show the total number of levels in the automap
 - some shitty cheats (with penatly; see source code)
 - some bug fixes
+- remains pure C. I'm against the pointless C++ uglification that upstream did.
+  This also doesn't include the d1x unification.
 
 
 This was also converted to SDL2 (OpenGL/Linux only), possibly with some problems
