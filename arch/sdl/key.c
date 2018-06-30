@@ -359,6 +359,9 @@ void key_handler(SDL_KeyboardEvent *event, int counter)
         event_keysym = event->keysym.sym;
         key_state = (event->state == SDL_PRESSED);
 
+	if (key_state && event->repeat)
+		return;
+
 	// fill the unicode frame-related unicode buffer 
         // TODO: SDL1.x used proper unicode (but it didn't work there either)
 	if (key_state && event_keysym > 31 && event_keysym < 255)
