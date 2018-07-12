@@ -731,9 +731,6 @@ void hud_show_score()
 	char	score_str[20];
 	int	w, h, aw;
 
-	if ((HUD_nmessages > 0) && (strlen(HUD_messages[hud_first]) > 38))
-		return;
-
 	gr_set_curfont( GAME_FONT );
 
 	if ( ((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)) ) {
@@ -1477,9 +1474,6 @@ void hud_show_shield(void)
 void hud_show_lives()
 {
 	int x;
-
-	if ((HUD_nmessages > 0) && (strlen(HUD_messages[hud_first]) > 38))
-		return;
 
 	if (PlayerCfg.CockpitMode == CM_FULL_COCKPIT)
 		x = HUD_SCALE_X(7);
