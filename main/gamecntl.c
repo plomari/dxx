@@ -83,6 +83,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "movie.h"
 #include "scores.h"
+#include "collide.h"
 
 #include "multi.h"
 #include "desc_id.h"
@@ -2020,6 +2021,9 @@ void FinalCheats(int key)
 
     }
 
+    if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("wireframe")], "wireframe"))
+		toggle_outline_mode();
+
     if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("notriggers")], "notriggers"))
     {
         do_cheat_penalty();
@@ -2028,6 +2032,45 @@ void FinalCheats(int key)
         for (int n = 0; n < Num_walls; n++)
             Walls[n].trigger = -1;
     }
+
+    if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("fuckrobots")], "fuckrobots"))
+	{
+		do_cheat_penalty();
+		int cnt = 0;
+
+		for (int n = 0; n <= Highest_object_index; n++) {
+			if (Objects[n].type == OBJ_ROBOT && !Robot_info[Objects[n].id].boss_flag) {
+				apply_damage_to_robot(&Objects[n], Objects[n].shields+1, ConsoleObject-Objects);
+				cnt++;
+			}
+		}
+
+		HUD_init_message("fucked %d assholes", cnt);
+	}
+
+	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("showtrigger")], "showtrigger"))
+	{
+		extern int highlight_seg;
+		extern int highlight_side;
+
+		vms_vector p1;
+		vm_vec_add(&p1, &Viewer->pos, &Viewer->orient.fvec);
+
+		fvi_query q = {
+			.p0 = &Viewer->pos,
+			.p1 = &p1,
+			.startseg = Viewer->segnum,
+			.rad = 0,
+			.thisobjnum = Viewer - Objects,
+			.flags = FQ_INFINITE|FQ_WALL_SIDES,
+		};
+
+		fvi_info hit;
+		if (find_vector_intersection(&q, &hit) == HIT_WALL) {
+			highlight_seg = hit.hit_seg;
+			highlight_side = hit.hit_side;
+		}
+	}
 
 
   if (!(strcmp (cryptstring,InvulCheat)))

@@ -799,7 +799,7 @@ int obj_in_list(int objnum,int *obj_list)
 
 int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum);
 
-int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p1,fix rad,short thisobjnum,int *ignore_obj_list,int flags,int *seglist,int *n_segs,int entry_seg)
+int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p1_,fix rad,short thisobjnum,int *ignore_obj_list,int flags,int *seglist,int *n_segs,int entry_seg)
 {
 	segment *seg;				//the segment we're looking at
 	int startmask,endmask;	//mask of faces
@@ -823,6 +823,27 @@ int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p
 	*n_segs=1;
 
 	seg = &Segments[startseg];
+
+	vms_vector p1_t = *p1_;
+	vms_vector *p1 = &p1_t;
+
+	if (flags & FQ_INFINITE) {
+		// Some really dumb bullshit, since all the fvi functions check whether
+		// the "line" (p0-p1) really reaches into an intersection target, while
+		// we want an infinite ray. Doing this dumb bullshit avoids changing all
+		// the code. It's really fucking dumb. Did I say it's dumb.
+		fix maxd = 0;
+		for (int n = 0; n < MAX_VERTICES_PER_SEGMENT; n++) {
+			fix vd = vm_vec_dist(p0, &Vertices[seg->verts[n]]);
+			if (vd > maxd)
+				maxd = vd;
+		}
+
+		// I don't want to think about rounding errors; better you don't either.
+		vms_vector t;
+		vm_vec_normalized_dir(&t, p1, p0);
+		vm_vec_scale_add(p1, p0, &t, maxd * 2);
+	}
 
 	fvi_nest_count++;
 
@@ -935,6 +956,12 @@ int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p
 						} else {
 							wid_flag = WALL_IS_DOORWAY(seg, side);
 						}
+
+						if (flags & FQ_ALL_SIDES)
+							wid_flag = 0;
+
+						if ((flags & FQ_WALL_SIDES) && seg->sides[side].wall_num >= 0)
+							wid_flag = 0;
 
 						if ((wid_flag & WID_FLY_FLAG) ||
 							(((wid_flag & WID_RENDER_FLAG) && (wid_flag & WID_RENDPAST_FLAG)) &&
@@ -1306,5 +1333,3 @@ int object_intersects_wall(object *objp)
 
 	return sphere_intersects_wall(&objp->pos,objp->segnum,objp->size);
 }
-
-

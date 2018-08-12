@@ -82,7 +82,7 @@ int Num_cloaking_walls;
 //#define BM_FLAG_TRANSPARENT			1
 //#define BM_FLAG_SUPER_TRANSPARENT	2
 
-#ifdef EDITOR
+//#ifdef EDITOR
 char	Wall_names[7][10] = {
 	"NORMAL   ",
 	"BLASTABLE",
@@ -92,7 +92,7 @@ char	Wall_names[7][10] = {
 	"CLOSED   ",
 	"EXTERNAL "
 };
-#endif
+//#endif
 
 // Function prototypes
 void kill_stuck_objects(int wallnum);

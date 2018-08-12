@@ -1215,7 +1215,7 @@ void extract_orient_from_segment(vms_matrix *m,segment *seg)
 	vm_vector_2_matrix(m,&fvec,&uvec,NULL);
 }
 
-#ifdef EDITOR
+//#ifdef EDITOR
 // ------------------------------------------------------------------------------------------
 //	Extract the forward vector from segment *sp, return in *vp.
 //	The forward vector is defined to be the vector from the the center of the front face of the segment
@@ -1242,7 +1242,7 @@ void extract_up_vector_from_segment(segment *sp,vms_vector *vp)
 {
 	extract_vector_from_segment(sp,vp,WBOTTOM,WTOP);
 }
-#endif
+//#endif
 
 void add_side_as_quad(segment *sp, int sidenum, vms_vector *normal)
 {

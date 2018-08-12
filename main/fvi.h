@@ -53,6 +53,9 @@ typedef struct fvi_info {
 #define FQ_TRANSPOINT	4		//go through trans wall if hit point is transparent
 #define FQ_GET_SEGLIST	8		//build a list of segments
 #define FQ_IGNORE_POWERUPS	16		//ignore powerups
+#define FQ_INFINITE		32		// don't stop at p1 (p1 only gives direction)
+#define FQ_ALL_SIDES	64		// collide against any segment sides
+#define FQ_WALL_SIDES	256		// collide against sides that have a wall_num set
 
 //this data contains the parms to fvi()
 typedef struct fvi_query {

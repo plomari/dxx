@@ -54,6 +54,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "gamefont.h"
 #include "switch.h"
+#include "gauges.h"
+#include "internal.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -116,14 +118,27 @@ int found_seg,found_side,found_face,found_poly;
 #define _search_mode 0
 #endif
 
-#ifdef NDEBUG		//if no debug code, set these vars to constants
-
-#define Outline_mode 0
-#define Show_only_curside 0
-
-#else
+int highlight_seg = -1;
+int highlight_side = -1;
 
 int Outline_mode=0,Show_only_curside=0;
+
+static void find_connect_side2(int segnum, int sidenum,
+							   int *conn_seg, int *conn_side)
+{
+	*conn_seg = Segments[segnum].children[sidenum];
+	*conn_side = -1;
+	if (*conn_seg >= 0) {
+		// (wasn't there a helper somewhere?)
+		for (int n = 0; n < MAX_SIDES_PER_SEGMENT; n++) {
+			if (Segments[*conn_seg].children[n] == segnum) {
+				*conn_side = n;
+				break;
+			}
+		}
+		Assert(*conn_side >= 0);
+	}
+}
 
 int toggle_outline_mode(void)
 {
@@ -147,7 +162,6 @@ void draw_outline(int nverts,g3s_point **pointlist)
 	g3_draw_line(pointlist[i],pointlist[0]);
 
 }
-#endif
 
 extern fix Seismic_tremor_magnitude;
 
@@ -221,9 +235,10 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 		pointlist[i] = &Segment_points[vp[i]];
 	}
 
+	int wall_num = Segments[segnum].sides[sidenum].wall_num;
+
 	//handle cloaked walls
 	if (wid_flags & WID_CLOAKED_FLAG) {
-		int wall_num = Segments[segnum].sides[sidenum].wall_num;
 		Assert(wall_num != -1);
 		Gr_scanline_darkening_level = Walls[wall_num].cloak_value;
 		gr_setcolor(BM_XRGB(0, 0, 0));  // set to black (matters for s3)
@@ -301,6 +316,13 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 		}
 	}
 
+#if 0
+	if (segnum == highlight_seg && sidenum == highlight_side) {
+		Gr_color[0] = 0;
+		Gr_color[2] = 0;
+	}
+#endif
+
 #ifdef EDITOR
 	if ((Render_only_bottom) && (sidenum == WBOTTOM))
 		g3_draw_tmap(nv,pointlist,uvl_copy,&GameBitmaps[Textures[Bottom_bitmap_num].index]);
@@ -314,8 +336,11 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 #endif
 			g3_draw_tmap(nv,pointlist,uvl_copy,bm);
 
-#ifndef NDEBUG
 	if (Outline_mode) draw_outline(nv, pointlist);
+
+#if 1
+	for (int i = 0; i < 3; i++)
+		Gr_color[i] = 1;
 #endif
 }
 
@@ -372,20 +397,17 @@ extern fix	Obj_light_xlate[16];
 
 extern short render_pos[MAX_SEGMENTS];
 
-void highlight_side(segment *segp, int sidenum)
+void highlight_seg_side(segment *segp, int sidenum)
 {
-    if (render_pos[Segments - segp] < 0)
-        return;
-
     for (int vert = 0; vert < 4; vert++)
         g3_draw_line(&Segment_points[segp->verts[Side_to_verts[sidenum][vert]]],&Segment_points[segp->verts[Side_to_verts[sidenum][(vert+1)%4]]]);
     for (int vert = 0; vert < 2; vert++)
         g3_draw_line(&Segment_points[segp->verts[Side_to_verts[sidenum][vert]]],&Segment_points[segp->verts[Side_to_verts[sidenum][(vert+2)%4]]]);
 }
 
-void highlight_trigger(segment *segp, int sidenum)
+static void draw_links(segment *segp, int sidenum)
 {
-    side		*sidep = &segp->sides[sidenum];
+	side		*sidep = &segp->sides[sidenum];
 
     vms_vector cp;
     compute_center_point_on_side(&cp, segp, sidenum);
@@ -397,34 +419,19 @@ void highlight_trigger(segment *segp, int sidenum)
         return;
 
     wall *wallp = &Walls[sidep->wall_num];
-
-    //grd_curcanv->cv_font = GAME_FONT;
-    //gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
-    //gr_printf(cpp.p3_sx, cpp.p3_sy, "hifxdfdjkklkjkjjkjkjk");
-    printf("seg %d/%d: wall %d t=%d f=%d s=%d\n", (int)(segp - Segments),
-           sidenum, sidep->wall_num, wallp->type, wallp->flags, wallp->state);
-
     if (wallp->trigger == -1)
         return;
 
     gr_setcolor(BM_XRGB(0,63,0));
-    highlight_side(segp, sidenum);
 
-    trigger *trigp = &Triggers[wallp->trigger];
-    printf("wall %d: trigger %d type %d \n", sidep->wall_num, wallp->trigger, trigp->type);
+	trigger *trigp = &Triggers[wallp->trigger];
 
     gr_setcolor (BM_XRGB(255,0,0));
-    g3_draw_sphere(&cpp, 0x18000);
+    g3_draw_sphere(&cpp, 1 << 16);
 
     for (int i=0; i < trigp->num_links; i++) {
         segment *tseg = &Segments[trigp->seg[i]];
         int tside = trigp->side[i];
-
-        gr_setcolor(BM_XRGB(63,0,0));
-        highlight_side(tseg, tside);
-
-
-        gr_setcolor (BM_XRGB(0,0,255));
 
         vms_vector tcp;
         compute_center_point_on_side(&tcp, tseg, tside);
@@ -433,22 +440,254 @@ void highlight_trigger(segment *segp, int sidenum)
         g3_rotate_point(&tcpp, &tcp);
         g3_project_point(&tcpp);
 
+		gr_setcolor(gr_find_closest_color(0,0,63));
+		g3_draw_sphere(&tcpp, 1 << 16);
+
+		gr_setcolor(gr_find_closest_color(0,63,0));
         g3_draw_line(&cpp, &tcpp);
     }
 }
 
+void highlight_trigger(segment *segp, int sidenum)
+{
+	int segnum = segp - Segments;
+
+    draw_links(segp, sidenum);
+
+	int conn_seg, conn_side;
+	find_connect_side2(segnum, sidenum, &conn_seg, &conn_side);
+
+	bool any_triggers = false, otherside_triggers = false;
+	for (int n = 0; n < Num_triggers; n++) {
+		trigger *tr = &Triggers[n];
+
+		for (int i = 0; i < tr->num_links; i++) {
+			if ((tr->seg[i] == segnum && tr->side[i] == sidenum) ||
+				(tr->seg[i] == conn_seg && tr->side[i] == conn_side))
+			{
+				// tr apparently affects this side...
+				// find segments which use this trigger and draw it
+				for (int x = 0; x <= Highest_segment_index; x++) {
+					for (int s = 0; s < MAX_SIDES_PER_SEGMENT; s++) {
+						int w = Segments[x].sides[s].wall_num;
+						if (w >= 0 && Walls[w].trigger == n)
+							draw_links(&Segments[x], s);
+					}
+				}
+			}
+		}
+	}
+}
+
 void highlight_all_triggers(void)
 {
-    return;
-    printf("---------\n");
-    gr_enable_depth(1);
+	if (highlight_seg >= 0)
+		highlight_trigger(&Segments[highlight_seg], highlight_side);
+}
 
-    for (int n = 0; n < Num_segments; n++) {
-        for (int i = 0; i < 6; i++)
-            highlight_trigger(&Segments[n], i);
-    }
+static void highlight_side_triggers(int segnum, int sidenum)
+{
+	segment *segp = &Segments[segnum];
+	short		vertnum_list[4];
 
-    //gr_enable_depth(1);
+#define ARRAY_SIZE(arr) \
+	(sizeof(arr) / sizeof((arr)[0]))
+#define ARRAY_OR_DEF(idx, arr, def) \
+	((idx) >= 0 && (idx) < ARRAY_SIZE(arr) && (arr)[(idx)] ? (arr)[(idx)] : (def))
+#define APPENDF(s, ...)  do { 								\
+	int pos_ = strlen(s);									\
+	snprintf((s) + pos_, sizeof(s) - pos_, __VA_ARGS__);	\
+} while(0)
+
+	char t[512];
+	t[0] = '\0';
+
+	bool is_trigger = false;
+	bool is_target = false;
+
+	int wall_num = Segments[segnum].sides[sidenum].wall_num;
+	if (wall_num >= 0) {
+		struct wall *wall = &Walls[wall_num];
+
+		static const char *const Wall_flags[] = {
+			"blasted",	// WALL_BLASTED            1
+			"opened",	// WALL_DOOR_OPENED		   2
+			"unused",	//                         4
+			"locked",	// WALL_DOOR_LOCKED        8
+			"aclose",	// WALL_DOOR_AUTO          16
+			"il_off",	// WALL_ILLUSION_OFF       32
+			"switch",	// WALL_WALL_SWITCH        64
+			"bproof",	// WALL_BUDDY_PROOF        128
+		};
+
+		char flags_str[80];
+		flags_str[0] = '\0';
+		for (int n = 0; n < ARRAY_SIZE(Wall_flags); n++) {
+			if (wall->flags & (1 << n))
+				APPENDF(flags_str, "%s%s", flags_str[0] ? "+" : "", Wall_flags[n]);
+		}
+
+		static const char *const Wall_states[] = {
+			[WALL_DOOR_CLOSED] = "closed",
+			[WALL_DOOR_OPENING] =  "opening",
+			[WALL_DOOR_WAITING] = "waiting",
+			[WALL_DOOR_CLOSING] = "closing",
+			[WALL_DOOR_OPEN] = "open",
+			[WALL_DOOR_CLOAKING] = "cloaking",
+			[WALL_DOOR_DECLOAKING] = "decloaking",
+		};
+
+		static const char *const Keys[] = {
+			[KEY_NONE]	= "-",
+			[KEY_BLUE]  = "blue",
+			[KEY_RED] 	= "red",
+			[KEY_GOLD]  = "yellow",
+		};
+
+		APPENDF(t,
+				 "type: %d (%s)\n"
+				 "flags: 0x%x (%s)\n"
+				 "state: %d (%s)\n"
+				 "keys: %d (%s)\n\n",
+				 wall->type,
+				 ARRAY_OR_DEF(wall->type, Wall_names, "?"),
+				 wall->flags,
+				 flags_str,
+				 wall->state,
+				 ARRAY_OR_DEF(wall->state, Wall_states, "?"),
+				 wall->keys,
+			     ARRAY_OR_DEF(wall->keys, Keys, "?"));
+
+		if (wall->trigger >= 0) {
+			trigger *tr = &Triggers[wall->trigger];
+
+			is_trigger = true;
+
+			#define TF_NO_MESSAGE       1   // Don't show a message when triggered
+#define TF_ONE_SHOT         2   // Only trigger once
+#define TF_DISABLED         4   // Set after one-shot fires
+
+
+			static const char *const Trigger_name[] = {
+				[TT_OPEN_DOOR] = "open_door",
+				[TT_CLOSE_DOOR] = "close_door",
+				[TT_MATCEN] = "matcen",
+				[TT_EXIT] = "exit",
+				[TT_SECRET_EXIT] = "secret",
+				[TT_ILLUSION_OFF] = "ill_off",
+				[TT_ILLUSION_ON] = "ill_on",
+				[TT_UNLOCK_DOOR] = "unlock_door",
+				[TT_LOCK_DOOR] = "lock_door",
+				[TT_OPEN_WALL] = "open_wall",
+				[TT_CLOSE_WALL] = "close_wall",
+				[TT_ILLUSORY_WALL] = "ill_wall",
+				[TT_LIGHT_OFF] = "lights_off",
+				[TT_LIGHT_ON] = "lights_on",
+			};
+
+			APPENDF(t,
+				"trigger: %d\n"
+				"type: %d (%s)\n"
+				"flags: 0x%x (%s%s%s)\n"
+				"value: %f\n"
+				"time: %f\n"
+				"num_links: %d\n\n",
+				wall->trigger,
+				tr->type,
+			    ARRAY_OR_DEF(tr->type, Trigger_name, "?"),
+			    tr->flags,
+			    tr->flags & TF_NO_MESSAGE ? "nomsg " : "",
+			    tr->flags & TF_ONE_SHOT ? "oneshot " : "",
+			    tr->flags & TF_DISABLED ? "disabled " : "",
+			    f2fl(tr->value),
+			    f2fl(tr->time),
+			    tr->num_links);
+		}
+	}
+
+	int conn_seg, conn_side;
+	find_connect_side2(segnum, sidenum, &conn_seg, &conn_side);
+
+	// Weird but apparently works. Observed with WALL_OPEN.
+	if (wall_num >= 0 && conn_side >= 0 &&
+		Segments[conn_seg].sides[conn_side].wall_num < 0)
+	{
+		APPENDF(t, "no opposite wall!\n");
+	}
+
+	bool any_triggers = false, otherside_triggers = false;
+	for (int n = 0; n < Num_triggers; n++) {
+		trigger *tr = &Triggers[n];
+
+		for (int i = 0; i < tr->num_links; i++) {
+			if (tr->seg[i] == segnum && tr->side[i] == sidenum) {
+				if (!any_triggers)
+					APPENDF(t, "triggered by:");
+				any_triggers = true;
+				APPENDF(t, " %d[%d/%d]", n, i, tr->num_links);
+			}
+			if (tr->seg[i] == conn_seg && tr->side[i] == conn_side)
+				otherside_triggers = true;
+		}
+	}
+
+	// Now why the fuck did they not just use a normal Triggers[] entry?
+	for (int n = 0; n < ControlCenterTriggers.num_links; n++) {
+		if (ControlCenterTriggers.seg[n] == segnum &&
+			ControlCenterTriggers.side[n] == sidenum)
+		{
+			any_triggers = true;
+			APPENDF(t, "toggled by reactor destruction\n");
+		}
+	}
+
+	if (any_triggers)
+		APPENDF(t, "\n");
+	if (otherside_triggers)
+		APPENDF(t, "trigger target on other side!\n");
+	is_target = any_triggers || otherside_triggers;
+	if (is_target)
+		APPENDF(t, "\n");
+
+	bool highlight = segnum == highlight_seg && sidenum == highlight_side;
+
+	if (t[0] || highlight) {
+		get_side_verts(vertnum_list, segnum, sidenum);
+
+		float r = 1, g = 1, b = 1;
+
+		if (is_trigger)
+			b = 0;
+		if (is_target)
+			r = 0;
+		if (highlight)
+			g = 0;
+
+		gr_setcolor(gr_find_closest_color(63*r,63*g,63*b));
+
+		highlight_seg_side(segp, sidenum);
+
+		vms_vector cp;
+		compute_center_point_on_side(&cp, segp, sidenum);
+
+		grd_curcanv->cv_font = GAME_FONT;
+		gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+
+		glDisable(GL_DEPTH_TEST);
+
+		vms_vector right;
+		vm_vec_normalized_dir(&right, &Vertices[vertnum_list[0]], &Vertices[vertnum_list[3]]);
+
+		vms_vector up;
+		vm_vec_normalized_dir(&up, &Vertices[vertnum_list[2]], &Vertices[vertnum_list[3]]);
+
+		vm_vec_scale(&right, fl2f(0.01));
+		vm_vec_scale(&up, fl2f(0.01));
+
+		gr_3d_string(&cp, &right, &up, t);
+
+		glEnable(GL_DEPTH_TEST);
+	}
 }
 
 // -----------------------------------------------------------------------------------
@@ -464,12 +703,18 @@ void render_side(segment *segp, int sidenum)
 	fix		min_dot, max_dot;
 	vms_vector	normals[2];
 	int		wid_flags;
+	int segnum = segp-Segments;
 
 
 	wid_flags = WALL_IS_DOORWAY(segp,sidenum);
 
-	if (!(wid_flags & WID_RENDER_FLAG))		//if (WALL_IS_DOORWAY(segp, sidenum) == WID_NO_WALL)
+	//if (!(wid_flags & WID_RENDER_FLAG))		//if (WALL_IS_DOORWAY(segp, sidenum) == WID_NO_WALL)
+	//	goto end;
+
+	if (!(wid_flags & WID_RENDER_FLAG))
 		goto end;
+
+	get_side_verts(vertnum_list,segp-Segments,sidenum);
 
 #ifdef COMPACT_SEGS
 	get_side_normals(segp, sidenum, &normals[0], &normals[1] );
@@ -491,7 +736,6 @@ void render_side(segment *segp, int sidenum)
 		// -- Old, slow way --	else
 		// -- Old, slow way --		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][0]]]);
 
-		get_side_verts(vertnum_list,segp-Segments,sidenum);
 		v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
 
 // -- flare creates point -- {
@@ -547,8 +791,6 @@ void render_side(segment *segp, int sidenum)
 			vm_vec_normalized_dir_quick(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][1]]]);
 		else
 			vm_vec_normalized_dir_quick(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][0]]]);
-
-		get_side_verts(vertnum_list,segp-Segments,sidenum);
 
 		v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
 
@@ -626,22 +868,9 @@ im_so_ashamed: ;
 	}
 
     end:;
-#if 0
-	if (sidep->wall_num != -1) {
-            //gr_enable_depth(0);
 
-            wall *wallp = &Walls[sidep->wall_num];
-
-            if (wallp->type == 1 && wallp->flags == 8) {
-                //wallp->type = 2;
-                //wallp->flags = 0;
-                gr_setcolor(BM_XRGB(0,63,0));
-                highlight_side(segp, sidenum);
-            }
-
-            //gr_enable_depth(1);
-        }
-#endif
+	if (highlight_seg >= 0)
+		highlight_side_triggers(segnum, sidenum);
 }
 
 #ifdef EDITOR
@@ -917,8 +1146,6 @@ void render_segment(int segnum, int window_num)
 #define CROSS_WIDTH  i2f(8)
 #define CROSS_HEIGHT i2f(8)
 
-#ifndef NDEBUG
-
 //draw outline for curside
 void outline_seg_side(segment *seg,int _side,int edge,int vert)
 {
@@ -953,9 +1180,7 @@ void outline_seg_side(segment *seg,int _side,int edge,int vert)
 		gr_line(pnt->p3_sx,pnt->p3_sy+CROSS_HEIGHT,pnt->p3_sx-CROSS_WIDTH,pnt->p3_sy);
 	}
 }
-
-#endif
-
+//
 #if 0		//this stuff could probably just be deleted
 
 #define DEFAULT_PERSPECTIVE_DEPTH 6
@@ -1500,7 +1725,8 @@ int Rear_view=0;
 extern ubyte RenderingType;
 
 void start_lighting_frame(object *viewer);
-
+#include "internal.h"
+extern int linedotscale;
 #ifdef JOHN_ZOOM
 fix Zoom_factor=F1_0;
 #endif
@@ -1522,6 +1748,7 @@ void render_frame(fix eye_offset, int window_num)
       if (RenderingType!=255)
    		newdemo_record_viewer_object(Viewer);
 	}
+
   
    //Here:
 
@@ -1581,6 +1808,8 @@ void render_frame(fix eye_offset, int window_num)
 	#endif
 
 	render_mine(start_seg_num, eye_offset, window_num);
+
+	gr_setcolor(BM_XRGB(31,0,31));
 
 	g3_end_frame();
 
