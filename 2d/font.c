@@ -723,6 +723,82 @@ int ogl_internal_string(int x, int y, char *s )
 int gr_internal_color_string(int x, int y, char *s ){
 	return ogl_internal_string(x,y,s);
 }
+
+// Draw the text at the point given by at.
+// dir_x/dir_y define orientation and scaling.
+// The length of dir_x and dir_y defines 1 pixel size (scaled to target).
+int gr_3d_string(vms_vector *at, vms_vector *dir_x, vms_vector *dir_y, char *s )
+{
+	char * text_ptr, * next_row, * text_ptr1;
+	int width, spacing,letter;
+	int orig_color=grd_curcanv->cv_font_fg_color;//to allow easy reseting to default string color with colored strings -MPM
+	float x = 0, y = 0;
+
+	next_row = s;
+
+	if (grd_curscreen->sc_canvas.cv_bitmap.bm_type != BM_OGL)
+		Error("carp.\n");
+
+	while (next_row != NULL)
+	{
+		text_ptr1 = next_row;
+		next_row = NULL;
+
+		text_ptr = text_ptr1;
+
+		x = 0;
+
+		while (*text_ptr)
+		{
+			if (*text_ptr == '\n' )
+			{
+				next_row = &text_ptr[1];
+				y += FONTSCALE_Y(grd_curcanv->cv_font->ft_h)+FSPACY(1);
+				break;
+			}
+
+			letter = (unsigned char)*text_ptr - grd_curcanv->cv_font->ft_minchar;
+
+			get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
+
+			if (!INFONT(letter) || (unsigned char)*text_ptr <= 0x06)
+			{   //not in font, draw as space
+				CHECK_EMBEDDED_COLORS() else{
+					x += spacing;
+					text_ptr++;
+				}
+				continue;
+			}
+
+			// So, the "2D" text stuff also does this, but it appears not to make
+			// any sense?
+			//if (grd_curcanv->cv_bitmap.bm_type != BM_OGL)
+ 				//Error("ogl_internal_string: non-color string to non-ogl dest\n");
+			//	return -1;
+
+			vms_vector cur_at = *at;
+			vm_vec_scale_add2(&cur_at, dir_x, fl2f(x));
+			vm_vec_scale_add2(&cur_at, dir_y, fl2f(y));
+
+			vms_vector cur_dx, cur_dy;
+			vm_vec_copy_scale(&cur_dx, dir_x,
+				fl2f(FONTSCALE_X(grd_curcanv->cv_font->ft_widths[letter])));
+			vm_vec_copy_scale(&cur_dy, dir_y,
+				fl2f(FONTSCALE_Y(grd_curcanv->cv_font->ft_h)));
+
+			ogl_ubitmapm_3d(&cur_at, &cur_dx, &cur_dy,
+							&grd_curcanv->cv_font->ft_bitmaps[letter],
+							grd_curcanv->cv_font->ft_flags&FT_COLOR ? grd_curcanv->cv_font_fg_color : -1);
+
+			x += spacing;
+
+			text_ptr++;
+		}
+
+	}
+	return 0;
+}
+
 #endif //OGL
 
 int gr_string(int x, int y, char *s )

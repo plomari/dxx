@@ -739,6 +739,8 @@ void draw_tmap_flat(grs_bitmap *bm,int nv,g3s_point **vertlist){
 		glmprintf((0,"draw_tmap_flat: unhandled\n"));//should never get called
 }
 
+float Gr_color[3] = {1,1,1};
+
 extern void (*tmap_drawer_ptr)(grs_bitmap *bm,int nv,g3s_point **vertlist);
 bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 {
@@ -764,7 +766,7 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 			}else{
 				l=f2fl(uvl_list[c].l);
 			}
-			glColor3f(l,l,l);
+			glColor3f(l*Gr_color[0],l*Gr_color[1],l*Gr_color[2]);
 			glTexCoord2f(f2glf(uvl_list[c].u),f2glf(uvl_list[c].v));
 			glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
 		}
@@ -812,7 +814,7 @@ bool g3_draw_tmap_2(int nv, g3s_point **pointlist, g3s_uvl *uvl_list, grs_bitmap
 		}else{
 			l=f2fl(uvl_list[c].l);
 		}
-		glColor3f(l,l,l);
+		glColor3f(l*Gr_color[0],l*Gr_color[1],l*Gr_color[2]);
 		glTexCoord2f(u1,v1);
 		glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
 	}
@@ -1546,3 +1548,62 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 
 	return 0;
 }
+
+bool ogl_ubitmapm_3d(vms_vector *p, vms_vector *dx, vms_vector *dy, grs_bitmap *bm,int c)
+{
+	GLfloat xo,yo,xf,yf;
+	GLfloat u1,u2,v1,v2;
+
+	static const int rc_x[4] = {0, 1, 1, 0};
+	static const int rc_y[4] = {0, 0, 1, 1};
+
+	vms_vector pt[4];
+	for (int n = 0; n < 4; n++) {
+		vms_vector c = *p;
+		vm_vec_scale_add2(&c, dx, fl2f(rc_x[n]));
+		vm_vec_scale_add2(&c, dy, fl2f(rc_y[n]));
+		g3s_point cpp;
+		g3_rotate_point(&cpp, &c);
+		g3_project_point(&cpp);
+		pt[n] = cpp.p3_vec;
+	}
+
+	OGL_ENABLE(TEXTURE_2D);
+	ogl_bindbmtex(bm);
+	ogl_texwrap(bm->gltexture,GL_CLAMP_TO_EDGE);
+
+	if (bm->bm_x==0){
+		u1=0;
+		if (bm->bm_w==bm->gltexture->w)
+			u2=bm->gltexture->u;
+		else
+			u2=(bm->bm_w+bm->bm_x)/(float)bm->gltexture->tw;
+	}else {
+		u1=bm->bm_x/(float)bm->gltexture->tw;
+		u2=(bm->bm_w+bm->bm_x)/(float)bm->gltexture->tw;
+	}
+	if (bm->bm_y==0){
+		v1=0;
+		if (bm->bm_h==bm->gltexture->h)
+			v2=bm->gltexture->v;
+		else
+			v2=(bm->bm_h+bm->bm_y)/(float)bm->gltexture->th;
+	}else{
+		v1=bm->bm_y/(float)bm->gltexture->th;
+		v2=(bm->bm_h+bm->bm_y)/(float)bm->gltexture->th;
+	}
+
+	glBegin(GL_QUADS);
+	if (c<0)
+		glColor3f(1.0,1.0,1.0);
+	else
+		glColor3f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c));
+	glTexCoord2f(u1, v1); glVertex3f(pt[0].x, pt[0].y, -pt[0].z);
+	glTexCoord2f(u2, v1); glVertex3f(pt[1].x, pt[1].y, -pt[1].z);
+	glTexCoord2f(u2, v2); glVertex3f(pt[2].x, pt[2].y, -pt[2].z);
+	glTexCoord2f(u1, v2); glVertex3f(pt[3].x, pt[3].y, -pt[3].z);
+	glEnd();
+
+	return 0;
+}
+

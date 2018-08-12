@@ -49,6 +49,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern int Gr_scanline_darkening_level;
 
+extern float Gr_color[3];
+
 typedef struct _grs_point {
 	fix x,y;
 } grs_point;
@@ -340,6 +342,9 @@ int gr_ustring(int x, int y, char *s );
 int gr_printf( int x, int y, char * format, ... );
 int gr_uprintf( int x, int y, char * format, ... );
 void gr_get_string_size(char *s, int *string_width, int *string_height, int *average_width );
+
+typedef struct vms_vector vms_vector;
+int gr_3d_string(vms_vector *at, vms_vector *dir_x, vms_vector *dir_y, char *s );
 
 
 //  From roller.c

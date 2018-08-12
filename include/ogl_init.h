@@ -94,6 +94,8 @@ bool ogl_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src,
 void ogl_upixelc(int x, int y, int c);
 void ogl_ulinec(int left, int top, int right, int bot, int c);
 
+bool ogl_ubitmapm_3d(vms_vector *p, vms_vector *dx, vms_vector *dy, grs_bitmap *bm,int c);
+
 #include "3d.h"
 bool g3_draw_tmap_2(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bmbot,grs_bitmap *bm, int orient);
 
