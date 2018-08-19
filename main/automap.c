@@ -400,7 +400,7 @@ char *system_name[] = {
 
 void name_frame()
 {
-	char	name_level_left[128],name_level_right[128];
+	char	name_level_left[128],name_level_right[128 + MISSION_NAME_LEN];
 	int wr,h,aw;
 
 	if (Current_level_num > 0)
@@ -411,7 +411,7 @@ void name_frame()
 	if (PLAYING_BUILTIN_MISSION && Current_level_num > 0)
 		sprintf(name_level_right,"%s %d: ",system_name[(Current_level_num-1)/4],((Current_level_num-1)%4)+1);
 	else
-		strcpy(name_level_right, " ");
+		snprintf(name_level_right, sizeof(name_level_right), "'%s': ", Current_mission ? Current_mission->mission_name : "?");
 
 	strcat(name_level_right, Current_level_name);
 
