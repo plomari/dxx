@@ -2226,7 +2226,7 @@ int drop_marker_object(vms_vector *pos,int segnum,vms_matrix *orient, int marker
 
 	Assert(Marker_model_num != -1);
 
-	objnum = obj_create(OBJ_MARKER, marker_num, segnum, pos, orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_NONE, RT_POLYOBJ);
+	objnum = obj_create(OBJ_MARKER, marker_num, segnum, pos, orient, Polygon_models[Marker_model_num].rad, CT_NONE, MT_SPINNING, RT_POLYOBJ);
 
 	if (objnum >= 0) {
 		object *obj = &Objects[objnum];
