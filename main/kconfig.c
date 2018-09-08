@@ -1039,6 +1039,7 @@ void kc_change_key( kc_item * item )
 
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
 	
+	gr_force_grab_keys(1);
 	game_flush_inputs();
 	keycode=255;
 	k=255;
@@ -1083,6 +1084,7 @@ void kc_change_key( kc_item * item )
 
 	gr_set_fontcolor( BM_XRGB(28,28,28), BM_XRGB(0,0,0) );
 	game_flush_inputs();
+	gr_force_grab_keys(0);
 
 }
 

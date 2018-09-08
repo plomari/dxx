@@ -64,6 +64,7 @@ int ogl_fullscreen;
 static int curx=-1,cury=-1,curfull=0;
 int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated once when resolution changes
 static SDL_Window *sdl_window;
+static int force_grab;
 
 extern void ogl_init_pixel_buffers(int w, int h);
 extern void ogl_close_pixel_buffers(void);
@@ -153,12 +154,12 @@ int ogl_init_window(int x, int y)
 		// (let the context leak)
 		SDL_GL_CreateContext(sdl_window);
 		ogl_get_verinfo();
+
+		// Ignore system keys etc. if windows is grabbed.
+		SDL_SetHint(SDL_HINT_GRAB_KEYBOARD, "1");
 	}
 
-	// Ignore system keys etc. if windows is grabbed.
-	SDL_SetHint(SDL_HINT_GRAB_KEYBOARD, "1");
-
-	SDL_SetWindowGrab(sdl_window, !!ogl_fullscreen);
+	gr_update_grab();
 
 	SDL_ShowCursor(0);
 
@@ -171,6 +172,18 @@ int ogl_init_window(int x, int y)
 	gr_sdl_ogl_resize_window(x, y);
 
 	return 0;
+}
+
+void gr_update_grab(void)
+{
+	SDL_SetWindowGrab(sdl_window,
+		ogl_fullscreen && (Screen_mode == SCREEN_GAME || force_grab));
+}
+
+void gr_force_grab_keys(int force)
+{
+	force_grab = force;
+	gr_update_grab();
 }
 
 int gr_check_fullscreen(void)

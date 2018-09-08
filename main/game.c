@@ -401,6 +401,7 @@ int set_screen_mode(int sm)
 #endif
 
 	Screen_mode = sm;
+	gr_update_grab();
 
 	switch( Screen_mode )
 	{
