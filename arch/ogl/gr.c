@@ -157,6 +157,11 @@ int ogl_init_window(int x, int y)
 
 		// Ignore system keys etc. if windows is grabbed.
 		SDL_SetHint(SDL_HINT_GRAB_KEYBOARD, "1");
+
+		// This is ridiculous. I think it's to combat OpenGL/WM integration
+		// issues on shit OSes (Microsoft Windows). But on sane OSes, this just
+		// makes things awkward.
+		SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, "0");
 	}
 
 	gr_update_grab();
