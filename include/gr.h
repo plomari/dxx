@@ -449,4 +449,6 @@ void gr_sdl_ogl_resize_window(int w, int h);
 void gr_update_grab(void);
 void gr_force_grab_keys(int force);
 
+extern int gr_focus_lost;
+
 #endif /* def _GR_H */

@@ -61,6 +61,7 @@
 int gr_installed = 0;
 int gl_initialized=0;
 int ogl_fullscreen;
+int gr_focus_lost;
 static int curx=-1,cury=-1,curfull=0;
 int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated once when resolution changes
 static SDL_Window *sdl_window;

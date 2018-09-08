@@ -2355,5 +2355,8 @@ void ReadControls()
 		HandleTestKey(key);
 		#endif
 	}
+
+	while (gr_focus_lost)
+		do_game_pause();
 }
 

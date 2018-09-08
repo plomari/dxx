@@ -69,6 +69,12 @@ void event_poll()
                             case SDL_WINDOWEVENT_RESIZED:
                                 gr_sdl_ogl_resize_window(event.window.data1, event.window.data2);
                                 break;
+							case SDL_WINDOWEVENT_FOCUS_GAINED:
+								gr_focus_lost = 0;
+								break;
+							case SDL_WINDOWEVENT_FOCUS_LOST:
+								gr_focus_lost = 1;
+								break;
                             }
                             break;
                         }
