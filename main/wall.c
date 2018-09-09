@@ -1284,7 +1284,9 @@ void do_decloaking_wall_frame(int cloaking_wall_num)
 		fix light_scale;
 		int i;
 
-		wfront->type = wback->type = WALL_CLOSED;
+		wfront->type = WALL_CLOSED;
+		if (wback)
+			wback->type = wfront->type;
 
 		light_scale = fixdiv(d->time-CLOAKING_WALL_TIME/2,CLOAKING_WALL_TIME/2);
 
