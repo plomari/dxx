@@ -2233,7 +2233,15 @@ int drop_marker_object(vms_vector *pos,int segnum,vms_matrix *orient, int marker
 
 		obj->rtype.pobj_info.model_num = Marker_model_num;
 
-		vm_vec_copy_scale(&obj->mtype.spin_rate,&obj->orient.uvec,F1_0/2);
+		fix scale = F1_0 / 2;
+		vms_vector spin_vec = {0};
+		if (objnum & 1)
+			vm_vec_scale_add2(&spin_vec, &obj->orient.fvec, (objnum & 8)  ? scale : -scale);
+		if (objnum & 2)
+			vm_vec_scale_add2(&spin_vec, &obj->orient.uvec, (objnum & 16) ? scale : -scale);
+		if (objnum & 4)
+			vm_vec_scale_add2(&spin_vec, &obj->orient.rvec, (objnum & 32) ? scale : -scale);
+		obj->mtype.spin_rate = spin_vec;
 
 		//	MK, 10/16/95: Using lifeleft to make it flash, thus able to trim lightlevel from all objects.
 		obj->lifeleft = IMMORTAL_TIME - 1;
