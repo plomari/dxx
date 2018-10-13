@@ -93,6 +93,28 @@ int checkmuldiv(fix *r,fix a,fix b,fix c)
 	}
 }
 
+static int checkadd(fix *r, fix a, fix b)
+{
+	int64_t res = (int64_t)a + (int64_t)b;
+
+	if (res < FIX_MIN || res > FIX_MAX)
+		return 0;
+
+	*r = res;
+	return 1;
+}
+
+static int checksub(fix *r, fix a, fix b)
+{
+	int64_t res = (int64_t)a - (int64_t)b;
+
+	if (res < FIX_MIN || res > FIX_MAX)
+		return 0;
+
+	*r = res;
+	return 1;
+}
+
 //projects a point
 void g3_project_point(g3s_point *p)
 {
@@ -102,9 +124,9 @@ void g3_project_point(g3s_point *p)
 	if (p->p3_flags & PF_PROJECTED || p->p3_codes & CC_BEHIND)
 		return;
 
-	if (checkmuldiv(&tx,p->p3_x,Canv_w2,p->p3_z) && checkmuldiv(&ty,p->p3_y,Canv_h2,p->p3_z)) {
-		p->p3_sx = Canv_w2 + tx;
-		p->p3_sy = Canv_h2 - ty;
+	if (checkmuldiv(&tx,p->p3_x,Canv_w2,p->p3_z) && checkmuldiv(&ty,p->p3_y,Canv_h2,p->p3_z) &&
+		checkadd(&p->p3_sx, Canv_w2, tx) && checksub(&p->p3_sy, Canv_h2, ty))
+	{
 		p->p3_flags |= PF_PROJECTED;
 	}
 	else

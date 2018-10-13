@@ -62,6 +62,9 @@ quadint;
 #define F0_5 	f0_5
 #define F0_1 	f0_1
 
+#define FIX_MAX INT32_MAX
+#define FIX_MIN INT32_MIN
+
 //#if defined(NO_FIX_INLINE) || (!defined(__GNUC__) && !defined(__WATCOMC__))
 //multiply two fixes, return a fix
 fix fixmul (fix a, fix b);

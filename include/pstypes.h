@@ -21,6 +21,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TYPES_H
 #define _TYPES_H
 
+#include <stdint.h>
+
 // define a dboolean
 typedef int dboolean;
 
