@@ -658,8 +658,8 @@ void gr_enable_depth(int enable)
         glDepthMask(GL_TRUE);
         glEnable(GL_DEPTH_TEST);
     } else {
+		glDepthMask(GL_FALSE);
         glDisable(GL_DEPTH_TEST);
-	glDisable(GL_DEPTH_TEST);
     }
     //glEnable(GL_CULL_FACE);
 }
@@ -687,6 +687,7 @@ int g3_draw_sphere(g3s_point *pnt,fix rad){
 	if (!sphereh) sphereh=circle_list_init(20,GL_POLYGON,GL_COMPILE_AND_EXECUTE);
 	else glCallList(sphereh);
 	glPopMatrix();
+	glEnable(GL_CULL_FACE);
 	return 0;
 }
 
