@@ -76,6 +76,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "playsave.h"
 
+#include "ogl_init.h"
+#include "gamefont.h"
+#include "../3d/globvars.h"
+
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -705,6 +709,67 @@ void create_vclip_on_object(object *objp, fix size_scale, int vclip_num)
 // -- mk, 02/05/95 -- 	}
 // -- mk, 02/05/95 -- }
 
+#define APPENDF(s, ...)  do { 								\
+	int pos_ = strlen(s);									\
+	snprintf((s) + pos_, sizeof(s) - pos_, __VA_ARGS__);	\
+} while(0)
+
+static void draw_object_debug(object *obj)
+{
+	glDisable(GL_DEPTH_TEST);
+
+	g3s_point g1;
+	g3_rotate_point(&g1, &obj->pos);
+	g3_project_point(&g1);
+
+	gr_setcolor(gr_find_closest_color(0,0,63));
+	g3_draw_sphere(&g1, fl2f(0.5));
+
+	vms_vector v[] = {obj->orient.rvec, obj->orient.uvec, obj->orient.fvec};
+	for (int n = 0; n < 3; n++) {
+		vms_vector x, d;
+		d = v[n];
+		vm_vec_scale(&d, fl2f(5));
+		vm_vec_add(&x, &obj->pos, &d);
+		g3s_point gx;
+		g3_rotate_point(&gx, &x);
+		g3_project_point(&gx);
+
+		int c[3] = {0};
+		c[n] = 63;
+
+		gr_setcolor(gr_find_closest_color(c[0],c[1],c[2]));
+		g3_draw_line(&g1, &gx);
+	}
+
+	char t[512];
+	t[0] = '\0';
+
+	APPENDF(t,
+		"type: %d\n"
+		"id: %d\n"
+		"shield: %f\n",
+		 obj->type,
+		 obj->id,
+		 f2fl(obj->shields));
+
+	if (obj->lifeleft != IMMORTAL_TIME)
+		APPENDF(t, "lifeleft: %f\n", f2fl(obj->lifeleft));
+
+	grd_curcanv->cv_font = GAME_FONT;
+	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );
+
+	vms_vector right = View_matrix.rvec;
+	vms_vector up = View_matrix.uvec;
+
+	vm_vec_scale(&right, fl2f(0.01));
+	vm_vec_scale(&up, fl2f(-0.01));
+
+	gr_3d_string(&obj->pos, &right, &up, t);
+
+	glEnable(GL_DEPTH_TEST);
+}
+
 // -----------------------------------------------------------------------------
 //	Render an object.  Calls one of several routines based on type
 void render_object(object *obj)
@@ -768,6 +833,11 @@ void render_object(object *obj)
 		}
 
 	Max_linear_depth = mld_save;
+
+	// Abuse this as indication whether to show debug stuff
+	extern int highlight_seg;
+	if (highlight_seg >= 0)
+		draw_object_debug(obj);
 
 }
 
