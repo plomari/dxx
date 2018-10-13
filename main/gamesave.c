@@ -807,6 +807,8 @@ int load_game_data(CFILE *LoadFile)
 
 			Objects[i].signature = Object_next_signature++;
 			verify_object( &Objects[i] );
+
+			check_and_fix_matrix(&Objects[i].orient);
 		}
 
 	}

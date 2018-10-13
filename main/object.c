@@ -771,8 +771,6 @@ void render_object(object *obj)
 
 }
 
-void check_and_fix_matrix(vms_matrix *m);
-
 #define vm_angvec_zero(v) (v)->p=(v)->b=(v)->h=0
 
 void reset_player_object()
