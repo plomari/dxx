@@ -2048,6 +2048,14 @@ void FinalCheats(int key)
 		HUD_init_message("fucked %d assholes", cnt);
 	}
 
+	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("cloak")], "cloak"))
+	{
+		do_cheat_penalty();
+		Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
+		HUD_init_message("%s %s!", "Cloak", (Players[Player_num].flags&PLAYER_FLAGS_CLOAKED)?TXT_ON:TXT_OFF);
+		Players[Player_num].cloak_time = GameTime+i2f(1000);
+	}
+
 	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("showtrigger")], "showtrigger"))
 	{
 		extern int highlight_seg;
