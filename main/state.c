@@ -307,12 +307,12 @@ int copy_file(char *old_file, char *new_file)
 
 		bytes_read = PHYSFS_read(in_file, buf, 1, buf_size);
 		if (bytes_read < 0)
-			Error("Cannot read from file <%s>: %s", old_file, PHYSFS_getLastError());
+			Error("Cannot read from file <%s>", old_file);
 
 		Assert(bytes_read == buf_size || PHYSFS_eof(in_file));
 
 		if (PHYSFS_write(out_file, buf, 1, bytes_read) < bytes_read)
-			Error("Cannot write to file <%s>: %s", new_file, PHYSFS_getLastError());
+			Error("Cannot write to file <%s>", new_file);
 	}
 
 	d_free(buf);
@@ -396,8 +396,8 @@ int state_save_all(int between_levels, int secret_save, char *filename_override)
 
 			if (PHYSFS_exists(temp_fname))
 			{
-				if (!PHYSFS_delete(temp_fname))
-					Error("Cannot delete file <%s>: %s", temp_fname, PHYSFS_getLastError());
+				if (!PHYSFS_delete(temp_fname) && cfexist(temp_fname))
+					Error("Cannot delete file <%s>", temp_fname);
 			}
 
 			if (PHYSFS_exists(SECRETC_FILENAME))

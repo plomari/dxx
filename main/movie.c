@@ -32,6 +32,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif // ! macintosh
 #include <ctype.h>
 
+#include <SDL.h>
+
 #include "movie.h"
 #include "console.h"
 #include "args.h"
@@ -51,7 +53,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "libmve.h"
 #include "text.h"
 #include "screens.h"
-#include "physfsrwops.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -252,6 +253,55 @@ void clear_pause_message()
 {
 }
 
+
+static Sint64 rwops_seek(SDL_RWops *rw, Sint64 offset, int whence)
+{
+	CFILE *file = rw->hidden.unknown.data1;
+
+	// Note: both SDL and CFILE use stdio seek whence constants.
+	if (cfseek(file, offset, whence) == 0)
+		return 0;
+
+	SDL_SetError("Seek error");
+	return -1;
+}
+
+static size_t rwops_read(SDL_RWops *rw, void *ptr, size_t size, size_t maxnum)
+{
+    CFILE *file = rw->hidden.unknown.data1;
+    size_t rc = cfread(ptr, size, maxnum, file);
+    if (rc != maxnum && cfile_ferror(file))
+		SDL_SetError("Read error");
+
+    return (int)rc;
+}
+
+static int rwops_close(SDL_RWops *rw)
+{
+    CFILE *file = rw->hidden.unknown.data1;
+	cfclose(file);
+	SDL_FreeRW(rw);
+    return 0;
+}
+
+static SDL_RWops *rwops_openRead(const char *fname)
+{
+	CFILE *file = cfopen(fname, "rb");
+
+	if (!file)
+		return NULL;
+
+	SDL_RWops *retval = SDL_AllocRW();
+	if (!retval)
+		return NULL;
+
+	retval->seek  = rwops_seek;
+	retval->read  = rwops_read;
+	retval->close = rwops_close;
+	retval->hidden.unknown.data1 = file;
+	return retval;
+}
+
 //returns status.  see movie.h
 int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 {
@@ -268,12 +318,12 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	// Open Movie file.  If it doesn't exist, no movie, just return.
 
-	filehndl = PHYSFSRWOPS_openRead(filename);
+	filehndl = rwops_openRead(filename);
 
 	if (!filehndl)
 	{
 		if (must_have)
-			con_printf(CON_URGENT, "Can't open movie <%s>: %s\n", filename, PHYSFS_getLastError());
+			con_printf(CON_URGENT, "Can't open movie <%s>\n", filename);
 		return MOVIE_NOT_PLAYED;
 	}
 
@@ -395,11 +445,11 @@ int InitRobotMovie(char *filename)
 
 	MVE_sndInit(-1);        //tell movies to play no sound for robots
 
-	RoboFile = PHYSFSRWOPS_openRead(filename);
+	RoboFile = rwops_openRead(filename);
 
 	if (!RoboFile)
 	{
-		con_printf(CON_URGENT, "Can't open movie <%s>: %s\n", filename, PHYSFS_getLastError());
+		con_printf(CON_URGENT, "Can't open movie <%s>\n", filename);
 		return MOVIE_NOT_PLAYED;
 	}
 
@@ -581,10 +631,10 @@ void init_movie(char *movielib, int required)
 
 	sprintf(filename, "%s-%s.mvl", movielib, GameArg.GfxMovieHires?"h":"l");
 
-	if (!cfile_init(filename, 0))
+	if (!cfile_hog_add(filename, 0))
 	{
 		if (required)
-			con_printf(CON_URGENT, "Can't open movielib <%s>: %s\n", filename, PHYSFS_getLastError());
+			con_printf(CON_URGENT, "Can't open movielib <%s>\n", filename);
 	}
 }
 
@@ -609,13 +659,13 @@ void close_extra_robot_movie(void)
 	if (strcmp(movielib_files[EXTRA_ROBOT_LIB],"")) {
 		sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"h":"l");
 	
-		if (!cfile_close(filename))
+		if (!cfile_hog_remove(filename))
 		{
-			con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
+			con_printf(CON_URGENT, "Can't close movielib <%s>\n", filename);
 			sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"l":"h");
 	
-			if (!cfile_close(filename))
-				con_printf(CON_URGENT, "Can't close movielib <%s>: %s\n", filename, PHYSFS_getLastError());
+			if (!cfile_hog_remove(filename))
+				con_printf(CON_URGENT, "Can't close movielib <%s>\n", filename);
 		}
 	}
 }

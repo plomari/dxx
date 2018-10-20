@@ -42,7 +42,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "text.h"
 #include "u_mem.h"
-#include "ignorecase.h"
 
 //values for d1 built-in mission
 #define BIM_LAST_LEVEL          27
@@ -452,7 +451,7 @@ void add_missions_to_list(mle *mission_list, char *path, char *rel_path, int ana
 
 	find = PHYSFS_enumerateFiles(path);
 
-	for (i = find; *i != NULL; i++)
+	for (i = find; i && *i; i++)
 	{
 		if (strlen(path) + strlen(*i) + 1 >= PATH_MAX)
 			continue;	// path is too long
@@ -518,7 +517,7 @@ void free_mission(void)
 			char hogpath[PATH_MAX];
 
 			sprintf(hogpath, MISSION_DIR "%s.hog", Current_mission->path);
-			cfile_close(hogpath);
+			cfile_hog_remove(hogpath);
 		}
 		d_free(Current_mission->path);
         d_free(Current_mission);
@@ -616,7 +615,7 @@ int load_mission(mle *mission)
 
 	// for Descent 1 missions, load descent.hog
 	if (EMULATING_D1) {
-		if (!cfile_init("descent.hog", 1))
+		if (!cfile_hog_add("descent.hog", 1))
 			Warning("descent.hog not available, this mission may be missing some files required for briefings and exit sequence\n");
 		if (!stricmp(Current_mission_filename, D1_MISSION_FILENAME))
 			return load_mission_d1();
@@ -659,8 +658,6 @@ int load_mission(mle *mission)
 	else
 		strcat(buf,".msn");
 
-	PHYSFSEXT_locateCorrectCase(buf);
-
 	mfile = cfopen(buf,"rb");
 	if (mfile == NULL) {
 		free_mission();
@@ -671,9 +668,8 @@ int load_mission(mle *mission)
 	if (!PLAYING_BUILTIN_MISSION)
 	{
 		strcpy(buf+strlen(buf)-4,".hog");		//change extension
-		PHYSFSEXT_locateCorrectCase(buf);
 		if (cfexist(buf))
-			cfile_init(buf, 0);
+			cfile_hog_add(buf, 0);
 	}
 
 	//init vars
@@ -707,7 +703,7 @@ int load_mission(mle *mission)
 				while (*(++bufp) == ' ')
 					;
 
-			cfile_init(bufp, 0);
+			cfile_hog_add(bufp, 0);
 		}
 		else if (istok(buf,"briefing")) {
 			if ((v = get_value(buf)) != NULL) {

@@ -166,11 +166,10 @@ common_sources = [
 'main/weapon.c',
 'mem/mem.c',
 'misc/args.c',
+'misc/cfile.c',
 'misc/dl_list.c',
 'misc/error.c',
 'misc/hash.c',
-'misc/ignorecase.c',
-'misc/physfsrwops.c',
 'misc/strio.c',
 'misc/strutil.c',
 'texmap/ntmap.c',
@@ -319,7 +318,7 @@ env.Append(CPPDEFINES = [('PROGRAM_NAME', '\\"' + str(PROGRAM_NAME) + '\\"'), ('
 env.Append(CPPDEFINES = ['NETWORK', 'HAVE_NETIPX_IPX_H', '_REENTRANT'])
 env.Append(CPPPATH = ['include', 'main', 'arch/include'])
 # scons is too poop to correctly get it from the pkg-config call?
-generic_libs = ['SDL2', 'physfs']
+generic_libs = ['SDL2']
 sdlmixerlib = ['SDL2_mixer']
 
 if sdlmixer:
@@ -368,7 +367,7 @@ elif sys.platform == 'darwin':
 	ogllibs = ''
 	libs = ''
 	# Ugly way of linking to frameworks, but kreator has seen uglier
-	lflags = '-framework Cocoa -framework SDL -framework physfs'
+	lflags = '-framework Cocoa -framework SDL'
 	if (sdl_only == 0):
 		lflags += ' -framework OpenGL'
 	if (sdlmixer == 1):

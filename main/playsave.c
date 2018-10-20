@@ -28,11 +28,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include <errno.h>
 
-#if !(defined(__APPLE__) && defined(__MACH__))
-#include <physfs.h>
-#else
-#include <physfs/physfs.h>
-#endif
 #include "error.h"
 #include "strutil.h"
 #include "game.h"
@@ -505,7 +500,7 @@ int read_player_file()
 
 	//read guidebot name
 	if (player_file_version >= 18)
-		PHYSFSX_readString(file, PlayerCfg.GuidebotName);
+		cfile_gets_0(file, PlayerCfg.GuidebotName, sizeof(PlayerCfg.GuidebotName));
 	else
 		strcpy(PlayerCfg.GuidebotName,"GUIDE-BOT");
 
@@ -515,7 +510,7 @@ int read_player_file()
 		char buf[128];
 
 		if (player_file_version >= 24) 
-			PHYSFSX_readString(file, buf);			// Just read it in fpr DPS.
+			cfile_gets_0(file, buf, sizeof(buf));			// Just read it in fpr DPS.
 	}
 
 	if (player_file_version >= 25)
@@ -538,7 +533,7 @@ int read_player_file()
 	return EZERO;
 
  read_player_file_failed:
-	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s", "Error reading PLR file", PHYSFS_getLastError());
+	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n", "Error reading PLR file");
 	if (file)
 		PHYSFS_close(file);
 
@@ -631,16 +626,17 @@ int write_player_file()
 	PHYSFS_writeULE16(file, PLAYER_FILE_VERSION);
 
 	
-	PHYSFS_seek(file,PHYSFS_tell(file)+2*(sizeof(PHYSFS_uint16))); // skip Game_window_w, Game_window_h
+	PHYSFS_writeULE16(file, 0); // skip Game_window_w
+	PHYSFS_writeULE16(file, 0);	// skip Game_window_h
 	PHYSFSX_writeU8(file, PlayerCfg.DefaultDifficulty);
 	PHYSFSX_writeU8(file, PlayerCfg.AutoLeveling);
 	PHYSFSX_writeU8(file, PlayerCfg.ReticleOn);
 	PHYSFSX_writeU8(file, (PlayerCfg.CockpitMode==1?0:PlayerCfg.CockpitMode));
-	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(PHYSFS_uint8)); // skip Default_display_mode
+	PHYSFSX_writeU8(file, 0); // skip Default_display_mode
 	PHYSFSX_writeU8(file, PlayerCfg.MissileViewEnabled);
 	PHYSFSX_writeU8(file, PlayerCfg.HeadlightActiveDefault);
 	PHYSFSX_writeU8(file, PlayerCfg.GuidedInBigWindow);
-	PHYSFS_seek(file,PHYSFS_tell(file)+sizeof(PHYSFS_uint8)); // skip Automap_always_hires
+	PHYSFSX_writeU8(file, 0); // skip Automap_always_hires
 
 	//write higest level info
 	PHYSFS_writeULE16(file, PlayerCfg.NHighestLevels);
@@ -712,7 +708,7 @@ int write_player_file()
 	return EZERO;
 
  write_player_file_failed:
-	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n\n%s", TXT_ERROR_WRITING_PLR, PHYSFS_getLastError());
+	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n", TXT_ERROR_WRITING_PLR);
 	if (file)
 	{
 		PHYSFS_close(file);

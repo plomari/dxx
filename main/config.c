@@ -26,12 +26,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#if !(defined(__APPLE__) && defined(__MACH__))
-#include <physfs.h>
-#else
-#include <physfs/physfs.h>
-#endif
 #include "config.h"
+#include "cfile.h"
 #include "pstypes.h"
 #include "game.h"
 #include "menu.h"
@@ -111,8 +107,7 @@ int ReadConfigFile()
 
 	while (!PHYSFS_eof(infile))
 	{
-		memset(line, 0, PATH_MAX+50);
-		PHYSFSX_gets(infile, line);
+		cfile_gets_nl(infile, line, sizeof(line));
 		ptr = &(line[0]);
 		while (isspace(*ptr))
 			ptr++;

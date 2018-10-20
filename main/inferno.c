@@ -33,18 +33,9 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
-
-#ifdef __unix__
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#endif
-
-#if !(defined(__APPLE__) && defined(__MACH__))
-#include <physfs.h>
-#else
-#include <physfs/physfs.h>
-#endif
 
 #include "pstypes.h"
 #include "strutil.h"
@@ -247,14 +238,15 @@ int main(int argc, char *argv[])
 {
 	mem_init();
 	error_init(NULL, NULL);
-	PHYSFSX_init(argc, argv);
+	cfile_init_paths(argc, argv);
+	InitArgs(argc, argv);
 	con_init();  // Initialise the console
 
 	con_printf (CON_VERBOSE, "%s", TXT_VERBOSE_1);
 	ReadConfigFile();
 
-	if (! cfile_init("descent2.hog", 1)) {
-		if (! cfile_init("d2demo.hog", 1))
+	if (! cfile_hog_add("descent2.hog", 1)) {
+		if (! cfile_hog_add("d2demo.hog", 1))
 		{
 			Error("Could not find a valid hog file (descent2.hog or d2demo.hog)\nPossible locations are:\n"
 #if defined(__unix__) && !defined(__APPLE__)
@@ -263,7 +255,6 @@ int main(int argc, char *argv[])
 #else
 				  "\tDirectory containing D2X\n"
 #endif
-				  "\tIn a subdirectory called 'Data'\n"
 				  "Or use the -hogdir option to specify an alternate location.");
 		}
 	}
@@ -296,20 +287,6 @@ int main(int argc, char *argv[])
 	printf("\n");
 	printf(TXT_HELP, PROGNAME);		//help message has %s for program name
 	printf("\n");
-
-	{
-		char **i, **list;
-
-		list = PHYSFS_getSearchPath();
-		for (i = list; *i != NULL; i++)
-			con_printf(CON_VERBOSE, "PHYSFS: [%s] is in the search path.\n", *i);
-		PHYSFS_freeList(list);
-
-		list = PHYSFS_enumerateFiles("");
-		for (i = list; *i != NULL; i++)
-			con_printf(CON_DEBUG, "PHYSFS: * We've got [%s].\n", *i);
-		PHYSFS_freeList(list);
-	}
 
 	arch_init();
 

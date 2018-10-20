@@ -12,280 +12,230 @@ AND AGREES TO THE TERMS HEREIN AND ACCEPTS THE SAME BY USE OF THIS FILE.
 COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 */
 
-/*
- *
- * Wrappers for physfs abstraction layer
- *
- */
-
 #ifndef _CFILE_H
 #define _CFILE_H
 
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#if !(defined(__APPLE__) && defined(__MACH__))
-#include <physfs.h>
-#else
-#include <physfs/physfs.h>
-#endif
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdarg.h>
 
 #include "pstypes.h"
 #include "maths.h"
 #include "vecmat.h"
 #include "physfsx.h"
 #include "strutil.h"
-#include "ignorecase.h"
 #include "console.h"
+#include "u_mem.h"
+#include "error.h"
+#include "args.h"
 
-#define CFILE            PHYSFS_file
-#define cfopen(f,m)      PHYSFSX_openReadBuffered(f)
-#define cfread(p,s,n,fp) PHYSFS_read(fp,p,s,n)
-#define cfclose          PHYSFS_close
-#define cftell           PHYSFS_tell
-#define cfilelength      PHYSFS_fileLength
+typedef struct CFILE CFILE;
 
-static inline int cfexist(const char *fname)
+#define PHYSFS_file CFILE
+
+CFILE *cfopen(const char *filename, const char *mode);
+size_t cfread( void * buf, size_t elsize, size_t nelem, CFILE * fp );
+#define PHYSFS_read(fp, buf, elsize, nelem) cfread(buf, elsize, nelem, fp)
+int cfclose( CFILE * cfile );
+int cfclose_inv( CFILE * cfile );
+#define PHYSFS_close cfclose_inv
+int64_t cftell( CFILE * fp );
+#define PHYSFS_tell cftell
+int64_t cfilelength( CFILE *fp );
+#define PHYSFS_fileLength cfilelength
+int cfile_ferror(CFILE *fp);
+int cfile_feof(CFILE *fp);
+#define PHYSFS_eof cfile_feof
+int cfexist(const char *fname);
+#define PHYSFS_exists cfexist
+int cfile_hog_add(char *hogname, int add_to_end);
+int cfile_hog_remove(char *hogname);
+int64_t cfile_size(char *hogname);
+int cfgetc(CFILE *fp);
+int cfseek(CFILE *fp, int64_t offset, int where);
+#define PHYSFS_seek(fp, offs) cfseek(fp, offs, SEEK_SET)
+char * cfgets(char *buf, size_t n, CFILE *fp);
+int cfile_read_int(CFILE *file);
+short cfile_read_short(CFILE *file);
+sbyte cfile_read_byte(CFILE *file);
+fix cfile_read_fix(CFILE *file);
+fixang cfile_read_fixang(CFILE *file);
+void cfile_read_vector(vms_vector *v, CFILE *file);
+void cfile_read_angvec(vms_angvec *v, CFILE *file);
+void cfile_read_matrix(vms_matrix *m,CFILE *file);
+
+#define CF_READ_MODE "rb"
+#define CF_WRITE_MODE "wb"
+
+#define BSWAP32(i) ((((i) & 0xFF) << 24) | ((((i) >> 8) & 0xFF) << 16) | \
+				    ((((i) >> 16) & 0xFF) << 8) | (((i) >> 24) & 0xFF))
+
+static inline int PHYSFS_readSBE32(CFILE *file, int *v)
 {
-    char filename[2048];
-    snprintf(filename, sizeof(filename), "%s", fname);
-    PHYSFSEXT_locateCorrectCase(filename);
-    return PHYSFS_exists(filename);
-}
-
-//Specify the name of the hogfile.  Returns 1 if hogfile found & had files
-static inline int cfile_init(char *hogname, int add_to_end)
-{
-	char pathname[PATH_MAX];
-
-	if (!PHYSFSX_getRealPath(hogname, pathname))
-		return 0;
-
-	if (!PHYSFS_addToSearchPath(pathname, add_to_end))
-	{	// try the 'Data' directory for old Mac Descent directories compatibility
-		char std_path[PATH_MAX] = "Data/";
-
-		strncat(std_path, hogname, PATH_MAX - 1 - strlen(std_path));
-		std_path[PATH_MAX - 1] = 0;
-
-		if (!PHYSFSX_getRealPath(std_path, pathname))
-			return 0;
-		
-		return PHYSFS_addToSearchPath(pathname, add_to_end);
-	}
-	
-	return 1;
-}
-
-static inline int cfile_close(char *hogname)
-{
-	char pathname[PATH_MAX];
-
-	if (!PHYSFSX_getRealPath(hogname, pathname))
-		return 0;
-
-	if (!PHYSFS_removeFromSearchPath(pathname))
-	{
-		char std_path[PATH_MAX] = "Data/";
-		
-		strncat(std_path, hogname, PATH_MAX - 1 - strlen(std_path));
-		std_path[PATH_MAX - 1] = 0;
-		
-		if (!PHYSFSX_getRealPath(std_path, pathname))
-			return 0;
-		
-		return PHYSFS_removeFromSearchPath(pathname);
-	}
-	
-	return 1;
-}
-
-
-static inline int cfile_size(char *hogname)
-{
-	PHYSFS_file *fp;
-	int size;
-
-	fp = PHYSFS_openRead(hogname);
-	if (fp == NULL)
-	{
-		char std_path[PATH_MAX] = "Data/";
-		
-		strncat(std_path, hogname, PATH_MAX - 1 - strlen(std_path));
-		std_path[PATH_MAX - 1] = 0;
-		
-		if (!(fp = PHYSFS_openRead(std_path)))
-			return -1;
-	}
-
-	size = PHYSFS_fileLength(fp);
-	cfclose(fp);
-
-	return size;
-}
-
-static inline int cfgetc(PHYSFS_file *const fp)
-{
-	unsigned char c;
-
-	if (PHYSFS_read(fp, &c, 1, 1) != 1)
+	uint32_t i;
+	if (!cfread(&i, sizeof(i), 1, file)) {
+		*v = 0;
 		return EOF;
-
-	return c;
-}
-
-static inline int cfseek(PHYSFS_file *fp, long int offset, int where)
-{
-	int c, goal_position;
-
-	switch(where)
-	{
-	case SEEK_SET:
-		goal_position = offset;
-		break;
-	case SEEK_CUR:
-		goal_position = PHYSFS_tell(fp) + offset;
-		break;
-	case SEEK_END:
-		goal_position = PHYSFS_fileLength(fp) + offset;
-		break;
-	default:
-		return 1;
 	}
-	c = PHYSFS_seek(fp, goal_position);
-	return !c;
+	*v = BSWAP32(i);
+	return 0;
 }
 
-static inline char * cfgets(char *buf, size_t n, PHYSFS_file *const fp)
+static inline int PHYSFS_readSLE32(CFILE *file, int *v)
 {
-	size_t i;
-	int c;
-
-	for (i = 0; i < n - 1; i++)
-	{
-		do
-		{
-			c = cfgetc(fp);
-			if (c == EOF)
-			{
-				*buf = 0;
-
-				return NULL;
-			}
-			if (c == 0 || c == 10)  // Unix line ending
-				break;
-			if (c == 13)            // Mac or DOS line ending
-			{
-				int c1;
-
-				c1 = cfgetc(fp);
-				if (c1 != EOF)  // The file could end with a Mac line ending
-					cfseek(fp, -1, SEEK_CUR);
-				if (c1 == 10) // DOS line ending
-					continue;
-				else            // Mac line ending
-					break;
-			}
-		} while (c == 13);
-		if (c == 13)    // because cr-lf is a bad thing on the mac
-			c = '\n';   // and anyway -- 0xod is CR on mac, not 0x0a
-		if (c == '\n')
-			break;
-		*buf++ = c;
+	uint32_t i;
+	if (!cfread(&i, sizeof(i), 1, file)) {
+		*v = 0;
+		return EOF;
 	}
-	*buf = 0;
-
-	return buf;
+	*v = i;
+	return 0;
 }
 
+#define BSWAP16(i) ((((i) & 0xFF) << 8) | (((i) >> 8) & 0xFF))
 
-/*
- * read some data types...
- */
-
-static inline int cfile_read_int(PHYSFS_file *file)
+static inline int PHYSFS_readSBE16(CFILE *file, short *v)
 {
-	int i;
-
-	if (!PHYSFS_readSLE32(file, &i))
-	{
-		Error("Error reading int in cfile_read_int()");
-		exit(1);
+	uint16_t i;
+	if (!cfread(&i, sizeof(i), 1, file)) {
+		*v = 0;
+		return EOF;
 	}
-
-	return i;
+	*v = BSWAP16(i);
+	return 0;
 }
 
-static inline short cfile_read_short(PHYSFS_file *file)
+void cfile_init_paths(int argc, char *argv[]);
+
+size_t cfile_write(CFILE *file, void *ptr, size_t elsize, size_t nelem);
+#define PHYSFS_write cfile_write
+
+int cfile_mkdir(const char *path);
+#define PHYSFS_mkdir cfile_mkdir
+
+int cfile_unlink(const char *path);
+#define PHYSFS_delete cfile_unlink
+
+void cfile_gets_0(CFILE *file, char *s, size_t sz);
+void cfile_gets_nl(CFILE *file, char *s, size_t sz);
+
+static inline int PHYSFSX_writeU8(PHYSFS_file *file, uint8_t val)
 {
-	int16_t s;
-
-	if (!PHYSFS_readSLE16(file, &s))
-	{
-		Error("Error reading short in cfile_read_short()");
-		exit(1);
-	}
-
-	return s;
+	return cfile_write(file, &val, 1, 1);
 }
 
-static inline sbyte cfile_read_byte(PHYSFS_file *file)
+static inline int PHYSFSX_writeString(PHYSFS_file *file, char *s)
 {
-	sbyte b;
-
-	if (PHYSFS_read(file, &b, sizeof(b), 1) != 1)
-	{
-		Error("Error reading byte in cfile_read_byte()");
-		exit(1);
-	}
-
-	return b;
+	return cfile_write(file, s, 1, strlen(s) + 1);
 }
 
-static inline fix cfile_read_fix(PHYSFS_file *file)
+static inline int PHYSFSX_puts(PHYSFS_file *file, char *s)
 {
-	int f;  // a fix is defined as a long for Mac OS 9, and MPW can't convert from (long *) to (int *)
-
-	if (!PHYSFS_readSLE32(file, &f))
-	{
-		Error("Error reading fix in cfile_read_fix()");
-		exit(1);
-	}
-
-	return f;
+	return cfile_write(file, s, 1, strlen(s));
 }
 
-static inline fixang cfile_read_fixang(PHYSFS_file *file)
+static inline int PHYSFSX_putc(PHYSFS_file *file, int c)
 {
-	fixang f;
+	unsigned char ch = (unsigned char)c;
 
-	if (!PHYSFS_readSLE16(file, &f))
-	{
-		Error("Error reading fixang in cfile_read_fixang()");
-		exit(1);
-	}
-
-	return f;
+	if (cfile_write(file, &ch, 1, 1) < 1)
+		return -1;
+	else
+		return (int)c;
 }
 
-static inline void cfile_read_vector(vms_vector *v, PHYSFS_file *file)
+static inline int PHYSFSX_printf(PHYSFS_file *file, char *format, ...)
 {
-	v->x = cfile_read_fix(file);
-	v->y = cfile_read_fix(file);
-	v->z = cfile_read_fix(file);
+	char buffer[1024];
+	va_list args;
+
+	va_start(args, format);
+	vsprintf(buffer, format, args);
+
+	return PHYSFSX_puts(file, buffer);
 }
 
-static inline void cfile_read_angvec(vms_angvec *v, PHYSFS_file *file)
+static inline size_t cfile_write_le32(CFILE *file, uint32_t v)
 {
-	v->p = cfile_read_fixang(file);
-	v->b = cfile_read_fixang(file);
-	v->h = cfile_read_fixang(file);
+	return cfile_write(file, &v, sizeof(v), 1);
 }
 
-static inline void cfile_read_matrix(vms_matrix *m,PHYSFS_file *file)
+static inline size_t cfile_write_le16(CFILE *file, uint16_t v)
 {
-	cfile_read_vector(&m->rvec,file);
-	cfile_read_vector(&m->uvec,file);
-	cfile_read_vector(&m->fvec,file);
+	return cfile_write(file, &v, sizeof(v), 1);
 }
+
+#define PHYSFS_writeSLE32	cfile_write_le32
+#define PHYSFS_writeULE32	cfile_write_le32
+#define PHYSFS_writeSLE16	cfile_write_le16
+#define PHYSFS_writeULE16	cfile_write_le16
+
+static inline void PHYSFS_writeSBE32(CFILE *file, uint32_t v)
+{
+	v = BSWAP32(v);
+	cfile_write(file, &v, sizeof(v), 1);
+}
+
+static inline void PHYSFS_writeSBE16(CFILE *file, uint16_t v)
+{
+	v = BSWAP16(v);
+	cfile_write(file, &v, sizeof(v), 1);
+}
+
+#define PHYSFSX_writeFix	PHYSFS_writeSLE32
+#define PHYSFSX_writeFixAng	PHYSFS_writeSLE16
+
+static inline int PHYSFSX_writeVector(PHYSFS_file *file, vms_vector *v)
+{
+	if (PHYSFSX_writeFix(file, v->x) < 1 ||
+	 PHYSFSX_writeFix(file, v->y) < 1 ||
+	 PHYSFSX_writeFix(file, v->z) < 1)
+		return 0;
+
+	return 1;
+}
+
+static inline int PHYSFSX_writeAngleVec(PHYSFS_file *file, vms_angvec *v)
+{
+	if (PHYSFSX_writeFixAng(file, v->p) < 1 ||
+	 PHYSFSX_writeFixAng(file, v->b) < 1 ||
+	 PHYSFSX_writeFixAng(file, v->h) < 1)
+		return 0;
+
+	return 1;
+}
+
+static inline int PHYSFSX_writeMatrix(PHYSFS_file *file, vms_matrix *m)
+{
+	if (PHYSFSX_writeVector(file, &m->rvec) < 1 ||
+	 PHYSFSX_writeVector(file, &m->uvec) < 1 ||
+	 PHYSFSX_writeVector(file, &m->fvec) < 1)
+		return 0;
+
+	return 1;
+}
+
+int cfile_rename(char *oldpath, char *newpath);
+#define PHYSFSX_rename cfile_rename
+
+char **cfile_find_files(char *path, char **exts);
+void cfile_find_files_free(char **files);
+#define PHYSFSX_findFiles cfile_find_files
+#define PHYSFS_enumerateFiles(path) cfile_find_files(path, NULL)
+#define PHYSFS_freeList cfile_find_files_free
+
+bool cfile_is_directory(char *path);
+#define PHYSFS_isDirectory cfile_is_directory
+
+#define PHYSFSX_openReadBuffered(filename) 	cfopen(filename, "rb")
+#define PHYSFSX_openWriteBuffered(filename)	cfopen(filename, "wb")
+#define PHYSFS_openWrite(filename)			cfopen(filename, "wb")
+#define PHYSFS_openRead(filename)			cfopen(filename, "rb")
+
+CFILE *cfile_open_data_dir_file(const char *filename);
+#define PHYSFSX_openDataFile cfile_open_data_dir_file
 
 #endif

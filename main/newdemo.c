@@ -29,12 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h> // for memset
 #include <errno.h>
 
-#if !(defined(__APPLE__) && defined(__MACH__))
-#include <physfs.h>
-#else
-#include <physfs/physfs.h>
-#endif
-
 #include "u_mem.h"
 #include "inferno.h"
 #include "game.h"
@@ -3356,22 +3350,6 @@ void newdemo_playback_one_frame()
 
 void newdemo_start_recording()
 {
-	Newdemo_size = PHYSFSX_getFreeDiskSpace();
-	con_printf(CON_VERBOSE, "Free space = %d\n", Newdemo_size);
-
-	Newdemo_size -= 100000;
-
-	if ((Newdemo_size+100000) <  2000000000) {
-		if (((int)(Newdemo_size)) < 500000) {
-#if !(defined(__APPLE__) || defined(macintosh))
-			nm_messagebox(NULL, 1, TXT_OK, TXT_DEMO_NO_SPACE);
-#else
-			nm_messagebox(NULL, 1, TXT_OK, "Not enough space on current\ndrive to start demo recording.");
-#endif
-			return;
-		}
-	}
-
 	Newdemo_num_written = 0;
 	Newdemo_no_space=0;
 	Newdemo_state = ND_STATE_RECORDING;
@@ -3730,7 +3708,7 @@ read_error:
 		
 		sprintf(text, complete ? "Demo %s converted" : "Error converting demo\n%s", filename);
 		m[ 0].type = NM_TYPE_TEXT; m[ 0].text = text;
-		m[ 1].type = NM_TYPE_TEXT; m[ 1].text = Newdemo_at_eof ? "Demo may be corrupt" : (char *) PHYSFS_getLastError();
+		m[ 1].type = NM_TYPE_TEXT; m[ 1].text = "Demo may be corrupt";
 		newmenu_do( NULL, NULL, 1 + !complete, m, NULL );
 	}
 

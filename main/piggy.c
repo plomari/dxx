@@ -805,13 +805,7 @@ int read_hamfile()
 		int i;
 
 		bm_read_all(ham_fp);
-		//cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
-		for (i = 0; i < MAX_BITMAP_FILES; i++)
-		{
-			GameBitmapXlat[i] = cfile_read_short(ham_fp);
-			if (PHYSFS_eof(ham_fp))
-				break;
-		}
+		cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
 	}
 	#endif
 
