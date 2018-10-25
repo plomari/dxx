@@ -92,7 +92,7 @@ typedef struct Edge_info {
 } Edge_info;
 
 #define MAX_EDGES_FROM_VERTS(v)     ((v)*4)
-#define MAX_EDGES 6000  // Determined by loading all the levels by John & Mike, Feb 9, 1995
+#define MAX_EDGES 65536
 
 #define K_WALL_NORMAL_COLOR     BM_XRGB(29, 29, 29 )
 #define K_WALL_DOOR_COLOR       BM_XRGB(5, 27, 5 )
@@ -142,7 +142,7 @@ static int Num_edges=0;
 static int Max_edges;		//set each frame
 static int Highest_edge_index = -1;
 static Edge_info Edges[MAX_EDGES];
-static short DrawingListBright[MAX_EDGES];
+static uint16_t DrawingListBright[MAX_EDGES];
 
 // Map movement defines
 #define PITCH_DEFAULT 9000
@@ -956,12 +956,13 @@ void draw_all_edges()
 static int automap_find_edge(int v0,int v1,Edge_info **edge_ptr)
 {
 	long vv, evv;
-	short hash,oldhash;
+	uint16_t hash,oldhash;
 	int ret, ev0, ev1;
 
 	vv = (v1<<16) + v0;
 
 	oldhash = hash = ((v0*5+v1) % Max_edges);
+	Assert(hash >= 0 && hash < Max_edges);
 
 	ret = -1;
 
@@ -972,7 +973,8 @@ static int automap_find_edge(int v0,int v1,Edge_info **edge_ptr)
 		if (Edges[hash].num_faces == 0 ) ret=0;
 		else if (evv == vv) ret=1;
 		else {
-			if (++hash==Max_edges) hash=0;
+			hash++;
+			if (hash==Max_edges) hash=0;
 			if (hash==oldhash) Error("Edge list full!");
 		}
 	}
