@@ -285,6 +285,10 @@ void bm_read_extra_robots(char *fname,int type)
 	int version;
 
 	fp = cfopen(fname,"rb");
+	if (!fp) {
+		printf("bm_read_extra_robots: could not open %s\n", fname);
+		return;
+	}
 
 	if (type == 2) {
 		int sig;
