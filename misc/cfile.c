@@ -31,7 +31,7 @@ struct hogmount {
 	size_t num_entries;
 };
 
-#define HOG_SLOT_COUNT 4
+#define HOG_SLOT_COUNT 6
 
 static struct hogmount hogs_alloc[HOG_SLOT_COUNT];
 static struct hogmount *hogs[HOG_SLOT_COUNT];
