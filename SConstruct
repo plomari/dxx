@@ -302,12 +302,6 @@ noasm_sources = [
 
 # Acquire environment object...
 env = Environment(ENV = os.environ)
- 
-# Prettier build messages......
-env["CCCOMSTR"]     = "Compiling $SOURCE ..."
-env["LINKCOMSTR"]   = "Linking $TARGET ..."
-env["ARCOMSTR"]     = "Archiving $TARGET ..."
-env["RANLIBCOMSTR"] = "Indexing $TARGET ..."
 
 # flags and stuff for all platforms
 env.ParseConfig('pkg-config sdl2 --libs --cflags')
