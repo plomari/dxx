@@ -66,7 +66,6 @@ common_sources = [
 '2d/rect.c',
 '2d/rle.c',
 '2d/scalec.c',
-'2d/tmerge.c',
 '3d/clipper.c',
 '3d/draw.c',
 '3d/globvars.c',
@@ -281,7 +280,6 @@ arch_sdl_sources = [
 # assembler related
 asm_sources = [
 '2d/linear.asm',
-'2d/tmerge_a.asm',
 'maths/fix.asm',
 'maths/rand.c',
 'maths/vecmat.c',

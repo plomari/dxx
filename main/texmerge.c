@@ -181,6 +181,8 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 
 void merge_textures_new( int type, grs_bitmap * bottom_bmp, grs_bitmap * top_bmp, ubyte * dest_data )
 {
+	int x,y;
+	ubyte c;
 	ubyte * top_data, *bottom_data;
 
 	if ( top_bmp->bm_flags & BM_FLAG_RLE )
@@ -195,17 +197,40 @@ void merge_textures_new( int type, grs_bitmap * bottom_bmp, grs_bitmap * top_bmp
 	switch( type )	{
 	case 0:
 		// Normal
-
-		gr_merge_textures( bottom_data, top_data, dest_data );
+		for (y=0;y<64;y++)
+			for (x=0;x<64;x++) {
+				c=top_data[64*y+x];
+				if (c==TRANSPARENCY_COLOR)
+					c=bottom_data[64*y+x];
+				*dest_data++=c;
+			}
 		break;
 	case 1:
-		gr_merge_textures_1( bottom_data, top_data, dest_data );
+		for (y=0; y<64; y++ )
+			for (x=0; x<64; x++ ) {
+				c = top_data[ 64*x+(63-y) ];
+				if (c==TRANSPARENCY_COLOR)
+					c = bottom_data[ 64*y+x ];
+				*dest_data++ = c;
+			}
 		break;
 	case 2:
-		gr_merge_textures_2( bottom_data, top_data, dest_data );
+		for (y=0; y<64; y++ )
+			for (x=0; x<64; x++ ) {
+				c = top_data[ 64*(63-y)+(63-x) ];
+				if (c==TRANSPARENCY_COLOR)
+					c = bottom_data[ 64*y+x ];
+				*dest_data++ = c;
+			}
 		break;
 	case 3:
-		gr_merge_textures_3( bottom_data, top_data, dest_data );
+		for (y=0; y<64; y++ )
+			for (x=0; x<64; x++ ) {
+				c = top_data[ 64*(63-x)+y  ];
+				if (c==TRANSPARENCY_COLOR)
+					c = bottom_data[ 64*y+x ];
+				*dest_data++ = c;
+			}
 		break;
 	}
 }
