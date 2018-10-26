@@ -107,12 +107,6 @@ int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int
 void ogl_freetexture(ogl_texture *gltexture);
 void ogl_do_palfx(void);
 
-void ogl_init_texture_stats(ogl_texture* t){
-	t->prio=0.3;//default prio
-	t->lastrend=0;
-	t->numrend=0;
-}
-
 void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 {
 	t->handle = 0;
@@ -166,20 +160,11 @@ void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 	t->lw = t->w = w;
 	t->h = h;
 	t->wantmip = flags & OGL_FLAG_MIPMAP;
-	ogl_init_texture_stats(t);
 }
 
 void ogl_reset_texture(ogl_texture* t)
 {
 	ogl_init_texture(t, 0, 0, 0);
-}
-
-void ogl_reset_texture_stats_internal(void){
-	int i;
-	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++)
-		if (ogl_texture_list[i].handle>0){
-			ogl_init_texture_stats(&ogl_texture_list[i]);
-		}
 }
 
 void ogl_init_texture_list_internal(void){
@@ -215,71 +200,16 @@ ogl_texture* ogl_get_free_texture(void){
 	Error("OGL: texture list full!\n");
 }
 
-void ogl_texture_stats(void)
-{
-	int used = 0, usedother = 0, usedidx = 0, usedrgb = 0, usedrgba = 0;
-	int databytes = 0, truebytes = 0, datatexel = 0, truetexel = 0, i;
-	int prio0=0,prio1=0,prio2=0,prio3=0,prioh=0;
-	GLint idx, r, g, b, a, dbl, depth;
-	int res, colorsize, depthsize;
-	ogl_texture* t;
-
-	for (i=0;i<OGL_TEXTURE_LIST_SIZE;i++){
-		t=&ogl_texture_list[i];
-		if (t->handle>0){
-			used++;
-			datatexel+=t->w*t->h;
-			truetexel+=t->tw*t->th;
-			databytes+=t->bytesu;
-			truebytes+=t->bytes;
-			if (t->prio<0.299)prio0++;
-			else if (t->prio<0.399)prio1++;
-			else if (t->prio<0.499)prio2++;
-			else if (t->prio<0.599)prio3++;
-			else prioh++;
-			if (t->format == GL_RGBA)
-				usedrgba++;
-			else if (t->format == GL_RGB)
-				usedrgb++;
-			else if (t->format == GL_COLOR_INDEX)
-				usedidx++;
-			else
-				usedother++;
-		}
-	}
-
-	res = SWIDTH * SHEIGHT;
-	glGetIntegerv(GL_INDEX_BITS, &idx);
-	glGetIntegerv(GL_RED_BITS, &r);
-	glGetIntegerv(GL_GREEN_BITS, &g);
-	glGetIntegerv(GL_BLUE_BITS, &b);
-	glGetIntegerv(GL_ALPHA_BITS, &a);
-	glGetIntegerv(GL_DOUBLEBUFFER, &dbl);
-	dbl += 1;
-	glGetIntegerv(GL_DEPTH_BITS, &depth);
-	gr_set_current_canvas(NULL);
-	gr_set_curfont( GAME_FONT );
-	gr_set_fontcolor( BM_XRGB(255,255,255),-1 );
-	colorsize = (idx * res * dbl) / 8;
-	depthsize = res * depth / 8;
-	gr_printf(FSPACX(2),FSPACY(1),"%i flat %i tex %i sprites %i bitmaps",r_polyc,r_tpolyc,r_bitmapc);
-	gr_printf(FSPACX(2), FSPACY(1)+LINE_SPACING, "%i(%i,%i,%i,%i) %iK(%iK wasted) (%i postcachedtex)", used, usedrgba, usedrgb, usedidx, usedother, truebytes / 1024, (truebytes - databytes) / 1024, r_texcount - r_cachedtexcount);
-	gr_printf(FSPACX(2), FSPACY(1)+(LINE_SPACING*2), "%ibpp(r%i,g%i,b%i,a%i)x%i=%iK depth%i=%iK", idx, r, g, b, a, dbl, colorsize / 1024, depth, depthsize / 1024);
-	gr_printf(FSPACX(2), FSPACY(1)+(LINE_SPACING*3), "total=%iK", (colorsize + depthsize + truebytes) / 1024);
-}
-
 void ogl_bindbmtex(grs_bitmap *bm){
 	if (bm->gltexture==NULL || bm->gltexture->handle<=0)
 		ogl_loadbmtexture(bm);
 	OGL_BINDTEXTURE(bm->gltexture->handle);
-	bm->gltexture->lastrend=GameTime;
-	bm->gltexture->numrend++;
 }
 
 //gltexture MUST be bound first
 void ogl_texwrap(ogl_texture *gltexture,int state)
 {
-	if (gltexture->wrapstate != state || gltexture->numrend < 1)
+	if (gltexture->wrapstate != state)
 	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, state);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, state);
@@ -347,8 +277,6 @@ void ogl_cache_level_textures(void)
 	grs_bitmap *bm,*bm2;
 	struct side *sidep;
 	int max_efx=0,ef;
-	
-	ogl_reset_texture_stats_internal();//loading a new lev should reset textures
 	
 	for (i=0,ec=Effects;i<Num_effects;i++,ec++) {
 		ogl_cache_vclipn_textures(Effects[i].dest_vclip);
@@ -1037,9 +965,6 @@ void ogl_end_frame(void){
 
 void gr_flip(void)
 {
-	if (GameArg.DbgRenderStats)
-		ogl_texture_stats();
-
 	ogl_do_palfx();
 	ogl_swap_buffers_internal();
 	glClear(GL_COLOR_BUFFER_BIT);
@@ -1250,61 +1175,6 @@ int tex_format_verify(ogl_texture *tex){
 	return 0;
 }
 
-void tex_set_size1(ogl_texture *tex,int dbits,int bits,int w, int h){
-	int u;
-	if (tex->tw!=w || tex->th!=h){
-		u=(tex->w/(float)tex->tw*w) * (tex->h/(float)tex->th*h);
-		glmprintf((0,"shrunken texture?\n"));
-	}else
-		u=tex->w*tex->h;
-	if (bits<=0){//the beta nvidia GLX server. doesn't ever return any bit sizes, so just use some assumptions.
-		tex->bytes=((float)w*h*dbits)/8.0;
-		tex->bytesu=((float)u*dbits)/8.0;
-	}else{
-		tex->bytes=((float)w*h*bits)/8.0;
-		tex->bytesu=((float)u*bits)/8.0;
-	}
-	glmprintf((0,"tex_set_size1: %ix%i, %ib(%i) %iB\n",w,h,bits,dbits,tex->bytes));
-}
-
-void tex_set_size(ogl_texture *tex){
-	GLint w,h;
-	int bi=16,a=0;
-	if (GameArg.DbgGlGetTexLevelParamOk){
-		GLint t;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&w);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&h);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_LUMINANCE_SIZE,&t);a+=t;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_INTENSITY_SIZE,&t);a+=t;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_RED_SIZE,&t);a+=t;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_GREEN_SIZE,&t);a+=t;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_BLUE_SIZE,&t);a+=t;
-		glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_ALPHA_SIZE,&t);a+=t;
-	}else{
-		w=tex->tw;
-		h=tex->th;
-	}
-	switch (tex->format){
-		case GL_LUMINANCE:
-			bi=8;
-			break;
-		case GL_LUMINANCE_ALPHA:
-			bi=8;
-			break;
-		case GL_RGB:
-		case GL_RGBA:
-			bi=16;
-			break;
-		case GL_COLOR_INDEX:
-			bi = 8;
-			break;
-		default:
-			Error("tex_set_size unknown texformat\n");
-			break;
-	}
-	tex_set_size1(tex,bi,a,w,h);
-}
-
 //loads a palettized bitmap into a ogl RGBA texture.
 //Sizes and pads dimensions to multiples of 2 if necessary.
 //In theory this could be a problem for repeating textures, but all real
@@ -1374,7 +1244,6 @@ int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 			tex->tw, tex->th, 0, tex->format, // RGBA textures.
 			GL_UNSIGNED_BYTE, // imageData is a GLubyte pointer.
 			bufP);
-	tex_set_size (tex);
 	r_texcount++; 
 	return 0;
 }
@@ -1469,9 +1338,7 @@ void ogl_freetexture(ogl_texture *gltexture)
 {
 	if (gltexture->handle>0) {
 		r_texcount--;
-		glmprintf((0,"ogl_freetexture(%p):%i (last rend %is) (%i left)\n",gltexture,gltexture->handle,(GameTime-gltexture->lastrend)/f1_0,r_texcount));
 		glDeleteTextures( 1, &gltexture->handle );
-//		gltexture->handle=0;
 		ogl_reset_texture(gltexture);
 	}
 }
