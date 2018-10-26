@@ -19,6 +19,7 @@
 #include <OpenGL/glu.h>
 #else
 #include <GL/gl.h>
+#include <GL/glext.h>
 #include <GL/glu.h>
 #endif
 #include <string.h>
@@ -1247,18 +1248,13 @@ static int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *t
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		}
+	glTexImage2D (
+		GL_TEXTURE_2D, 0, tex->internalformat,
+		tex->tw, tex->th, 0, tex->format, // RGBA textures.
+		GL_UNSIGNED_BYTE, // imageData is a GLubyte pointer.
+		bufP);
 	if (tex->wantmip && GL_needmipmaps)
-		gluBuild2DMipmaps (
-				GL_TEXTURE_2D, tex->internalformat, 
-				tex->tw, tex->th, tex->format, 
-				GL_UNSIGNED_BYTE, 
-				bufP);
-	else
-		glTexImage2D (
-			GL_TEXTURE_2D, 0, tex->internalformat,
-			tex->tw, tex->th, 0, tex->format, // RGBA textures.
-			GL_UNSIGNED_BYTE, // imageData is a GLubyte pointer.
-			bufP);
+		glGenerateMipmap(GL_TEXTURE_2D);
 	r_texcount++; 
 	free(tmp);
 	return 0;
