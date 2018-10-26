@@ -103,7 +103,7 @@ extern GLubyte *pixels;
 extern GLubyte *texbuf;
 void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format);
 void ogl_loadbmtexture(grs_bitmap *bm);
-int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format);
+static int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, grs_bitmap *bm);
 void ogl_freetexture(ogl_texture *gltexture);
 void ogl_do_palfx(void);
 
@@ -902,7 +902,7 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	OGL_ENABLE(TEXTURE_2D);
 	
 	ogl_pal=gr_current_pal;
-	ogl_loadtexture(src->bm_data, sx, sy, &tex, src->bm_flags, 0);
+	ogl_loadtexture(src->bm_data, sx, sy, &tex, src->bm_flags, 0, NULL);
 	ogl_pal=gr_palette;
 	OGL_BINDTEXTURE(tex.handle);
 	
@@ -1180,8 +1180,9 @@ int tex_format_verify(ogl_texture *tex){
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format)
+static int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, grs_bitmap *bm)
 {
+	uint8_t *tmp = NULL;
 	GLubyte	*bufP = texbuf;
 	tex->tw = pow2ize (tex->w);
 	tex->th = pow2ize (tex->h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
@@ -1191,10 +1192,24 @@ int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 	tex->v = (float) ((double) tex->h / (double) tex->th);
 
 	if (data) {
-		if (bm_flags >= 0)
+		// buttfuck hack against all the buttfuck hacks
+		if (bm && bm->bm_depth == 4) {
+			tex->format = GL_RGBA;
+			tex->internalformat = GL_RGBA8;
+			tmp = calloc(1, tex->tw * tex->th * 4);
+			if (!tmp) {
+				printf("Error: texture OOM\n");
+				abort();
+			}
+			for (int y = 0; y < tex->h; y++)
+				memcpy(tmp + y * tex->w * 4, data + y * tex->w * 4, 4 * tex->w);
+			bufP = tmp;
+		} else if (bm_flags >= 0) {
+			if (bm)
+				Assert(bm->bm_depth == 0 || bm->bm_depth == 1);
 			ogl_filltexbuf (data, texbuf, tex->lw, tex->w, tex->h, dxo, dyo, tex->tw, tex->th, 
 								 tex->format, bm_flags, data_format);
-		else {
+		} else {
 			if (!dxo && !dyo && (tex->w == tex->tw) && (tex->h == tex->th))
 				bufP = data;
 			else {
@@ -1245,6 +1260,7 @@ int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, in
 			GL_UNSIGNED_BYTE, // imageData is a GLubyte pointer.
 			bufP);
 	r_texcount++; 
+	free(tmp);
 	return 0;
 }
 
@@ -1276,7 +1292,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 			{
 				if (bm->gltexture == NULL)
 					ogl_init_texture(bm->gltexture = ogl_get_free_texture(), pdata.width, pdata.height, flags | ((pdata.alpha || bm->bm_flags & BM_FLAG_TRANSPARENT) ? OGL_FLAG_ALPHA : 0));
-				ogl_loadtexture(pdata.data, 0, 0, bm->gltexture, bm->bm_flags, pdata.paletted ? 0 : pdata.channels);
+				ogl_loadtexture(pdata.data, 0, 0, bm->gltexture, bm->bm_flags, pdata.paletted ? 0 : pdata.channels, NULL);
 				free(pdata.data);
 				if (pdata.palette)
 					free(pdata.palette);
@@ -1327,7 +1343,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 		}
 		buf=decodebuf;
 	}
-	ogl_loadtexture(buf, 0, 0, bm->gltexture, bm->bm_flags, 0);
+	ogl_loadtexture(buf, 0, 0, bm->gltexture, bm->bm_flags, 0, bm);
 }
 
 void ogl_loadbmtexture(grs_bitmap *bm)

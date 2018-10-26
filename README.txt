@@ -24,7 +24,9 @@ that are enabled by default:
 - some bug fixes
 - remains pure C. I'm against the pointless C++ uglification that upstream did.
   This also doesn't include the d1x unification.
-
+- half-functional support for loading D2X-XL levels. This is work in progress
+  and in an early stage. Levels neither render correctly in all places, nor are
+  all game play extensions supported. Random crashes are also possible.
 
 This was also converted to SDL2 (OpenGL/Linux only), possibly with some problems
 that still should be fixed.

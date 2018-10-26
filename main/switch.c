@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "robot.h"
 #include "bm.h"
+#include "kconfig.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -56,6 +57,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 trigger Triggers[MAX_TRIGGERS];
 int Num_triggers;
+
+extern int Do_appearance_effect;
 
 //link Links[MAX_WALL_LINKS];
 //int Num_links;
@@ -378,6 +381,47 @@ int wall_is_forcefield(trigger *trig)
 	return (i<trig->num_links);
 }
 
+static void compute_seg_side_pos(int seg, int side, struct obj_position *out)
+{
+	vms_vector pos;
+	compute_segment_center(&pos, &Segments[seg]);
+
+	vms_matrix orient;
+	vms_vector towards_point;
+	vms_vector dir;
+	compute_center_point_on_side(&towards_point, &Segments[seg], side);
+	vm_vec_sub(&dir, &towards_point, &pos);
+	vm_vector_2_matrix(&orient, &dir, NULL, NULL);
+
+	out->pos = pos;
+	out->orient = orient;
+ 	out->segnum = seg;
+}
+
+static void do_teleport_player(trigger *trig)
+{
+	int link = d_rand() % trig->num_links;
+
+	struct obj_position pos;
+	compute_seg_side_pos(trig->seg[link], trig->side[link], &pos);
+
+	ConsoleObject->pos = pos.pos;
+	ConsoleObject->orient = pos.orient;
+ 	obj_relink(ConsoleObject-Objects, pos.segnum);
+
+	reset_player_object();
+	reset_cruise();
+	Do_appearance_effect = 1;
+}
+
+static void do_set_spawn(trigger *trig, int player_index)
+{
+	Assert(player_index >= 0 && player_index < trig->num_links);
+
+	compute_seg_side_pos(trig->seg[player_index], trig->side[player_index],
+						 &Player_init[player_index]);
+}
+
 int check_trigger_sub(int trigger_num, int pnum,int shot)
 {
 	trigger *trig = &Triggers[trigger_num];
@@ -546,6 +590,42 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 
 			break;
 
+		// D2X-XL
+		case TT_TELEPORT:
+			if (!Player_is_dead) {
+				printf("D2X-XL: teleport\n");
+				do_teleport_player(trig);
+				print_trigger_message (pnum,trigger_num,shot,"Teleporting!");
+			}
+			break;
+		case TT_SET_SPAWN:
+			printf("D2X-XL: changing spawn\n");
+			do_set_spawn(trig, Player_num); // disregarding multiplayer things
+			break;
+		case TT_SPEEDBOOST:
+		case TT_CAMERA:
+		case TT_SHIELD_DAMAGE:
+		case TT_ENERGY_DRAIN:
+		case TT_CHANGE_TEXTURE:
+		case TT_SMOKE_LIFE:
+		case TT_SMOKE_SPEED:
+		case TT_SMOKE_DENS:
+		case TT_SMOKE_SIZE:
+		case TT_SMOKE_DRIFT:
+		case TT_COUNTDOWN:
+		case TT_SPAWN_BOT:
+		case TT_SMOKE_BRIGHTNESS:
+		case TT_MESSAGE:
+		case TT_SOUND:
+		case TT_MASTER:
+		case TT_ENABLE_TRIGGER:
+		case TT_DISABLE_TRIGGER:
+		case TT_DISARM_ROBOT:
+		case TT_REPROGRAM_ROBOT:
+		case TT_SHAKE_MINE:
+			HUD_init_message("D2X-XL: unimplemented trigger %d", trig->type);
+			break;
+
 		default:
 			Int3();
 			break;
@@ -634,12 +714,19 @@ extern void v30_trigger_read(v30_trigger *t, CFILE *fp)
 /*
  * reads a trigger structure from a CFILE
  */
-extern void trigger_read(trigger *t, CFILE *fp)
+extern void trigger_read(trigger *t, CFILE *fp, bool obj_trigger)
 {
 	int i;
 
 	t->type = cfile_read_byte(fp);
-	t->flags = cfile_read_byte(fp);
+	if (obj_trigger) {
+		short v = cfile_read_short(fp);
+		if (v < 0 || v > 0xFF)
+			printf("D2X-XL: warning: cutting off flags %d\n", v);
+		t->flags = v;
+	} else {
+		t->flags = cfile_read_byte(fp);
+	}
 	t->num_links = cfile_read_byte(fp);
 	t->pad = cfile_read_byte(fp);
 	t->value = cfile_read_fix(fp);

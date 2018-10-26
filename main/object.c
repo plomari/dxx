@@ -821,6 +821,16 @@ void render_object(object *obj)
 
 		case RT_LASER: Laser_render(obj); break;
 
+		// D2X-XL things: ignore
+		case RT_THRUSTER:
+		case RT_EXPLBLAST:
+		case RT_SHRAPNELS:
+		case RT_PARTICLES:
+		case RT_LIGHTNING:
+		case RT_SOUND:
+		case RT_SHOCKWAVE:
+			break;
+
 		default: Error("Unknown render_type <%d>",obj->render_type);
  	}
 

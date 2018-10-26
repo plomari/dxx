@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#include "vclip.h"
 
-#define MAX_WALLS               254 // Maximum number of walls
+#define MAX_WALLS               2047 // Maximum number of walls
 #define MAX_WALL_ANIMS          60  // Maximum different types of doors
 #define MAX_DOORS               90  // Maximum number of open doors
 
@@ -165,6 +165,8 @@ typedef struct cloaking_wall {
 #define WCF_BLASTABLE   2       //this is a blastable wall
 #define WCF_TMAP1       4       //this uses primary tmap, not tmap2
 #define WCF_HIDDEN      8       //this uses primary tmap, not tmap2
+// D2X-XL
+#define WCF_ALTFMT		16
 
 typedef struct {
 	fix     play_time;
@@ -261,6 +263,8 @@ void kill_stuck_objects(int wallnum);
 void start_wall_cloak(segment *seg, int side);
 void start_wall_decloak(segment *seg, int side);
 
+int wall_check_transparency(segment * seg, int side);
+
 extern int wclip_read_n_d1(wclip *wc, int n, CFILE *fp);
 
 /*
@@ -281,7 +285,7 @@ extern void v19_wall_read(v19_wall *w, CFILE *fp);
 /*
  * reads a wall structure from a CFILE
  */
-extern void wall_read(wall *w, CFILE *fp);
+extern void wall_read(wall *w, CFILE *fp, int version);
 
 /*
  * reads a v19_door structure from a CFILE

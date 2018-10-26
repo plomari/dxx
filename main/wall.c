@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "segment.h"
 #include "error.h"
+#include "gamesave.h"
 #include "gameseg.h"
 #include "game.h"
 #include "bm.h"
@@ -97,19 +98,17 @@ char	Wall_names[7][10] = {
 // Function prototypes
 void kill_stuck_objects(int wallnum);
 
-
-
-// This function determines whether the current segment/side is transparent
-//		1 = YES
-//		0 = NO
-int check_transparency( segment * seg, int side )
+int wall_check_transparency(segment * seg, int side)
 {
-	if ( (seg->sides[side].tmap_num2 & 0x3FFF) == 0) {
-		if (GameBitmaps[Textures[seg->sides[side].tmap_num].index].bm_flags & BM_FLAG_TRANSPARENT )
+	if ((seg->sides[side].tmap_num2 & 0x3FFF) == 0) {
+		int tmap_flags = GameBitmaps[Textures[seg->sides[side].tmap_num].index].bm_flags;
+		if (tmap_flags & BM_FLAG_TRANSPARENT )
+			return 1;
+		else if (tmap_flags & BM_FLAG_SEE_THRU)
 			return 1;
 		else
 			return 0;
-		}
+	}
 
 	if (GameBitmaps[Textures[seg->sides[side].tmap_num2 & 0x3FFF ].index].bm_flags & BM_FLAG_SUPER_TRANSPARENT )
 		return 1;
@@ -147,6 +146,7 @@ int wall_is_doorway ( segment * seg, int side )
 
 	Assert(seg-Segments>=0 && seg-Segments<=Highest_segment_index);
 	Assert(side>=0 && side<6);
+	Assert(seg->sides[side].wall_num >= 0);
 
 	type = Walls[seg->sides[side].wall_num].type;
 	flags = Walls[seg->sides[side].wall_num].flags;
@@ -158,7 +158,7 @@ int wall_is_doorway ( segment * seg, int side )
 		if (Walls[seg->sides[side].wall_num].flags & WALL_ILLUSION_OFF)
 			return WID_NO_WALL;
 		else {
-			if (check_transparency( seg, side))
+			if (wall_check_transparency( seg, side))
 				return WID_TRANSILLUSORY_WALL;
 		 	else
 				return WID_ILLUSORY_WALL;
@@ -169,7 +169,7 @@ int wall_is_doorway ( segment * seg, int side )
 	 	if (flags & WALL_BLASTED)
 			return WID_TRANSILLUSORY_WALL;
 
-		if (check_transparency( seg, side))
+		if (wall_check_transparency( seg, side))
 			return WID_TRANSPARENT_WALL;
 		else
 			return WID_WALL;
@@ -186,7 +186,7 @@ int wall_is_doorway ( segment * seg, int side )
 		return WID_TRANSPARENT_WALL;
 	
 // If none of the above flags are set, there is no doorway.
-	if (check_transparency( seg, side))
+	if (wall_check_transparency( seg, side))
 		return WID_TRANSPARENT_WALL;
 	else
 		return WID_WALL; // There are children behind the door.
@@ -278,12 +278,14 @@ void blast_blastable_wall(segment *seg, int side)
 	if (cwall_num > -1)
 		kill_stuck_objects(cwall_num);
 
+	a = Walls[seg->sides[side].wall_num].clip_num;
+	Assert(a >= 0 && a < Num_wall_anims);
+
 	//if this is an exploding wall, explode it
-	if (WallAnims[Walls[seg->sides[side].wall_num].clip_num].flags & WCF_EXPLODES)
+	if (WallAnims[a].flags & WCF_EXPLODES)
 		explode_wall(seg-Segments,side);
 	else {
 		//if not exploding, set final frame, and make door passable
-		a = Walls[seg->sides[side].wall_num].clip_num;
 		n = WallAnims[a].num_frames;
 		wall_set_tmap_num(seg,side,csegp,Connectside,a,n-1);
 		Walls[seg->sides[side].wall_num].flags |= WALL_BLASTED;
@@ -334,6 +336,8 @@ void wall_damage(segment *seg, int side, fix damage)
 			Walls[cwall_num].hps -= damage;
 			
 		a = Walls[seg->sides[side].wall_num].clip_num;
+		Assert(a >= 0 && a < Num_wall_anims);
+
 		n = WallAnims[a].num_frames;
 		
 		if (Walls[seg->sides[side].wall_num].hps < WALL_HPS*1/n) {
@@ -366,6 +370,8 @@ void wall_open_door(segment *seg, int side)
 	w = &Walls[seg->sides[side].wall_num];
 	wall_num = w - Walls;
 	//kill_stuck_objects(seg->sides[side].wall_num);
+
+	Assert(w->type == WALL_DOOR);
 
 	if ((w->state == WALL_DOOR_OPENING) ||		//already opening
 		 (w->state == WALL_DOOR_WAITING)	||		//open, waiting to close
@@ -854,13 +860,20 @@ void do_door_open(int door_num)
 		Assert(Connectside != -1);
 
 		d->time += FrameTime;
+
+		// caused by opening a WALL_CLOSED as door???
+		Assert(w->clip_num >= 0 && w->clip_num < Num_wall_anims);
+		if (w->clip_num < 0) {
+			printf("blleelelrgh\n");
+			continue;
+		}
 	
 		time_elapsed = d->time;
 		n = WallAnims[w->clip_num].num_frames;
 		time_total = WallAnims[w->clip_num].play_time;
-	
-		one_frame = time_total/n;	
-	
+
+		one_frame = time_total/n;
+
 		i = time_elapsed/one_frame;
 	
 		if (i < n)
@@ -955,6 +968,12 @@ void do_door_close(int door_num)
 				}
 	
 		d->time += FrameTime;
+
+		Assert(w->clip_num >= 0 && w->clip_num < Num_wall_anims);
+		if (w->clip_num < 0) {
+			printf("blleelelrgh\n");
+			continue;
+		}
 
 		time_elapsed = d->time;
 		n = WallAnims[w->clip_num].num_frames;
@@ -1654,14 +1673,21 @@ extern void v19_wall_read(v19_wall *w, CFILE *fp)
 /*
  * reads a wall structure from a CFILE
  */
-extern void wall_read(wall *w, CFILE *fp)
+extern void wall_read(wall *w, CFILE *fp, int version)
 {
 	w->segnum = cfile_read_int(fp);
 	w->sidenum = cfile_read_int(fp);
 	w->hps = cfile_read_fix(fp);
 	w->linked_wall = cfile_read_int(fp);
 	w->type = cfile_read_byte(fp);
-	w->flags = cfile_read_byte(fp);
+	if (version < 37) {
+		w->flags = cfile_read_byte(fp);
+	} else {
+		ushort v = cfile_read_short(fp);
+		if (v > 0xFF)
+			printf("D2X-XL: discarding upper flags %d\n", v);
+		w->flags = v;
+	}
 	w->state = cfile_read_byte(fp);
 	w->trigger = cfile_read_byte(fp);
 	w->clip_num = cfile_read_byte(fp);

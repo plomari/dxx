@@ -80,7 +80,7 @@ void fuelcen_damage(segment *segp, fix AmountOfDamage );
 // Called to repair an object
 //--repair-- int refuel_do_repair_effect( object * obj, int first_time, int repair_seg );
 
-#define MAX_NUM_FUELCENS    70
+#define MAX_NUM_FUELCENS    500
 
 extern char Special_names[MAX_CENTER_TYPES][11];
 
@@ -111,7 +111,7 @@ typedef struct FuelCenter {
 } __pack__ FuelCenter;
 
 // The max number of robot centers per mine.
-#define MAX_ROBOT_CENTERS  20
+#define MAX_ROBOT_CENTERS  100
 
 extern int Num_robot_centers;
 

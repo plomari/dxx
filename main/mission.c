@@ -332,6 +332,11 @@ int read_mission_file(mle *mission, char *filename, int location)
 			p = get_parm_value("zname",mfile);
 		}
 
+		if (!p) {       //d2x-xl I guess?
+			cfseek(mfile,0,SEEK_SET);
+			p = get_parm_value("d2x-name",mfile);
+		}
+
 		if (p) {
 			char *t;
 			if ((t=strchr(p,';'))!=NULL)
@@ -689,6 +694,10 @@ int load_mission(mle *mission)
 		}
 		if (istok(buf,"zname") && !Current_mission->enhanced) {
 			Current_mission->enhanced = 2;
+			continue;						//already have name, go to next line
+		}
+		if (istok(buf,"d2x-name") && !Current_mission->enhanced) {
+			Current_mission->enhanced = 3;
 			continue;						//already have name, go to next line
 		}
 		else if (istok(buf,"type"))

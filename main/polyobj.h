@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "piggy.h"
 
-#define MAX_POLYGON_MODELS 200
+#define MAX_POLYGON_MODELS 500
 
 //used to describe a polygon model
 typedef struct polymodel {

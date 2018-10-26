@@ -342,6 +342,12 @@ void read_object(object *obj,CFILE *f,int version)
 	obj->render_type    = cfile_read_byte(f);
 	obj->flags          = cfile_read_byte(f);
 
+	if (version > 37) {
+		bool multiplayer = !!cfile_read_byte(f);
+		if (multiplayer)
+			printf("D2X-XL multiplayer object\n");
+	}
+
 	obj->segnum         = cfile_read_short(f);
 	obj->attached_obj   = -1;
 
@@ -524,6 +530,66 @@ void read_object(object *obj,CFILE *f,int version)
 
 		case RT_LASER:
 			break;
+
+		// D2X-XL types
+		case RT_THRUSTER:
+			break;
+		case RT_PARTICLES:
+			cfile_read_int(f); // life
+			cfile_read_int(f); // size
+			cfile_read_int(f); // parts
+			cfile_read_int(f); // speed
+			cfile_read_int(f); // drift
+			cfile_read_int(f); // brightness
+			cfile_read_byte(f); // r
+			cfile_read_byte(f); // g
+			cfile_read_byte(f); // b
+			cfile_read_byte(f); // a
+			cfile_read_byte(f); // side?
+			if (Gamesave_current_version >= 18)
+				cfile_read_byte(f); // type
+			if (Gamesave_current_version >= 19)
+				cfile_read_byte(f); // enabled
+			break;
+		case RT_LIGHTNING:
+			cfile_read_int(f); // life
+			cfile_read_int(f); // delay
+			cfile_read_int(f); // length
+			cfile_read_int(f); // ampl.
+			cfile_read_int(f); // offset
+			if (Gamesave_current_version > 22)
+				cfile_read_int(f); // waypoint
+			cfile_read_short(f); // bolts
+			cfile_read_short(f); // id
+			cfile_read_short(f); // target
+			cfile_read_short(f); // nodes
+			cfile_read_short(f); // children
+			cfile_read_short(f); // frames
+			if (Gamesave_current_version > 21)
+				cfile_read_byte(f); // width
+			cfile_read_byte(f); // angle
+			cfile_read_byte(f); // style
+			cfile_read_byte(f); // smooth
+			cfile_read_byte(f); // clamp
+			cfile_read_byte(f); // glow
+			cfile_read_byte(f); // sound
+			cfile_read_byte(f); // random
+			cfile_read_byte(f); // inplane
+			cfile_read_byte(f); // r
+			cfile_read_byte(f); // g
+			cfile_read_byte(f); // b
+			cfile_read_byte(f); // a
+			if (Gamesave_current_version >= 19)
+				cfile_read_byte(f); // enabled
+			break;
+		case RT_SOUND: {
+			char filename[40];
+			cfread(filename, sizeof(filename), 1, f);
+			cfile_read_int(f); // volume
+			if (Gamesave_current_version >= 19)
+				cfile_read_byte(f); // enabled
+			break;
+		}
 
 		default:
 			Int3();
@@ -743,30 +809,60 @@ int load_game_data(CFILE *LoadFile)
 
 	object_offset = cfile_read_int(LoadFile);
 	gs_num_objects = cfile_read_int(LoadFile);
-	cfseek(LoadFile, 8, SEEK_CUR);
+	cfile_read_int(LoadFile); // size
+	Assert(gs_num_objects >= 0 && gs_num_objects < MAX_OBJECTS);
 
+	int wall_offset = cfile_read_int(LoadFile);
 	Num_walls = cfile_read_int(LoadFile);
-	cfseek(LoadFile, 20, SEEK_CUR);
+	cfile_read_int(LoadFile); // size
+	Assert(Num_walls >= 0 && Num_walls < MAX_WALLS);
 
+	cfile_read_int(LoadFile); // door offset
+	cfile_read_int(LoadFile); // door num
+	cfile_read_int(LoadFile); // door size
+
+	int trigger_offset = cfile_read_int(LoadFile);
 	Num_triggers = cfile_read_int(LoadFile);
-	cfseek(LoadFile, 24, SEEK_CUR);
+	cfile_read_int(LoadFile); // size
+	Assert(Num_triggers >= 0 && Num_triggers < MAX_TRIGGERS);
 
+	cfile_read_int(LoadFile); // links offset
+	cfile_read_int(LoadFile); // links num
+	cfile_read_int(LoadFile); // links size
+
+	int control_offset = cfile_read_int(LoadFile);
+	int num_control = cfile_read_int(LoadFile);
 	trig_size = cfile_read_int(LoadFile);
 	Assert(trig_size == sizeof(ControlCenterTriggers));
-	cfseek(LoadFile, 4, SEEK_CUR);
+	Assert(num_control == 1);
 
+	int robot_center_offset = cfile_read_int(LoadFile);
 	Num_robot_centers = cfile_read_int(LoadFile);
-	cfseek(LoadFile, 4, SEEK_CUR);
+	cfile_read_int(LoadFile); // size
+	Assert(Num_robot_centers >= 0 && Num_robot_centers < MAX_ROBOT_CENTERS);
 
+	int static_light_offset, delta_light_offset;
 	if (game_top_fileinfo_version >= 29) {
-		cfseek(LoadFile, 4, SEEK_CUR);
+		static_light_offset = cfile_read_int(LoadFile);
 		Num_static_lights = cfile_read_int(LoadFile);
-		cfseek(LoadFile, 8, SEEK_CUR);
+		cfile_read_int(LoadFile); // size
+		Assert(Num_static_lights >= 0 && Num_static_lights < MAX_DL_INDICES);
+		delta_light_offset = cfile_read_int(LoadFile);
 		num_delta_lights = cfile_read_int(LoadFile);
-		cfseek(LoadFile, 4, SEEK_CUR);
+		cfile_read_int(LoadFile); // size
+		Assert(num_delta_lights >= 0 && num_delta_lights < MAX_DELTA_LIGHTS);
 	} else {
+		static_light_offset = -1;
 		Num_static_lights = 0;
+		delta_light_offset = -1;
 		num_delta_lights = 0;
+	}
+
+	if (Gamesave_current_version >= GAMESAVE_D2X_XL_VERSION) {
+		if (Gamesave_current_version > 15)
+			cfseek(LoadFile, 4 * 3, SEEK_CUR); // equipGen offset/count/size
+		if (Gamesave_current_version > 26)
+			cfseek(LoadFile, 4 * 4, SEEK_CUR); // 4x fog color (?)
 	}
 
 	if (game_top_fileinfo_version >= 31) //load mine filename
@@ -813,9 +909,12 @@ int load_game_data(CFILE *LoadFile)
 
 	//===================== READ WALL INFO ============================
 
+	if (wall_offset > -1)
+		Assert(cftell(LoadFile) == wall_offset);
+
 	for (i = 0; i < Num_walls; i++) {
 		if (game_top_fileinfo_version >= 20)
-			wall_read(&Walls[i], LoadFile); // v20 walls and up.
+			wall_read(&Walls[i], LoadFile, game_top_fileinfo_version); // v20 walls and up.
 		else if (game_top_fileinfo_version >= 17) {
 			v19_wall w;
 			v19_wall_read(&w, LoadFile);
@@ -881,6 +980,9 @@ int load_game_data(CFILE *LoadFile)
 
 
 // for MACINTOSH -- assume all triggers >= verion 31 triggers.
+
+	if (trigger_offset > -1)
+		Assert(cftell(LoadFile) == trigger_offset);
 
 	for (i = 0; i < Num_triggers; i++)
 	{
@@ -951,7 +1053,40 @@ int load_game_data(CFILE *LoadFile)
 			}
 		}
 		else
-			trigger_read(&Triggers[i], LoadFile);
+			trigger_read(&Triggers[i], LoadFile, false);
+	}
+
+	if (game_top_fileinfo_version >= 33) {
+		int ntrigger1 = cfile_read_int(LoadFile);
+
+		if (ntrigger1)
+			printf("D2X-XL: discarding %d object triggers:", ntrigger1);
+
+		for (i = 0; i < ntrigger1; i++) {
+			struct trigger tmp;
+			trigger_read(&tmp, LoadFile, true);
+		}
+
+		for (i = 0; i < ntrigger1; i++) {
+			if (game_top_fileinfo_version < 40)
+				cfile_read_int(LoadFile); // 2x short unused by D2X-XL
+			int obj = cfile_read_short(LoadFile); // TODO: per trigger nObject
+			printf(" %d", obj);
+		}
+
+		if (ntrigger1)
+			printf("\n");
+
+		if (ntrigger1) {
+			int weirdshitdiscard = 0;
+			if (game_top_fileinfo_version >= 36 && game_top_fileinfo_version < 40) {
+				weirdshitdiscard = cfile_read_short(LoadFile) * 4;
+			} else if (game_top_fileinfo_version < 36) {
+				weirdshitdiscard = 1400;
+			}
+			if (cfseek(LoadFile, weirdshitdiscard, SEEK_CUR))
+				Error("Error skipping weird shit in gamesave.c");
+		}
 	}
 
 	//================ READ CONTROL CENTER TRIGGER INFO ===============
@@ -962,9 +1097,14 @@ int load_game_data(CFILE *LoadFile)
 		{
 			Assert(game_fileinfo.control_sizeof == sizeof(control_center_triggers));
 #endif // 0
+	if (control_offset > -1)
+		Assert(cftell(LoadFile) == control_offset);
 	control_center_triggers_read_n(&ControlCenterTriggers, 1, LoadFile);
 
 	//================ READ MATERIALOGRIFIZATIONATORS INFO ===============
+
+	if (robot_center_offset > -1)
+		Assert(cftell(LoadFile) == robot_center_offset);
 
 	for (i = 0; i < Num_robot_centers; i++) {
 		if (game_top_fileinfo_version < 27) {
@@ -988,6 +1128,9 @@ int load_game_data(CFILE *LoadFile)
 
 	//================ READ DL_INDICES INFO ===============
 
+	if (static_light_offset > -1)
+		Assert(cftell(LoadFile) == static_light_offset);
+
 	for (i = 0; i < Num_static_lights; i++) {
 		if (game_top_fileinfo_version < 29) {
 			Int3();	//shouldn't be here!!!
@@ -999,6 +1142,9 @@ int load_game_data(CFILE *LoadFile)
 	clear_light_subtracted();
 
 	//================ READ DELTA LIGHT INFO ===============
+
+	if (delta_light_offset > -1)
+		Assert(cftell(LoadFile) == delta_light_offset);
 
 	for (i = 0; i < num_delta_lights; i++) {
 		if (game_top_fileinfo_version < 29) {
@@ -1085,7 +1231,13 @@ int load_game_data(CFILE *LoadFile)
 
 			seg_num = Triggers[t].seg[l];
 			side_num = Triggers[t].side[l];
+
+			Assert(seg_num >= 0 && seg_num <= Highest_segment_index);
+			Assert(side_num >= 0 && side_num < MAX_SIDES_PER_SEGMENT);
+
 			wall_num = Segments[seg_num].sides[side_num].wall_num;
+
+			Assert(wall_num == -1 || (wall_num >= 0 && wall_num < Num_walls));
 
 			// -- if (Walls[wall_num].controlling_trigger != -1)
 			// -- 	Int3();
@@ -1256,6 +1408,11 @@ int load_level(char * filename_passed)
 
 	Assert(sig == MAKE_SIG('P','L','V','L'));
 
+	if (Gamesave_current_version >= GAMESAVE_D2X_XL_VERSION) {
+		printf("Warning: this is a D2X level (v%d). It won't work.\n",
+			   Gamesave_current_version);
+	}
+
 	if (Gamesave_current_version >= 8) {    //read dummy data
 		cfile_read_int(LoadFile);
 		cfile_read_short(LoadFile);
@@ -1373,6 +1530,19 @@ int load_level(char * filename_passed)
 				"mine.  See monochrome screen for\n"
 				"details, and contact Matt or Mike." );
 	#endif
+
+	// Convoluted way to warn against unsupported D2X-XL .oof replacement models.
+	// As an example, we use nonsense models for Anthology, at least in the
+	// 3rd part of the level.
+	for (i = 0; i < N_polygon_models; i++) {
+		char name[32];
+		snprintf(name, sizeof(name), "model%d.oof", i);
+		CFILE *t = cfopen(name, "rb");
+		if (t) {
+			printf("D2X-XL: unsupported OOF replacement model %d\n", i);
+			cfclose(t);
+		}
+	}
 
 	return 0;
 }

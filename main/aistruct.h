@@ -54,9 +54,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define AIB_SNIPE                       0x84
 #define AIB_STATION                     0x85
 #define AIB_FOLLOW                      0x86
+// D2X-XL
+#define AIB_STATIC						0x87
 
 #define MIN_BEHAVIOR    0x80
-#define MAX_BEHAVIOR    0x86
+#define MAX_BEHAVIOR    0x87
 
 //  Modes
 #define AIM_STILL                   0

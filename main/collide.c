@@ -2511,6 +2511,7 @@ void collide_two_objects( object * A, object * B, vms_vector *collision_point )
 
 	default:
 		Int3();	//Error( "Unhandled collision_type in collide.c!\n" );
+		printf("Warning: unhandled %d/%d\n", A->type, B->type);
 	}
 }
 

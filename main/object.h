@@ -79,11 +79,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define CT_LIGHT        14  // doesn't actually do anything
 #define CT_REMOTE       15  // controlled by another net player
 #define CT_CNTRLCEN     16  // the control center/main reactor
+// D2X-XL
+#define CT_WAYPOINT		17
+#define CT_CAMERA		18
 
 // Movement types
 #define MT_NONE         0   // doesn't move
 #define MT_PHYSICS      1   // moves by physics
 #define MT_SPINNING     3   // this object doesn't move, just sits and spins
+// D2X-XL
+#define MT_STATIC		2
 
 // Render types
 #define RT_NONE         0   // does not render
@@ -94,6 +99,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define RT_POWERUP      5   // a powerup
 #define RT_MORPH        6   // a robot being morphed
 #define RT_WEAPON_VCLIP 7   // a weapon that renders as a vclip
+// D2X-XL
+#define RT_THRUSTER		8
+#define RT_EXPLBLAST	9
+#define RT_SHRAPNELS	10
+#define RT_PARTICLES	11
+#define RT_LIGHTNING	12
+#define RT_SOUND		13
+#define RT_SHOCKWAVE	14
 
 // misc object flags
 #define OF_EXPLODING        1   // this object is exploding

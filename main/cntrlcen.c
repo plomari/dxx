@@ -529,6 +529,7 @@ extern int control_center_triggers_read_n(control_center_triggers *cct, int n, C
 	for (i = 0; i < n; i++)
 	{
 		cct->num_links = cfile_read_short(fp);
+		Assert(cct->num_links < MAX_CONTROLCEN_LINKS);
 		for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
 			cct->seg[j] = cfile_read_short(fp);
 		for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)

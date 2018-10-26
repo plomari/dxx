@@ -113,7 +113,7 @@ static int GameBitmapOffset[MAX_BITMAP_FILES];
 static ubyte GameBitmapFlags[MAX_BITMAP_FILES];
 ushort GameBitmapXlat[MAX_BITMAP_FILES];
 
-#define PIGGY_BUFFER_SIZE (2400*1024)
+#define PIGGY_BUFFER_SIZE (512*1024*1024)
 #define PIGGY_SMALL_BUFFER_SIZE (1400*1024)		// size of buffer when GameArg.SysLowMem is set
 
 int piggy_page_flushed = 0;
@@ -1571,17 +1571,24 @@ void load_bitmap_replacements(char *level_name)
 		for (i=0;i<n_bitmaps;i++) {
 			DiskBitmapHeader bmh;
 			grs_bitmap *bm = &GameBitmaps[indices[i]];
-			int width;
 
 			DiskBitmapHeader_read(&bmh, ifile);
 
-			width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
+			int width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
+			int height = bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4);
+
+			// This D2X-XL stuff makes no sense?
+			if ((bmh.flags & BM_FLAG_TGA) && width > 256)
+				height = width * bmh.height;
+
+			int depth = (bmh.flags & BM_FLAG_TGA) ? 4 : 1;
+
 			gr_set_bitmap_data(bm, NULL);	// free ogl texture
-			gr_init_bitmap(bm, 0, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
+			gr_init_bitmap(bm, 0, 0, 0, width, height, width * depth, NULL);
 			bm->avg_color = bmh.avg_color;
 			bm->bm_data = (ubyte *) (size_t)bmh.offset;
 
-			gr_set_bitmap_flags(bm, bmh.flags & BM_FLAGS_TO_COPY);
+			gr_set_bitmap_flags(bm, bmh.flags & (BM_FLAGS_TO_COPY | BM_FLAG_TGA));
 
 			GameBitmapOffset[indices[i]] = 0; // don't try to read bitmap from current pigfile
 		}
@@ -1591,7 +1598,26 @@ void load_bitmap_replacements(char *level_name)
 		for (i = 0; i < n_bitmaps; i++)
 		{
 			grs_bitmap *bm = &GameBitmaps[indices[i]];
-			gr_set_bitmap_data(bm, Bitmap_replacement_data + (size_t) bm->bm_data);
+			uint8_t *data = Bitmap_replacement_data + (size_t) bm->bm_data;
+
+			// Hint: it's not TGA, just raw RGBA.
+			if (bm->bm_flags & BM_FLAG_TGA) {
+				Assert(!(bm->bm_flags & BM_FLAG_RLE));
+
+				gr_set_bitmap_data(bm, data);
+				bm->bm_depth = 4;
+
+				// The flags are unreliable and we need to recompute them! (WTF?)
+				gr_bitmap_check_transparency(bm);
+
+				// d2x-xl seems to use a really weird and messy way to handle
+				// RGBA animations. It's too much pain for something cosmetic.
+				int frames = bm->bm_h / bm->bm_w;
+				if (frames > 1)
+					printf("D2X-XL: unsupported D2X-XL animation entry %d\n", i);
+			} else {
+				gr_set_bitmap_data(bm, data);
+			}
 		}
 
 		d_free(indices);

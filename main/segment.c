@@ -12,6 +12,7 @@
 
 #include "segment.h"
 #include "cfile.h"
+#include "gamesave.h"
 
 /*
  * reads a segment2 structure from a CFILE
@@ -19,9 +20,31 @@
 void segment2_read(segment2 *s2, CFILE *fp)
 {
 	s2->special = cfile_read_byte(fp);
-	s2->matcen_num = cfile_read_byte(fp);
-	s2->value = cfile_read_byte(fp);
+	if (Gamesave_current_version < 24) {
+		s2->matcen_num = cfile_read_byte(fp);
+		s2->value = cfile_read_byte(fp);
+	} else {
+		// D2X stuff
+		uint16_t v = cfile_read_short(fp);
+		if (v > 255) {
+			printf("D2X-XL: discarding matcen_num=%d\n", v);
+			v = 0;
+		}
+		s2->matcen_num = v;
+		v = cfile_read_short(fp);
+		if (v > 255) {
+			printf("D2X-XL: discarding value=%d\n", v);
+			v = 0;
+		}
+		s2->value = v;
+	}
 	s2->s2_flags = cfile_read_byte(fp);
+	if (Gamesave_current_version > 20) {
+		// D2X stuff
+		cfile_read_byte(fp); // m_props
+		cfile_read_short(fp); // m_xDamage [0]
+		cfile_read_short(fp); // m_xDamage [1]
+	}
 	s2->static_light = cfile_read_fix(fp);
 }
 

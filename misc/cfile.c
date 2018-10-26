@@ -378,7 +378,7 @@ int cfile_hog_add(char *hogname, int add_to_end)
 
 	char id[5] = {0};
 	cfread(id, 3, 1, fp);
-	if (strcmp(id, "DHF") != 0) {
+	if (strcmp(id, "DHF") != 0 && strcmp(id, "D2X") != 0) {
 		cfread(id + 3, 1, 1, fp);
 		if (strcmp(id, "DMVL") != 0)
 			goto err;
@@ -406,6 +406,19 @@ int cfile_hog_add(char *hogname, int add_to_end)
 		i = cfread(&len, 4, 1, fp);
 		if (i != 1)
 			goto err;
+		// D2X-XL crap
+		if (len < 0) {
+			len = -len;
+			char long_name[256 + 1] = {0};
+			if (cfread(long_name, sizeof(long_name) - 1, 1, fp) != 1)
+				goto err;
+			size_t len = strlen(long_name);
+			if (len >= sizeof(entry->name)) {
+				Error("HOGFILE has long names\n");
+				goto err;
+			}
+			memcpy(entry->name, long_name, len + 1);
+		}
 		entry->length = len;
 		entry->offset = is_dmvl ? offset : cftell(fp);
 		hog->num_entries++;

@@ -24,7 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "segment.h"
 
-#define MAX_TRIGGERS        100
+#define MAX_TRIGGERS        254
 #define MAX_WALLS_PER_LINK  10
 
 // Trigger types
@@ -43,7 +43,31 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TT_ILLUSORY_WALL    11  // Makes a wall illusory
 #define TT_LIGHT_OFF        12  // Turn a light off
 #define TT_LIGHT_ON         13  // Turn s light on
-#define NUM_TRIGGER_TYPES   14
+// D2X-XL
+#define TT_TELEPORT			14
+#define TT_SPEEDBOOST		15
+#define TT_CAMERA			16
+#define TT_SHIELD_DAMAGE	17
+#define TT_ENERGY_DRAIN		18
+#define TT_CHANGE_TEXTURE	19
+#define TT_SMOKE_LIFE		20
+#define TT_SMOKE_SPEED		21
+#define TT_SMOKE_DENS		22
+#define TT_SMOKE_SIZE		23
+#define TT_SMOKE_DRIFT		24
+#define TT_COUNTDOWN		25
+#define TT_SPAWN_BOT		26
+#define TT_SMOKE_BRIGHTNESS 27
+#define TT_SET_SPAWN		28
+#define TT_MESSAGE			29
+#define TT_SOUND			30
+#define TT_MASTER			31
+#define TT_ENABLE_TRIGGER	32
+#define TT_DISABLE_TRIGGER	33
+#define TT_DISARM_ROBOT		34
+#define TT_REPROGRAM_ROBOT  35
+#define TT_SHAKE_MINE		36
+#define NUM_TRIGGER_TYPES   37
 
 // Trigger flags
 
@@ -127,7 +151,7 @@ extern void v30_trigger_read(v30_trigger *t, CFILE *fp);
 /*
  * reads a trigger structure from a CFILE
  */
-extern void trigger_read(trigger *t, CFILE *fp);
+extern void trigger_read(trigger *t, CFILE *fp, bool obj_trigger);
 
 extern void trigger_write(trigger *t, short version, PHYSFS_file *fp);
 

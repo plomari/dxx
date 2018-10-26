@@ -50,8 +50,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 # define MAX_SEGMENTS           800
 # define MAX_SEGMENT_VERTICES   2800
 #else
-# define MAX_SEGMENTS           900
-# define MAX_SEGMENT_VERTICES   3600
+# define MAX_SEGMENTS           20000
+# define MAX_SEGMENT_VERTICES   (20000*3)
 #endif
 
 //normal everyday vertices
@@ -141,7 +141,18 @@ typedef struct segment2 {
 #define SEGMENT_IS_ROBOTMAKER   4
 #define SEGMENT_IS_GOAL_BLUE    5
 #define SEGMENT_IS_GOAL_RED     6
-#define MAX_CENTER_TYPES        7
+// D2X-XL
+#define SEGMENT_IS_WATER		7
+#define SEGMENT_IS_LAVA			8
+#define SEGMENT_IS_TEAM_BLUE	9
+#define SEGMENT_IS_TEAM_RED		10
+#define SEGMENT_IS_SPEEDBOOST	11
+#define SEGMENT_IS_BLOCKED		12
+#define SEGMENT_IS_NODAMAGE		13
+#define SEGMENT_IS_SKYBOX		14
+#define SEGMENT_IS_EQUIPMAKER	15
+#define SEGMENT_IS_LIGHT_SELF	16
+#define MAX_CENTER_TYPES        17
 
 #ifdef COMPACT_SEGS
 extern void get_side_normal(segment *sp, int sidenum, int normal_num, vms_vector * vm );
@@ -200,8 +211,9 @@ typedef struct {
 	short   index;
 } dl_index;
 
-#define MAX_DL_INDICES      500
-#define MAX_DELTA_LIGHTS    10000
+// that's a lot of lights... the d2x-xl limits are higher
+#define MAX_DL_INDICES      2000
+#define MAX_DELTA_LIGHTS    50000
 
 #define DL_SCALE            2048    // Divide light to allow 3 bits integer, 5 bits fraction.
 

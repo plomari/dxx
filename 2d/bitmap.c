@@ -71,6 +71,7 @@ void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int b
 	bm->bm_flags = 0;
 	bm->bm_type = mode;
 	bm->bm_rowsize = bytesperline;
+	bm->bm_depth = 0;
 
 	bm->bm_data = NULL;
 #ifdef OGL
@@ -282,6 +283,8 @@ void gr_remap_bitmap( grs_bitmap * bmp, ubyte * palette, int transparent_color, 
 	if (bmp->bm_type != BM_LINEAR)
 		return;	 //can't do it
 
+	Assert(bmp->bm_depth <= 1);
+
 	// This should be build_colormap_asm, but we're not using invert table, so...
 	build_colormap_good( palette, colormap, freq );
 
@@ -305,6 +308,8 @@ void gr_remap_bitmap_good( grs_bitmap * bmp, ubyte * palette, int transparent_co
 	ubyte colormap[256];
 	int freq[256];
 	build_colormap_good( palette, colormap, freq );
+
+	Assert(bmp->bm_depth <= 1);
 
 	if ( (super_transparent_color>=0) && (super_transparent_color<=255))
 		colormap[super_transparent_color] = 254;
@@ -338,24 +343,3 @@ int gr_bitmap_assign_selector( grs_bitmap * bmp )
 	return 0;
 }
 #endif
-
-void gr_bitmap_check_transparency( grs_bitmap * bmp )
-{
-	int x, y;
-	ubyte * data;
-
-	data = bmp->bm_data;
-
-	for (y=0; y<bmp->bm_h; y++ )	{
-		for (x=0; x<bmp->bm_w; x++ )	{
-			if (*data++ == TRANSPARENCY_COLOR )	{
-				gr_set_transparent (bmp, 1);
-				return;
-			}
-		}
-		data += bmp->bm_rowsize - bmp->bm_w;
-	}
-
-	bmp->bm_flags = 0;
-
-}

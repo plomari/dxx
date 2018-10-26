@@ -31,6 +31,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define EF_CRITICAL 1   //this doesn't get played directly (only when mine critical)
 #define EF_ONE_SHOT 2   //this is a special that gets played once
 #define EF_STOPPED  4   //this has been stopped
+// D2X-XL
+#define EF_ALTFMT	8
 
 typedef struct eclip {
 	vclip   vc;             //imbedded vclip

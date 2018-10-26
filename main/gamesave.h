@@ -36,6 +36,8 @@ extern char Gamesave_current_filename[];
 
 extern int Gamesave_current_version;
 
+#define GAMESAVE_D2X_XL_VERSION 10
+
 extern int Gamesave_num_org_robots;
 
 // In dumpmine.c

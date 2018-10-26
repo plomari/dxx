@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <limits.h>
 
 #include "pstypes.h"
 #include "inferno.h"
@@ -974,6 +975,11 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		Segments[segnum].group = 0;
 		#endif
 
+		if (Gamesave_current_version >= GAMESAVE_D2X_XL_VERSION) {
+			cfile_read_byte(LoadFile); // m_owner
+			cfile_read_byte(LoadFile); // m_group
+		}
+
 		if (New_file_format_load)
 			bit_mask = cfile_read_byte(LoadFile);
 		else
@@ -1010,19 +1016,31 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		else
 			bit_mask = 0x3f; // read all six sides
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-			ubyte byte_wallnum;
 
 			if (bit_mask & (1 << sidenum)) {
-				byte_wallnum = cfile_read_byte(LoadFile);
-				if ( byte_wallnum == 255 )
-					Segments[segnum].sides[sidenum].wall_num = -1;
-				else
-					Segments[segnum].sides[sidenum].wall_num = byte_wallnum;
+				int wallnum;
+				if (Gamesave_current_version >= 13) {
+					wallnum = (uint16_t)cfile_read_short(LoadFile);
+					if (wallnum > SHRT_MAX)
+						printf("Warning: wallnum out of bounds (%d)\n", wallnum);
+					// Guessing here, the d2x-xl code doesn't make too much sense.
+					if (wallnum == 2047)
+						wallnum = -1;
+				} else {
+					wallnum = (uint8_t)cfile_read_byte(LoadFile);
+					if (wallnum == 255)
+						wallnum = -1;
+				}
+				Segments[segnum].sides[sidenum].wall_num = wallnum;
 			} else
 					Segments[segnum].sides[sidenum].wall_num = -1;
 		}
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
+			if (Gamesave_current_version > 24) {
+				for (int n = 0; n < 4; n++)
+					cfile_read_byte(LoadFile); // m_corners
+			}
 
 			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
 				// Read short Segments[segnum].sides[sidenum].tmap_num;

@@ -137,6 +137,18 @@ void fuelcen_create( segment *segp)
 	case SEGMENT_IS_CONTROLCEN:
 	case SEGMENT_IS_ROBOTMAKER:
 		break;
+	// D2X-XL
+	case SEGMENT_IS_WATER:
+	case SEGMENT_IS_LAVA:
+	case SEGMENT_IS_TEAM_BLUE:
+	case SEGMENT_IS_TEAM_RED:
+	case SEGMENT_IS_SPEEDBOOST:
+	case SEGMENT_IS_BLOCKED:
+	case SEGMENT_IS_NODAMAGE:
+	case SEGMENT_IS_SKYBOX:
+	case SEGMENT_IS_EQUIPMAKER:
+	case SEGMENT_IS_LIGHT_SELF:
+		break;
 	default:
 		Error( "Invalid station type %d in fuelcen.c\n", station_type );
 	}

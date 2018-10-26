@@ -163,6 +163,11 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
         ogl_freebmtexture(Cache[least_recently_used].bitmap);
 #endif
 
+	// TODO: missing, this just does some broken bullshit
+	// See door to the outside in 3rd part of Anthology.
+	if ((bitmap_top->bm_flags & BM_FLAG_TGA) ||
+		(bitmap_bottom->bm_flags & BM_FLAG_TGA))
+		printf("merging TGAs! will produce corrupted texture\n");
 	do_merge_textures(orient, bitmap_bottom, bitmap_top, Cache[least_recently_used].bitmap);
 
 	Cache[least_recently_used].top_bmp = bitmap_top;
@@ -254,6 +259,31 @@ static void do_merge_textures(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_
 	}
 }
 
+static int check_pixel_type(uint8_t *p, int bm_flags, int bm_depth)
+{
+	if (bm_depth <= 1) {
+		uint8_t v = p[0];
+		if (v == 254 && (bm_flags & BM_FLAG_SUPER_TRANSPARENT))
+			return BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT;
+		if (v == TRANSPARENCY_COLOR)
+			return BM_FLAG_TRANSPARENT;
+		return 0;
+	} else if (bm_depth == 4) {
+		// p[0,1,2,3] = r,g,b,a
+		// Some sort of colorkey for super transparency (doors?)
+		if (p[0] == 120 && p[1] == 88 && p[2] == 128)
+			return BM_FLAG_SUPER_TRANSPARENT;
+		if (p[3] <= 5)
+			return BM_FLAG_TRANSPARENT;
+		if (p[3] < 255)
+			return BM_FLAG_SEE_THRU;
+		return 0;
+	}
+
+	Assert(false);
+	return 0;
+}
+
 int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 {
 	int orient = ((tmap_top&0xC000)>>14) & 3;
@@ -300,16 +330,52 @@ int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 			break;
 		}
 
-		int c_top = bm_top->bm_data[ty * w + tx];
-		if (c_top == 254 && (bm_top->bm_flags & BM_FLAG_SUPER_TRANSPARENT))
+		size_t d_top = bm_top->bm_depth < 1 ? 1 : bm_top->bm_depth;
+		int c_top = check_pixel_type(bm_top->bm_data + ty * w * d_top + tx * d_top,
+									 bm_top->bm_flags, bm_top->bm_depth);
+		if (c_top & BM_FLAG_SUPER_TRANSPARENT)
 			return WID_RENDPAST_FLAG;
-		if (c_top != TRANSPARENCY_COLOR)
+		if (!(c_top & BM_FLAG_TRANSPARENT))
 			return 0;
 	}
 
-	int c_bottom = bm_bottom->bm_data[by * w + bx];
-	if (c_bottom == TRANSPARENCY_COLOR)
+	size_t d_bottom = bm_bottom->bm_depth < 1 ? 1 : bm_bottom->bm_depth;
+	int c_bottom = check_pixel_type(bm_bottom->bm_data + by * w * d_bottom + bx * d_bottom,
+									bm_bottom->bm_flags, bm_bottom->bm_depth);
+	if (c_bottom & BM_FLAG_TRANSPARENT)
 		return WID_RENDPAST_FLAG;
 
 	return 0;
+}
+
+void gr_bitmap_check_transparency(grs_bitmap *bmp)
+{
+	bmp->bm_flags &= ~(BM_FLAG_TRANSPARENT |
+					   BM_FLAG_SUPER_TRANSPARENT |
+					   BM_FLAG_SEE_THRU);
+
+	if (bmp->bm_depth == 4) {
+		// D2X-XL computes these flags on loading in CTGA::SetProperties(). It's
+		// a fucked up complicated heuristic, so I'm mostly _not_ duplicating it
+		// here.
+		// I have no idea why these flags aren't just set correctly when the
+		// levels are authored.
+
+		ubyte *data = bmp->bm_data;
+		int flags = 0;
+
+		for (int y=0; y<bmp->bm_h; y++ )	{
+			for (int x=0; x<bmp->bm_w; x++ )	{
+				int res = check_pixel_type(data, 0, 4);
+				if (res & BM_FLAG_SUPER_TRANSPARENT)
+					data[3] = 0; // fucked up
+				data += 4;
+			}
+			data += bmp->bm_rowsize - bmp->bm_w * 4;
+		}
+
+		bmp->bm_flags |= flags;
+	} else {
+		abort(); // unused
+	}
 }

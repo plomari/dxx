@@ -87,14 +87,16 @@ typedef struct _grs_point {
 #define BM_FLAG_RLE                 8   // A run-length encoded bitmap.
 #define BM_FLAG_PAGED_OUT           16  // This bitmap's data is paged out.
 #define BM_FLAG_RLE_BIG             32  // for bitmaps that RLE to > 255 per row (i.e. cockpits)
+// D2X-XL
+#define BM_FLAG_SEE_THRU			64	// apparently means transparent for viewing, but no fly through
+#define BM_FLAG_TGA					128
+#define BM_FLAG_OPAQUE				256
 
 typedef struct _grs_bitmap {
 	short   bm_x,bm_y;  // Offset from parent's origin
 	short   bm_w,bm_h;  // width,height
 	sbyte   bm_type;    // 0=Linear, 1=ModeX, 2=SVGA
-	sbyte   bm_flags;   // bit 0 on means it has transparency.
-	                    // bit 1 on means it has supertransparency
-	                    // bit 2 on means it doesn't get passed through lighting.
+	int     bm_flags;   // BM_FLAG_*
 	short   bm_rowsize; // unsigned char offset to next row
 	unsigned char *     bm_data;    // ptr to pixel data...
 	                                //   Linear = *parent+(rowsize*y+x)
@@ -102,7 +104,7 @@ typedef struct _grs_bitmap {
 	                                //   SVGA = *parent+(rowsize*y+x)
 	unsigned short      bm_handle;  //for application.  initialized to 0
 	ubyte   avg_color;  //  Average color of all pixels in texture map.
-	sbyte   unused;     // to 4-byte align.
+	uint8_t				bm_depth;	// bytes per pixel (1 or 4)
 #ifdef OGL
 	struct _ogl_texture *gltexture;
 	struct _grs_bitmap  *bm_parent;
