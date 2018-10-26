@@ -1315,6 +1315,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int flags)
 
 		sbits = &bm->bm_data[4 + (bm->bm_h * data_offset)];
 		dbits = decodebuf;
+		Assert(bm->bm_h * bm->bm_w <= sizeof(decodebuf));
 
 		for (i=0; i < bm->bm_h; i++ )    {
 			gr_rle_decode(sbits,dbits);
