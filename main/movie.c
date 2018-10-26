@@ -627,7 +627,7 @@ void draw_subtitles(int frame_num)
 
 void init_movie(char *movielib, int required)
 {
-	char filename[FILENAME_LEN];
+	char filename[FILENAME_LEN + 10];
 
 	sprintf(filename, "%s-%s.mvl", movielib, GameArg.GfxMovieHires?"h":"l");
 
