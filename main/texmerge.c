@@ -111,6 +111,22 @@ void texmerge_close()
 
 //--unused-- int info_printed = 0;
 
+static void piggy_page_in_two(int tmap_bottom, int tmap_top)
+{
+	// Make sure the bitmaps are paged in...
+	piggy_page_flushed = 0;
+
+	PIGGY_PAGE_IN(Textures[tmap_top&0x3FFF]);
+	PIGGY_PAGE_IN(Textures[tmap_bottom]);
+	if (piggy_page_flushed)	{
+		// If cache got flushed, re-read 'em.
+		piggy_page_flushed = 0;
+		PIGGY_PAGE_IN(Textures[tmap_top&0x3FFF]);
+		PIGGY_PAGE_IN(Textures[tmap_bottom]);
+	}
+	Assert( piggy_page_flushed == 0 );
+}
+
 grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 {
 	grs_bitmap *bitmap_top, *bitmap_bottom;
@@ -141,18 +157,7 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	//---- Page out the LRU bitmap;
 	cache_misses++;
 
-	// Make sure the bitmaps are paged in...
-	piggy_page_flushed = 0;
-
-	PIGGY_PAGE_IN(Textures[tmap_top&0x3FFF]);
-	PIGGY_PAGE_IN(Textures[tmap_bottom]);
-	if (piggy_page_flushed)	{
-		// If cache got flushed, re-read 'em.
-		piggy_page_flushed = 0;
-		PIGGY_PAGE_IN(Textures[tmap_top&0x3FFF]);
-		PIGGY_PAGE_IN(Textures[tmap_bottom]);
-	}
-	Assert( piggy_page_flushed == 0 );
+	piggy_page_in_two(tmap_bottom, tmap_top);
 
 #ifdef OGL
         ogl_freebmtexture(Cache[least_recently_used].bitmap);
@@ -251,20 +256,60 @@ static void do_merge_textures(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_
 
 int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 {
-	grs_bitmap *bm;
-	if (tmap_top != 0)	{
-		bm = texmerge_get_cached_bitmap(tmap_bottom, tmap_top);
-	} else {
-		bm = &GameBitmaps[Textures[tmap_bottom].index];
-		PIGGY_PAGE_IN( Textures[tmap_bottom] );
+	int orient = ((tmap_top&0xC000)>>14) & 3;
+
+	piggy_page_in_two(tmap_bottom, tmap_top);
+
+	grs_bitmap *bm_bottom = &GameBitmaps[Textures[tmap_bottom].index];
+
+	if (bm_bottom->bm_flags & BM_FLAG_RLE)
+		bm_bottom = rle_expand_texture(bm_bottom);
+
+	int w = bm_bottom->bm_w;
+	int h = bm_bottom->bm_h;
+
+	int bx = ((unsigned) f2i(u*w)) % w;
+	int by = ((unsigned) f2i(v*h)) % h;
+
+	if (tmap_top) {
+		grs_bitmap *bm_top = &GameBitmaps[Textures[tmap_top&0x3FFF].index];
+
+		if (bm_top->bm_flags & BM_FLAG_RLE)
+			bm_top = rle_expand_texture(bm_top);
+
+		Assert(bm_top->bm_w == w && bm_top->bm_h == h);
+
+		// Reverse the transformation done on merging.
+		int tx, ty;
+		switch (orient)	{
+		case 0:
+			tx = bx;
+			ty = by;
+			break;
+		case 1:
+			tx = by;
+			ty = w - bx - 1;
+			break;
+		case 2:
+			tx = w - bx - 1;
+			ty = h - by - 1;
+			break;
+		case 3:
+			tx = h - by - 1;
+			ty = bx;
+			break;
+		}
+
+		int c_top = bm_top->bm_data[ty * w + tx];
+		if (c_top == 254 && (bm_top->bm_flags & BM_FLAG_SUPER_TRANSPARENT))
+			return WID_RENDPAST_FLAG;
+		if (c_top != TRANSPARENCY_COLOR)
+			return 0;
 	}
 
-	if (bm->bm_flags & BM_FLAG_RLE)
-		bm = rle_expand_texture(bm);
+	int c_bottom = bm_bottom->bm_data[by * w + bx];
+	if (c_bottom == TRANSPARENCY_COLOR)
+		return WID_RENDPAST_FLAG;
 
-	int bmx = ((unsigned) f2i(u*bm->bm_w)) % bm->bm_w;
-	int bmy = ((unsigned) f2i(v*bm->bm_h)) % bm->bm_h;
-
-	return (bm->bm_data[bmy*bm->bm_w+bmx] == TRANSPARENCY_COLOR)
-		? WID_RENDPAST_FLAG : 0;
+	return 0;
 }
