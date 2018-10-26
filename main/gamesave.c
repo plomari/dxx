@@ -774,9 +774,7 @@ int load_game_data(CFILE *LoadFile)
 		cfgets(Current_level_name,sizeof(Current_level_name),LoadFile);
 	else if (game_top_fileinfo_version >= 14) { //load mine filename
 		// read null-terminated string
-		char *p=Current_level_name;
-		//must do read one char at a time, since no cfgets()
-		do *p = cfgetc(LoadFile); while (*p++!=0);
+		cfgets(Current_level_name, sizeof(Current_level_name), LoadFile);
 	}
 	else
 		Current_level_name[0]=0;
