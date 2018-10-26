@@ -55,10 +55,7 @@ static int cache_hits = 0;
 static int cache_misses = 0;
 
 void texmerge_close();
-void merge_textures_super_xparent(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_bmp,
-											 ubyte *dest_data);
-void merge_textures_new(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_bmp,
-								ubyte *dest_data);
+static void do_merge_textures(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_bmp, grs_bitmap *dest_bmp);
 
 //----------------------------------------------------------------------
 
@@ -160,16 +157,7 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
         ogl_freebmtexture(Cache[least_recently_used].bitmap);
 #endif
 
-
-	if (bitmap_top->bm_flags & BM_FLAG_SUPER_TRANSPARENT)	{
-		merge_textures_super_xparent( orient, bitmap_bottom, bitmap_top, Cache[least_recently_used].bitmap->bm_data );
-		Cache[least_recently_used].bitmap->bm_flags = BM_FLAG_TRANSPARENT;
-		Cache[least_recently_used].bitmap->avg_color = bitmap_top->avg_color;
-	} else	{
-		merge_textures_new( orient, bitmap_bottom, bitmap_top, Cache[least_recently_used].bitmap->bm_data );
-		Cache[least_recently_used].bitmap->bm_flags = bitmap_bottom->bm_flags & (~BM_FLAG_RLE);
-		Cache[least_recently_used].bitmap->avg_color = bitmap_bottom->avg_color;
-	}
+	do_merge_textures(orient, bitmap_bottom, bitmap_top, Cache[least_recently_used].bitmap);
 
 	Cache[least_recently_used].top_bmp = bitmap_top;
 	Cache[least_recently_used].bottom_bmp = bitmap_bottom;
@@ -179,63 +167,7 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	return Cache[least_recently_used].bitmap;
 }
 
-void merge_textures_new( int type, grs_bitmap * bottom_bmp, grs_bitmap * top_bmp, ubyte * dest_data )
-{
-	int x,y;
-	ubyte c;
-	ubyte * top_data, *bottom_data;
-
-	if ( top_bmp->bm_flags & BM_FLAG_RLE )
-		top_bmp = rle_expand_texture(top_bmp);
-
-	if ( bottom_bmp->bm_flags & BM_FLAG_RLE )
-		bottom_bmp = rle_expand_texture(bottom_bmp);
-
-	top_data = top_bmp->bm_data;
-	bottom_data = bottom_bmp->bm_data;
-
-	switch( type )	{
-	case 0:
-		// Normal
-		for (y=0;y<64;y++)
-			for (x=0;x<64;x++) {
-				c=top_data[64*y+x];
-				if (c==TRANSPARENCY_COLOR)
-					c=bottom_data[64*y+x];
-				*dest_data++=c;
-			}
-		break;
-	case 1:
-		for (y=0; y<64; y++ )
-			for (x=0; x<64; x++ ) {
-				c = top_data[ 64*x+(63-y) ];
-				if (c==TRANSPARENCY_COLOR)
-					c = bottom_data[ 64*y+x ];
-				*dest_data++ = c;
-			}
-		break;
-	case 2:
-		for (y=0; y<64; y++ )
-			for (x=0; x<64; x++ ) {
-				c = top_data[ 64*(63-y)+(63-x) ];
-				if (c==TRANSPARENCY_COLOR)
-					c = bottom_data[ 64*y+x ];
-				*dest_data++ = c;
-			}
-		break;
-	case 3:
-		for (y=0; y<64; y++ )
-			for (x=0; x<64; x++ ) {
-				c = top_data[ 64*(63-x)+y  ];
-				if (c==TRANSPARENCY_COLOR)
-					c = bottom_data[ 64*y+x ];
-				*dest_data++ = c;
-			}
-		break;
-	}
-}
-
-void merge_textures_super_xparent( int type, grs_bitmap * bottom_bmp, grs_bitmap * top_bmp, ubyte * dest_data )
+static void do_merge_textures(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_bmp, grs_bitmap *dest_bmp)
 {
 	ubyte c;
 	int x,y;
@@ -250,6 +182,11 @@ void merge_textures_super_xparent( int type, grs_bitmap * bottom_bmp, grs_bitmap
 
 	top_data = top_bmp->bm_data;
 	bottom_data = bottom_bmp->bm_data;
+	ubyte *dest_data = dest_bmp->bm_data;
+
+	int super_color = -1;
+	if (top_bmp->bm_flags & BM_FLAG_SUPER_TRANSPARENT)
+		super_color = 254;
 
 	switch( type )	{
 		case 0:
@@ -259,7 +196,7 @@ void merge_textures_super_xparent( int type, grs_bitmap * bottom_bmp, grs_bitmap
 					c = top_data[ 64*y+x ];		
 					if (c==TRANSPARENCY_COLOR)
 						c = bottom_data[ 64*y+x ];
-					else if (c==254)
+					else if (c==super_color)
 						c = TRANSPARENCY_COLOR;
 					*dest_data++ = c;
 				}
@@ -271,7 +208,7 @@ void merge_textures_super_xparent( int type, grs_bitmap * bottom_bmp, grs_bitmap
 					c = top_data[ 64*x+(63-y) ];		
 					if (c==TRANSPARENCY_COLOR)
 						c = bottom_data[ 64*y+x ];
-					else if (c==254)
+					else if (c==super_color)
 						c = TRANSPARENCY_COLOR;
 					*dest_data++ = c;
 				}
@@ -283,7 +220,7 @@ void merge_textures_super_xparent( int type, grs_bitmap * bottom_bmp, grs_bitmap
 					c = top_data[ 64*(63-y)+(63-x) ];
 					if (c==TRANSPARENCY_COLOR)
 						c = bottom_data[ 64*y+x ];
-					else if (c==254)
+					else if (c==super_color)
 						c = TRANSPARENCY_COLOR;
 					*dest_data++ = c;
 				}
@@ -295,10 +232,18 @@ void merge_textures_super_xparent( int type, grs_bitmap * bottom_bmp, grs_bitmap
 					c = top_data[ 64*(63-x)+y  ];
 					if (c==TRANSPARENCY_COLOR)
 						c = bottom_data[ 64*y+x ];
-					else if (c==254)
+					else if (c==super_color)
 						c = TRANSPARENCY_COLOR;
 					*dest_data++ = c;
 				}
 			break;
+	}
+
+	if (top_bmp->bm_flags & BM_FLAG_SUPER_TRANSPARENT)	{
+		dest_bmp->bm_flags = BM_FLAG_TRANSPARENT;
+		dest_bmp->avg_color = top_bmp->avg_color;
+	} else	{
+		dest_bmp->bm_flags = bottom_bmp->bm_flags & (~BM_FLAG_RLE);
+		dest_bmp->avg_color = bottom_bmp->avg_color;
 	}
 }
