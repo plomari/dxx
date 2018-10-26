@@ -16,11 +16,9 @@
 #include "internal.h"
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
 #else
 #include <GL/gl.h>
 #include <GL/glext.h>
-#include <GL/glu.h>
 #endif
 #include <string.h>
 #include <math.h>
@@ -926,6 +924,20 @@ bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, gr
 
 GLubyte *pixels = NULL;
 
+// https://www.khronos.org/opengl/wiki/GluPerspective_code
+static void glhPerspectivef2(float fovyInDegrees, float aspectRatio,
+                      float znear, float zfar)
+{
+    float ymax, xmax;
+    float temp, temp2, temp3, temp4;
+    ymax = znear * tanf(fovyInDegrees * M_PI / 360.0);
+    // ymin = -ymax;
+    // xmin = -ymax * aspectRatio;
+    xmax = ymax * aspectRatio;
+    glFrustum(-xmax, xmax, -ymax, ymax, znear, zfar);
+}
+
+
 void ogl_start_frame(void){
 	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitbltc=0;r_upixelc=0;
 
@@ -948,7 +960,7 @@ void ogl_start_frame(void){
 	glShadeModel(GL_SMOOTH);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//clear matrix
-	gluPerspective(90.0,1.0,0.01,1000000.0);
+	glhPerspectivef2(90.0,1.0,0.01,1000000.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
 }

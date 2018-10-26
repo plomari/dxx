@@ -344,7 +344,7 @@ if sys.platform == 'win32':
 	ogldefines = ['OGL']
 	common_sources += arch_win32_sources
 	ogllibs = ''
-	winlibs = ['glu32', 'wsock32', 'winmm', 'mingw32', 'SDLmain']
+	winlibs = ['wsock32', 'winmm', 'mingw32', 'SDLmain']
 	libs = winlibs + generic_libs
 	lflags = '-mwindows'
 elif sys.platform == 'darwin':
@@ -381,7 +381,7 @@ else:
 	env.Append(CPPPATH = ['arch/linux/include'])
 	ogldefines = ['OGL']
 	common_sources += arch_linux_sources
-	ogllibs = ['GL', 'GLU', 'm']
+	ogllibs = ['GL', 'm']
 	libs = generic_libs
 	lflags = '-L/usr/X11R6/lib'
 
