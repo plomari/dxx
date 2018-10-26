@@ -244,7 +244,6 @@ void paging_touch_side( segment * segp, int sidenum )
 	paging_touch_wall_effects(tmap1);
 	tmap2 = segp->sides[sidenum].tmap_num2;
 	if (tmap2 != 0)	{
-		texmerge_get_cached_bitmap( tmap1, tmap2 );
 		paging_touch_wall_effects( tmap2 & 0x3FFF );
 	} else	{
 		PIGGY_PAGE_IN( Textures[tmap1] );
