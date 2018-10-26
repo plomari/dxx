@@ -29,6 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "rle.h"
 #include "piggy.h"
+#include "wall.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -246,4 +247,24 @@ static void do_merge_textures(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_
 		dest_bmp->bm_flags = bottom_bmp->bm_flags & (~BM_FLAG_RLE);
 		dest_bmp->avg_color = bottom_bmp->avg_color;
 	}
+}
+
+int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
+{
+	grs_bitmap *bm;
+	if (tmap_top != 0)	{
+		bm = texmerge_get_cached_bitmap(tmap_bottom, tmap_top);
+	} else {
+		bm = &GameBitmaps[Textures[tmap_bottom].index];
+		PIGGY_PAGE_IN( Textures[tmap_bottom] );
+	}
+
+	if (bm->bm_flags & BM_FLAG_RLE)
+		bm = rle_expand_texture(bm);
+
+	int bmx = ((unsigned) f2i(u*bm->bm_w)) % bm->bm_w;
+	int bmy = ((unsigned) f2i(v*bm->bm_h)) % bm->bm_h;
+
+	return (bm->bm_data[bmy*bm->bm_w+bmx] == TRANSPARENCY_COLOR)
+		? WID_RENDPAST_FLAG : 0;
 }

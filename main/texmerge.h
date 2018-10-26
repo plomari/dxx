@@ -21,9 +21,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TEXMERGE_H
 #define _TEXMERGE_H
 
+#include "maths.h"
+
 int texmerge_init(int num_cached_textures);
 grs_bitmap *texmerge_get_cached_bitmap(int tmap_bottom, int tmap_top);
 void texmerge_close();
 void texmerge_flush();
+int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v);
 
 #endif /* _TEXMERGE_H */

@@ -1232,33 +1232,14 @@ void find_hitpoint_uv(fix *u,fix *v,fix *l,vms_vector *pnt,segment *seg,int side
 //returns 1 if can pass though the wall, else 0
 int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
 {
-	grs_bitmap *bm;
 	side *side = &seg->sides[sidenum];
-	int bmx,bmy;
 	fix u,v;
 
 //	Assert(WALL_IS_DOORWAY(seg,sidenum) == WID_TRANSPARENT_WALL);
 
 	find_hitpoint_uv(&u,&v,NULL,pnt,seg,sidenum,facenum);	//	Don't compute light value.
 
-	if (side->tmap_num2 != 0)	{
-		bm = texmerge_get_cached_bitmap( side->tmap_num, side->tmap_num2 );
-	} else {
-		bm = &GameBitmaps[Textures[side->tmap_num].index];
-		PIGGY_PAGE_IN( Textures[side->tmap_num] );
-	}
-
-	if (bm->bm_flags & BM_FLAG_RLE)
-		bm = rle_expand_texture(bm);
-
-	bmx = ((unsigned) f2i(u*bm->bm_w)) % bm->bm_w;
-	bmy = ((unsigned) f2i(v*bm->bm_h)) % bm->bm_h;
-
-//note: the line above had -v, but that was wrong, so I changed it.  if
-//something doesn't work, and you want to make it negative again, you
-//should figure out what's going on.
-
-	return (bm->bm_data[bmy*bm->bm_w+bmx] == TRANSPARENCY_COLOR);
+	return !!(texmerge_test_pixel(side->tmap_num, side->tmap_num2, u, v) & WID_RENDPAST_FLAG);
 }
 
 //new function for Mike
