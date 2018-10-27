@@ -131,7 +131,7 @@ typedef struct _grs_font {
 	grs_bitmap *ft_bitmaps;
 	grs_bitmap ft_parent_bitmap;
 #endif /* def OGL */
-} __pack__ grs_font;
+} grs_font;
 
 #define GRS_FONT_SIZE 28    // how much space it takes up on disk
 
