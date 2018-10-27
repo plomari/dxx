@@ -70,6 +70,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cfile.h"
 #include "effects.h"
 #include "iff.h"
+#include "automap.h"
 
 void multi_reset_player_object(object *objp);
 void multi_reset_object_texture(object *objp);
@@ -105,11 +106,6 @@ void GameLoop(int, int); // From game.c
 //
 // Global variables
 //
-
-extern vms_vector MarkerPoint[];
-extern char MarkerMessage[16][40];
-extern char MarkerOwner[16][40];
-extern int MarkerObject[];
 
 int who_killed_controlcen = -1;  // -1 = noone
 
