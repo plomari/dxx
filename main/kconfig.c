@@ -1908,7 +1908,8 @@ void controls_read_all()
 		// axes are scaled. so to prevent weapon cacle in the scale-rythm, we need to be sure the wheel was once 0 between cycling... god this is stupid...
 		if ( (use_mouse)&&(kc_mouse[28].value < 255) && !mouse_pricycle_lock)
 			Controls.cycle_primary_count = kc_mouse[29].value?(mouse_axis[kc_mouse[28].value]<0):(mouse_axis[kc_mouse[28].value]>0);
-		mouse_pricycle_lock=mouse_axis[kc_mouse[28].value];
+		if (kc_mouse[28].value < 255)
+			mouse_pricycle_lock=mouse_axis[kc_mouse[28].value];
 	
 	
 	//--------Read Cycle Secondary Key------------------
@@ -1925,7 +1926,8 @@ void controls_read_all()
 		// axes are scaled. so to prevent weapon cacle in the scale-rythm, we need to be sure the wheel was once 0 between cycling... god this is stupid...
 		if ( (use_mouse)&&(kc_mouse[28].value < 255) && !mouse_seccycle_lock)
 			Controls.cycle_secondary_count = kc_mouse[29].value?(mouse_axis[kc_mouse[28].value]>0):(mouse_axis[kc_mouse[28].value]<0);
-		mouse_seccycle_lock=mouse_axis[kc_mouse[28].value];
+		if (kc_mouse[28].value < 255)
+			mouse_seccycle_lock=mouse_axis[kc_mouse[28].value];
 	
 	//--------Read Toggle Bomb key----------------------
 	
