@@ -827,6 +827,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 // Read the mission info...
 	PHYSFS_read(fp, mission, sizeof(char) * 9, 1);
+	mission[9] = '\0';
 
 	if (!load_mission_by_name( mission ))	{
 		nm_messagebox( NULL, 1, "Ok", "Error!\nUnable to load mission\n'%s'\n", mission );
