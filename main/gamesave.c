@@ -1409,7 +1409,7 @@ int load_level(char * filename_passed)
 	Assert(sig == MAKE_SIG('P','L','V','L'));
 
 	if (Gamesave_current_version >= GAMESAVE_D2X_XL_VERSION) {
-		printf("Warning: this is a D2X level (v%d). It won't work.\n",
+		printf("Warning: this is a D2X-XL level (v%d). It won't work.\n",
 			   Gamesave_current_version);
 	}
 
