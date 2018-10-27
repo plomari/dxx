@@ -25,14 +25,14 @@ void segment2_read(segment2 *s2, CFILE *fp)
 		s2->value = cfile_read_byte(fp);
 	} else {
 		// D2X stuff
-		uint16_t v = cfile_read_short(fp);
-		if (v > 255) {
+		int16_t v = cfile_read_short(fp);
+		if (v < -128 || v > 127) {
 			printf("D2X-XL: discarding matcen_num=%d\n", v);
 			v = 0;
 		}
 		s2->matcen_num = v;
 		v = cfile_read_short(fp);
-		if (v > 255) {
+		if (v < -128 || v > 127) {
 			printf("D2X-XL: discarding value=%d\n", v);
 			v = 0;
 		}
