@@ -165,9 +165,11 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 									phys_apply_rot(obj0p,&neg_vforce);
 								}
 								if ( obj0p->shields >= 0 ) {
-									if (Robot_info[obj0p->id].boss_flag)
-										if (Boss_invulnerable_matter[Robot_info[obj0p->id].boss_flag-BOSS_D2])
+									int boss = Robot_info[obj0p->id].boss_flag;
+									if (boss >= BOSS_D2 && boss - BOSS_D2 < NUM_D2_BOSSES) {
+										if (Boss_invulnerable_matter[boss - BOSS_D2])
 											damage /= 4;
+									}
 
 									if (apply_damage_to_robot(obj0p, damage, parent))
 										if ((objp != NULL) && (parent == Players[Player_num].objnum))
