@@ -795,8 +795,12 @@ void update_cockpits()
 {
 	grs_bitmap *bm;
 
-	PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode+(HIRESMODE?(Num_cockpits/2):0)]);
-	bm=&GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode+(HIRESMODE?(Num_cockpits/2):0)].index];
+	int cock_index = PlayerCfg.CockpitMode+(HIRESMODE?(Num_cockpits/2):0);
+	if (cock_index < 0 || cock_index >= N_COCKPIT_BITMAPS)
+		return;
+
+	PIGGY_PAGE_IN(cockpit_bitmap[cock_index]);
+	bm=&GameBitmaps[cockpit_bitmap[cock_index].index];
 
 	//Redraw the on-screen cockpit bitmaps
 	if (VR_render_mode != VR_NONE )	return;
