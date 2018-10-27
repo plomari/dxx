@@ -3062,6 +3062,8 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 
 abort:;
 
+	gr_set_current_canvas(NULL);
+
 	Viewer = viewer_save;
 
 	Rear_view = rear_view_save;
