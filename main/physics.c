@@ -834,7 +834,8 @@ void do_physics_sim(object *obj)
 
 //--WE ALWYS WANT THIS IN, MATT AND MIKE DECISION ON 12/10/94, TWO MONTHS AFTER FINAL 	#ifndef NDEBUG
 	//if end point not in segment, move object to last pos, or segment center
-	if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0)
+	if (get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask != 0 ||
+		obj->segnum >= 0 && Segment2s[obj->segnum].special == SEGMENT_IS_SKYBOX)
 	{
 		if (find_object_seg(obj)==-1) {
 			int n;

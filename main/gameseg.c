@@ -736,8 +736,10 @@ int trace_segs(vms_vector *p0, int oldsegnum, int recursion_count)
 	visited [oldsegnum] = 1;
 
 	centermask = get_side_dists(p0,oldsegnum,side_dists);		//check old segment
-	if (centermask == 0) // we are in the old segment
-		return oldsegnum; //..say so
+	if (centermask == 0) { // we are in the old segment
+		if (Segment2s[oldsegnum].special != SEGMENT_IS_SKYBOX)
+			return oldsegnum; //..say so
+	}
 
 	for (;;) {
 		seg = &Segments[oldsegnum];
@@ -791,9 +793,12 @@ int find_point_seg(vms_vector *p,int segnum)
 	//	slowing down lighting, and in about 98% of cases, it would just return -1 anyway.
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
-		for (newseg=0;newseg <= Highest_segment_index;newseg++)
+		for (newseg=0;newseg <= Highest_segment_index;newseg++) {
+			if (Segment2s[newseg].special == SEGMENT_IS_SKYBOX)
+				continue;
 			if (get_seg_masks(p, newseg, 0, __FILE__, __LINE__).centermask == 0)
 				return newseg;
+		}
 
 		return -1;		//no segment found
 	} else
