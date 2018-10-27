@@ -370,6 +370,7 @@ void gr_bitmap_check_transparency(grs_bitmap *bmp)
 				if (res & BM_FLAG_SUPER_TRANSPARENT)
 					data[3] = 0; // fucked up
 				data += 4;
+				flags |= res;
 			}
 			data += bmp->bm_rowsize - bmp->bm_w * 4;
 		}
