@@ -240,6 +240,10 @@ void wall_reset(segment *seg, int side)
 //set the tmap_num or tmap_num2 field for a wall/door
 void wall_set_tmap_num(segment *seg,int side,segment *csegp,int cside,int anim_num,int frame_num)
 {
+	Assert(anim_num >= 0 && anim_num < Num_wall_anims);
+	if (!(anim_num >= 0 && anim_num < Num_wall_anims))
+		return;
+
 	wclip *anim = &WallAnims[anim_num];
 	int tmap = anim->frames[frame_num];
 
