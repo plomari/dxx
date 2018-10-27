@@ -92,7 +92,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "physfsx.h"
 
-#define STATE_VERSION 23
+#define STATE_VERSION 24
 #define STATE_COMPATIBLE_VERSION 20
 // 0 - Put DGSS (Descent Game State Save) id at tof.
 // 1 - Added Difficulty level save
@@ -115,13 +115,16 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // 20- First_secret_visit
 // 22- Omega_charge
 // 23- extend object count and make it dynamic (for segments too)
+// 24- save Missile_gun, and D2X-XL spawn position
 
 #define NUM_SAVES 10
 #define THUMBNAIL_W 100
 #define THUMBNAIL_H 50
 #define DESC_LENGTH 20
 
-#define END_MAGIC 0xD00FB0A1
+#define END_MAGIC 0xD00FB0A2
+// Hack to make old versions read newer savegames.
+#define END_MAGIC23 0xD00FB0A1
 
 extern void apply_all_changed_light(void);
 
@@ -639,8 +642,16 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
         PHYSFS_write(fp, &Omega_charge, sizeof(Omega_charge), 1);
 
-        uint32_t magic = END_MAGIC;
+	// Beyond this point we might write optional data or D2X-XL only data.
+	uint32_t magic = END_MAGIC23;
+	PHYSFS_write(fp, &magic, sizeof(magic), 1);
 
+	// Save missile alternating gun point (left/right).
+	PHYSFS_write(fp, &Missile_gun, sizeof(Missile_gun), 1);
+	// Save spawn point (can change at runtime with D2X-XL levels)
+	PHYSFS_write(fp, &Player_init[Player_num], sizeof(Player_init[Player_num]), 1);
+
+	magic = END_MAGIC;
 	if (PHYSFS_write(fp, &magic, sizeof(magic), 1) < 1)
 	{
 		nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
@@ -1110,13 +1121,25 @@ int state_restore_all_sub(char *filename, int secret_restore)
             PHYSFS_read(fp, &Omega_charge, sizeof(fix), 1);
 
 	if (version >= 23) {
-            uint32_t magic = 0;
-            PHYSFS_read(fp, &magic, sizeof(magic), 1);
-            if (END_MAGIC != magic) {
-                fprintf(stderr, "wrong save game magic\n");
-                Int3();
-            }
-        }
+		uint32_t oldmagic = 0;
+		PHYSFS_read(fp, &oldmagic, sizeof(oldmagic), 1);
+		if (END_MAGIC23 != oldmagic) {
+			fprintf(stderr, "wrong old save game magic\n");
+			Int3();
+		}
+	}
+
+	if (version >= 24) {
+		PHYSFS_read(fp, &Missile_gun, sizeof(Missile_gun), 1);
+		PHYSFS_read(fp, &Player_init[Player_num], sizeof(Player_init[Player_num]), 1);
+
+		uint32_t magic = 0;
+		PHYSFS_read(fp, &magic, sizeof(magic), 1);
+		if (END_MAGIC != magic) {
+			fprintf(stderr, "wrong save game magic\n");
+			Int3();
+		}
+	}
 
 	PHYSFS_close(fp);
 
