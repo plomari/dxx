@@ -150,6 +150,11 @@ char	Object_type_names[MAX_OBJECT_TYPES][9] = {
 	"LIGHT   ",
 	"COOP    ",
 	"MARKER  ",
+	"CAMBOT  ",
+	"MONSBALL",
+	"SMOKE   ",
+	"EXPLOSIN",
+	"EFFECT  ",
 };
 #endif
 

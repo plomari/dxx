@@ -55,10 +55,15 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define OBJ_LIGHT       13  // a light source, & not much else
 #define OBJ_COOP        14  // a cooperative player object.
 #define OBJ_MARKER      15  // a map marker
+#define OBJ_CAMBOT		16
+#define OBJ_MONSTERBALL	17
+#define OBJ_SMOKE		18
+#define OBJ_EXPLOSION	19
+#define OBJ_EFFECT		20
 
 // WARNING!! If you add a type here, add its name to Object_type_names
 // in object.c
-#define MAX_OBJECT_TYPES    16
+#define MAX_OBJECT_TYPES    21
 
 // Result types
 #define RESULT_NOTHING  0   // Ignore this collision
