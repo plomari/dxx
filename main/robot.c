@@ -280,7 +280,7 @@ int robot_info_read_n(robot_info *ri, int n, CFILE *fp)
 		for (j = 0; j < NDL; j++)
 			ri[i].max_speed[j] = cfile_read_fix(fp);
 		for (j = 0; j < NDL; j++)
-			ri[i].circle_distance[i] = cfile_read_fix(fp);
+			ri[i].circle_distance[j] = cfile_read_fix(fp);
 		cfread(ri[i].rapidfire_count, NDL, 1, fp);
 
 		cfread(ri[i].evade_speed, NDL, 1, fp);
