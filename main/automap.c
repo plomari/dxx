@@ -1106,13 +1106,14 @@ void add_segment_edges(segment *seg)
 		if (seg->sides[sn].wall_num > -1)	{
 		
 			trigger_num = Walls[seg->sides[sn].wall_num].trigger;
-			ttype = Triggers[trigger_num].type;
-			if (ttype==TT_SECRET_EXIT)
-				{
-			    color = BM_XRGB( 29, 0, 31 );
-				 no_fade=1;
-				 goto Here;
-				} 	
+			if (trigger_num >= 0) {
+				ttype = Triggers[trigger_num].type;
+				if (ttype==TT_SECRET_EXIT) {
+					color = BM_XRGB( 29, 0, 31 );
+					no_fade=1;
+					goto Here;
+				}
+			}
 
 			switch( Walls[seg->sides[sn].wall_num].type )	{
 			case WALL_DOOR:
