@@ -150,4 +150,6 @@ extern muzzle_info Muzzle_data[MUZZLE_QUEUE_MAX];
 extern fix Omega_charge;
 // NOTE: OMEGA_CHARGE_SCALE moved to laser.c to avoid long rebuilds if changed
 
+extern int Missile_gun;
+
 #endif /* _LASER_H */
