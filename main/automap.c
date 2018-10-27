@@ -1076,6 +1076,9 @@ void add_segment_edges(segment *seg)
 	int	segnum = seg-Segments;
 	int	hidden_flag;
 	int ttype,trigger_num;
+
+	if (Segment2s[segnum].special == SEGMENT_IS_SKYBOX)
+		return;
 	
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
 		short	vertex_list[4];
