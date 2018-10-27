@@ -55,5 +55,6 @@ extern grs_font *Gamefonts[MAX_FONTS];
 void gamefont_init();
 void gamefont_close();
 void gamefont_choose_game_font(int scrx,int scry);
+void gamefont_update_screen_size(int scrx, int scry);
 
 #endif /* _GAMEFONT_H */

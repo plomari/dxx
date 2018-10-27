@@ -97,42 +97,49 @@ void gamefont_loadfont(int gf,int fi){
 	font_conf[gf].cur=fi;
 }
 
-void gamefont_choose_game_font(int scrx,int scry){
-	int gf,i,close=-1,m=-1;
-	if (!Gamefont_installed) return;
-
-	for (gf=0;gf<MAX_FONTS;gf++){
-		for (i=0;i<font_conf[gf].num;i++)
-			if ((scrx>=font_conf[gf].font[i].x && close<font_conf[gf].font[i].x)&&(scry>=font_conf[gf].font[i].y && close<font_conf[gf].font[i].y)){
-				close=font_conf[gf].font[i].x;
-				m=i;
-			}
-		if (m<0)
-			Error("no gamefont found for %ix%i\n",scrx,scry);
-
+void gamefont_update_screen_size(int scrx, int scry)
+{
 #ifdef OGL
 	if (!GameArg.OglFixedFont)
 	{
-		// if there's no texture filtering, scale by int
-		if (!GameCfg.TexFilt)
-		{
-			FNTScaleX = (int)scrx/font_conf[gf].font[m].x;
-			FNTScaleY = (int)scry/font_conf[gf].font[m].y;
-		}
-		else
-		{
-			FNTScaleX = (float)scrx/font_conf[gf].font[m].x;
-			FNTScaleY = (float)scry/font_conf[gf].font[m].y;
-		}
+		for (int gf = 0; gf < MAX_FONTS; gf++) {
+			int m = font_conf[gf].cur;
 
-		// keep proportions
-		if (FNTScaleY*100 < FNTScaleX*100)
-			FNTScaleX = FNTScaleY;
-		else if (FNTScaleX*100 < FNTScaleY*100)
-			FNTScaleY = FNTScaleX;
+			// if there's no texture filtering, scale by int
+			if (!GameCfg.TexFilt)
+			{
+				FNTScaleX = (int)scrx/font_conf[gf].font[m].x;
+				FNTScaleY = (int)scry/font_conf[gf].font[m].y;
+			}
+			else
+			{
+				FNTScaleX = (float)scrx/font_conf[gf].font[m].x;
+				FNTScaleY = (float)scry/font_conf[gf].font[m].y;
+			}
+
+			// keep proportions
+			if (FNTScaleY*100 < FNTScaleX*100)
+				FNTScaleX = FNTScaleY;
+			else if (FNTScaleX*100 < FNTScaleY*100)
+				FNTScaleY = FNTScaleX;
+		}
 	}
 #endif
-		gamefont_loadfont(gf,m);
+}
+
+void gamefont_choose_game_font(int scrx,int scry){
+	int gf,i;
+	if (!Gamefont_installed) return;
+
+	for (gf=0;gf<MAX_FONTS;gf++){
+		int best = -1;
+		for (i=0;i<font_conf[gf].num;i++) {
+			if (best < 0 || font_conf[gf].font[i].x > font_conf[gf].font[best].x)
+				best = i;
+		}
+
+		gamefont_loadfont(gf, best);
+		gamefont_update_screen_size(scrx, scry);
 	}
 }
 	

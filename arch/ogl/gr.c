@@ -126,7 +126,7 @@ void gr_sdl_ogl_resize_window(int w, int h)
 
 	ogl_init_pixel_buffers(grd_curscreen->sc_w, grd_curscreen->sc_h);
 
-	gamefont_choose_game_font(w,h);
+	gamefont_update_screen_size(w,h);
 	gr_remap_color_fonts();
 	gr_remap_mono_fonts();
 
