@@ -34,6 +34,37 @@ that still should be fixed.
 If anyone uses this and finds a problem, feel free to open an issue on this
 github repo.
 
+Paths
+-----
+
+Currently, only Linux is supported. (Although Windows support can be added on
+request.) Consequently, all the following paths use Linux conventions.
+
+The data dir is by default in /usr/local/share/games/d2x-rebirth/. This can be
+adjusted at build time with the "sharepath" option, or at runtime with the
+-hogdir option. This directory must contain descent2.hog at its top level.
+
+The user config path is in ~/.d2x-rebirth/. (This is the same as D2X/DXX. This
+can lead to conflict. In particular, savegames made with this project won't load
+in D2X/DXX. The reverse is unknown.)
+
+Building
+--------
+
+Running "scons" should be sufficient. The binary is created as d2x-rebirth-gl
+in the source directory.
+
+You can also try the experimental Meson build system:
+
+	meson builddir
+	cd builddir
+	ninja
+
+The binary file is at builddir/d2x-rebirth.
+
+Once Meson works in a way I like, this will be the preferred build system, and
+the scons build files will be deleted.
+
 Original
 --------
 
