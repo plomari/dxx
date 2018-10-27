@@ -301,6 +301,27 @@ int Ai_last_missile_camera = -1;
 
 int Robots_kill_robots_cheat = 0;
 
+static bool check_any_openable_doors(object *obj)
+{
+	ai_static   *aip = &obj->ctype.ai_info;
+
+	if (openable_doors_in_segment(obj->segnum) != -1)
+		return true;
+
+	if (aip->hide_index < 0)
+		return false;
+
+	int base = aip->hide_index + aip->cur_path_index;
+
+	if (openable_doors_in_segment(Point_segs[base + aip->PATH_DIR].segnum) != -1)
+		return true;
+
+	if (openable_doors_in_segment(Point_segs[base + 2*aip->PATH_DIR].segnum) != -1)
+		return true;
+
+	return false;
+}
+
 // --------------------------------------------------------------------------------------------------------------------
 void do_ai_frame(object *obj)
 {
@@ -765,18 +786,9 @@ _exit_cheat:
 		}
 
 		if (ready_to_fire(robptr, ailp)) {
-			int do_stuff = 0;
-			if (openable_doors_in_segment(obj->segnum) != -1)
-				do_stuff = 1;
-			else if (openable_doors_in_segment(Point_segs[aip->hide_index + aip->cur_path_index + aip->PATH_DIR].segnum) != -1)
-				do_stuff = 1;
-			else if (openable_doors_in_segment(Point_segs[aip->hide_index + aip->cur_path_index + 2*aip->PATH_DIR].segnum) != -1)
-				do_stuff = 1;
-			else if ((ailp->mode == AIM_GOTO_PLAYER) && (dist_to_player < 3*MIN_ESCORT_DISTANCE/2) && (vm_vec_dot(&ConsoleObject->orient.fvec, &vec_to_player) > -F1_0/4)) {
-				do_stuff = 1;
-			}
-
-			if (do_stuff) {
+			if (check_any_openable_doors(obj) ||
+				((ailp->mode == AIM_GOTO_PLAYER) && (dist_to_player < 3*MIN_ESCORT_DISTANCE/2) && (vm_vec_dot(&ConsoleObject->orient.fvec, &vec_to_player) > -F1_0/4)))
+			{
 				Laser_create_new_easy( &obj->orient.fvec, &obj->pos, obj-Objects, FLARE_ID, 1);
 				ailp->next_fire = F1_0/2;
 				if (!Buddy_allowed_to_talk) // If buddy not talking, make him fire flares less often.
@@ -792,15 +804,7 @@ _exit_cheat:
 		do_thief_frame(obj, dist_to_player, player_visibility, &vec_to_player);
 
 		if (ready_to_fire(robptr, ailp)) {
-			int do_stuff = 0;
-			if (openable_doors_in_segment(obj->segnum) != -1)
-				do_stuff = 1;
-			else if (openable_doors_in_segment(Point_segs[aip->hide_index + aip->cur_path_index + aip->PATH_DIR].segnum) != -1)
-				do_stuff = 1;
-			else if (openable_doors_in_segment(Point_segs[aip->hide_index + aip->cur_path_index + 2*aip->PATH_DIR].segnum) != -1)
-				do_stuff = 1;
-
-			if (do_stuff) {
+			if (check_any_openable_doors(obj)) {
 				// @mk, 05/08/95: Firing flare from center of object, this is dumb...
 				Laser_create_new_easy( &obj->orient.fvec, &obj->pos, obj-Objects, FLARE_ID, 1);
 				ailp->next_fire = F1_0/2;
