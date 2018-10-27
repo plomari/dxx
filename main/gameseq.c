@@ -749,7 +749,7 @@ void load_level_robots(int level_num)
 			// load extra data
 			char t[50];
 			extern void bm_read_extra_robots();
-			sprintf(t,"%s.ham",Current_mission_filename);
+			snprintf(t, sizeof(t), "%s.ham",Current_mission_filename);
 			bm_read_extra_robots(t, Current_mission->enhanced);
 		}
 		
@@ -1328,12 +1328,12 @@ void DoEndGame(void)
 			}
 		}
    } else if (!(Game_mode & GM_MULTI)) {    //not multi
-		char tname[FILENAME_LEN];
-		sprintf(tname,"%s.tex",Current_mission_filename);
+		char tname[4096];
+		snprintf(tname, sizeof(tname), "%s.tex", Current_mission_filename);
 		do_briefing_screens (tname,Last_level+1);   //level past last is endgame breifing
 
 		//try doing special credits
-		sprintf(tname,"%s.ctb",Current_mission_filename);
+		snprintf(tname, sizeof(tname), "%s.ctb", Current_mission_filename);
 		credits_show(tname);
 	}
 
@@ -1815,8 +1815,8 @@ void ShowLevelIntro(int level_num)
 			if (EMULATING_D1)
 				do_briefing_screens(Briefing_text_filename, level_num);
 			else {
-				char tname[FILENAME_LEN];
-				sprintf(tname, "%s.tex", Current_mission_filename);
+				char tname[4096];
+				snprintf(tname, sizeof(tname), "%s.tex", Current_mission_filename);
 				do_briefing_screens(tname, level_num);
 			}
 		}
