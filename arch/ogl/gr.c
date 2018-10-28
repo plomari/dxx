@@ -234,13 +234,6 @@ static void ogl_get_verinfo(void)
 	}
 
 	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s\nOpenGL: version: %s\n",gl_vendor,gl_renderer,gl_version);
-
-#ifdef _WIN32
-	dglMultiTexCoord2fARB = (glMultiTexCoord2fARB_fp)wglGetProcAddress("glMultiTexCoord2fARB");
-	dglActiveTextureARB = (glActiveTextureARB_fp)wglGetProcAddress("glActiveTextureARB");
-	dglMultiTexCoord2fSGIS = (glMultiTexCoord2fSGIS_fp)wglGetProcAddress("glMultiTexCoord2fSGIS");
-	dglSelectTextureSGIS = (glSelectTextureSGIS_fp)wglGetProcAddress("glSelectTextureSGIS");
-#endif
 }
 
 int gr_set_mode(u_int32_t mode)
@@ -288,33 +281,6 @@ int ogl_testneedmipmaps(int i)
 	}
 	Error("unknown texture filter %x\n",i);
 }
-
-#ifdef _WIN32
-char *OglLibPath="opengl32.dll";
-
-int ogl_rt_loaded=0;
-int ogl_init_load_library(void)
-{
-	int retcode=0;
-	if (!ogl_rt_loaded)
-	{
-		retcode = OpenGL_LoadLibrary(true);
-		if(retcode)
-		{
-			if(!glEnd)
-			{
-				Error("Opengl: Functions not imported\n");
-			}
-		}
-		else
-		{
-			Error("Opengl: error loading %s\n", OglLibPath);
-		}
-		ogl_rt_loaded=1;
-	}
-	return retcode;
-}
-#endif
 
 void gr_set_attributes(void)
 {
@@ -367,10 +333,6 @@ int gr_init(int mode)
 	if (gr_installed==1)
 		return -1;
 
-#ifdef _WIN32
-	ogl_init_load_library();
-#endif
-
 	if (!GameCfg.WindowMode && !GameArg.SysWindow)
  		gr_toggle_fullscreen();
 
@@ -417,10 +379,6 @@ void gr_close()
 		d_free(grd_curscreen);
 	}
 	ogl_close_pixel_buffers();
-#ifdef _WIN32
-	if (ogl_rt_loaded)
-		OpenGL_LoadLibrary(false);
-#endif
 }
 
 extern int r_upixelc;

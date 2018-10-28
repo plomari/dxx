@@ -11,18 +11,12 @@
 #include <stddef.h>
 #endif
 
-#ifdef _WIN32
-#include "loadgl.h"
-int ogl_init_load_library(void);
-#else
-#define GL_GLEXT_LEGACY
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #else
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
-#endif
 #endif
 
 #include "gr.h"
