@@ -110,7 +110,7 @@ static inline int PHYSFS_readSBE16(CFILE *file, short *v)
 
 void cfile_init_paths(int argc, char *argv[]);
 
-size_t cfile_write(CFILE *file, void *ptr, size_t elsize, size_t nelem);
+size_t cfile_write(CFILE *file, const void *ptr, size_t elsize, size_t nelem);
 #define PHYSFS_write cfile_write
 
 int cfile_mkdir(const char *path);
@@ -118,6 +118,9 @@ int cfile_mkdir(const char *path);
 
 int cfile_unlink(const char *path);
 #define PHYSFS_delete cfile_unlink
+
+bool cfile_write_fixed_str(CFILE *file, size_t field_len, const char *str);
+bool cfile_read_fixed_str(CFILE *file, size_t field_len, char *buf);
 
 void cfile_gets_0(CFILE *file, char *s, size_t sz);
 void cfile_gets_nl(CFILE *file, char *s, size_t sz);

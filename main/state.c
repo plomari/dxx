@@ -505,7 +505,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	PHYSFS_write(fp, &between_levels, sizeof(int), 1);
 
 // Save the mission info...
-	PHYSFS_write(fp, Current_mission_filename, 9 * sizeof(char), 1);
+	cfile_write_fixed_str(fp, 9, Current_mission_filename);
 
 //Save level info
 	PHYSFS_write(fp, &Current_level_num, sizeof(int), 1);
@@ -780,7 +780,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	PHYSFS_file *fp;
 	int current_level, next_level;
 	int between_levels;
-	char mission[16];
 	char desc[DESC_LENGTH+1];
 	char id[5];
 	char org_callsign[CALLSIGN_LEN+16];
@@ -826,8 +825,8 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	Assert(between_levels == 0);	//between levels save ripped out
 
 // Read the mission info...
-	PHYSFS_read(fp, mission, sizeof(char) * 9, 1);
-	mission[9] = '\0';
+	char mission[10];
+	cfile_read_fixed_str(fp, 9, mission);
 
 	if (!load_mission_by_name( mission ))	{
 		nm_messagebox( NULL, 1, "Ok", "Error!\nUnable to load mission\n'%s'\n", mission );

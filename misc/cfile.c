@@ -469,12 +469,50 @@ int cfile_hog_remove(char *hogname)
 	return 0;
 }
 
-size_t cfile_write(CFILE *file, void *ptr, size_t elsize, size_t nelem)
+size_t cfile_write(CFILE *file, const void *ptr, size_t elsize, size_t nelem)
 {
 	size_t res = fwrite(ptr, elsize, nelem, file->file);
 	file->err_flag |= ferror(file->file);
 	file->sub_pos += res * elsize;
 	return res;
+}
+
+// Write exactly field_len bytes. If str is longer than that, panic. If str is
+// exactly as long as that, don#t write a terminating \0. Otherwise, fill with
+// \0.
+// Returns success.
+bool cfile_write_fixed_str(CFILE *file, size_t field_len, const char *str)
+{
+	size_t len = strlen(str);
+
+	Assert(len <= field_len);
+	if (!(len <= field_len))
+		return false;
+
+	if (cfile_write(file, str, len, 1) < 1)
+		return false;
+
+	while (len < field_len) {
+		if (cfile_write(file, &(char){0}, 1, 1) < 0)
+			return false;
+		len++;
+	}
+
+	return true;
+}
+
+// Read a string that's stored as field_len bytes in the file.
+// Warning: sizeof(buf) must be >= field_len+1.
+// Returns success. buf is always 0 terminated after this call.
+bool cfile_read_fixed_str(CFILE *file, size_t field_len, char *buf)
+{
+	int res = cfread(buf, field_len, 1, file);
+	if (res < 1) {
+		buf[0] = '\0';
+		return false;
+	}
+	buf[field_len] = '\0'; // redundant, unless str has length field_len
+	return true;
 }
 
 int cfgetc(CFILE *fp)
