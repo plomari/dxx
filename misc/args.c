@@ -32,12 +32,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "gauges.h"
 #include "console.h"
-#ifdef OGL
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
 #else
 #include <GL/glu.h>
-#endif
 #endif
 
 #define MAX_ARGS 1000
@@ -179,11 +177,9 @@ void ReadCmdArgs(void)
 	GameArg.GfxMovieHires 		= !FindArg( "-lowresmovies" );
 	GameArg.GfxMovieSubtitles 	= FindArg("-subtitles");
 
-#ifdef OGL
 	// OpenGL Options
 
 	GameArg.OglFixedFont 		= FindArg("-gl_fixedfont");
-#endif
 
 	// Multiplayer Options
 
@@ -217,12 +213,7 @@ void ReadCmdArgs(void)
 	GameArg.DbgUseDoubleBuffer 	= !FindArg("-nodoublebuffer");
 	GameArg.DbgBigPig 		= !FindArg("-bigpig");
 
-#ifdef OGL
 	GameArg.DbgAltTexMerge 		= !FindArg("-gl_oldtexmerge");
-#else
-	GameArg.DbgSdlHWSurface = FindArg("-hwsurface");
-	GameArg.DbgSdlASyncBlit = FindArg("-asyncblit");
-#endif
 }
 
 void args_exit(void)

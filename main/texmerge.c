@@ -30,13 +30,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "piggy.h"
 #include "wall.h"
-
-#ifdef OGL
 #include "ogl_init.h"
+
 #define MAX_NUM_CACHE_BITMAPS 200
-#else
-#define MAX_NUM_CACHE_BITMAPS 50
-#endif
 
 //static grs_bitmap * cache_bitmaps[MAX_NUM_CACHE_BITMAPS];                     
 
@@ -159,9 +155,7 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 
 	piggy_page_in_two(tmap_bottom, tmap_top);
 
-#ifdef OGL
-        ogl_freebmtexture(Cache[least_recently_used].bitmap);
-#endif
+	ogl_freebmtexture(Cache[least_recently_used].bitmap);
 
 	// TODO: missing, this just does some broken bullshit
 	// See door to the outside in 3rd part of Anthology.

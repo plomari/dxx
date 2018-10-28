@@ -31,14 +31,8 @@ static char rcsid[] = "$Id: setup.c,v 1.1.1.1 2006/03/17 19:52:10 zicodxx Exp $"
 
 #include "3d.h"
 #include "globvars.h"
-#include "clipper.h"
-//#include "div0.h"
 
-#ifdef OGL
 #include "ogl_init.h"
-#else
-#include "texmap.h"  // for init_interface_vars_to_assembler()
-#endif
 
 //start the frame
 void g3_start_frame(void)
@@ -68,25 +62,11 @@ void g3_start_frame(void)
 	
 	Window_scale.z = f1_0;		//always 1
 
-	init_free_points();
-
-#ifdef OGL
 	ogl_start_frame();
-#else
-	init_interface_vars_to_assembler();		//for the texture-mapper
-#endif
 }
 
 //this doesn't do anything, but is here for completeness
 void g3_end_frame(void)
 {
-#ifdef OGL
 	ogl_end_frame();
-#endif
-
-//	Assert(free_point_num==0);
-	free_point_num = 0;
-
 }
-
-

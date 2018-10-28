@@ -30,10 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "pcx.h"
 #include "cfile.h"
-
-#ifdef OGL
 #include "palette.h"
-#endif
 
 #include "physfsx.h"
 
@@ -370,9 +367,7 @@ int pcx_read_fullscr(char * filename, ubyte * palette)
 	gr_init_bitmap_data(&bm);
 	pcx_error = pcx_read_bitmap(filename, &bm, BM_LINEAR, palette);
 	if (pcx_error == PCX_ERROR_NONE) {
-#ifdef OGL
 		gr_palette_load(palette);
-#endif
 		show_fullscr(&bm);
 	}
 	gr_free_bitmap_data(&bm);

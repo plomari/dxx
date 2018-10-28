@@ -68,9 +68,7 @@ typedef struct Arg
 	int GfxHiresFNTAvailable;
 	int GfxMovieHires;
 	int GfxMovieSubtitles;
-#ifdef OGL
 	int OglFixedFont;
-#endif
 	int MplGameProfile;
 	int MplNoRankings;
 	int MplPlayerMessages;
@@ -89,13 +87,8 @@ typedef struct Arg
 	int DbgShowMemInfo;
 	int DbgUseDoubleBuffer;
 	int DbgBigPig;
-#ifdef OGL
 	int DbgAltTexMerge;
-#else
-	int DbgSdlHWSurface;
-	int DbgSdlASyncBlit;
-#endif
-} __pack__ Arg;
+} Arg;
 
 extern struct Arg GameArg;
 

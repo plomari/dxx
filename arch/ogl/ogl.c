@@ -621,13 +621,18 @@ void draw_tmap_flat(grs_bitmap *bm,int nv,g3s_point **vertlist){
 }
 
 float Gr_color[3] = {1,1,1};
+static bool tmap_flat;
 
-extern void (*tmap_drawer_ptr)(grs_bitmap *bm,int nv,g3s_point **vertlist);
+void g3_set_flat_shading(bool enable)
+{
+	tmap_flat = enable;
+}
+
 bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 {
 	int c;
 	float l;
-	if (tmap_drawer_ptr==draw_tmap_flat){
+	if (tmap_flat) {
 		OGL_DISABLE(TEXTURE_2D);
 		glColor4f(0,0,0,1.0-(Gr_scanline_darkening_level/(float)NUM_LIGHTING_LEVELS));
 		glBegin(GL_TRIANGLE_FAN);
@@ -635,7 +640,7 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 			glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
 		}
 		glEnd();
-	}else if (tmap_drawer_ptr==draw_tmap){
+	} else {
 		r_tpolyc++;
 		OGL_ENABLE(TEXTURE_2D);
 		ogl_bindbmtex(bm);
@@ -652,8 +657,6 @@ bool g3_draw_tmap(int nv,g3s_point **pointlist,g3s_uvl *uvl_list,grs_bitmap *bm)
 			glVertex3f(f2glf(pointlist[c]->p3_vec.x),f2glf(pointlist[c]->p3_vec.y),-f2glf(pointlist[c]->p3_vec.z));
 		}
 		glEnd();
-	}else{
-		glmprintf((0,"g3_draw_tmap: unhandled tmap_drawer %p\n",tmap_drawer_ptr));
 	}
 
 	return 0;

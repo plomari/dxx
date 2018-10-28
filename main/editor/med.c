@@ -559,38 +559,6 @@ int SetPlayerFromCursegMinusOne()
 
 int ToggleLighting(void)
 {
-	char	outstr[80] = "[shift-L] ";
-	int	chindex;
-
-	Lighting_on++;
-	if (Lighting_on >= 2)
-		Lighting_on = 0;
-
-	Update_flags |= UF_GAME_VIEW_CHANGED;
-
-	if (last_keypress == KEY_L + KEY_SHIFTED)
-		chindex = 0;
-	else
-		chindex = 10;
-
-	switch (Lighting_on) {
-		case 0:
-			strcpy(&outstr[chindex],"Lighting off.");
-			break;
-		case 1:
-			strcpy(&outstr[chindex],"Static lighting.");
-			break;
-		case 2:
-			strcpy(&outstr[chindex],"Ship lighting.");
-			break;
-		case 3:
-			strcpy(&outstr[chindex],"Ship and static lighting.");
-			break;
-	}
-
-	diagnostic_message(outstr);
-
-	return Lighting_on;
 }
 
 void find_concave_segs();

@@ -30,9 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include <time.h>
 
-#ifdef OGL
 #include "ogl_init.h"
-#endif
 
 #include "inferno.h"
 #include "game.h"
@@ -1700,10 +1698,8 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 
 	reset_special_effects();
 
-#ifdef OGL
 	gr_remap_mono_fonts();
 	ogl_cache_level_textures();
-#endif
 
 
 #ifdef NETWORK

@@ -67,13 +67,7 @@ void gr_init_canvas(grs_canvas *canv, unsigned char * pixdata, int pixtype, int 
 	canv->cv_font_fg_color = 0;
 	canv->cv_font_bg_color = 0;
 
-
-#ifndef __DJGPP__
-	wreal = w;
-#else
-	wreal = (pixtype == BM_MODEX) ? w / 4 : w;
-#endif
-	gr_init_bitmap (&canv->cv_bitmap, pixtype, 0, 0, w, h, wreal, pixdata);
+	gr_init_bitmap (&canv->cv_bitmap, pixtype, 0, 0, w, h, w, pixdata);
 }
 
 void gr_init_sub_canvas(grs_canvas *new, grs_canvas *src, int x, int y, int w, int h)

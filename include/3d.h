@@ -208,14 +208,8 @@ bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_
 
 //draws a bitmap with the specified 3d width & height
 //returns 1 if off screen, 0 if drew
-bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int orientation
-#ifdef OGL
-	, struct object *obj
-#endif
-	);
+bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm, int orientation, struct object *obj);
 
-//specifies 2d drawing routines to use instead of defaults.  Passing
-//NULL for either or both restores defaults
-void g3_set_special_render(void (*tmap_drawer)(),void (*flat_drawer)(),int (*line_drawer)(fix, fix, fix, fix));
+void g3_set_flat_shading(bool enable);
 
 #endif

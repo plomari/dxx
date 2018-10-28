@@ -30,19 +30,14 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gr.h"
 #include "grdef.h"
-#include "u_dpmi.h"
 #include "error.h"
 
-#ifdef OGL
 #include "ogl_init.h"
-#endif
 
 void gr_set_bitmap_data (grs_bitmap *bm, unsigned char *data)
 {
-#ifdef OGL
 //	if (bm->bm_data!=data)
 		ogl_freebmtexture(bm);
-#endif
 	bm->bm_data = data;
 }
 
@@ -74,9 +69,7 @@ void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int b
 	bm->bm_depth = 0;
 
 	bm->bm_data = NULL;
-#ifdef OGL
 	bm->bm_parent=NULL;bm->gltexture=NULL;
-#endif
 
 //	if (data != 0)
 		gr_set_bitmap_data (bm, data);
@@ -84,10 +77,6 @@ void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int b
 	else
 		gr_set_bitmap_data (bm, d_malloc( MAX_BMP_SIZE(w, h) ));
 */
-
-#ifdef BITMAP_SELECTOR
-	bm->bm_selector = 0;
-#endif
 }
 
 void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline)
@@ -99,10 +88,8 @@ void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h,
 void gr_init_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 {
 	bm->bm_data = NULL;
-#ifdef OGL
 //	ogl_freebmtexture(bm);//not what we want here.
 	bm->bm_parent=NULL;bm->gltexture=NULL;
-#endif
 }
 
 grs_bitmap *gr_create_sub_bitmap(grs_bitmap *bm, int x, int y, int w, int h )
@@ -133,9 +120,7 @@ void gr_free_sub_bitmap(grs_bitmap *bm )
 
 void gr_free_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 {
-#ifdef OGL
 	ogl_freebmtexture(bm);
-#endif
 	if (bm->bm_data != NULL)
 		d_free (bm->bm_data);
 	bm->bm_data = NULL;
@@ -151,14 +136,9 @@ void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int
 	bm->bm_type = bmParent->bm_type;
 	bm->bm_rowsize = bmParent->bm_rowsize;
 
-#ifdef OGL
 	bm->gltexture=bmParent->gltexture;
 	bm->bm_parent=bmParent;
-#endif
-	{
-		bm->bm_data = bmParent->bm_data+(unsigned int)((y*bmParent->bm_rowsize)+x);
-	}
-
+	bm->bm_data = bmParent->bm_data+(unsigned int)((y*bmParent->bm_rowsize)+x);
 }
 
 void decode_data_asm(ubyte *data, int num_pixels, ubyte * colormap, int * count );
@@ -332,14 +312,3 @@ void gr_remap_bitmap_good( grs_bitmap * bmp, ubyte * palette, int transparent_co
 	if ( (super_transparent_color>=0) && (super_transparent_color<=255) && (freq[super_transparent_color]>0) )
 		gr_set_super_transparent (bmp, 1);
 }
-
-#ifdef BITMAP_SELECTOR
-int gr_bitmap_assign_selector( grs_bitmap * bmp )
-{
-	if (!dpmi_allocate_selector( bmp->bm_data, bmp->bm_w*bmp->bm_h, &bmp->bm_selector )) {
-		bmp->bm_selector = 0;
-		return 1;
-	}
-	return 0;
-}
-#endif

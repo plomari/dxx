@@ -29,9 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 
-#ifdef OGL
 #include "ogl_init.h"
-#endif
 
 #include "pstypes.h"
 #include "timer.h"
@@ -379,11 +377,7 @@ void show_animated_bitmap(void)
 			bi = piggy_find_bitmap(Bitmap_name);
 			bitmap_ptr = &GameBitmaps[bi.index];
 			PIGGY_PAGE_IN( bi );
-#ifdef OGL
 			ogl_ubitmapm_cs(rescale_x(220), rescale_y(45),(bitmap_ptr->bm_w*(SWIDTH/320)),(bitmap_ptr->bm_h*(SHEIGHT/200)),bitmap_ptr,255,F1_0);
-#else
-			gr_bitmapm(rescale_x(220), rescale_y(45), bitmap_ptr);
-#endif
 		}
 		Door_div_count--;
 		return;
@@ -446,11 +440,7 @@ void show_animated_bitmap(void)
 		bi = piggy_find_bitmap(Bitmap_name);
 		bitmap_ptr = &GameBitmaps[bi.index];
 		PIGGY_PAGE_IN( bi );
-#ifdef OGL
 		ogl_ubitmapm_cs(0,0,(bitmap_ptr->bm_w*(SWIDTH/320)),(bitmap_ptr->bm_h*(SHEIGHT/200)),bitmap_ptr,255,F1_0);
-#else
-		gr_bitmapm(0, 0, bitmap_ptr);
-#endif
 		grd_curcanv = curcanv_save;
 		d_free(bitmap_canv);
 
@@ -478,11 +468,7 @@ void show_briefing_bitmap(grs_bitmap *bmp)
 	bitmap_canv = gr_create_sub_canvas(grd_curcanv, 220, 45, bmp->bm_w, bmp->bm_h);
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
-#ifdef OGL
 	ogl_ubitmapm_cs(0,0,(bmp->bm_w*(SWIDTH/320)),(bmp->bm_h*(SHEIGHT/200)),bmp,255,F1_0);
-#else
-	gr_bitmapm(0, 0, bmp);
-#endif
 	gr_set_current_canvas(curcanv_save);
 
 	d_free(bitmap_canv);

@@ -53,9 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "libmve.h"
 #include "text.h"
 #include "screens.h"
-#ifdef OGL
 #include "ogl_init.h"
-#endif
 
 extern char CDROM_dir[];
 
@@ -192,7 +190,6 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 	source_bm.bm_flags = 0;
 	source_bm.bm_data = buf;
 
-#ifdef OGL
 	glDisable (GL_BLEND);
 
 	ogl_ubitblt_i(	w*((double)grd_curscreen->sc_w/(GameArg.GfxMovieHires?640:320)),
@@ -204,9 +201,6 @@ void MovieShowFrame(ubyte *buf, uint bufw, uint bufh, uint sx, uint sy, uint w, 
 
 	glEnable (GL_BLEND);
 	gr_flip();
-#else
-	gr_bm_ubitblt(bufw,bufh,dstx*((double)grd_curscreen->sc_w/(GameArg.GfxMovieHires?640:320)),dsty*((double)grd_curscreen->sc_h/(GameArg.GfxMovieHires?480:200)),sx,sy,&source_bm,&grd_curcanv->cv_bitmap);
-#endif
 }
 
 //our routine to set the pallete, called from the movie code
@@ -310,9 +304,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	int track = 0;
 	int frame_num;
 	int key;
-#ifdef OGL
 	ubyte pal_save[768];
-#endif
 
 	result=1;
 
@@ -330,14 +322,11 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_memCallbacks(MPlayAlloc, MPlayFree);
 	MVE_ioCallbacks(FileRead);
 
-#ifdef OGL
 	set_screen_mode(SCREEN_MOVIE);
 	gr_copy_palette(pal_save, gr_palette, 768);
 	memset(gr_palette, 0, 768);
 	gr_palette_load(gr_palette);
-#else
-	gr_set_mode(SM((hires_flag?640:320),(hires_flag?480:200)));
-#endif
+
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
 
@@ -385,10 +374,9 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	// Restore old graphic state
 
 	Screen_mode=-1;  //force reset of screen mode
-#ifdef OGL
+
 	gr_copy_palette(gr_palette, pal_save, 768);
 	gr_palette_load(pal_save);
-#endif
 
 	return (aborted?MOVIE_ABORTED:MOVIE_PLAYED_FULL);
 }

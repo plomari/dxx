@@ -28,13 +28,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MOVIE_PLAYED_FULL   1   // movie was played all the way through
 #define MOVIE_ABORTED       2   // movie started by was aborted
 
-#ifdef OGL
 #define MOVIE_WIDTH  (GameArg.GfxMovieHires&&grd_curscreen->sc_w<640?640:grd_curscreen->sc_w)
 #define MOVIE_HEIGHT (GameArg.GfxMovieHires&&grd_curscreen->sc_h<480?480:grd_curscreen->sc_h)
-#else
-#define MOVIE_WIDTH  (GameArg.GfxMovieHires?640:320)
-#define MOVIE_HEIGHT (GameArg.GfxMovieHires?480:200)
-#endif
 
 extern int PlayMovie(const char *filename, int allow_abort);
 extern int PlayMovies(int num_files, const char *filename[], int graphmode, int allow_abort);

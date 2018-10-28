@@ -150,9 +150,7 @@ try_again:;
 		if (((d_rand() % (n_demos+1)) == 0) && !GameArg.SysAutoDemo)
 		{
 #ifndef SHAREWARE
-#ifdef OGL
 			Screen_mode = -1;
-#endif
 			PlayMovie("intro.mve",0);
 			songs_play_song(SONG_TITLE,1);
 			*last_key = -3; //exit menu to force redraw even if not going to game mode. -3 tells menu system not to restore
@@ -908,11 +906,7 @@ void do_options_menu()
 		m[ 4].max_value = 16;
 
 		m[ 5].type = NM_TYPE_MENU;   m[ 5].text="Screen resolution...";
-#ifdef OGL
 		m[ 6].type = NM_TYPE_MENU;   m[ 6].text="Graphics Options...";
-#else
-		m[ 6].type = NM_TYPE_TEXT;   m[ 6].text="";
-#endif
 
 		m[ 7].type = NM_TYPE_TEXT;   m[ 7].text="";
 		m[ 8].type = NM_TYPE_MENU;   m[ 8].text="Primary autoselect ordering...";

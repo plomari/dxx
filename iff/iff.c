@@ -475,39 +475,6 @@ int convert_ilbm_to_pbm(iff_bitmap_header *bmheader)
 	return IFF_NO_ERROR;
 }
 
-#define INDEX_TO_15BPP(i) ((short)((((palptr[(i)].r/2)&31)<<10)+(((palptr[(i)].g/2)&31)<<5)+((palptr[(i)].b/2 )&31)))
-
-int convert_rgb15(grs_bitmap *bm,iff_bitmap_header *bmheader)
-{
-	ushort *new_data;
-	int x,y;
-	int newptr = 0;
-	pal_entry *palptr;
-
-	palptr = bmheader->palette;
-
-//        if ((new_data = d_malloc(bm->bm_w * bm->bm_h * 2)) == NULL)
-//            {ret=IFF_NO_MEM; goto done;}
-       MALLOC(new_data, ushort, bm->bm_w * bm->bm_h * 2);
-       if (new_data == NULL)
-           return IFF_NO_MEM;
-
-	for (y=0; y<bm->bm_h; y++) {
-
-		for (x=0; x<bmheader->w; x++)
-			new_data[newptr++] = INDEX_TO_15BPP(bmheader->raw_data[y*bmheader->w+x]);
-
-	}
-
-	d_free(bm->bm_data);				//get rid of old-style data
-	bm->bm_data = (ubyte *) new_data;			//..and point to new data
-
-	bm->bm_rowsize *= 2;				//two bytes per row
-
-	return IFF_NO_ERROR;
-
-}
-
 //copy an iff header structure to a grs_bitmap structure
 void copy_iff_to_grs(grs_bitmap *bm,iff_bitmap_header *bmheader)
 {
@@ -574,14 +541,6 @@ int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type, sbyte 
 	copy_iff_to_grs(bm,&bmheader);
 
 	if (palette) memcpy(palette,&bmheader.palette,sizeof(bmheader.palette));
-
-	//Now do post-process if required
-
-	if (bitmap_type == BM_RGB15) {
-		ret = convert_rgb15(bm,&bmheader);
-		if (ret != IFF_NO_ERROR)
-			return ret;
-	}
 
 	return ret;
 
@@ -884,8 +843,6 @@ int iff_write_bitmap(char *ofilename,grs_bitmap *bm,ubyte *palette)
 	iff_bitmap_header bmheader;
 	int ret;
 	int compression_on;
-
-	if (bm->bm_type == BM_RGB15) return IFF_BAD_BM_TYPE;
 
 #if COMPRESS
 	compression_on = (bm->bm_w>=MIN_COMPRESS_WIDTH);

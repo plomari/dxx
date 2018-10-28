@@ -58,9 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "network.h"
 #endif
 
-#ifdef OGL
 #include "ogl_init.h"
-#endif
 
 extern fix Cruise_speed;
 extern int LinearSVGABuffer;
@@ -809,19 +807,11 @@ void update_cockpits()
 		case CM_FULL_COCKPIT:
 			gr_set_current_canvas(NULL);
 			cockpit_decode_alpha(bm);
-#ifdef OGL
 			ogl_ubitmapm_cs (0, 0, -1, -1, bm, 255, F1_0);
-#else
-			gr_ubitmapm(0,0, bm);
-#endif
 			break;
 		case CM_REAR_VIEW:
 			gr_set_current_canvas(NULL);
-#ifdef OGL
 			ogl_ubitmapm_cs (0, 0, -1, -1, bm, 255, F1_0);
-#else
-			gr_ubitmapm(0,0, bm);
-#endif
 			break;
 	
 		case CM_FULL_SCREEN:
@@ -830,11 +820,7 @@ void update_cockpits()
 		case CM_STATUS_BAR:
 	
 			gr_set_current_canvas(NULL);
-#ifdef OGL
 			ogl_ubitmapm_cs (0, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (HIRESMODE?(double)SHEIGHT/480:(double)SHEIGHT/200) + 0.5)), bm,255, F1_0);
-#else
-			gr_ubitmapm(0,SHEIGHT-bm->bm_h,bm);
-#endif
 			break;
 	
 		case CM_LETTERBOX:

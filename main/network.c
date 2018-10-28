@@ -5263,10 +5263,8 @@ void show_game_rules(int choice)
 		network_info_req( 0, NULL, 0, 0 );
 		timer_delay2(50);
 		gr_set_current_canvas(NULL);
-#ifdef OGL
 		gr_flip();
 		nm_draw_background1(NULL);
-#endif
 		nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 
 		gr_set_current_canvas(&canvas);

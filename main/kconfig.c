@@ -58,10 +58,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "collide.h"
 #include "playsave.h"
-
-#ifdef OGL
 #include "ogl_init.h"
-#endif
 
 ubyte ExtGameStatus=1;
 
@@ -540,9 +537,7 @@ void kconfig_sub_draw_table(kc_item * items,int nitems, char * title)
 	int w = FSPACX(290), h = FSPACY(170);
 
 	gr_set_current_canvas(NULL);
-#ifdef OGL
 	nm_draw_background1(NULL);
-#endif
 	nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 
 	if (kc_d2x_flag) {

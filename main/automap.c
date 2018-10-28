@@ -25,10 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef OGL
 #include "ogl_init.h"
-#endif
-
 #include "error.h"
 #include "3d.h"
 #include "inferno.h"
@@ -790,9 +787,7 @@ void do_automap( int key_code )	{
 		t1 = t2;
 	}
 
-#ifdef OGL
 	gr_free_bitmap_data(&Automap_background);
-#endif
 
 	game_flush_inputs();
 	

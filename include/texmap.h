@@ -66,29 +66,6 @@ typedef struct g3ds_tmap {
 
 // -------------------------------------------------------------------------------------------------------
 
-//	Note:	Not all interpolation method and lighting combinations are supported.
-//	Set Interpolation_method to 0/1/2 for linear/linear, perspective/linear, perspective/perspective
-extern	int	Interpolation_method;
-
-// Set Lighting_on to 0/1/2 for no lighting/intensity lighting/rgb lighting
-extern	int	Lighting_on;
-
-// HACK INTERFACE: how far away the current segment (& thus texture) is
-extern	int	Current_seg_depth;		
-extern	int	Max_flat_depth;				//	Deepest segment at which flat shading will be used. (If not flat shading, then what?)
-
-//	These are pointers to texture maps.  If you want to render texture map #7, then you will render
-//	the texture map defined by Texmap_ptrs[7].
-extern	grs_bitmap Texmap_ptrs[];
-extern	grs_bitmap Texmap4_ptrs[];
-
-// Interface for sky renderer
-extern void texture_map_lin_lin_sky(grs_bitmap *srcb, g3ds_tmap *t);
-extern void texture_map_lin_lin_sky_v(grs_bitmap *srcb, g3ds_tmap *t);
-extern void texture_map_hyp_lin_v(grs_bitmap *srcb, g3ds_tmap *t);
-
-extern void ntexture_map_lighted_linear(grs_bitmap *srcb, g3ds_tmap *t);
-
 //	This is the gr_upoly-like interface to the texture mapper which uses texture-mapper compatible
 //	(ie, avoids cracking) edge/delta computation.
 void gr_upoly_tmap(int nverts, int *vert );
@@ -98,9 +75,6 @@ void gr_upoly_tmap(int nverts, int *vert );
 void gr_upoly_tmap_ylr(int nverts, int *vert, void (*ylr_func)(int, fix, fix) );
 
 extern int Transparency_on,per2_flag;
-
-//	Set to !0 to enable Sim City 2000 (or Eric's Drive Through, or Eric's Game) specific code.
-extern	int	SC2000;
 
 extern int Window_clip_left, Window_clip_bot, Window_clip_right, Window_clip_top;
 

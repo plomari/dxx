@@ -97,7 +97,7 @@ int strnicmp( const char *s1, const char *s2, int n )
 #endif
 
 #ifndef _WIN32
-#ifndef __DJGPP__
+
 void strlwr( char *s1 )
 {
 	while( *s1 )	{
@@ -113,8 +113,6 @@ void strupr( char *s1 )
 		s1++;
 	}
 }
-
-#endif
 
 void strrev( char *s1 )
 {

@@ -22,31 +22,9 @@ void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h,
 void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int w, int h );
 void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline, unsigned char * data );
 
-extern void gr_set_buffer(int w, int h, int r, int (*buffer_func)());
-
-extern void gr_pal_setblock( int start, int n, unsigned char * palette );
-extern void gr_pal_getblock( int start, int n, unsigned char * palette );
-extern void gr_pal_setone( int index, unsigned char red, unsigned char green, unsigned char blue );
-
-void gr_linear_movsb( ubyte * source, ubyte * dest, int nbytes);
-void gr_linear_movsw( ubyte * source, ubyte * dest, int nbytes);
-void gr_linear_stosd( ubyte * dest, unsigned char color, unsigned int nbytes);
-
 extern unsigned int gr_var_color;
 extern unsigned int gr_var_bwidth;
 extern unsigned char * gr_var_bitmap;
-
-void gr_linear_movsd( ubyte * source, ubyte * dest, unsigned int nbytes);
-void gr_linear_rep_movsd_2x(ubyte *source, ubyte *dest, unsigned int nbytes);
-
-void gr_linear_line( int x0, int y0, int x1, int y1);
-
-extern unsigned int Table8to32[256];
-
-#ifdef __MSDOS__
-extern unsigned char * gr_video_memory;
-#endif
-
 
 #define MINX    0
 #define MINY    0
@@ -58,5 +36,3 @@ extern unsigned char * gr_video_memory;
 #define YOFFSET grd_curcanv->cv_bitmap.bm_y
 #define ROWSIZE grd_curcanv->cv_bitmap.bm_rowsize
 #define COLOR   grd_curcanv->cv_color
-
-void order( int *x1, int *x2 );

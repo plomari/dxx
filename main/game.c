@@ -29,9 +29,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <time.h>
 #include <stdbool.h>
 
-#ifdef OGL
 #include "ogl_init.h"
-#endif
 
 #include "pstypes.h"
 #include "console.h"
@@ -251,12 +249,7 @@ void init_cockpit()
 {
 	int x,y,w,h;
 
-#ifndef OGL
-	if ((SWIDTH == 320 && SHEIGHT == 200) || (GameArg.GfxHiresGFXAvailable && (SWIDTH == 640 && SHEIGHT == 480)))
-#endif
-	{
-		VR_screen_flags = VRF_ALLOW_COCKPIT;
-	}
+	VR_screen_flags = VRF_ALLOW_COCKPIT;
 
 	if ((!(VR_screen_flags & VRF_ALLOW_COCKPIT) && (PlayerCfg.CockpitMode==CM_FULL_COCKPIT || PlayerCfg.CockpitMode==CM_STATUS_BAR || PlayerCfg.CockpitMode==CM_REAR_VIEW)) || ( VR_render_mode != VR_NONE ) || ( Screen_mode == SCREEN_EDITOR ))
 		PlayerCfg.CockpitMode = CM_FULL_SCREEN;
@@ -365,9 +358,7 @@ void game_init_render_buffers(int render_w, int render_h, int render_method, int
             VR_offscreen_buffer = gr_create_canvas( render_w, render_h );
         }
 
-#ifdef OGL
 		VR_offscreen_buffer->cv_bitmap.bm_type = BM_OGL;
-#endif
 
 		gr_init_sub_canvas( &VR_render_buffer[0], VR_offscreen_buffer, 0, 0, render_w, render_h );
 		gr_init_sub_canvas( &VR_render_buffer[1], VR_offscreen_buffer, 0, 0, render_w, render_h );
@@ -390,9 +381,6 @@ int set_screen_mode(int sm)
 	if ( (Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->sc_mode != Game_screen_mode)) && !(sm==SCREEN_MENU) )
 	{
 		gr_set_current_canvas(NULL);
-#ifndef OGL
-		gr_set_draw_buffer(0);  // Set to the front buffer
-#endif
 		return 1;
 	}
 
@@ -463,10 +451,6 @@ int set_screen_mode(int sm)
 	}
 
 	gr_set_current_canvas(NULL);
-
-#ifndef OGL
-	gr_set_draw_buffer(((Screen_mode == SCREEN_GAME) && GameArg.DbgUseDoubleBuffer) ? 1 : 0); // Double buffering or 'front' buffer only
-#endif
 
 	return 1;
 }
@@ -592,52 +576,6 @@ void move_player_2_segment(segment *seg,int side)
 
 void do_photos();
 void level_with_floor();
-
-#ifndef OGL
-void save_screen_shot(int automap_flag)
-{
-	char message[100];
-	grs_canvas *screen_canv=&grd_curscreen->sc_canvas;
-	static int savenum=0;
-	grs_canvas *temp_canv,*save_canv;
-        char savename[FILENAME_LEN+sizeof(SCRNS_DIR)];
-	ubyte pal[768];
-
-	stop_time();
-
-	if (!cfexist(SCRNS_DIR))
-		PHYSFS_mkdir(SCRNS_DIR); //try making directory
-
-	save_canv = grd_curcanv;
-	temp_canv = gr_create_canvas(screen_canv->cv_bitmap.bm_w,screen_canv->cv_bitmap.bm_h);
-	gr_set_current_canvas(temp_canv);
-	gr_ubitmap(0,0,&screen_canv->cv_bitmap);
-
-	gr_set_current_canvas(save_canv);
-
-	do
-	{
-		sprintf(savename, "%sscrn%04d.pcx",SCRNS_DIR, savenum++);
-	} while (PHYSFS_exists(savename));
-	sprintf( message, "%s 'scrn%04d.pcx'", TXT_DUMPING_SCREEN, savenum-1 );
-
-	gr_set_current_canvas(NULL);
-
-	if (!automap_flag)
-		hud_message(MSGC_GAME_FEEDBACK,message);
-
-	gr_palette_read(pal);		//get actual palette from the hardware
-	pcx_write_bitmap(savename,&temp_canv->cv_bitmap,pal);
-	gr_set_current_canvas(screen_canv);
-	gr_ubitmap(0,0,&temp_canv->cv_bitmap);
-	gr_free_canvas(temp_canv);
-	gr_set_current_canvas(save_canv);
-
-	key_flush();
-	start_time();
-}
-
-#endif
 
 //initialize flying
 void fly_init(object *obj)
@@ -1158,7 +1096,7 @@ extern void do_lunacy_on(), do_lunacy_off();
 
 extern int Physics_cheat_flag,Robots_kill_robots_cheat;
 extern char BounceCheat,HomingCheat,OldHomingState[20];
-extern char AcidCheatOn,old_IntMethod, Monster_mode;
+extern char AcidCheatOn, Monster_mode;
 extern int Buddy_dude_cheat;
 
 //turns off active cheats
@@ -1173,7 +1111,6 @@ void turn_cheats_off()
 	if (AcidCheatOn)
 	{
 		AcidCheatOn=0;
-		Interpolation_method=old_IntMethod;
 	}
 
 	Buddy_dude_cheat = 0;
@@ -1221,10 +1158,6 @@ void game_setup(void)
 
 	//keyd_repeat = 0;                // Don't allow repeat in game
 	keyd_repeat = 1;                // Do allow repeat in game
-
-#ifdef __MSDOS__
-	//_MARK_("start of game");
-#endif
 
 	#ifdef EDITOR
 		if (Segments[ConsoleObject->segnum].segnum == -1)      //segment no longer exists

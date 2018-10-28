@@ -51,15 +51,9 @@ extern void timer_set_function( void _far * function );
 // 1 hr, respectively.
 
 extern fix timer_get_fixed_seconds();   // Rolls about every 9 hours...
-#ifdef __DJGPP__
-extern fix timer_get_fixed_secondsX(); // Assume interrupts already disabled
-extern fix timer_get_approx_seconds();		// Returns time since program started... accurate to 1/120th of a second
-extern void timer_set_joyhandler( void (*joy_handler)() );
-#else
 #define timer_get_fixed_secondsX timer_get_fixed_seconds
 //#define timer_get_approx_seconds timer_get_fixed_seconds
 extern fix timer_get_approx_seconds();
-#endif
 
 //NOT_USED extern unsigned int timer_get_microseconds();
 //NOT_USED extern unsigned int timer_get_milliseconds100();
@@ -72,22 +66,7 @@ void timer_delay2(int fps);
 
 //==========================================================================
 // Use to access the BIOS ticker... ie...   i = TICKER
-#ifndef __DJGPP__
 #define TICKER (timer_get_fixed_seconds())
-#endif
-
-#ifdef __DJGPP__
-
-#ifndef __GNUC__
-#define TICKER (*(volatile int *)0x46C)
-#else
-#include <go32.h>
-#include <sys/farptr.h>
-#define TICKER _farpeekl(_dos_ds, 0x46c)
-#endif
-#define USECS_PER_READING( start, stop, frames ) (((stop-start)*54945)/frames)
-#endif
-
 
 #define approx_usec_to_fsec(usec) ((usec) >> 4)
 #define approx_fsec_to_usec(fsec) ((fsec) << 4)

@@ -250,18 +250,10 @@ void draw_object_blob(object *obj,bitmap_index bmi)
 	PIGGY_PAGE_IN( bmi );
 
 	if (bm->bm_w > bm->bm_h) {
-		g3_draw_bitmap(&obj->pos,obj->size,fixmuldiv(obj->size,bm->bm_h,bm->bm_w),bm, orientation
-#ifdef OGL
-		,obj
-#endif
-		);
+		g3_draw_bitmap(&obj->pos,obj->size,fixmuldiv(obj->size,bm->bm_h,bm->bm_w),bm, orientation,obj);
 	}
 	else {
-		g3_draw_bitmap(&obj->pos,fixmuldiv(obj->size,bm->bm_w,bm->bm_h),obj->size,bm, orientation
-#ifdef OGL
-		,obj
-#endif
-		);
+		g3_draw_bitmap(&obj->pos,fixmuldiv(obj->size,bm->bm_w,bm->bm_h),obj->size,bm, orientation,obj);
 	}
 }
 
@@ -300,10 +292,6 @@ extern fix Max_thrust;
 
 //used for robot engine glow
 #define MAX_VELOCITY i2f(50)
-
-//function that takes the same parms as draw_tmap, but renders as flat poly
-//we need this to do the cloaked effect
-extern void draw_tmap_flat();
 
 //what darkening level to use when cloaked
 #define CLOAKED_FADE_LEVEL		28
@@ -407,7 +395,7 @@ void draw_cloaked_object(object *obj,fix light,fix *glow,fix cloak_start_time,fi
 	else {
 		Gr_scanline_darkening_level = cloak_value;
 		gr_setcolor(BM_XRGB(0,0,0));	//set to black (matters for s3)
-		g3_set_special_render(draw_tmap_flat,NULL,NULL);		//use special flat drawer
+		g3_set_flat_shading(true);
 		draw_polygon_model(&obj->pos,
 				   &obj->orient,
 				   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,
@@ -415,7 +403,7 @@ void draw_cloaked_object(object *obj,fix light,fix *glow,fix cloak_start_time,fi
 				   light,
 				   glow,
 				   NULL );
-		g3_set_special_render(NULL,NULL,NULL);
+		g3_set_flat_shading(false);
 		Gr_scanline_darkening_level = GR_FADE_LEVELS;
 	}
 
@@ -425,7 +413,6 @@ void draw_cloaked_object(object *obj,fix light,fix *glow,fix cloak_start_time,fi
 void draw_polygon_object(object *obj)
 {
 	fix light;
-	int	imsave;
 	fix engine_glow_value[2];		//element 0 is for engine glow, 1 for headlight
 
 	light = compute_object_light(obj,NULL);
@@ -448,10 +435,6 @@ void draw_polygon_object(object *obj)
 	if (obj->type == OBJ_MARKER)
  		light += F1_0*2;
 
-
-	imsave = Interpolation_method;
-	if (Linear_tmap_polygon_objects)
-		Interpolation_method = 1;
 
 	//set engine glow value
 	engine_glow_value[0] = f1_0/5;
@@ -524,10 +507,8 @@ void draw_polygon_object(object *obj)
 				if (obj->ctype.ai_info.behavior == AIB_SNIPE)
 					light = 2*light + F1_0;
 			}
-#ifdef OGL
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 ))
 				Gr_scanline_darkening_level = 1;
-#endif
 			draw_polygon_model(&obj->pos,
 					   &obj->orient,
 					   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
@@ -535,9 +516,7 @@ void draw_polygon_object(object *obj)
 					   light,
 					   engine_glow_value,
 					   alt_textures);
-#ifdef OGL
 			Gr_scanline_darkening_level = GR_FADE_LEVELS;
-#endif
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
 				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
@@ -552,8 +531,6 @@ void draw_polygon_object(object *obj)
 			}
 		}
 	}
-
-	Interpolation_method = imsave;
 
 }
 
@@ -1959,11 +1936,7 @@ void object_move_one( object * obj )
 
 		default:
 
-#ifdef __DJGPP__
-			Error("Unknown control type %d in object %li, sig/type/id = %i/%i/%i",obj->control_type, obj-Objects, obj->signature, obj->type, obj->id);
-#else
 			Error("Unknown control type %d in object %i, sig/type/id = %i/%i/%i",obj->control_type, (int)(obj-Objects), obj->signature, obj->type, obj->id);
-#endif
 
 			break;
 

@@ -26,34 +26,12 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "pstypes.h"
 #include "vecmat.h"
 
-/*
-#ifdef __DJGPP__
-#define ALLEGRO
-#endif
-*/
-
-#ifdef ALLEGRO
-#include "allg_snd.h"
-typedef SAMPLE digi_sound;
-#else
 typedef struct digi_sound       {
         int bits;
         int freq;
 	int length;
 	ubyte * data;
 } digi_sound;
-#endif
-
-
-
-#ifdef __DJGPP__
-extern int digi_driver_board;
-extern int digi_driver_port;
-extern int digi_driver_irq;
-extern int digi_driver_dma;
-extern int digi_midi_type;
-extern int digi_midi_port;
-#endif
 
 extern int digi_get_settings();
 extern int digi_init();

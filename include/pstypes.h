@@ -74,9 +74,6 @@ typedef unsigned int uint;
 #  define PATH_MAX 1024
 # endif
 # define FNAME_MAX 256
-#elif defined __DJGPP__
-# include <sys/types.h>
-# define FNAME_MAX 9	// excluding extension
 #elif defined(macintosh)
 # define PATH_MAX 256
 # define FNAME_MAX 32

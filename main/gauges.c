@@ -57,9 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "rle.h"
 #include "byteswap.h"
-#ifdef OGL
 #include "ogl_init.h"
-#endif
 
 //bitmap numbers for gauges
 #define GAUGE_SHIELDS			0		//0..9, in decreasing order (100%,90%...0%)
@@ -292,17 +290,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define SB_SECONDARY_BOX		(!HIRESMODE?3:7)
 
 // scaling gauges
-#ifdef OGL
 #define HUD_SCALE_X(x)		((int) ((double) (x) * (HIRESMODE?(double)grd_curscreen->sc_w/640:(double)grd_curscreen->sc_w/320) + 0.5))
 #define HUD_SCALE_Y(y)		((int) ((double) (y) * (HIRESMODE?(double)grd_curscreen->sc_h/480:(double)grd_curscreen->sc_h/200) + 0.5))
 #define HUD_SCALE_X_AR(x)	(HUD_SCALE_X(100) > HUD_SCALE_Y(100) ? HUD_SCALE_Y(x) : HUD_SCALE_X(x))
 #define HUD_SCALE_Y_AR(y)	(HUD_SCALE_Y(100) > HUD_SCALE_X(100) ? HUD_SCALE_X(y) : HUD_SCALE_Y(y))
-#else
-#define HUD_SCALE_X(x)		(x)
-#define HUD_SCALE_Y(y)		(y)
-#define HUD_SCALE_X_AR(x)	(x)
-#define HUD_SCALE_Y_AR(y)	(y)
-#endif
 
 bitmap_index Gauges[MAX_GAUGE_BMS];   // Array of all gauge bitmaps.
 bitmap_index Gauges_hires[MAX_GAUGE_BMS];   // hires gauges
@@ -710,20 +701,12 @@ span weapon_window_right_hires[] = {
 
 void hud_bitblt_free (int x, int y, int w, int h, grs_bitmap *bm)
 {
-#ifdef OGL
 	ogl_ubitmapm_cs (x,y,w,h,bm,-1,F1_0);
-#else
-	gr_ubitmapm(x, y, bm);
-#endif
 }
 
 void hud_bitblt (int x, int y, grs_bitmap *bm)
 {
-#ifdef OGL
 	ogl_ubitmapm_cs (x,y,HUD_SCALE_X (bm->bm_w),HUD_SCALE_Y (bm->bm_h),bm,-1,F1_0);
-#else
-	gr_ubitmapm(x, y, bm);
-#endif
 }
 
 void hud_show_score()
@@ -1673,14 +1656,10 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 			i++;
 		}
 	}
-#ifdef OGL
 	ogl_freebmtexture(bm);
-#endif
 	gr_init_bitmap (&deccpt, 0, 0, 0, bm->bm_w, bm->bm_h, bm->bm_w, cockpitbuf);
 	gr_set_transparent(&deccpt,1);
-#ifdef OGL
 	ogl_ubitmapm_cs (0, 0, -1, -1, &deccpt, 255, F1_0); // render one time to init the texture
-#endif
 	if (WinBoxOverlay[0] != NULL)
 		gr_free_sub_bitmap(WinBoxOverlay[0]);
 	if (WinBoxOverlay[1] != NULL)
@@ -1901,10 +1880,7 @@ void draw_numerical_display(int shield, int energy)
 	int sw,sh,saw,ew,eh,eaw;
 
 	gr_set_curfont( GAME_FONT );
-#ifndef OGL
-	PAGE_IN_GAUGE( GAUGE_NUMERICAL );
-	hud_bitblt( HUD_SCALE_X(NUMERICAL_GAUGE_X), HUD_SCALE_Y(NUMERICAL_GAUGE_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_NUMERICAL) ]);
-#endif
+
 	// cockpit is not 100% geometric so we need to divide shield and energy X position by 1.951 which should be most accurate
 	// gr_get_string_size is used so we can get the numbers finally in the correct position with sw and ew
 	gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
@@ -2155,9 +2131,6 @@ void draw_static(int win)
 	grs_bitmap *bmp;
 	int framenum;
 	int boxofs = (PlayerCfg.CockpitMode==CM_STATUS_BAR)?SB_PRIMARY_BOX:COCKPIT_PRIMARY_BOX;
-#ifndef OGL
-	int x,y;
-#endif
 
 	static_time[win] += FrameTime;
 	if (static_time[win] >= vc->play_time) {
@@ -2172,11 +2145,7 @@ void draw_static(int win)
 	bmp = &GameBitmaps[vc->frames[framenum].index];
 
 	gr_set_current_canvas(NULL);
-#ifndef OGL
-	for (x=gauge_boxes[boxofs+win].left;x<gauge_boxes[boxofs+win].right;x+=bmp->bm_w)
-		for (y=gauge_boxes[boxofs+win].top;y<gauge_boxes[boxofs+win].bot;y+=bmp->bm_h)
-			gr_bitmap(x,y,bmp);
-#else
+
 	if (HIRESMODE)
 	{
 		hud_bitblt(HUD_SCALE_X(gauge_boxes[boxofs+win].left),HUD_SCALE_Y(gauge_boxes[boxofs+win].top),bmp);
@@ -2184,8 +2153,6 @@ void draw_static(int win)
 		hud_bitblt(HUD_SCALE_X(gauge_boxes[boxofs+win].right-bmp->bm_w),HUD_SCALE_Y(gauge_boxes[boxofs+win].top),bmp);
 		hud_bitblt(HUD_SCALE_X(gauge_boxes[boxofs+win].right-bmp->bm_w),HUD_SCALE_Y(gauge_boxes[boxofs+win].bot-bmp->bm_h),bmp);
 	}
-
-#endif
 
 	gr_set_current_canvas(NULL);
 }
@@ -2414,13 +2381,11 @@ void show_reticle()
 	Assert(primary_bm_num <= 2);
 	Assert(secondary_bm_num <= 4);
 	Assert(cross_bm_num <= 1);
-#ifdef OGL // scale reticle in OGL ...
 	if (PlayerCfg.OglReticle)
 	{
 		ogl_draw_reticle(cross_bm_num,primary_bm_num,secondary_bm_num);
 	}
 	else
-#endif
 	{
 		grs_bitmap *cross, *primary, *secondary;
 

@@ -99,7 +99,6 @@ void gamefont_loadfont(int gf,int fi){
 
 void gamefont_update_screen_size(int scrx, int scry)
 {
-#ifdef OGL
 	if (!GameArg.OglFixedFont)
 	{
 		for (int gf = 0; gf < MAX_FONTS; gf++) {
@@ -124,7 +123,6 @@ void gamefont_update_screen_size(int scrx, int scry)
 				FNTScaleY = FNTScaleX;
 		}
 	}
-#endif
 }
 
 void gamefont_choose_game_font(int scrx,int scry){

@@ -29,7 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <unistd.h>
 #endif
 #include <errno.h>
-#ifdef OGL
 # ifdef _MSC_VER
 #  include <windows.h>
 # endif
@@ -39,7 +38,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <GL/gl.h>
 #endif
 #include "ogl_init.h"
-#endif
 
 #include "pstypes.h"
 #include "inferno.h"
@@ -87,9 +85,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef NETWORK
 #include "network.h"
 #endif
-#ifdef OGL
 #include "gr.h"
-#endif
 #include "physfsx.h"
 
 #define STATE_VERSION 24
@@ -165,11 +161,7 @@ void state_callback(int nitems,newmenu_item * items, int * last_key, int citem)
 			gr_set_current_canvas(temp_canv);
 			scale_bitmap(sc_bmp[citem-1], vertbuf, 0 );
 			gr_set_current_canvas( save_canv );
-#ifndef OGL
-			gr_bitmap( (grd_curcanv->cv_bitmap.bm_w-THUMBNAIL_W*2)/2,items[0].y-3, &temp_canv->cv_bitmap);
-#else
 			ogl_ubitmapm_cs((grd_curcanv->cv_bitmap.bm_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-FSPACY(3),THUMBNAIL_W*FSPACX(1),THUMBNAIL_H*FSPACY(1),&temp_canv->cv_bitmap,255,F1_0);
-#endif
 			gr_free_canvas(temp_canv);
 		}
 	}
@@ -432,9 +424,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	PHYSFS_file *fp;
 	grs_canvas * cnv;
 	ubyte *pal;
-#ifdef OGL
 	GLint gl_draw_buffer;
-#endif
 
 	Assert(between_levels == 0);	//between levels save ripped out
 
@@ -465,10 +455,8 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
 	if ( cnv )
 	{
-#ifdef OGL
 		ubyte *buf;
 		int k;
-#endif
 		grs_canvas * cnv_save;
 		cnv_save = grd_curcanv;
 
@@ -476,7 +464,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 		render_frame(0, 0);
 
-#if defined(OGL)
 		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 3);
 		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
 		glReadBuffer(gl_draw_buffer);
@@ -489,7 +476,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 				gr_find_closest_color(buf[3*i]/4, buf[3*i+1]/4, buf[3*i+2]/4);
 		}
 		d_free(buf);
-#endif
 
 		pal = gr_palette;
 

@@ -41,9 +41,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "makesig.h"
 #include "gamefont.h"
 #include "console.h"
-#ifdef OGL
 #include "ogl_init.h"
-#endif
 
 #define FONTSCALE_X(x) ((float)(x)*(FNTScaleX))
 #define FONTSCALE_Y(x) ((float)(x)*(FNTScaleY))
@@ -389,85 +387,6 @@ int gr_internal_string0m(int x, int y, char *s )
 	return 0;
 }
 
-#ifndef OGL
-//a bitmap for the character
-grs_bitmap char_bm = {
-				0,0,0,0,		//x,y,w,h
-				BM_LINEAR,		//type
-				BM_FLAG_TRANSPARENT,	//flags
-				0,			//rowsize
-				NULL,			//data
-#ifdef BITMAP_SELECTOR
-				0,			//selector
-#endif
-				0,			//avg_color
-				0			//unused
-};
-
-int gr_internal_color_string(int x, int y, char *s )
-{
-	unsigned char * fp;
-	char *text_ptr, *next_row, *text_ptr1;
-	int width, spacing,letter;
-	int xx,yy;
-
-	char_bm.bm_h = grd_curcanv->cv_font->ft_h;		//set height for chars of this font
-
-	next_row = s;
-
-	yy = y;
-
-
-	while (next_row != NULL)
-	{
-		text_ptr1 = next_row;
-		next_row = NULL;
-
-		text_ptr = text_ptr1;
-
-		xx = x;
-
-		if (xx==0x8000)			//centered
-			xx = get_centered_x(text_ptr);
-
-		while (*text_ptr)
-		{
-			if (*text_ptr == '\n' )
-			{
-				next_row = &text_ptr[1];
-				yy += grd_curcanv->cv_font->ft_h+FSPACY(1);
-				break;
-			}
-
-			letter = (unsigned char)*text_ptr - grd_curcanv->cv_font->ft_minchar;
-
-			get_char_width(text_ptr[0],text_ptr[1],&width,&spacing);
-
-			if (!INFONT(letter)) {	//not in font, draw as space
-				xx += spacing;
-				text_ptr++;
-				continue;
-			}
-
-			if (grd_curcanv->cv_font->ft_flags & FT_PROPORTIONAL)
-				fp = grd_curcanv->cv_font->ft_chars[letter];
-			else
-				fp = grd_curcanv->cv_font->ft_data + letter * BITS_TO_BYTES(width)*grd_curcanv->cv_font->ft_h;
-
-			gr_init_bitmap (&char_bm, BM_LINEAR, 0, 0, width, grd_curcanv->cv_font->ft_h, width, fp);
-			gr_bitmapm(xx,yy,&char_bm);
-
-			xx += spacing;
-
-			text_ptr++;
-		}
-
-	}
-	return 0;
-}
-
-#else //OGL
-
 int pow2ize(int x);//from ogl.c
 
 int get_font_total_width(grs_font * font){
@@ -797,8 +716,6 @@ int gr_3d_string(vms_vector *at, vms_vector *dir_x, vms_vector *dir_y, char *s )
 	return 0;
 }
 
-#endif //OGL
-
 int gr_string(int x, int y, char *s )
 {
 	int w, h, aw;
@@ -837,10 +754,8 @@ int gr_string(int x, int y, char *s )
 	}
 
 	// Partially clipped...
-#ifdef OGL
 	if (TYPE==BM_OGL)
 		return ogl_internal_string(x,y,s);
-#endif
 
 	if (grd_curcanv->cv_font->ft_flags & FT_COLOR)
 		return gr_internal_color_string( x, y, s);
@@ -853,10 +768,8 @@ int gr_string(int x, int y, char *s )
 
 int gr_ustring(int x, int y, char *s )
 {
-#ifdef OGL
 	if (TYPE==BM_OGL)
 		return ogl_internal_string(x,y,s);
-#endif
 	
 	if (grd_curcanv->cv_font->ft_flags & FT_COLOR) {
 
@@ -961,11 +874,9 @@ void gr_close_font( grs_font * font )
 
 		if ( font->ft_chars )
 			d_free( font->ft_chars );
-#ifdef OGL
 		if (font->ft_bitmaps)
 			d_free( font->ft_bitmaps );
 		gr_free_bitmap_data(&font->ft_parent_bitmap);
-#endif
 		d_free( font );
 
 
@@ -1129,9 +1040,7 @@ grs_font * gr_init_font( char * fontname )
 	grd_curcanv->cv_font_fg_color    = 0;
 	grd_curcanv->cv_font_bg_color    = 0;
 
-#ifdef OGL
 	ogl_init_font(font);
-#endif
 
 	return font;
 }
@@ -1219,13 +1128,11 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 
 	cfclose(fontfile);
 
-#ifdef OGL
 	if (font->ft_bitmaps)
 		d_free( font->ft_bitmaps );
 	gr_free_bitmap_data(&font->ft_parent_bitmap);
 
 	ogl_init_font(font);
-#endif
 }
 
 void gr_set_curfont( grs_font * new )

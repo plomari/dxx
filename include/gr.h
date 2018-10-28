@@ -68,13 +68,7 @@ typedef struct _grs_point {
 #define CC_UNDERLINE_S  "\x3"   //next char is underlined
 
 #define BM_LINEAR   0
-#define BM_MODEX    1
-#define BM_SVGA     2
-#define BM_RGB15    3   //5 bits each r,g,b stored at 16 bits
-#define BM_SVGA15   4
-#ifdef OGL
 #define BM_OGL      5
-#endif /* def OGL */
 
 #define SM(w,h) ((((u_int32_t)w)<<16)+(((u_int32_t)h)&0xFFFF))
 #define SM_W(m) (m>>16)
@@ -105,10 +99,8 @@ typedef struct _grs_bitmap {
 	unsigned short      bm_handle;  //for application.  initialized to 0
 	ubyte   avg_color;  //  Average color of all pixels in texture map.
 	uint8_t				bm_depth;	// bytes per pixel (1 or 4)
-#ifdef OGL
 	struct _ogl_texture *gltexture;
 	struct _grs_bitmap  *bm_parent;
-#endif /* def OGL */
 } grs_bitmap;
 
 #define SCRNS_DIR "screenshots/"
@@ -126,11 +118,9 @@ typedef struct _grs_font {
 	ubyte    ** ft_chars;       // Ptrs to data for each char (required for prop font)
 	short     * ft_widths;      // Array of widths (required for prop font)
 	ubyte     * ft_kerndata;    // Array of kerning triplet data
-#ifdef OGL
 	// These fields do not participate in disk i/o!
 	grs_bitmap *ft_bitmaps;
 	grs_bitmap ft_parent_bitmap;
-#endif /* def OGL */
 } grs_font;
 
 #define GRS_FONT_SIZE 28    // how much space it takes up on disk
@@ -246,8 +236,6 @@ void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src
 void gr_bm_ubitblt( int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
 
-void gr_update_buffer( void * sbuf1, void * sbuf2, void * dbuf, int size );
-
 void gr_set_transparent(grs_bitmap *pbm, int bTransparent);
 
 //=========================================================================
@@ -269,16 +257,6 @@ int gr_set_drawmode(int mode);
 // Use: gr_setcolor(int color);
 void gr_setcolor(int color);
 
-// Draw a polygon into the current canvas in the current color and drawmode.
-// verts points to an ordered list of x,y pairs.  the polygon should be
-// convex; a concave polygon will be handled in some reasonable manner,
-// but not necessarily shaded as a concave polygon. It shouldn't hang.
-// probably good solution is to shade from minx to maxx on each scan line.
-// int should really be fix
-int gr_poly(int nverts,int *verts);
-int gr_upoly(int nverts,int *verts);
-
-
 // Draws a point into the current canvas in the current color and drawmode.
 void gr_pixel(int x,int y);
 void gr_upixel(int x,int y);
@@ -291,14 +269,9 @@ unsigned char gr_ugpixel( grs_bitmap * bitmap, int x, int y );
 int gr_line(fix x0,fix y0,fix x1,fix y1);
 int gr_uline(fix x0,fix y0,fix x1,fix y1);
 
-// Draws an anti-aliased line into the current canvas in the current color and drawmode.
-int gr_aaline(fix x0,fix y0,fix x1,fix y1);
-int gr_uaaline(fix x0,fix y0,fix x1,fix y1);
-
 // Draw the bitmap into the current canvas at the specified location.
 void gr_bitmap(int x,int y,grs_bitmap *bm);
 void gr_ubitmap(int x,int y,grs_bitmap *bm);
-void gr_bitmap_scale_to(grs_bitmap *src, grs_bitmap *dst);
 void show_fullscr(grs_bitmap *bm);
 
 // bitmap function with transparency
@@ -308,10 +281,6 @@ void gr_ubitmapm( int x, int y, grs_bitmap *bm );
 // Draw a rectangle into the current canvas.
 void gr_rect(int left,int top,int right,int bot);
 void gr_urect(int left,int top,int right,int bot);
-
-// Draw a filled circle
-int gr_disk(fix x,fix y,fix r);
-int gr_udisk(fix x,fix y,fix r);
 
 // Draw an outline circle
 int gr_circle(fix x,fix y,fix r);
@@ -413,10 +382,6 @@ extern void gr_bitmap_check_transparency( grs_bitmap * bmp );
 // is a limited number of selectors available!!!
 extern int get_selector( void * address, int size, unsigned int * selector );
 
-// Assigns a selector to a bitmap. Returns 0 if successful.  BE SURE TO CHECK
-// this return value since there is a limited number of selectors!!!!!!!
-extern int gr_bitmap_assign_selector( grs_bitmap * bmp );
-
 #define BM_RGB(r,g,b) ( (((r)&31)<<10) | (((g)&31)<<5) | ((b)&31) )
 #define BM_XRGB(r,g,b) gr_find_closest_color( (r)*2,(g)*2,(b)*2 )
 
@@ -424,11 +389,6 @@ extern int gr_bitmap_assign_selector( grs_bitmap * bmp );
 // best matches the input.
 int gr_find_closest_color( int r, int g, int b );
 int gr_find_closest_color_15bpp( int rgb );
-
-extern void gr_merge_textures( ubyte * lower, ubyte * upper, ubyte * dest );
-extern void gr_merge_textures_1( ubyte * lower, ubyte * upper, ubyte * dest );
-extern void gr_merge_textures_2( ubyte * lower, ubyte * upper, ubyte * dest );
-extern void gr_merge_textures_3( ubyte * lower, ubyte * upper, ubyte * dest );
 
 extern void gr_flip(void);
 extern void gr_set_draw_buffer(int buf);

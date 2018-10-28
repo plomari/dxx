@@ -46,9 +46,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "strutil.h"
 
-#ifdef OGL
 #include "ogl_init.h"
-#endif
 
 #define VERSION_NUMBER 		1
 #define SCORES_FILENAME 	"descent.hi"
@@ -365,9 +363,7 @@ ReshowScores:
 		timer_delay2(50);
 		gr_set_current_canvas(NULL);
 		gr_flip();
-#ifdef OGL
 		nm_draw_background1(Menu_pcx_name);
-#endif
 		nm_draw_background(((SWIDTH-w)/2)-BORDERX,((SHEIGHT-h)/2)-BORDERY,((SWIDTH-w)/2)+w+BORDERX,((SHEIGHT-h)/2)+h+BORDERY);
 
 		gr_set_current_canvas(&canvas);

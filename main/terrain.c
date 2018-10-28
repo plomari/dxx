@@ -94,12 +94,9 @@ void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *
 
 	g3_check_and_draw_tmap(3,pointlist,uvl_list1,terrain_bm,NULL,NULL);
 	if (terrain_outline) {
-		int lsave=Lighting_on;
-		Lighting_on=0;
 		gr_setcolor(BM_XRGB(31,0,0));
 		g3_draw_line(pointlist[0],pointlist[1]);
 		g3_draw_line(pointlist[2],pointlist[0]);
-		Lighting_on=lsave;
 	}
 
 	pointlist[0] = p1;
@@ -114,13 +111,10 @@ void draw_cell(int i,int j,g3s_point *p0,g3s_point *p1,g3s_point *p2,g3s_point *
 
 	g3_check_and_draw_tmap(3,pointlist,uvl_list2,terrain_bm,NULL,NULL);
 	if (terrain_outline) {
-		int lsave=Lighting_on;
-		Lighting_on=0;
 		gr_setcolor(BM_XRGB(31,0,0));
 		g3_draw_line(pointlist[0],pointlist[1]);
 		g3_draw_line(pointlist[1],pointlist[2]);
 		g3_draw_line(pointlist[2],pointlist[0]);
-		Lighting_on=lsave;
 	}
 
 	if (i==org_i && j==org_j)
@@ -168,8 +162,6 @@ vms_vector *get_dy_vec(int h)
 
 }
 
-int im=1;
-
 void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 {
 	vms_vector delta_i,delta_j;		//delta_y;
@@ -193,9 +185,6 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 	//@@start_point.y = org_point->y;
 
 	memset(yc_flags,0,256);
-
-	//Lighting_on = 0;
-	Interpolation_method = im;
 
 	vm_vec_copy_scale(&tv,&surface_orient.rvec,GRID_SCALE);
 	g3_rotate_delta_vec(&delta_i,&tv);

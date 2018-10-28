@@ -37,12 +37,6 @@ extern int Max_linear_depth_objects;
 extern int Simple_model_threshhold_scale; // switch to simpler model when the object has depth greater than this value times its radius.
 extern int Max_debris_objects; // How many debris objects to create
 
-#ifdef OGL
-#define DETRIANGULATION 0
-#else
-#define DETRIANGULATION 1
-#endif
-
 extern int Clear_window;    // 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
 void render_frame(fix eye_offset, int window_num);  //draws the world into the current canvas

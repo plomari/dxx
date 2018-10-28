@@ -521,8 +521,6 @@ int chase_angles(vms_angvec *cur_angles,vms_angvec *desired_angles)
 
 void stop_endlevel_sequence()
 {
-	Interpolation_method = 0;
-
 	select_cockpit(cockpit_mode_save);
 
 	Endlevel_sequence = EL_OFF;
@@ -999,14 +997,11 @@ void render_external_scene(fix eye_offset)
 		g3_add_delta_vec(&top_pnt,&p,&delta);
 
 		if (! (p.p3_codes & CC_BEHIND)) {
-			int save_im = Interpolation_method;
 			//p.p3_flags &= ~PF_PROJECTED;
 			//g3_project_point(&p);
 			if (! (p.p3_flags & PF_OVERFLOW)) {
-				Interpolation_method = 0;
 				//gr_bitmapm(f2i(p.p3_sx)-32,f2i(p.p3_sy)-32,satellite_bitmap);
 				g3_draw_rod_tmap(satellite_bitmap,&p,SATELLITE_WIDTH,&top_pnt,SATELLITE_WIDTH,f1_0);
-				Interpolation_method = save_im;
 			}
 		}
 	}
@@ -1021,9 +1016,7 @@ void render_external_scene(fix eye_offset)
 	if (ext_expl_playing)
 		draw_fireball(&external_explosion);
 
-	Lighting_on=0;
 	render_object(ConsoleObject);
-	Lighting_on=1;
 }
 
 #define MAX_STARS 500
@@ -1065,11 +1058,7 @@ void draw_stars()
 			p.p3_flags &= ~PF_PROJECTED;
 
 			g3_project_point(&p);
-#ifndef OGL
 			gr_pixel(f2i(p.p3_sx),f2i(p.p3_sy));
-#else
-			g3_draw_sphere(&p,F1_0*3);
-#endif
 		}
 	}
 

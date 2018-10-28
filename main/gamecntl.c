@@ -435,9 +435,7 @@ int do_game_pause()
 	while (Game_paused) 
 	{
 		timer_delay2(50);
-#ifdef OGL
 		show_boxed_message(msg, 1);
-#endif
 
 		key = key_inkey();
 
@@ -1638,8 +1636,6 @@ void HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_T:
 			*Toggle_var = !*Toggle_var;
 			break;
-		case KEY_DEBUGGED + KEY_L:
-			if (++Lighting_on >= 2) Lighting_on = 0; break;
 		case KEY_DEBUGGED + KEY_SHIFTED + KEY_L:
 			Beam_brightness=0x38000-Beam_brightness; break;
 		case KEY_PAD5: slew_stop(); break;
@@ -1801,7 +1797,6 @@ void do_cheat_penalty ()
 char BounceCheat=0;
 char HomingCheat=0;
 char AcidCheatOn=0;
-char old_IntMethod;
 char OldHomingState[20];
 extern char Monster_mode;
 void load_background_bitmap();
@@ -1845,14 +1840,11 @@ void FinalCheats(int key)
 				if (AcidCheatOn)
 				{
 				 AcidCheatOn=0;
-				 Interpolation_method=old_IntMethod;
 				 HUD_init_message ("Coming down...");
 				}
 				else
 				{
 				 AcidCheatOn=1;
-				 old_IntMethod=Interpolation_method;
-				 Interpolation_method=1;
 				 HUD_init_message ("Going up!");
 				}
 

@@ -57,10 +57,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gauges.h"
 #include "internal.h"
 #include "gamemine.h"
-
-#ifdef OGL
 #include "ogl_init.h"
-#endif
 
 #define INITIAL_LOCAL_LIGHT (F1_0/4)    // local light value in segment of occurence (of light emission)
 
@@ -69,11 +66,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 // (former) "detail level" values
-#ifdef OGL
 int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
-#else
-int Render_depth = 20; //how many segments deep to render
-#endif
 int Max_perspective_depth = 8; // Deepest segment at which perspective interpolation will be used.
 int Max_linear_depth = 50; // Deepest segment at which linear interpolation will be used.
 int Max_linear_depth_objects = 20;
@@ -218,9 +211,7 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 {
 	// -- Using new headlight system...fix			face_light;
 	grs_bitmap  *bm;
-#ifdef OGL
 	grs_bitmap  *bm2 = NULL;
-#endif
 
 	fix			reflect;
 	g3s_uvl			uvl_copy[8];
@@ -260,7 +251,6 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 		Segments[segnum].sides[sidenum].tmap_num = 0;
 	}
 
-#ifdef OGL
 	if (GameArg.DbgAltTexMerge){
 		PIGGY_PAGE_IN(Textures[tmap1]);
 		bm = &GameBitmaps[Textures[tmap1].index];
@@ -273,7 +263,6 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 			bm2 = NULL;
 		}
 	}else
-#endif
 
 		// New code for overlapping textures...
 		if (tmap2 != 0) {
@@ -330,11 +319,9 @@ void render_face(int segnum, int sidenum, int nv, short *vp, int tmap1, int tmap
 	else
 #endif
 
-#ifdef OGL
 		if (bm2){
 			g3_draw_tmap_2(nv,pointlist,uvl_copy,bm,bm2,((tmap2&0xC000)>>14) & 3);
 		}else
-#endif
 			g3_draw_tmap(nv,pointlist,uvl_copy,bm);
 
 	if (Outline_mode) draw_outline(nv, pointlist);
@@ -354,7 +341,6 @@ void check_face(int segnum, int sidenum, int facenum, int nv, short *vp, int tma
 	int	i;
 
 	if (_search_mode) {
-		int save_lighting;
 		grs_bitmap *bm;
 		g3s_uvl uvl_copy[8];
 		g3s_point *pointlist[4];
@@ -374,11 +360,8 @@ void check_face(int segnum, int sidenum, int facenum, int nv, short *vp, int tma
 		gr_setcolor(0);
 		gr_pixel(_search_x,_search_y);	//set our search pixel to color zero
 		gr_setcolor(1);					//and render in color one
- save_lighting = Lighting_on;
- Lighting_on = 2;
-		//g3_draw_poly(nv,vp);
+ 		//g3_draw_poly(nv,vp);
 		g3_draw_tmap(nv,pointlist, uvl_copy, bm);
- Lighting_on = save_lighting;
 
 		if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) == 1) {
 			found_seg = segnum;
@@ -811,20 +794,7 @@ void render_side(segment *segp, int sidenum)
 			max_dot = v_dot_n0;
 		}
 
-		//	Determine whether to detriangulate side: (speed hack, assumes Tulate_min_ratio == F1_0*2, should fixmul(min_dot, Tulate_min_ratio))
-		if (DETRIANGULATION && ((min_dot+F1_0/256 > max_dot) || ((Viewer->segnum != segp-Segments) &&  (min_dot > Tulate_min_dot) && (max_dot < min_dot*2)))) {
-			fix	n0_dot_n1;
-
-			//	The other detriangulation code doesn't deal well with badly non-planar sides.
-			n0_dot_n1 = vm_vec_dot(&normals[0], &normals[1]);
-			if (n0_dot_n1 < Min_n0_n1_dot)
-				goto im_so_ashamed;
-
-			render_face(segp-Segments, sidenum, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
-			#ifdef EDITOR
-			check_face(segp-Segments, sidenum, 0, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
-			#endif
-		} else {
+		{
 im_so_ashamed: ;
 			if (sidep->type == SIDE_IS_TRI_02) {
 				if (v_dot_n0 >= 0) {
@@ -860,11 +830,7 @@ im_so_ashamed: ;
 				}
 
 			} else
-#ifdef __DJGPP__
-				Error("Illegal side type in render_side, type = %i, segment # = %li, side # = %i\n", sidep->type, segp-Segments, sidenum);
-#else
 				Error("Illegal side type in render_side, type = %i, segment # = %i, side # = %i\n", sidep->type, (int)(segp-Segments), sidenum);
-#endif
 		}
 	}
 
@@ -1258,7 +1224,6 @@ char visited2[MAX_SEGMENTS];
 unsigned char visited[MAX_SEGMENTS];
 short Render_list[MAX_RENDER_SEGS];
 int Render_sky_seg;
-short Seg_depth[MAX_RENDER_SEGS];		//depth for each seg in Render_list
 ubyte processed[MAX_RENDER_SEGS];		//whether each entry has been processed
 int	lcnt_save,scnt_save;
 //@@short *persp_ptr;
@@ -1853,7 +1818,6 @@ void build_segment_list(int start_seg_num, int window_num)
 	lcnt = scnt = 0;
 
 	Render_list[lcnt] = start_seg_num; visited[start_seg_num]=1;
-	Seg_depth[lcnt] = 0;
 	lcnt++;
 	ecnt = lcnt;
 	render_pos[start_seg_num] = 0;
@@ -2037,7 +2001,6 @@ void build_segment_list(int start_seg_num, int window_num)
 
 							render_pos[ch] = lcnt;
 							Render_list[lcnt] = ch;
-							Seg_depth[lcnt] = l;
 							lcnt++;
 							if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
 							visited[ch] = 1;
@@ -2053,7 +2016,6 @@ no_add:
 					}
 					else {
 						Render_list[lcnt] = ch;
-						Seg_depth[lcnt] = l;
 						lcnt++;
 						if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
 						visited[ch] = 1;
@@ -2186,9 +2148,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		int segnum;
 		int objnp;
 
-		// Interpolation_method = 0;
 		segnum = Render_list[nn];
-		Current_seg_depth = Seg_depth[nn];
 
 		//if (!no_render_flag[nn])
 		if (segnum!=-1 && (_search_mode || visited[segnum]!=255)) {

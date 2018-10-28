@@ -7,18 +7,15 @@ common_sources = [
     '2d/box.c',
     '2d/canvas.c',
     '2d/circle.c',
-    '2d/disc.c',
     '2d/font.c',
     '2d/gpixel.c',
     '2d/line.c',
     '2d/palette.c',
     '2d/pcx.c',
     '2d/pixel.c',
-    '2d/poly.c',
     '2d/rect.c',
     '2d/rle.c',
     '2d/scalec.c',
-    '3d/clipper.c',
     '3d/draw.c',
     '3d/globvars.c',
     '3d/instance.c',
@@ -123,8 +120,6 @@ common_sources = [
     'misc/hash.c',
     'misc/strio.c',
     'misc/strutil.c',
-    'texmap/ntmap.c',
-    'texmap/scanline.c'
 ]
 
 editor_sources = [
@@ -211,17 +206,10 @@ arch_sdl_sources = [
 ]
 
 asm_sources = [
-    '2d/linear.asm',
-    '2d/tmerge_a.asm',
     'maths/fix.asm',
     'maths/rand.c',
     'maths/vecmat.c',
     'maths/vecmata.asm',
-    'texmap/tmap_ll.asm',
-    'texmap/tmap_flt.asm',
-    'texmap/tmapfade.asm',
-    'texmap/tmap_lin.asm',
-    'texmap/tmap_per.asm'
 ]
 
 noasm_sources = [

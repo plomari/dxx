@@ -25,10 +25,8 @@ extern int strnicmp(const char *str1, const char *str2, int n);
 #endif
 
 #ifndef _WIN32
-#ifndef __DJGPP__
 void strupr( char *s1 );
 void strlwr( char *s1 );
-#endif
 
 void strrev( char *s1 );
 #endif

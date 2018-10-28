@@ -88,7 +88,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "collide.h"
 #include "newdemo.h"
 #include "joy.h"
-#include "../texmap/scanline.h" //for select_tmap -MM
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -164,9 +163,7 @@ void print_commandline_help()
 	printf( "  -lowresgraphics    %s\n", "Force to use LowRes graphics");
 	printf( "  -lowresmovies      %s\n", "Play low resolution movies if available (for slow machines)");
 	printf( "  -subtitles         %s\n", "Turn on movie subtitles");
-#ifdef    OGL
 	printf( "  -gl_fixedfont      %s\n", "Do not scale fonts to current resolution");
-#endif // OGL
 
 #ifdef    NETWORK
 	printf( "\n Multiplayer:\n\n");
@@ -192,16 +189,10 @@ void print_commandline_help()
 	printf( "  -norun             %s\n", "Bail out after initialization");
 	printf( "  -renderstats       %s\n", "Enable renderstats info by default");
 	printf( "  -text <s>          %s\n", "Specify alternate .tex file");
-	printf( "  -tmap <s>          %s\n", "Select texmapper to use (c,fp,quad,i386,pent,ppro)");
 	printf( "  -showmeminfo       %s\n", "Show memory statistics");
 	printf( "  -nodoublebuffer    %s\n", "Disable Doublebuffering");
 	printf( "  -bigpig            %s\n", "Use uncompressed RLE bitmaps");
-#ifdef    OGL
 	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
-#else
-	printf( "  -hwsurface         %s\n", "Use SDL HW Surface");
-	printf( "  -asyncblit         %s\n", "Use queued blits over SDL. Can speed up rendering");
-#endif
 
 	printf( "\n Help:\n\n");
 	printf( "  -help, -h, -?, ?   %s\n", "View this help screen");
@@ -288,10 +279,6 @@ int main(int argc, char *argv[])
 	freopen( "CON", "w", stdout );
 	freopen( "CON", "w", stderr );
 #endif
-
-	select_tmap(GameArg.DbgTexMap);
-
-	Lighting_on = 1;
 
 	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
 	gr_set_mode(Game_screen_mode);

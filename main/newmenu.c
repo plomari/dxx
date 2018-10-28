@@ -63,10 +63,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "playsave.h"
 #include "automap.h"
 #include "rbaudio.h"
-
-#ifdef OGL
 #include "ogl_init.h"
-#endif
 
 int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, void (*subfunction)(int nitems,newmenu_item * items, int * last_key, int citem), int citem, char * filename, int width, int height, int TinyMode );
 void show_extra_netgame_info(int choice);
@@ -820,9 +817,7 @@ int newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item,
 		gr_flip();
 
 		gr_set_current_canvas( NULL );
-#ifdef OGL
 		nm_draw_background1(filename);
-#endif
 		if (filename == NULL)
 			nm_draw_background(x-(IsScrollBox?FSPACX(5):0),y,x+w,y+h);
 
@@ -1678,9 +1673,7 @@ ReadFileNames:
 		ocitem = citem;
 		ofirst_item = first_item;
 		gr_flip();
-#ifdef OGL
 		nm_draw_background1(NULL);
-#endif
 		nm_draw_background( box_x-BORDERX,box_y-title_height-BORDERY,box_x+box_w+BORDERX,box_y+height+BORDERY );
 		gr_set_curfont(MEDIUM3_FONT);
 		gr_string( 0x8000, box_y - title_height, title );
@@ -2033,9 +2026,7 @@ int newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_
 	while(!done)	{
 		timer_delay2(50);
 		gr_flip();
-#ifdef OGL
 		nm_draw_background1(NULL);
-#endif
 		nm_draw_background( box_x-BORDERX,box_y-title_height-BORDERY,box_x+box_w+BORDERX,box_y+height+BORDERY );
 		gr_set_curfont(MEDIUM3_FONT);
 		gr_string( 0x8000, box_y - title_height, title );
