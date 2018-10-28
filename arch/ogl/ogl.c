@@ -79,8 +79,6 @@ int GL_TEXTURE_2D_enabled=-1;
 int GL_texclamp_enabled=-1;
 
 int r_texcount = 0, r_cachedtexcount = 0;
-int ogl_rgba_internalformat = GL_RGBA8;
-int ogl_rgb_internalformat = GL_RGB8;
 int sphereh=0;
 int cross_lh[2]={0,0};
 int primary_lh[3]={0,0,0};
@@ -109,52 +107,8 @@ void ogl_do_palfx(void);
 void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 {
 	t->handle = 0;
-	if (flags & OGL_FLAG_NOCOLOR)
-	{
-		// use GL_INTENSITY instead of GL_RGB
-		if (flags & OGL_FLAG_ALPHA)
-		{
-			if (GameArg.DbgGlIntensity4Ok)
-			{
-				t->internalformat = GL_INTENSITY4;
-				t->format = GL_LUMINANCE;
-			}
-			else if (GameArg.DbgGlLuminance4Alpha4Ok)
-			{
-				t->internalformat = GL_LUMINANCE4_ALPHA4;
-				t->format = GL_LUMINANCE_ALPHA;
-			}
-			else if (GameArg.DbgGlRGBA2Ok)
-			{
-				t->internalformat = GL_RGBA2;
-				t->format = GL_RGBA;
-			}
-			else
-			{
-				t->internalformat = ogl_rgba_internalformat;
-				t->format = GL_RGBA;
-			}
-		}
-		else
-		{
-			// there are certainly smaller formats we could use here, but nothing needs it ATM.
-			t->internalformat = ogl_rgb_internalformat;
-			t->format = GL_RGB;
-		}
-	}
-	else
-	{
-		if (flags & OGL_FLAG_ALPHA)
-		{
-			t->internalformat = ogl_rgba_internalformat;
-			t->format = GL_RGBA;
-		}
-		else
-		{
-			t->internalformat = ogl_rgb_internalformat;
-			t->format = GL_RGB;
-		}
-	}
+	t->internalformat = GL_RGBA8;
+	t->format = GL_RGBA;
 	t->wrapstate = -1;
 	t->lw = t->w = w;
 	t->h = h;
@@ -1052,84 +1006,24 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 
 			if (c == 254 && (bm_flags & BM_FLAG_SUPER_TRANSPARENT))
 			{
-				switch (type)
-				{
-					case GL_LUMINANCE_ALPHA:
-						(*(texp++)) = 255;
-						(*(texp++)) = 0;
-						break;
-					case GL_RGBA:
-						(*(texp++)) = 255;
-						(*(texp++)) = 255;
-						(*(texp++)) = 255;
-						(*(texp++)) = 0; // transparent pixel
-						break;
-					case GL_COLOR_INDEX:
-						(*(texp++)) = c;
-						break;
-					default:
-						Error("ogl_filltexbuf unhandled super-transparent texformat\n");
-						break;
-				}
+				(*(texp++)) = 255;
+				(*(texp++)) = 255;
+				(*(texp++)) = 255;
+				(*(texp++)) = 0; // transparent pixel
 			}
 			else if ((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256)
 			{
-				switch (type){
-					case GL_LUMINANCE:
-						(*(texp++))=0;
-						break;
-					case GL_LUMINANCE_ALPHA:
-						(*(texp++))=0;
-						(*(texp++))=0;
-						break;
-					case GL_RGB:
-						(*(texp++)) = 0;
-						(*(texp++)) = 0;
-						(*(texp++)) = 0;
-						break;
-					case GL_RGBA:
-						(*(texp++))=0;
-						(*(texp++))=0;
-						(*(texp++))=0;
-						(*(texp++))=0;//transparent pixel
-						break;
-					case GL_COLOR_INDEX:
-						(*(texp++)) = c;
-						break;
-					default:
-						Error("ogl_filltexbuf unknown texformat\n");
-						break;
-				}
+				(*(texp++))=0;
+				(*(texp++))=0;
+				(*(texp++))=0;
+				(*(texp++))=0;//transparent pixel
 			}
 			else
 			{
-				switch (type)
-				{
-					case GL_LUMINANCE://these could prolly be done to make the intensity based upon the intensity of the resulting color, but its not needed for anything (yet?) so no point. :)
-						(*(texp++))=255;
-						break;
-					case GL_LUMINANCE_ALPHA:
-						(*(texp++))=255;
-						(*(texp++))=255;
-						break;
-					case GL_RGB:
-						(*(texp++)) = ogl_pal[c * 3] * 4;
-						(*(texp++)) = ogl_pal[c * 3 + 1] * 4;
-						(*(texp++)) = ogl_pal[c * 3 + 2] * 4;
-						break;
-					case GL_RGBA:
-						(*(texp++))=ogl_pal[c*3]*4;
-						(*(texp++))=ogl_pal[c*3+1]*4;
-						(*(texp++))=ogl_pal[c*3+2]*4;
-						(*(texp++))=255;//not transparent
-						break;
-					case GL_COLOR_INDEX:
-						(*(texp++)) = c;
-						break;
-					default:
-						Error("ogl_filltexbuf unknown texformat\n");
-						break;
-				}
+				(*(texp++))=ogl_pal[c*3]*4;
+				(*(texp++))=ogl_pal[c*3+1]*4;
+				(*(texp++))=ogl_pal[c*3+2]*4;
+				(*(texp++))=255;//not transparent
 			}
 		}
 	}
