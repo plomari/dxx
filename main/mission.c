@@ -262,7 +262,7 @@ char *get_parm_value(char *parm,CFILE *f)
 {
 	static char buf[80];
 
-	if (!cfgets(buf,80,f))
+	if (!cfgets(buf,sizeof(buf),f))
 		return NULL;
 
 	if (istok(buf,parm))
@@ -683,7 +683,7 @@ int load_mission(mle *mission)
 	Briefing_text_filename[0] = 0;
 	Ending_text_filename[0] = 0;
 
-	while (cfgets(buf,80,mfile)) {
+	while (cfgets(buf,sizeof(buf),mfile)) {
 		if (istok(buf,"name") && !Current_mission->enhanced) {
 			Current_mission->enhanced = 0;
 			continue;						//already have name, go to next line
@@ -736,7 +736,7 @@ int load_mission(mle *mission)
 				n_levels = atoi(v);
 
 				for (i=0;i<n_levels;i++) {
-					cfgets(buf,80,mfile);
+					cfgets(buf,sizeof(buf),mfile);
 					add_term(buf);
 					if (strlen(buf) <= 12) {
 						strcpy(Level_names[i],buf);
@@ -759,7 +759,7 @@ int load_mission(mle *mission)
 				for (i=0;i<N_secret_levels;i++) {
 					char *t;
 
-					cfgets(buf,80,mfile);
+					cfgets(buf,sizeof(buf),mfile);
 					if ((t=strchr(buf,','))!=NULL) *t++=0;
 					else
 						break;
