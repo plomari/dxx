@@ -95,7 +95,6 @@ int ogl_texture_list_cur;
 
 /* some function prototypes */
 
-#define GL_TEXTURE0_ARB 0x84C0
 extern GLubyte *pixels;
 extern GLubyte *texbuf;
 void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format);
@@ -883,7 +882,6 @@ static void glhPerspectivef2(float fovyInDegrees, float aspectRatio,
                       float znear, float zfar)
 {
     float ymax, xmax;
-    float temp, temp2, temp3, temp4;
     ymax = znear * tanf(fovyInDegrees * M_PI / 360.0);
     // ymin = -ymax;
     // xmin = -ymax * aspectRatio;
@@ -1285,7 +1283,6 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 
 bool ogl_ubitmapm_3d(vms_vector *p, vms_vector *dx, vms_vector *dy, grs_bitmap *bm,int c)
 {
-	GLfloat xo,yo,xf,yf;
 	GLfloat u1,u2,v1,v2;
 
 	static const int rc_x[4] = {0, 1, 1, 0};
