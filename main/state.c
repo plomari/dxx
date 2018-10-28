@@ -217,7 +217,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption )
 				PHYSFS_read(fp, &version, sizeof(int), 1);
 				if (version >= STATE_COMPATIBLE_VERSION) {
 					// Read description
-					PHYSFS_read(fp, desc[i], sizeof(char) * DESC_LENGTH, 1);
+					cfile_read_fixed_str(fp, DESC_LENGTH, desc[i]);
 					//rpad_string( desc[i], DESC_LENGTH-1 );
 					if (dsc == NULL) m[i+1].type = NM_TYPE_MENU;
 					// Read thumbnail
@@ -453,7 +453,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	PHYSFS_write(fp, &i, sizeof(int), 1);
 
 //Save description
-	PHYSFS_write(fp, desc, sizeof(char) * DESC_LENGTH, 1);
+	cfile_write_fixed_str(fp, DESC_LENGTH, desc);
 	
 // Save the current screen shot...
 
@@ -811,7 +811,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	}
 
 // Read description
-	PHYSFS_read(fp, desc, sizeof(char) * DESC_LENGTH, 1);
+	cfile_read_fixed_str(fp, DESC_LENGTH, desc);
 
 // Skip the current screen shot...
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + THUMBNAIL_W * THUMBNAIL_H);
