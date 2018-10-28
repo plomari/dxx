@@ -142,11 +142,21 @@ void fuelcen_create( segment *segp)
 	case SEGMENT_IS_LAVA:
 	case SEGMENT_IS_TEAM_BLUE:
 	case SEGMENT_IS_TEAM_RED:
+		break;
 	case SEGMENT_IS_SPEEDBOOST:
+		printf("D2X-XL: ignoring speedboost segment\n");
+		break;
 	case SEGMENT_IS_BLOCKED:
+		printf("D2X-XL: ignoring blocked segment\n");
+		break;
 	case SEGMENT_IS_NODAMAGE:
+		printf("D2X-XL: ignoring nodamage segment\n");
+		break;
 	case SEGMENT_IS_SKYBOX:
+		break;
 	case SEGMENT_IS_EQUIPMAKER:
+		printf("D2X-XL: ignoring equipmaker segment\n");
+		break;
 	case SEGMENT_IS_LIGHT_SELF:
 		break;
 	default:
