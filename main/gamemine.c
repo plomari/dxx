@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 fix Level_shake_frequency = 0, Level_shake_duration = 0;
 int Secret_return_segment = 0;
 vms_matrix Secret_return_orient;
+int Sky_box_segment = -1;
 
 #ifdef EDITOR
 struct mtfi mine_top_fileinfo; // Should be same as first two fields below...

@@ -56,6 +56,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "gauges.h"
 #include "internal.h"
+#include "gamemine.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -1256,6 +1257,7 @@ char visited2[MAX_SEGMENTS];
 
 unsigned char visited[MAX_SEGMENTS];
 short Render_list[MAX_RENDER_SEGS];
+int Render_sky_seg;
 short Seg_depth[MAX_RENDER_SEGS];		//depth for each seg in Render_list
 ubyte processed[MAX_RENDER_SEGS];		//whether each entry has been processed
 int	lcnt_save,scnt_save;
@@ -1837,6 +1839,8 @@ void build_segment_list(int start_seg_num, int window_num)
 	int	l,c;
 	int	ch;
 
+	Render_sky_seg = -1;
+
 	memset(visited, 0, sizeof(visited[0])*(Highest_segment_index+1));
 	memset(render_pos, -1, sizeof(render_pos[0])*(Highest_segment_index+1));
 	//memset(no_render_flag, 0, sizeof(no_render_flag[0])*(MAX_RENDER_SEGS));
@@ -1921,6 +1925,8 @@ void build_segment_list(int start_seg_num, int window_num)
 
 					}
 					child_list[n_children++] = c;
+				} else if (ch < 0 && wall_check_transparency(seg, c)) {
+					Render_sky_seg = Sky_box_segment;
 				}
 			}
 
@@ -2172,6 +2178,9 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 			}
 		}
 	}
+
+	if (Render_sky_seg >= 0)
+		render_segment(Render_sky_seg, window_num);
 
 	for (nn=N_render_segs;nn--;) {
 		int segnum;

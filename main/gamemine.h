@@ -126,6 +126,7 @@ extern short tmap_xlate_table[];
 extern fix Level_shake_frequency, Level_shake_duration;
 extern int Secret_return_segment;
 extern vms_matrix Secret_return_orient;
+extern int Sky_box_segment;
 
 #define TMAP_NUM_MASK 0x3FFF
 

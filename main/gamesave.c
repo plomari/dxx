@@ -1288,6 +1288,16 @@ int load_game_data(CFILE *LoadFile)
 
 	fix_object_segs();
 
+	Sky_box_segment = -1;
+	if (Gamesave_current_version >= GAMESAVE_D2X_XL_VERSION) {
+		for (int segnum = 0; segnum <= Highest_segment_index; segnum++) {
+			if (Segment2s[segnum].special == SEGMENT_IS_SKYBOX) {
+				Sky_box_segment = segnum;
+				break;
+			}
+		}
+	}
+
 	#ifndef NDEBUG
 	dump_mine_info();
 	#endif
