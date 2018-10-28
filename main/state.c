@@ -117,6 +117,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // 23- extend object count and make it dynamic (for segments too)
 // 24- save Missile_gun, and D2X-XL spawn position
 
+// Things to change on next incompatible savegame change:
+// - add a way to save/restore objects in a backward/forward compatible way
+// - merge Segment2s back into Segment
+// - extend D2X-XL fields (especially Segment func/props ones)
+
 #define NUM_SAVES 10
 #define THUMBNAIL_W 100
 #define THUMBNAIL_H 50
