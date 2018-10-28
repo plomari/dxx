@@ -141,7 +141,7 @@ void autodemo_menu_check(int nitems, newmenu_item * items, int *last_key, int ci
 	if (*last_key==KEY_ESC) *last_key = 0;
 
 	curtime = timer_get_approx_seconds();
-	if ( keyd_time_when_last_pressed+i2f(25) < curtime || GameArg.SysAutoDemo  )
+	if ( keyd_time_when_last_pressed+i2f(25) < curtime && GameArg.SysAutoDemo  )
 	{
 		int n_demos;
 		n_demos = newdemo_count_demos();

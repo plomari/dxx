@@ -139,7 +139,7 @@ void print_commandline_help()
 	printf( "  -use_players_dir   %s\n", "put player files and saved games in Players subdirectory");
 	printf( "  -lowmem            %s\n", "Lowers animation detail for better performance with low memory");
 	printf( "  -pilot <s>         %s\n", "Select this pilot automatically");
-	printf( "  -autodemo          %s\n", "Start in demo mode");
+	printf( "  -autodemo          %s\n", "Play demo after inactivity in main menu");
 	printf( "  -window            %s\n", "Run the game in a window");
 	printf( "  -nomovies          %s\n", "Don't play movies");
 	printf( "  -noredundancy      %s\n", "Do not send messages when picking up redundant items");
