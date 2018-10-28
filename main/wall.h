@@ -49,6 +49,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WALL_ILLUSION_OFF       32  // Illusionary wall is shut off.
 #define WALL_WALL_SWITCH        64  // This wall is openable by a wall switch.
 #define WALL_BUDDY_PROOF        128 // Buddy assumes he cannot get through this wall.
+// D2X-XL
+#define WALL_IGNORE_MARKER		256
 
 // Wall states
 #define WALL_DOOR_CLOSED        0       // Door is closed
