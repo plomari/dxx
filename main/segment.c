@@ -14,6 +14,27 @@
 #include "cfile.h"
 #include "gamesave.h"
 
+static int map_new_d2x_xl_seg_function(int val)
+{
+	switch (val) {
+	case SEGMENT_FUNC_NONE:				return SEGMENT_IS_NOTHING;
+	case SEGMENT_FUNC_FUELCENTER:		return SEGMENT_IS_FUELCEN;
+	case SEGMENT_FUNC_REPAIRCENTER:		return SEGMENT_IS_REPAIRCEN;
+	case SEGMENT_FUNC_REACTOR:			return SEGMENT_IS_CONTROLCEN;
+	case SEGMENT_FUNC_ROBOTMAKER:		return SEGMENT_IS_ROBOTMAKER;
+	case SEGMENT_FUNC_GOAL_BLUE:		return SEGMENT_IS_GOAL_BLUE;
+	case SEGMENT_FUNC_GOAL_RED:			return SEGMENT_IS_GOAL_RED;
+	case SEGMENT_FUNC_TEAM_BLUE:		return SEGMENT_IS_TEAM_BLUE;
+	case SEGMENT_FUNC_TEAM_RED:			return SEGMENT_IS_TEAM_RED;
+	case SEGMENT_FUNC_SPEEDBOOST:		return SEGMENT_IS_SPEEDBOOST;
+	case SEGMENT_FUNC_SKYBOX:			return SEGMENT_IS_SKYBOX;
+	case SEGMENT_FUNC_EQUIPMAKER:		return SEGMENT_IS_EQUIPMAKER;
+	default:
+		printf("D2X-XL: warning: unknown m_function==%d\n", val);
+		return 0;
+	}
+}
+
 /*
  * reads a segment2 structure from a CFILE
  */
@@ -41,9 +62,30 @@ void segment2_read(segment2 *s2, CFILE *fp)
 	s2->s2_flags = cfile_read_byte(fp);
 	if (Gamesave_current_version > 20) {
 		// D2X stuff
-		cfile_read_byte(fp); // m_props
+		int props = cfile_read_byte(fp);
 		cfile_read_short(fp); // m_xDamage [0]
 		cfile_read_short(fp); // m_xDamage [1]
+		// See d2x-xl source code CSegment::Upgrade(). Internally, D2X-XL just
+		// stores m_props and m_function, which are derived from s2->special.
+		// For older file formats, it maps them from s2->special. We don't have
+		// separate m_props/m_function, so we do the _reverse_. We essentially
+		// ignore m_props anyway, so the main thing we need to do is to map
+		// back D2X-XL's "new" m_function to the old values.
+		s2->special = map_new_d2x_xl_seg_function(s2->special);
+		if (props & SEGMENT_PROP_NODAMAGE) {
+			if (s2->special) {
+				printf("D2X-XL: discarding NODAMAGE (function already used)\n");
+			} else {
+				s2->special = SEGMENT_IS_NODAMAGE;
+			}
+		}
+		if (props & SEGMENT_PROP_BLOCKED) {
+			if (s2->special) {
+				printf("D2X-XL: discarding BLOCKED (function already used)\n");
+			} else {
+				s2->special = SEGMENT_IS_BLOCKED;
+			}
+		}
 	}
 	s2->static_light = cfile_read_fix(fp);
 }

@@ -154,6 +154,29 @@ typedef struct segment2 {
 #define SEGMENT_IS_LIGHT_SELF	16
 #define MAX_CENTER_TYPES        17
 
+// D2X-XL (rl2 level versions 21 and higher)
+#define SEGMENT_FUNC_NONE			0
+#define SEGMENT_FUNC_FUELCENTER		1
+#define SEGMENT_FUNC_REPAIRCENTER	2
+#define SEGMENT_FUNC_REACTOR		3
+#define SEGMENT_FUNC_ROBOTMAKER		4
+#define SEGMENT_FUNC_GOAL_BLUE		5
+#define SEGMENT_FUNC_GOAL_RED		6
+#define SEGMENT_FUNC_TEAM_BLUE		7
+#define SEGMENT_FUNC_TEAM_RED		8
+#define SEGMENT_FUNC_SPEEDBOOST		9
+#define SEGMENT_FUNC_SKYBOX			10
+#define SEGMENT_FUNC_EQUIPMAKER		11
+#define MAX_SEGMENT_FUNCTIONS		12
+#define SEGMENT_PROP_NONE			0
+#define SEGMENT_PROP_WATER			1
+#define SEGMENT_PROP_LAVA			2
+#define SEGMENT_PROP_BLOCKED		4
+#define SEGMENT_PROP_NODAMAGE		8
+#define SEGMENT_PROP_OUTDOORS		16
+#define SEGMENT_PROP_LIGHT_FOG		32
+#define SEGMENT_PROP_DENSE_FOG		64
+
 #ifdef COMPACT_SEGS
 extern void get_side_normal(segment *sp, int sidenum, int normal_num, vms_vector * vm );
 extern void get_side_normals(segment *sp, int sidenum, vms_vector * vm1, vms_vector *vm2 );
