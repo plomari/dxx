@@ -198,12 +198,6 @@ void print_commandline_help()
 	printf( "  -bigpig            %s\n", "Use uncompressed RLE bitmaps");
 #ifdef    OGL
 	printf( "  -gl_oldtexmerge    %s\n", "Use old texmerge, uses more ram, but _might_ be a bit faster");
-	printf( "  -gl_16bpp          %s\n", "Use 16Bpp Color Depth");
-	printf( "  -gl_intensity4_ok <n> %s\n", "Override DbgGlIntensity4Ok - Default: 1");
-	printf( "  -gl_luminance4_alpha4_ok <n> %s\n", "Override DbgGlLuminance4Alpha4Ok - Default: 1");
-	printf( "  -gl_rgba2_ok <n>   %s\n", "Override DbgGlRGBA2Ok - Default: 1");
-	printf( "  -gl_readpixels_ok <n> %s\n", "Override DbgGlReadPixelsOk - Default: 1");
-	printf( "  -gl_gettexlevelparam_ok <n> %s\n", "Override DbgGlGetTexLevelParamOk - Default: 1");
 #else
 	printf( "  -hwsurface         %s\n", "Use SDL HW Surface");
 	printf( "  -asyncblit         %s\n", "Use queued blits over SDL. Can speed up rendering");

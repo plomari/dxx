@@ -241,27 +241,6 @@ static void ogl_get_verinfo(void)
 	dglMultiTexCoord2fSGIS = (glMultiTexCoord2fSGIS_fp)wglGetProcAddress("glMultiTexCoord2fSGIS");
 	dglSelectTextureSGIS = (glSelectTextureSGIS_fp)wglGetProcAddress("glSelectTextureSGIS");
 #endif
-
-	//add driver specific hacks here.  whee.
-	if ((stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.0\n")==0 || stricmp(gl_renderer,"Mesa NVIDIA RIVA 1.2\n")==0) && stricmp(gl_version,"1.2 Mesa 3.0")==0)
-	{
-		GameArg.DbgGlIntensity4Ok=0;//ignores alpha, always black background instead of transparent.
-		GameArg.DbgGlReadPixelsOk=0;//either just returns all black, or kills the X server entirely
-		GameArg.DbgGlGetTexLevelParamOk=0;//returns random data..
-	}
-	if (stricmp(gl_vendor,"Matrox Graphics Inc.")==0)
-	{
-		//displays garbage. reported by
-		//  redomen@crcwnet.com (render="Matrox G400" version="1.1.3 5.52.015")
-		//  orulz (Matrox G200)
-		GameArg.DbgGlIntensity4Ok=0;
-	}
-#ifdef macintosh
-	if (stricmp(gl_renderer,"3dfx Voodoo 3")==0) // strangely, includes Voodoo 2
-		GameArg.DbgGlGetTexLevelParamOk=0; // Always returns 0
-#endif
-
-	con_printf(CON_VERBOSE, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n", GameArg.DbgGlIntensity4Ok, GameArg.DbgGlLuminance4Alpha4Ok, GameArg.DbgGlRGBA2Ok, GameArg.DbgGlReadPixelsOk, GameArg.DbgGlGetTexLevelParamOk);
 }
 
 int gr_set_mode(u_int32_t mode)
@@ -644,12 +623,6 @@ void save_screen_shot(int automap_flag)
 	char savename[13+sizeof(SCRNS_DIR)];
 	unsigned char *buf;
 	
-	if (!GameArg.DbgGlReadPixelsOk){
-		if (!automap_flag)
-			hud_message(MSGC_GAME_FEEDBACK,"glReadPixels not supported on your configuration");
-		return;
-	}
-
 	stop_time();
 
 	if (!cfexist(SCRNS_DIR))

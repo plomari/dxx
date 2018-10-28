@@ -219,12 +219,6 @@ void ReadCmdArgs(void)
 
 #ifdef OGL
 	GameArg.DbgAltTexMerge 		= !FindArg("-gl_oldtexmerge");
-	GameArg.DbgGlBpp 		= (FindArg("-gl_16bpp") ? 16 : 32);
-	GameArg.DbgGlIntensity4Ok 	= get_int_arg("-gl_intensity4_ok", 1);
-	GameArg.DbgGlLuminance4Alpha4Ok = get_int_arg("-gl_luminance4_alpha4_ok", 1);
-	GameArg.DbgGlRGBA2Ok 		= get_int_arg("-gl_rgba2_ok", 1);
-	GameArg.DbgGlReadPixelsOk 	= get_int_arg("-gl_readpixels_ok", 1);
-	GameArg.DbgGlGetTexLevelParamOk = get_int_arg("-gl_gettexlevelparam_ok", 1);
 #else
 	GameArg.DbgSdlHWSurface = FindArg("-hwsurface");
 	GameArg.DbgSdlASyncBlit = FindArg("-asyncblit");

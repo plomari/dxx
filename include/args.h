@@ -91,12 +91,6 @@ typedef struct Arg
 	int DbgBigPig;
 #ifdef OGL
 	int DbgAltTexMerge;
-	int DbgGlBpp;
-	int DbgGlIntensity4Ok;
-	int DbgGlLuminance4Alpha4Ok;
-	int DbgGlRGBA2Ok;
-	int DbgGlReadPixelsOk;
-	int DbgGlGetTexLevelParamOk;
 #else
 	int DbgSdlHWSurface;
 	int DbgSdlASyncBlit;
