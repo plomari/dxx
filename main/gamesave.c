@@ -1257,6 +1257,10 @@ int load_game_data(CFILE *LoadFile)
 				if (Segment2s[seg_num].special != SEGMENT_IS_ROBOTMAKER)
 					Int3();		//matcen trigger doesn't point to matcen
 				break;
+			case TT_MASTER:
+				Assert(wall_num > -1);
+				Assert(Walls[wall_num].trigger > -1);
+				break;
 			case TT_LIGHT_OFF:
 			case TT_LIGHT_ON:
 			case TT_TELEPORT:

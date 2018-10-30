@@ -395,6 +395,16 @@ static void do_set_spawn(trigger *trig, int player_index)
 						 &Player_init[player_index]);
 }
 
+static void do_master(trigger *trig, int player_index, int shot)
+{
+	for (int i = 0; i < trig->num_links; i++) {
+		int wall_num = Segments[trig->seg[i]].sides[trig->side[i]].wall_num;
+		int sub_trig = Walls[wall_num].trigger;
+		printf("trigger %zd: sub trigger %d (%d) \n", trig-Triggers, sub_trig, Triggers[sub_trig].type);
+		check_trigger_sub(sub_trig, player_index, shot);
+	}
+}
+
 int check_trigger_sub(int trigger_num, int pnum,int shot)
 {
 	trigger *trig = &Triggers[trigger_num];
@@ -575,6 +585,10 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			printf("D2X-XL: changing spawn\n");
 			do_set_spawn(trig, Player_num); // disregarding multiplayer things
 			break;
+		case TT_MASTER:
+			printf("D2X-XL: master\n");
+			do_master(trig, Player_num, shot);
+			break;
 		case TT_SPEEDBOOST:
 		case TT_CAMERA:
 		case TT_SHIELD_DAMAGE:
@@ -590,7 +604,6 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 		case TT_SMOKE_BRIGHTNESS:
 		case TT_MESSAGE:
 		case TT_SOUND:
-		case TT_MASTER:
 		case TT_ENABLE_TRIGGER:
 		case TT_DISABLE_TRIGGER:
 		case TT_DISARM_ROBOT:
