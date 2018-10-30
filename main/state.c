@@ -88,7 +88,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "physfsx.h"
 
-#define STATE_VERSION 24
+#define STATE_VERSION 25
 #define STATE_COMPATIBLE_VERSION 20
 // 0 - Put DGSS (Descent Game State Save) id at tof.
 // 1 - Added Difficulty level save
@@ -112,6 +112,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // 22- Omega_charge
 // 23- extend object count and make it dynamic (for segments too)
 // 24- save Missile_gun, and D2X-XL spawn position
+// 25- extend struct wall
 
 // Things to change on next incompatible savegame change:
 // - add a way to save/restore objects in a backward/forward compatible way
@@ -126,6 +127,20 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define END_MAGIC 0xD00FB0A2
 // Hack to make old versions read newer savegames.
 #define END_MAGIC23 0xD00FB0A1
+
+typedef struct st24_wall {
+	int     segnum,sidenum;
+	fix     hps;
+	int     linked_wall;
+	ubyte   type;
+	ubyte   flags;
+	ubyte   state;
+	sbyte   trigger;
+	sbyte   clip_num;
+	ubyte   keys;
+	sbyte   controlling_trigger;
+	sbyte   cloak_value;
+} __pack__ st24_wall;
 
 extern void apply_all_changed_light(void);
 
@@ -948,9 +963,27 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		}
 
 		//Restore wall info
-		PHYSFS_read(fp, &i, sizeof(int), 1);
-		Num_walls = i;
-		PHYSFS_read(fp, Walls, sizeof(wall), Num_walls);
+		if (version <= 24) {
+			PHYSFS_read(fp, &i, sizeof(int), 1);
+			Num_walls = i;
+			for (int n = 0; n < Num_walls; n++) {
+				st24_wall old;
+				PHYSFS_read(fp, &old, sizeof(old), 1);
+				Walls[n].segnum = old.segnum;
+				Walls[n].sidenum = old.sidenum;
+				Walls[n].hps = old.hps;
+				Walls[n].linked_wall = old.linked_wall;
+				Walls[n].type = old.type;
+				Walls[n].flags = old.flags;
+				Walls[n].state = old.state;
+				Walls[n].trigger = old.trigger;
+				Walls[n].clip_num = old.clip_num;
+				Walls[n].keys = old.keys;
+				Walls[n].cloak_value = old.cloak_value;
+				if (old.controlling_trigger >= 0)
+					Walls[n].flags |= WALL_HAS_TRIGGERS;
+			}
+		}
 
 		//now that we have the walls, check if any sounds are linked to
 		//walls that are now open

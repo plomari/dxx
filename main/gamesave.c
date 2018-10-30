@@ -1218,10 +1218,7 @@ int load_game_data(CFILE *LoadFile)
 	}
 
 	//	MK, 10/17/95: Make walls point back at the triggers that control them.
-	//	Go through all triggers, stuffing controlling_trigger field in Walls.
-
-	for (i=0; i<Num_walls; i++)
-		Walls[i].controlling_trigger = -1;
+	//	Go through all triggers, set WALL_HAS_TRIGGERS.
 
 	for (int t=0; t<Num_triggers; t++) {
 		int	l;
@@ -1268,8 +1265,9 @@ int load_game_data(CFILE *LoadFile)
 			default:
 				if (wall_num == -1) {
 					Int3();	//	This is illegal.  This trigger requires a wall
-				} else
-					Walls[wall_num].controlling_trigger = t;
+				} else {
+					Walls[wall_num].flags |= WALL_HAS_TRIGGERS;
+				}
 			}
 		}
 	}

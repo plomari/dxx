@@ -1687,16 +1687,15 @@ extern void wall_read(wall *w, CFILE *fp, int version)
 	if (version < 37) {
 		w->flags = cfile_read_byte(fp);
 	} else {
-		ushort v = cfile_read_short(fp);
-		if (v > 0xFF)
-			printf("D2X-XL: discarding upper flags %d\n", v);
-		w->flags = v;
+		w->flags = cfile_read_short(fp);
 	}
 	w->state = cfile_read_byte(fp);
-	w->trigger = cfile_read_byte(fp);
+	w->trigger = (uint8_t)cfile_read_byte(fp);
+	if (w->trigger == (uint8_t)-1)
+		w->trigger = -1;
 	w->clip_num = cfile_read_byte(fp);
 	w->keys = cfile_read_byte(fp);
-	w->controlling_trigger = cfile_read_byte(fp);
+	cfile_read_byte(fp); // skip controlling_trigger
 	w->cloak_value = cfile_read_byte(fp);
 }
 
@@ -1756,7 +1755,7 @@ void wall_write(wall *w, short version, CFILE *fp)
 	
 	if (version >= 20)
 	{
-		PHYSFSX_writeU8(fp, w->controlling_trigger);
+		PHYSFSX_writeU8(fp, -1);
 		PHYSFSX_writeU8(fp, w->cloak_value);
 	}
 	else if (version >= 17)

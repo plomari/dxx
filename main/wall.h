@@ -51,6 +51,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WALL_BUDDY_PROOF        128 // Buddy assumes he cannot get through this wall.
 // D2X-XL
 #define WALL_IGNORE_MARKER		256
+// This fork. Internally set.
+#define WALL_HAS_TRIGGERS		(1 << 15)
 
 // Wall states
 #define WALL_DOOR_CLOSED        0       // Door is closed
@@ -137,15 +139,13 @@ typedef struct wall {
 	fix     hps;                // "Hit points" of the wall.
 	int     linked_wall;        // number of linked wall
 	ubyte   type;               // What kind of special wall.
-	ubyte   flags;              // Flags for the wall.
 	ubyte   state;              // Opening, closing, etc.
-	sbyte   trigger;            // Which trigger is associated with the wall.
+	uint16_t flags;             // Flags for the wall.
+	int16_t trigger;            // Which trigger is associated with the wall.
 	sbyte   clip_num;           // Which animation associated with the wall.
 	ubyte   keys;               // which keys are required
-	sbyte   controlling_trigger;// which trigger causes something to happen here.  Not like "trigger" above, which is the trigger on this wall.
-                                //  Note: This gets stuffed at load time in gamemine.c.  Don't try to use it in the editor.  You will be sorry!
 	sbyte   cloak_value;        // if this wall is cloaked, the fade value
-} __pack__ wall;
+} wall;
 
 typedef struct active_door {
 	int     n_parts;            // for linked walls
