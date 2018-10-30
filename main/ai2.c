@@ -100,6 +100,7 @@ int ai_behavior_to_mode(int behavior)
 		case AIB_SNIPE:			return AIM_STILL;	//	Changed, 09/13/95, MK, snipers are still until they see you or are hit.
 		case AIB_STATION:			return AIM_STILL;
 		case AIB_FOLLOW:			return AIM_FOLLOW_PATH;
+		case AIB_STATIC:		return AIM_STILL; // TODO: D2X-XL
 		default:	Int3();	//	Contact Mike: Error, illegal behavior type
 	}
 

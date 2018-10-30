@@ -2216,12 +2216,17 @@ fix_object_segs()
 {
 	int i;
 
-	for (i=0;i<=Highest_object_index;i++)
-		if (Objects[i].type != OBJ_NONE)
+	for (i=0;i<=Highest_object_index;i++) {
+		if (Objects[i].type != OBJ_NONE &&
+			Objects[i].type != OBJ_CAMBOT &&
+			Objects[i].type != OBJ_EFFECT)
+		{
 			if (update_object_seg(&Objects[i]) == 0) {
 				Int3();
 				compute_segment_center(&Objects[i].pos,&Segments[Objects[i].segnum]);
 			}
+		}
+	}
 }
 
 
