@@ -657,7 +657,7 @@ void redraw_messagestream(int count)
 	for (i=0; i<count; i++) {
 		msgbuf[0] = messagestream[i].ch;
 		msgbuf[1] = 0;
-		if (messagestream[i-1].color != messagestream[i].color)
+		if (i > 0 && messagestream[i-1].color != messagestream[i].color)
 			gr_set_fontcolor(messagestream[i].color,-1);
 		gr_printf(messagestream[i].x+1,messagestream[i].y,"%s",msgbuf);
 	}
