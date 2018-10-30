@@ -289,19 +289,17 @@ int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 	if (bm_bottom->bm_flags & BM_FLAG_RLE)
 		bm_bottom = rle_expand_texture(bm_bottom);
 
-	int w = bm_bottom->bm_w;
-	int h = bm_bottom->bm_h;
-
-	int bx = ((unsigned) f2i(u*w)) % w;
-	int by = ((unsigned) f2i(v*h)) % h;
-
 	if (tmap_top) {
 		grs_bitmap *bm_top = &GameBitmaps[Textures[tmap_top&0x3FFF].index];
 
 		if (bm_top->bm_flags & BM_FLAG_RLE)
 			bm_top = rle_expand_texture(bm_top);
 
-		Assert(bm_top->bm_w == w && bm_top->bm_h == h);
+		int w = bm_top->bm_w;
+		int h = bm_top->bm_h;
+
+		int bx = ((unsigned) f2i(u*w)) % w;
+		int by = ((unsigned) f2i(v*h)) % h;
 
 		// Reverse the transformation done on merging.
 		int tx, ty;
@@ -332,6 +330,12 @@ int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 		if (!(c_top & BM_FLAG_TRANSPARENT))
 			return 0;
 	}
+
+	int w = bm_bottom->bm_w;
+	int h = bm_bottom->bm_h;
+
+	int bx = ((unsigned) f2i(u*w)) % w;
+	int by = ((unsigned) f2i(v*h)) % h;
 
 	size_t d_bottom = bm_bottom->bm_depth < 1 ? 1 : bm_bottom->bm_depth;
 	int c_bottom = check_pixel_type(bm_bottom->bm_data + by * w * d_bottom + bx * d_bottom,
