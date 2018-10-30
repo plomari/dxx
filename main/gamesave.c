@@ -1219,12 +1219,11 @@ int load_game_data(CFILE *LoadFile)
 
 	//	MK, 10/17/95: Make walls point back at the triggers that control them.
 	//	Go through all triggers, stuffing controlling_trigger field in Walls.
-	{	int t;
 
 	for (i=0; i<Num_walls; i++)
 		Walls[i].controlling_trigger = -1;
 
-	for (t=0; t<Num_triggers; t++) {
+	for (int t=0; t<Num_triggers; t++) {
 		int	l;
 		for (l=0; l<Triggers[t].num_links; l++) {
 			int	seg_num, side_num, wall_num;
@@ -1232,12 +1231,23 @@ int load_game_data(CFILE *LoadFile)
 			seg_num = Triggers[t].seg[l];
 			side_num = Triggers[t].side[l];
 
+			// D2X-XL trying to be funny. The -1 apparently means that this
+			// manipulates a referenced _object_. These are effects only, so
+			// ignore it.
+			if (side_num == -1 && (Triggers[t].type == TT_ENABLE_TRIGGER ||
+				                   Triggers[t].type == TT_DISABLE_TRIGGER))
+			{
+				int object_index = seg_num; // yep.
+				Assert(object_index >= 0 && object_index < gs_num_objects);
+				continue;
+			}
+
 			Assert(seg_num >= 0 && seg_num <= Highest_segment_index);
 			Assert(side_num >= 0 && side_num < MAX_SIDES_PER_SEGMENT);
 
 			wall_num = Segments[seg_num].sides[side_num].wall_num;
 
-			Assert(wall_num == -1 || (wall_num >= 0 && wall_num < Num_walls));
+			Assert(wall_num >= -1 && wall_num < Num_walls);
 
 			// -- if (Walls[wall_num].controlling_trigger != -1)
 			// -- 	Int3();
@@ -1245,18 +1255,36 @@ int load_game_data(CFILE *LoadFile)
 			//check to see that if a trigger requires a wall that it has one,
 			//and if it requires a matcen that it has one
 
-			if (Triggers[t].type == TT_MATCEN) {
+			switch (Triggers[t].type) {
+			case TT_MATCEN:
 				if (Segment2s[seg_num].special != SEGMENT_IS_ROBOTMAKER)
 					Int3();		//matcen trigger doesn't point to matcen
-			}
-			else if (Triggers[t].type != TT_LIGHT_OFF && Triggers[t].type != TT_LIGHT_ON) {	//light triggers don't require walls
-				if (wall_num == -1)
+				break;
+			case TT_LIGHT_OFF:
+			case TT_LIGHT_ON:
+			case TT_TELEPORT:
+			case TT_SET_SPAWN:
+				break;
+			default:
+				if (wall_num == -1) {
 					Int3();	//	This is illegal.  This trigger requires a wall
-				else
+				} else
 					Walls[wall_num].controlling_trigger = t;
 			}
 		}
 	}
+
+	for (i = 0; i < Num_walls; i++) {
+		int seg_num = Walls[i].segnum;
+		int side_num = Walls[i].sidenum;
+
+		Assert(seg_num >= 0 && seg_num <= Highest_segment_index);
+		Assert(side_num >= 0 && side_num < MAX_SIDES_PER_SEGMENT);
+
+		Assert(Walls[i].linked_wall >= -1 && Walls[i].linked_wall < Num_walls);
+		Assert(Walls[i].trigger >= -1 && Walls[i].trigger < Num_triggers);
+
+		Assert(Segments[seg_num].sides[side_num].wall_num == i);
 	}
 
 	//fix old wall structs
