@@ -172,33 +172,6 @@ void do_unlock_doors(sbyte trigger_num)
   	}
 }
 
-// Return trigger number if door is controlled by a wall switch, else return -1.
-int door_is_wall_switched(int wall_num)
-{
-	int i, t;
-
-	for (t=0; t<Num_triggers; t++) {
-		for (i=0; i<Triggers[t].num_links; i++) {
-			if (Segments[Triggers[t].seg[i]].sides[Triggers[t].side[i]].wall_num == wall_num) {
-				return t;
-			}
-	  	}
-	}
-
-	return -1;
-}
-
-void flag_wall_switched_doors(void)
-{
-	int	i;
-
-	for (i=0; i<Num_walls; i++) {
-		if (door_is_wall_switched(i))
-			Walls[i].flags |= WALL_WALL_SWITCH;
-	}
-
-}
-
 // Locks all doors linked to the switch.
 void do_lock_doors(sbyte trigger_num)
 {
