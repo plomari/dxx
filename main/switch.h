@@ -76,6 +76,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TF_NO_MESSAGE       1   // Don't show a message when triggered
 #define TF_ONE_SHOT         2   // Only trigger once
 #define TF_DISABLED         4   // Set after one-shot fires
+// D2X-XL
+#define TF_PERMANENT		8
+#define TF_ALTERNATE		16
+#define TF_SET_ORIENT		32
+#define TF_SILENT			64
+#define TF_AUTOPLAY			128
+#define TF_PLAYING_SOUND	256
+#define TF_FLY_THROUGH		512
 
 //old trigger structs
 
