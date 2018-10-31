@@ -1202,6 +1202,7 @@ void list_dir_el(browser *b, const char *origdir, const char *fname)
 {
 	char *ext;
 	char **i = NULL;
+#if 0
 	
 	ext = strrchr(fname, '.');
 	if (ext)
@@ -1237,6 +1238,7 @@ void list_dir_el(browser *b, const char *origdir, const char *fname)
 		strcpy(next_path, fname);
 		b->list[b->num_files++] = next_path;
 	}
+#endif
 }
 
 int list_directory(browser *b)
@@ -1266,7 +1268,7 @@ int list_directory(browser *b)
 		strcpy(b->list[b->num_files++], "<this directory>");	// choose the directory being viewed
 	}
 	
-	PHYSFS_enumerateFilesCallback("", (PHYSFS_EnumFilesCallback) list_dir_el, b);
+	//PHYSFS_enumerateFilesCallback("", (PHYSFS_EnumFilesCallback) list_dir_el, b);
 	
 	// Reduce memory fragmentation
 	temp_list = d_realloc(b->list, sizeof(char *)*b->num_files);
@@ -1305,7 +1307,7 @@ int select_file_handler(listbox *menu, d_event *event, browser *b)
 	char newpath[PATH_MAX];
 	char **list = listbox_get_items(menu);
 	int citem = listbox_get_citem(menu);
-	const char *sep = PHYSFS_getDirSeparator();
+	const char *sep = "/";
 
 	memset(newpath, 0, sizeof(char)*PATH_MAX);
 	switch (event->type)
@@ -1369,8 +1371,8 @@ int select_file_handler(listbox *menu, d_event *event, browser *b)
 			break;
 			
 		case EVENT_WINDOW_CLOSE:
-			if (b->new_path)
-				PHYSFS_removeFromSearchPath(b->view_path);
+			//if (b->new_path)
+			//	PHYSFS_removeFromSearchPath(b->view_path);
 
 			if (list)
 				d_free(list);
@@ -1388,6 +1390,7 @@ int select_file_handler(listbox *menu, d_event *event, browser *b)
 
 int select_file_recursive(char *title, const char *orig_path, char **ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
 {
+#if 0
 	browser *b;
 	const char *sep = PHYSFS_getDirSeparator();
 	char *p;
@@ -1446,12 +1449,15 @@ int select_file_recursive(char *title, const char *orig_path, char **ext_list, i
 	}
 	
 	return newmenu_listbox1(title, b->num_files, b->list, 1, 0, (int (*)(listbox *, d_event *, void *))select_file_handler, b) >= 0;
+#endif
+	return 0;
 }
 
 int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1, opt_sm_mtype2 = -1, opt_sm_mtype3 = -1, opt_sm_redbook_playorder = -1, opt_sm_mtype3_lmpath = -1, opt_sm_mtype3_lmplayorder1 = -1, opt_sm_mtype3_lmplayorder2 = -1, opt_sm_cm_mtype3_file1_b = -1, opt_sm_cm_mtype3_file1 = -1, opt_sm_cm_mtype3_file2_b = -1, opt_sm_cm_mtype3_file2 = -1, opt_sm_cm_mtype3_file3_b = -1, opt_sm_cm_mtype3_file3 = -1, opt_sm_cm_mtype3_file4_b = -1, opt_sm_cm_mtype3_file4 = -1, opt_sm_cm_mtype3_file5_b = -1, opt_sm_cm_mtype3_file5 = -1;
 
 void set_extmusic_volume(int volume);
 
+#if 0
 int get_absolute_path(char *full_path, const char *rel_path)
 {
 	PHYSFSX_getRealPath(rel_path, full_path);
@@ -1567,6 +1573,7 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 
 	return rval;
 }
+#endif
 
 #ifdef USE_SDLMIXER
 #define SOUND_MENU_NITEMS 30
@@ -1681,7 +1688,7 @@ void do_sound_menu()
 
 	Assert(nitems == SOUND_MENU_NITEMS);
 
-	newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, NULL, 0 );
+	//newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, NULL, 0 );
 
 #ifdef USE_SDLMIXER
 	if ( ((Game_wind != NULL) && strcmp(old_CMLevelMusicPath, GameCfg.CMLevelMusicPath)) || ((Game_wind == NULL) && strcmp(old_CMMiscMusic0, GameCfg.CMMiscMusic[SONG_TITLE])) )
