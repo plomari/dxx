@@ -5,7 +5,7 @@
 #include <windows.h>
 #include <mmsystem.h>
 #endif
-#include "physfsx.h"
+#include "cfile.h"
 
 #define HMP_TRACKS 32
 #ifdef _WIN32

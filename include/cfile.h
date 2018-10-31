@@ -73,6 +73,8 @@ void cfile_read_matrix(vms_matrix *m,CFILE *file);
 #define BSWAP32(i) ((((i) & 0xFF) << 24) | ((((i) >> 8) & 0xFF) << 16) | \
 				    ((((i) >> 16) & 0xFF) << 8) | (((i) >> 24) & 0xFF))
 
+#define PHYSFS_sint64 int64_t
+
 static inline int PHYSFS_readSBE32(CFILE *file, int *v)
 {
 	uint32_t i;
