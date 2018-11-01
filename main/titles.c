@@ -386,7 +386,7 @@ briefing_screen D1_Briefing_screens_share[] = {
 	{ "end01.pcx",   ENDING_LEVEL_NUM_OEMSHARE,  1,  23, 40, 320, 200 }, // shareware end
 };
 
-#define D1_Briefing_screens ((PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || PHYSFSX_fsize("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?D1_Briefing_screens_share:D1_Briefing_screens_full)
+#define D1_Briefing_screens ((cfile_size("descent.hog")==D1_SHAREWARE_MISSION_HOGSIZE || cfile_size("descent.hog")==D1_SHAREWARE_10_MISSION_HOGSIZE)?D1_Briefing_screens_share:D1_Briefing_screens_full)
 #define NUM_D1_BRIEFING_SCREENS (sizeof(D1_Briefing_screens_full)/sizeof(briefing_screen))
 
 typedef struct msgstream {

@@ -704,7 +704,7 @@ int gr_internal_color_string(int x, int y, char *s ){
 int gr_3d_string(vms_vector *at, vms_vector *dir_x, vms_vector *dir_y, char *s )
 {
 	char * text_ptr, * next_row, * text_ptr1;
-	int width, spacing,letter;
+	int width, spacing,letter, underline;
 	int orig_color=grd_curcanv->cv_font_fg_color;//to allow easy reseting to default string color with colored strings -MPM
 	float x = 0, y = 0;
 
