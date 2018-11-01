@@ -91,7 +91,7 @@ hmp_file *hmp_open(const char *filename) {
 	}
 	hmp->num_trks = num_tracks;
 
-	if (PHYSFSX_fseek(fp, 0x38, SEEK_SET))
+	if (cfseek(fp, 0x38, SEEK_SET))
 	{
 		PHYSFS_close(fp);
 		hmp_close(hmp);
@@ -725,7 +725,7 @@ ubyte tempo [19] = {'M','T','r','k',0,0,0,11,0,0xFF,0x51,0x03,0x18,0x80,0x00,0,0
 void hmp2mid(char *hmp_name, unsigned char **midbuf, unsigned int *midlen)
 {
 	int mi, i;
-	short ms;
+	short ms, time_div;
 	hmp_file *hmp=NULL;
 
 	hmp = hmp_open(hmp_name);
