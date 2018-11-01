@@ -4,6 +4,7 @@ D2X-Rebirth Changelog
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 ||||||| parent of 8dcbb3bd8... Introduced function key_ismodlck to get the status of modifier keys or sticky keys; Let sticky keys survive flush so we can accurately use their real states; Added key repeating via SDL; Depending on status of KEY_NUMLOCK keypad will either be used as numerical or arrow input in menus; Fixed small typo for mouse.h include in credits.c
 ||||||| parent of 3adc5fe77... Saving  weapon keys in PLX like in D1X-Rebirth; Added Cycle Primary/Secondary for Mouse which makes wheel axis cycling unnecessary and also let Weapon Keys be assigned to a Mouse button; If GameArg.NoStickyKeys do flush these keys so they can be used as normal game keys - otherwise ban them; Fixed crash when reassigning mouse button greater than 3; Joystick/Mouse function taking button as argument now check for sanity of this value so they can safely be used in kconfig code and deal with unassigned key values
 =======
@@ -56,8 +57,21 @@ arch/carbon/conf.h: Disabling IPv6 support for OS X since in Snow Leopard it's b
 ||||||| parent of b7b4ab120... Improvement on the HMP track loop feature by TURRICAN; Added small template fix for descent.hmp which is supposed to be activated soon as we have some kind or Checksum function
 =======
 <<<<<<< HEAD
+||||||| parent of cf538812f... Introduced FlightSim control scheme for mouse which adds delta values to absolute position to behave like a Joystick; Added Deadzone slider for FlightSim as well as an optional Reticle display to show the positional data on screen; Removed old Mouselook hack in favor of this new feature
+=======
+<<<<<<< HEAD
+>>>>>>> cf538812f... Introduced FlightSim control scheme for mouse which adds delta values to absolute position to behave like a Joystick; Added Deadzone slider for FlightSim as well as an optional Reticle display to show the positional data on screen; Removed old Mouselook hack in favor of this new feature
 ||||||| parent of adad856f3... Improvement on the HMP track loop feature by TURRICAN; Added small template fix for descent.hmp which is supposed to be activated soon as we have some kind or Checksum function
 20110109
+||||||| parent of 307d92c64... Introduced FlightSim control scheme for mouse which adds delta values to absolute position to behave like a Joystick; Added Deadzone slider for FlightSim as well as an optional Reticle display to show the positional data on screen; Removed old Mouselook hack in favor of this new feature
+20110103
+=======
+20110104
+--------
+d2x.ini, include/args.h, main/gauges.c, main/inferno.c, main/kconfig.c, main/kconfig.h, main/menu.c, main/playsave.c, main/playsave.h, misc/args.c: Introduced FlightSim control scheme for mouse which adds delta values to absolute position to behave like a Joystick; Added Deadzone slider for FlightSim as well as an optional Reticle display to show the positional data on screen; Removed old Mouselook hack in favor of this new feature
+
+20110103
+>>>>>>> 307d92c64... Introduced FlightSim control scheme for mouse which adds delta values to absolute position to behave like a Joystick; Added Deadzone slider for FlightSim as well as an optional Reticle display to show the positional data on screen; Removed old Mouselook hack in favor of this new feature
 --------
 main/net_udp.h: Set max UDP packet size to 1024 again (seems some configuration DO have problems with larger packets after all)
 main/net_udp.c: Fix for rev968: my_pnum must be defined static
