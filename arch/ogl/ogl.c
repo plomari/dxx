@@ -526,6 +526,7 @@ void ogl_draw_reticle(int cross,int primary,int secondary)
 
 void gr_enable_depth(int enable)
 {
+	abort();
     if (enable) {
         glDepthMask(GL_TRUE);
         glEnable(GL_DEPTH_TEST);

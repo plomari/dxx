@@ -37,6 +37,8 @@ void arch_init(void)
 {
 	int t;
 
+	SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
+
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 		Error("SDL library initialisation failed: %s.",SDL_GetError());
 
