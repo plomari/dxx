@@ -1553,7 +1553,10 @@ static void bng_process_segment(object *objp, fix damage, segment *segp, int dep
 				if (dist < damage/2) {
 					dist = find_connected_distance(&pnt, segp-Segments, &objp->pos, objp->segnum, MAX_BLAST_GLASS_DEPTH, WID_RENDPAST_FLAG);
 					if ((dist > 0) && (dist < damage/2))
-						check_effect_blowup(segp, sidenum, &pnt, &Objects[objp->ctype.laser_info.parent_num], 1);
+					{
+						Assert(objp->type == OBJ_WEAPON);
+						check_effect_blowup(segp, sidenum, &pnt, objp, 1);
+					}
 				}
 			}
 		}
