@@ -1442,167 +1442,13 @@ void net_udp_stop_resync(UDP_sequence_packet *their)
 	}
 }
 
-void net_udp_swap_object(object *obj)
-{
-	// swap the short and int entries for this object
-	obj->signature     = INTEL_INT(obj->signature);
-	obj->next          = INTEL_SHORT(obj->next);
-	obj->prev          = INTEL_SHORT(obj->prev);
-	obj->segnum        = INTEL_SHORT(obj->segnum);
-	obj->pos.x         = INTEL_INT(obj->pos.x);
-	obj->pos.y         = INTEL_INT(obj->pos.y);
-	obj->pos.z         = INTEL_INT(obj->pos.z);
-
-	obj->orient.rvec.x = INTEL_INT(obj->orient.rvec.x);
-	obj->orient.rvec.y = INTEL_INT(obj->orient.rvec.y);
-	obj->orient.rvec.z = INTEL_INT(obj->orient.rvec.z);
-	obj->orient.fvec.x = INTEL_INT(obj->orient.fvec.x);
-	obj->orient.fvec.y = INTEL_INT(obj->orient.fvec.y);
-	obj->orient.fvec.z = INTEL_INT(obj->orient.fvec.z);
-	obj->orient.uvec.x = INTEL_INT(obj->orient.uvec.x);
-	obj->orient.uvec.y = INTEL_INT(obj->orient.uvec.y);
-	obj->orient.uvec.z = INTEL_INT(obj->orient.uvec.z);
-
-	obj->size          = INTEL_INT(obj->size);
-	obj->shields       = INTEL_INT(obj->shields);
-
-	obj->last_pos.x    = INTEL_INT(obj->last_pos.x);
-	obj->last_pos.y    = INTEL_INT(obj->last_pos.y);
-	obj->last_pos.z    = INTEL_INT(obj->last_pos.z);
-
-	obj->lifeleft      = INTEL_INT(obj->lifeleft);
-
-	switch (obj->movement_type) {
-
-	case MT_PHYSICS:
-
-		obj->mtype.phys_info.velocity.x = INTEL_INT(obj->mtype.phys_info.velocity.x);
-		obj->mtype.phys_info.velocity.y = INTEL_INT(obj->mtype.phys_info.velocity.y);
-		obj->mtype.phys_info.velocity.z = INTEL_INT(obj->mtype.phys_info.velocity.z);
-
-		obj->mtype.phys_info.thrust.x   = INTEL_INT(obj->mtype.phys_info.thrust.x);
-		obj->mtype.phys_info.thrust.y   = INTEL_INT(obj->mtype.phys_info.thrust.y);
-		obj->mtype.phys_info.thrust.z   = INTEL_INT(obj->mtype.phys_info.thrust.z);
-
-		obj->mtype.phys_info.mass       = INTEL_INT(obj->mtype.phys_info.mass);
-		obj->mtype.phys_info.drag       = INTEL_INT(obj->mtype.phys_info.drag);
-		obj->mtype.phys_info.brakes     = INTEL_INT(obj->mtype.phys_info.brakes);
-
-		obj->mtype.phys_info.rotvel.x   = INTEL_INT(obj->mtype.phys_info.rotvel.x);
-		obj->mtype.phys_info.rotvel.y   = INTEL_INT(obj->mtype.phys_info.rotvel.y);
-		obj->mtype.phys_info.rotvel.z   = INTEL_INT(obj->mtype.phys_info.rotvel.z);
-
-		obj->mtype.phys_info.rotthrust.x = INTEL_INT(obj->mtype.phys_info.rotthrust.x);
-		obj->mtype.phys_info.rotthrust.y = INTEL_INT(obj->mtype.phys_info.rotthrust.y);
-		obj->mtype.phys_info.rotthrust.z = INTEL_INT(obj->mtype.phys_info.rotthrust.z);
-
-		obj->mtype.phys_info.turnroll   = INTEL_INT(obj->mtype.phys_info.turnroll);
-		obj->mtype.phys_info.flags      = INTEL_SHORT(obj->mtype.phys_info.flags);
-
-		break;
-
-	case MT_SPINNING:
-
-		obj->mtype.spin_rate.x = INTEL_INT(obj->mtype.spin_rate.x);
-		obj->mtype.spin_rate.y = INTEL_INT(obj->mtype.spin_rate.y);
-		obj->mtype.spin_rate.z = INTEL_INT(obj->mtype.spin_rate.z);
-		break;
-	}
-
-	switch (obj->control_type) {
-
-	case CT_WEAPON:
-		obj->ctype.laser_info.parent_type       = INTEL_SHORT(obj->ctype.laser_info.parent_type);
-		obj->ctype.laser_info.parent_num        = INTEL_SHORT(obj->ctype.laser_info.parent_num);
-		obj->ctype.laser_info.parent_signature  = INTEL_INT(obj->ctype.laser_info.parent_signature);
-		obj->ctype.laser_info.creation_time     = INTEL_INT(obj->ctype.laser_info.creation_time);
-		obj->ctype.laser_info.last_hitobj       = INTEL_SHORT(obj->ctype.laser_info.last_hitobj);
-		obj->ctype.laser_info.track_goal        = INTEL_SHORT(obj->ctype.laser_info.track_goal);
-		obj->ctype.laser_info.multiplier        = INTEL_INT(obj->ctype.laser_info.multiplier);
-		break;
-
-	case CT_EXPLOSION:
-		obj->ctype.expl_info.spawn_time     = INTEL_INT(obj->ctype.expl_info.spawn_time);
-		obj->ctype.expl_info.delete_time    = INTEL_INT(obj->ctype.expl_info.delete_time);
-		obj->ctype.expl_info.delete_objnum  = INTEL_SHORT(obj->ctype.expl_info.delete_objnum);
-		obj->ctype.expl_info.attach_parent  = INTEL_SHORT(obj->ctype.expl_info.attach_parent);
-		obj->ctype.expl_info.prev_attach    = INTEL_SHORT(obj->ctype.expl_info.prev_attach);
-		obj->ctype.expl_info.next_attach    = INTEL_SHORT(obj->ctype.expl_info.next_attach);
-		break;
-
-	case CT_AI:
-		obj->ctype.ai_info.hide_segment         = INTEL_SHORT(obj->ctype.ai_info.hide_segment);
-		obj->ctype.ai_info.hide_index           = INTEL_SHORT(obj->ctype.ai_info.hide_index);
-		obj->ctype.ai_info.path_length          = INTEL_SHORT(obj->ctype.ai_info.path_length);
-		obj->ctype.ai_info.danger_laser_num     = INTEL_SHORT(obj->ctype.ai_info.danger_laser_num);
-		obj->ctype.ai_info.danger_laser_signature = INTEL_INT(obj->ctype.ai_info.danger_laser_signature);
-		obj->ctype.ai_info.dying_start_time     = INTEL_INT(obj->ctype.ai_info.dying_start_time);
-		break;
-
-	case CT_LIGHT:
-		obj->ctype.light_info.intensity = INTEL_INT(obj->ctype.light_info.intensity);
-		break;
-
-	case CT_POWERUP:
-		obj->ctype.powerup_info.count = INTEL_INT(obj->ctype.powerup_info.count);
-		obj->ctype.powerup_info.creation_time = INTEL_INT(obj->ctype.powerup_info.creation_time);
-		// Below commented out 5/2/96 by Matt.  I asked Allender why it was
-		// here, and he didn't know, and it looks like it doesn't belong.
-		// if (obj->id == POW_VULCAN_WEAPON)
-		// obj->ctype.powerup_info.count = VULCAN_WEAPON_AMMO_AMOUNT;
-		break;
-
-	}
-
-	switch (obj->render_type) {
-
-	case RT_MORPH:
-	case RT_POLYOBJ: {
-		int i;
-
-		obj->rtype.pobj_info.model_num      = INTEL_INT(obj->rtype.pobj_info.model_num);
-
-		for (i=0;i<MAX_SUBMODELS;i++) {
-			obj->rtype.pobj_info.anim_angles[i].p = INTEL_INT(obj->rtype.pobj_info.anim_angles[i].p);
-			obj->rtype.pobj_info.anim_angles[i].b = INTEL_INT(obj->rtype.pobj_info.anim_angles[i].b);
-			obj->rtype.pobj_info.anim_angles[i].h = INTEL_INT(obj->rtype.pobj_info.anim_angles[i].h);
-		}
-
-		obj->rtype.pobj_info.subobj_flags   = INTEL_INT(obj->rtype.pobj_info.subobj_flags);
-		obj->rtype.pobj_info.tmap_override  = INTEL_INT(obj->rtype.pobj_info.tmap_override);
-		obj->rtype.pobj_info.alt_textures   = INTEL_INT(obj->rtype.pobj_info.alt_textures);
-		break;
-	}
-
-	case RT_WEAPON_VCLIP:
-	case RT_HOSTAGE:
-	case RT_POWERUP:
-	case RT_FIREBALL:
-		obj->rtype.vclip_info.vclip_num = INTEL_INT(obj->rtype.vclip_info.vclip_num);
-		obj->rtype.vclip_info.frametime = INTEL_INT(obj->rtype.vclip_info.frametime);
-		break;
-
-	case RT_LASER:
-		break;
-
-	}
-//  END OF SWAPPING OBJECT STRUCTURE
-
-}
-
 ubyte object_buffer[UPKT_MAX_SIZE];
 
 void net_udp_send_objects(void)
 {
-	short remote_objnum;
-	sbyte owner;
-	int loc, i, h;
-
+	sbyte owner, player_num = UDP_sync_player.player.connected;
 	static int obj_count = 0;
-	static int frame_num = 0;
-
-	int obj_count_frame = 0;
-	int player_num = UDP_sync_player.player.connected;
+	int loc = 0, i = 0, remote_objnum = 0, obj_count_frame = 0;
 
 	// Send clear objects array trigger and send player num
 
@@ -1614,111 +1460,209 @@ void net_udp_send_objects(void)
 	{
 		// Endlevel started before we finished sending the goods, we'll
 		// have to stop and try again after the level.
-
 		net_udp_dump_player(UDP_sync_player.player.protocol.udp.addr, DUMP_ENDLEVEL);
 		Network_send_objects = 0; 
 		return;
 	}
 
-	for (h = 0; h < UDP_OBJ_PACKETS_PER_FRAME; h++) // Do more than 1 per frame, try to speed it up without over-stressing the receiver.
+	memset(object_buffer, 0, UPKT_MAX_SIZE);
+	object_buffer[0] = UPID_OBJECT_DATA;
+	loc = 5;
+
+	if (Network_send_objnum == -1)
 	{
-		obj_count_frame = 0;
-		memset(object_buffer, 0, UPKT_MAX_SIZE);
-		object_buffer[0] = UPID_OBJECT_DATA;
-		loc = 3;
+		obj_count = 0;
+		Network_send_object_mode = 0;
+		PUT_INTEL_INT(object_buffer+loc, -1);                       loc += 4;
+		object_buffer[loc] = player_num;                            loc += 1;
+		/* Placeholder for remote_objnum, not used here */          loc += 4;
+		Network_send_objnum = 0;
+		obj_count_frame = 1;
+	}
 	
-		if (Network_send_objnum == -1)
+	for (i = Network_send_objnum; i <= Highest_object_index; i++)
+	{
+		if ((Objects[i].type != OBJ_POWERUP) && (Objects[i].type != OBJ_PLAYER) &&
+				(Objects[i].type != OBJ_CNTRLCEN) && (Objects[i].type != OBJ_GHOST) &&
+				(Objects[i].type != OBJ_ROBOT) && (Objects[i].type != OBJ_HOSTAGE) &&
+				!(Objects[i].type==OBJ_WEAPON && Objects[i].id==PMINE_ID))
+			continue;
+		if ((Network_send_object_mode == 0) && ((object_owner[i] != -1) && (object_owner[i] != player_num)))
+			continue;
+		if ((Network_send_object_mode == 1) && ((object_owner[i] == -1) || (object_owner[i] == player_num)))
+			continue;
+
+		if ( loc + sizeof(object_rw) + 9 > UPKT_MAX_SIZE-1 )
+			break; // Not enough room for another object
+
+		obj_count_frame++;
+		obj_count++;
+
+		remote_objnum = objnum_local_to_remote(i, &owner);
+		Assert(owner == object_owner[i]);
+
+		PUT_INTEL_INT(object_buffer+loc, i);                        loc += 4;
+		object_buffer[loc] = owner;                                 loc += 1;
+		PUT_INTEL_INT(object_buffer+loc, remote_objnum);            loc += 4;
+		// use object_rw to send objects for now. if object sometime contains some day contains something useful the client should know about, we should use it. but by now it's also easier to use object_rw because then we also do not need fix64 timer values.
+		multi_object_to_object_rw(&Objects[i], (object_rw *)&object_buffer[loc]);
+#ifdef WORDS_BIGENDIAN
+		object_rw_swap((object_rw *)&object_buffer[loc], 1);
+#endif
+		loc += sizeof(object_rw);
+	}
+
+	if (obj_count_frame) // Send any objects we've buffered
+	{
+		Network_send_objnum = i;
+		PUT_INTEL_INT(object_buffer+1, obj_count_frame);
+
+		Assert(loc <= UPKT_MAX_SIZE);
+
+		sendto (UDP_Socket[0], object_buffer, loc, 0, (struct sockaddr *)&UDP_sync_player.player.protocol.udp.addr, sizeof(struct _sockaddr));
+	}
+
+	if (i > Highest_object_index)
+	{
+		if (Network_send_object_mode == 0)
 		{
-			obj_count = 0;
-			Network_send_object_mode = 0;
-			*(short *)(object_buffer+loc) = INTEL_SHORT(-1);            loc += 2;
-			object_buffer[loc] = player_num;                            loc += 1;
-			/* Placeholder for remote_objnum, not used here */          loc += 2;
 			Network_send_objnum = 0;
-			obj_count_frame = 1;
-			frame_num = 0;
+			Network_send_object_mode = 1; // go to next mode
 		}
-		
-		for (i = Network_send_objnum; i <= Highest_object_index; i++)
+		else 
 		{
-			if ((Objects[i].type != OBJ_POWERUP) && (Objects[i].type != OBJ_PLAYER) &&
-				 (Objects[i].type != OBJ_CNTRLCEN) && (Objects[i].type != OBJ_GHOST) &&
-				 (Objects[i].type != OBJ_ROBOT) && (Objects[i].type != OBJ_HOSTAGE) &&
-				 !(Objects[i].type==OBJ_WEAPON && Objects[i].id==PMINE_ID))
-				continue;
-			if ((Network_send_object_mode == 0) && ((object_owner[i] != -1) && (object_owner[i] != player_num)))
-				continue;
-			if ((Network_send_object_mode == 1) && ((object_owner[i] == -1) || (object_owner[i] == player_num)))
-				continue;
+			Assert(Network_send_object_mode == 1); 
 
-			if ( ((UPKT_MAX_SIZE-1) - loc) < (sizeof(object)+5) )
-				break; // Not enough room for another object
+			// Send count so other side can make sure he got them all
+			object_buffer[0] = UPID_OBJECT_DATA;
+			PUT_INTEL_INT(object_buffer+1, 1);
+			PUT_INTEL_INT(object_buffer+5, -2);
+			object_buffer[9] = player_num;
+			PUT_INTEL_INT(object_buffer+10, obj_count);
+			sendto (UDP_Socket[0], object_buffer, 14, 0, (struct sockaddr *)&UDP_sync_player.player.protocol.udp.addr, sizeof(struct _sockaddr));
 
-			obj_count_frame++;
-			obj_count++;
+			// Send sync packet which tells the player who he is and to start!
+			net_udp_send_rejoin_sync(player_num);
+
+			// Turn off send object mode
+			Network_send_objnum = -1;
+			Network_send_objects = 0;
+			obj_count = 0;
+
+			Network_sending_extras=40; // start to send extras
+			VerifyPlayerJoined = Player_joining_extras = player_num;
+
+			return;
+		} // mode == 1;
+	} // i > Highest_object_index
+}
+
+int net_udp_verify_objects(int remote, int local)
+{
+	int i, nplayers = 0;
+
+	if ((remote-local) > 10)
+		return(2);
+
+	for (i = 0; i <= Highest_object_index; i++)
+	{
+		if ((Objects[i].type == OBJ_PLAYER) || (Objects[i].type == OBJ_GHOST))
+			nplayers++;
+	}
+
+	if (MaxNumNetPlayers<=nplayers)
+		return(0);
+
+	return(1);
+}
+
+void net_udp_read_object_packet( ubyte *data )
+{
+	// Object from another net player we need to sync with
+	object *obj;
+	sbyte obj_owner;
+	static int mode = 0, object_count = 0, my_pnum = 0;
+	int i = 0, segnum = 0, objnum = 0, remote_objnum = 0, nobj = 0, loc = 5;
 	
-			remote_objnum = objnum_local_to_remote((short)i, &owner);
-			Assert(owner == object_owner[i]);
+	nobj = GET_INTEL_INT(data + 1);
 
-			*(short *)(object_buffer+loc) = INTEL_SHORT((short)i);      loc += 2;
-			object_buffer[loc] = owner;                                 loc += 1;
-			*(short *)(object_buffer+loc) = INTEL_SHORT(remote_objnum); loc += 2;
-			memcpy(&object_buffer[loc], &Objects[i], sizeof(object));
-			net_udp_swap_object((object *)&object_buffer[loc]);
-			loc += sizeof(object);
-		}
+	for (i = 0; i < nobj; i++)
+	{
+		objnum = GET_INTEL_INT(data + loc);                         loc += 4;
+		obj_owner = data[loc];                                      loc += 1;
+		remote_objnum = GET_INTEL_INT(data + loc);                  loc += 4;
 
-		if (obj_count_frame) // Send any objects we've buffered
+		if (objnum == -1) 
 		{
-			frame_num++;
-	
-			Network_send_objnum = i;
-			object_buffer[1] = obj_count_frame;  object_buffer[2] = frame_num;
-
-			Assert(loc <= UPKT_MAX_SIZE);
-
-			sendto (UDP_Socket[0], object_buffer, loc, 0, (struct sockaddr *)&UDP_sync_player.player.protocol.udp.addr, sizeof(struct _sockaddr));
+			// Clear object array
+			init_objects();
+			Network_rejoined = 1;
+			my_pnum = obj_owner;
+			change_playernum_to(my_pnum);
+			mode = 1;
+			object_count = 0;
 		}
-
-		if (i > Highest_object_index)
+		else if (objnum == -2)
 		{
-			if (Network_send_object_mode == 0)
+			// Special debug checksum marker for entire send
+			if (mode == 1)
 			{
-				Network_send_objnum = 0;
-				Network_send_object_mode = 1; // go to next mode
+				special_reset_objects();
+				mode = 0;
 			}
-			else 
+			if (remote_objnum != object_count) {
+				Int3();
+			}
+			if (net_udp_verify_objects(remote_objnum, object_count))
 			{
-				Assert(Network_send_object_mode == 1); 
-
-				frame_num++;
-				// Send count so other side can make sure he got them all
-				object_buffer[0] = UPID_OBJECT_DATA;
-				object_buffer[1] = 1;
-				object_buffer[2] = frame_num;
-				*(short *)(object_buffer+3) = INTEL_SHORT(-2);
-				*(short *)(object_buffer+6) = INTEL_SHORT(obj_count);
-				sendto (UDP_Socket[0], object_buffer, 8, 0, (struct sockaddr *)&UDP_sync_player.player.protocol.udp.addr, sizeof(struct _sockaddr));
-
-				// Send sync packet which tells the player who he is and to start!
-				net_udp_send_rejoin_sync(player_num);
-				VerifyPlayerJoined=player_num;
-
-				// Turn off send object mode
-				Network_send_objnum = -1;
-				Network_send_objects = 0;
-				obj_count = 0;
-
-				//if (!multi_i_am_master ())
-				// Int3();  // Bad!! Get Jason.  Someone goofy is trying to get ahold of the game!
-
-				Network_sending_extras=40; // start to send extras
-			   Player_joining_extras=player_num;
-
+				// Failed to sync up 
+				nm_messagebox(NULL, 1, TXT_OK, TXT_NET_SYNC_FAILED);
+				Network_status = NETSTAT_MENU;                          
 				return;
-			} // mode == 1;
-		} // i > Highest_object_index
-	} // For PACKETS_PER_FRAME
+			}
+		}
+		else 
+		{
+			object_count++;
+			if ((obj_owner == my_pnum) || (obj_owner == -1)) 
+			{
+				if (mode != 1)
+					Int3(); // SEE ROB
+				objnum = remote_objnum;
+			}
+			else {
+				if (mode == 1)
+				{
+					special_reset_objects();
+					mode = 0;
+				}
+				objnum = obj_allocate();
+			}
+			if (objnum != -1) {
+				obj = &Objects[objnum];
+				if (obj->segnum != -1)
+					obj_unlink(objnum);
+				Assert(obj->segnum == -1);
+				Assert(objnum < MAX_OBJECTS);
+#ifdef WORDS_BIGENDIAN
+				object_rw_swap((object_rw *)&data[loc], 1);
+#endif
+				multi_object_rw_to_object((object_rw *)&data[loc], obj);
+				loc += sizeof(object_rw);
+				segnum = obj->segnum;
+				obj->next = obj->prev = obj->segnum = -1;
+				obj->attached_obj = -1;
+				if (segnum > -1)
+					obj_link(obj-Objects,segnum);
+				if (obj_owner == my_pnum) 
+					map_objnum_local_to_local(objnum);
+				else if (obj_owner != -1)
+					map_objnum_local_to_remote(objnum, remote_objnum, obj_owner);
+				else
+					object_owner[objnum] = -1;
+			}
+		} // For a standard onbject
+	} // For each object in packet
 }
 
 void net_udp_send_rejoin_sync(int player_num)
@@ -2079,6 +2023,7 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		PUT_INTEL_SHORT(buf + len, D2XMAJORi); 									len += 2;
 		PUT_INTEL_SHORT(buf + len, D2XMINORi); 									len += 2;
 		PUT_INTEL_SHORT(buf + len, D2XMICROi); 									len += 2;
+		PUT_INTEL_INT(buf + len, Netgame.protocol.udp.GameID);							len += 4;
 		memcpy(&(buf[len]), Netgame.game_name, NETGAME_NAME_LEN+1);				len += (NETGAME_NAME_LEN+1);
 		memcpy(&(buf[len]), Netgame.mission_title, MISSION_NAME_LEN+1);			len += (MISSION_NAME_LEN+1);
 		memcpy(&(buf[len]), Netgame.mission_name, 9);		            		len += 9;
@@ -2115,7 +2060,6 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		PUT_INTEL_SHORT(buf + len, D2XMAJORi); 									len += 2;
 		PUT_INTEL_SHORT(buf + len, D2XMINORi); 									len += 2;
 		PUT_INTEL_SHORT(buf + len, D2XMICROi); 									len += 2;
-		PUT_INTEL_INT(buf + len, Netgame.protocol.udp.GameID);							len += 4;
 		buf[len] = Netgame.version_major;										len++;
 		buf[len] = Netgame.version_minor;										len++;
 		for (i = 0; i < MAX_PLAYERS+4; i++)
@@ -2636,139 +2580,6 @@ void net_udp_read_endlevel_packet( ubyte *data, int data_len, struct _sockaddr s
 	}
 }
 
-void net_udp_pack_objects(void)
-{
-	// Switching modes, pack the object array
-
-	special_reset_objects();
-}                               
-
-int
-net_udp_verify_objects(int remote, int local)
-{
-	int i, nplayers = 0;
-
-	if ((remote-local) > 10)
-		return(2);
-
-	for (i = 0; i <= Highest_object_index; i++)
-	{
-		if ((Objects[i].type == OBJ_PLAYER) || (Objects[i].type == OBJ_GHOST))
-			nplayers++;
-	}
-
-	if (MaxNumNetPlayers<=nplayers)
-		return(0);
-
-	return(1);
-}
-
-void
-net_udp_read_object_packet( ubyte *data )
-{
-	// Object from another net player we need to sync with
-
-	short objnum, remote_objnum;
-	sbyte obj_owner;
-	int segnum, i;
-	object *obj;
-
-	static int my_pnum = 0;
-	static int mode = 0;
-	static int object_count = 0;
-	static int frame_num = 0;
-	int nobj = data[1];
-	int loc = 3;
-	int remote_frame_num = data[2];
-	
-	frame_num++;
-
-	for (i = 0; i < nobj; i++)
-	{
-		objnum = INTEL_SHORT( *(short *)(data+loc) );                   loc += 2;
-		obj_owner = data[loc];                                          loc += 1;
-		remote_objnum = INTEL_SHORT( *(short *)(data+loc) );            loc += 2;
-
-		if (objnum == -1) 
-		{
-			// Clear object array
-			init_objects();
-			Network_rejoined = 1;
-			my_pnum = obj_owner;
-			change_playernum_to(my_pnum);
-			mode = 1;
-			object_count = 0;
-			frame_num = 1;
-		}
-		else if (objnum == -2)
-		{
-			// Special debug checksum marker for entire send
-			if (mode == 1)
-			{
-				net_udp_pack_objects();
-				mode = 0;
-			}
-			if (remote_objnum != object_count) {
-				Int3();
-			}
-			if (net_udp_verify_objects(remote_objnum, object_count))
-			{
-				// Failed to sync up 
-				nm_messagebox(NULL, 1, TXT_OK, TXT_NET_SYNC_FAILED);
-				Network_status = NETSTAT_MENU;                          
-				return;
-			}
-			frame_num = 0;
-		}
-		else 
-		{
-			if (frame_num != remote_frame_num)
-				Int3();
-			object_count++;
-			if ((obj_owner == my_pnum) || (obj_owner == -1)) 
-			{
-				if (mode != 1)
-					Int3(); // SEE ROB
-				objnum = remote_objnum;
-				//if (objnum > Highest_object_index)
-				//{
-				//      Highest_object_index = objnum;
-				//      num_objects = Highest_object_index+1;
-				//}
-			}
-			else {
-				if (mode == 1)
-				{
-					net_udp_pack_objects();
-					mode = 0;
-				}
-				objnum = obj_allocate();
-			}
-			if (objnum != -1) {
-				obj = &Objects[objnum];
-				if (obj->segnum != -1)
-					obj_unlink(objnum);
-				Assert(obj->segnum == -1);
-				Assert(objnum < MAX_OBJECTS);
-				memcpy(obj, &data[loc], sizeof(object));
-				net_udp_swap_object(obj);
-				loc += sizeof(object);
-				segnum = obj->segnum;
-				obj->next = obj->prev = obj->segnum = -1;
-				obj->attached_obj = -1;
-				if (segnum > -1)
-					obj_link(obj-Objects,segnum);
-				if (obj_owner == my_pnum) 
-					map_objnum_local_to_local(objnum);
-				else if (obj_owner != -1)
-					map_objnum_local_to_remote(objnum, remote_objnum, obj_owner);
-				else
-					object_owner[objnum] = -1;
-			}
-		} // For a standard onbject
-	} // For each object in packet
-}
-	
 /*
  * Polling loop waiting for sync packet to start game after having sent request
  */
@@ -3779,7 +3590,10 @@ int net_udp_wait_for_sync(void)
 	sprintf( m[0].text, "%s\n'%s' %s", TXT_NET_WAITING, Netgame.players[i].callsign, TXT_NET_TO_ENTER );
 
 	while (choice > -1)
+	{
+		timer_update();
 		choice=newmenu_do( NULL, TXT_WAIT, 2, m, net_udp_sync_poll, NULL );
+	}
 
 	if (Network_status != NETSTAT_PLAYING)  
 	{

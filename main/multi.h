@@ -208,6 +208,94 @@ extern int multi_protocol; // set and determinate used protocol
 #define MULTI_ALLOW_POWERUP_MAX 26
 extern char *multi_allow_powerup_text[MULTI_ALLOW_POWERUP_MAX];
 
+
+// Same as above but structure Savegames/Multiplayer objects expect
+typedef struct laser_info_rw {
+	short   parent_type;        // The type of the parent of this object
+	short   parent_num;         // The object's parent's number
+	int     parent_signature;   // The object's parent's signature...
+	fix     creation_time;      // Absolute time of creation.
+	short   last_hitobj;        // For persistent weapons (survive object collision), object it most recently hit.
+	short   track_goal;         // Object this object is tracking.
+	fix     multiplier;         // Power if this is a fusion bolt (or other super weapon to be added).
+} __pack__ laser_info_rw;
+
+// Same as above but structure Savegames/Multiplayer objects expect
+typedef struct powerup_info_rw {
+	int     count;          // how many/much we pick up (vulcan cannon only?)
+	fix     creation_time;  // Absolute time of creation.
+	int     flags;          // spat by player?
+} __pack__ powerup_info_rw;
+
+// Same as above but structure Savegames/Multiplayer objects expect
+typedef struct ai_static_rw {
+	ubyte   behavior;               //
+	sbyte   flags[MAX_AI_FLAGS];    // various flags, meaning defined by constants
+	short   hide_segment;           // Segment to go to for hiding.
+	short   hide_index;             // Index in Path_seg_points
+	short   path_length;            // Length of hide path.
+	sbyte   cur_path_index;         // Current index in path.
+	sbyte   dying_sound_playing;    // !0 if this robot is playing its dying sound.
+	short   danger_laser_num;
+	int     danger_laser_signature;
+	fix     dying_start_time;       // Time at which this robot started dying.
+} __pack__ ai_static_rw;
+
+// Same as above but structure Savegames/Multiplayer objects expect
+typedef struct object_rw {
+	int     signature;      // Every object ever has a unique signature...
+	ubyte   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
+	ubyte   id;             // which form of object...which powerup, robot, etc.
+#ifdef WORDS_NEED_ALIGNMENT
+	short   pad;
+#endif
+	short   next,prev;      // id of next and previous connected object in Objects, -1 = no connection
+	ubyte   control_type;   // how this object is controlled
+	ubyte   movement_type;  // how this object moves
+	ubyte   render_type;    // how this object renders
+	ubyte   flags;          // misc flags
+	short   segnum;         // segment number containing object
+	short   attached_obj;   // number of attached fireball object
+	vms_vector pos;         // absolute x,y,z coordinate of center of object
+	vms_matrix orient;      // orientation of object in world
+	fix     size;           // 3d size of object - for collision detection
+	fix     shields;        // Starts at maximum, when <0, object dies..
+	vms_vector last_pos;    // where object was last frame
+	sbyte   contains_type;  // Type of object this object contains (eg, spider contains powerup)
+	sbyte   contains_id;    // ID of object this object contains (eg, id = blue type = key)
+	sbyte   contains_count; // number of objects of type:id this object contains
+	sbyte   matcen_creator; // Materialization center that created this object, high bit set if matcen-created
+	fix     lifeleft;       // how long until goes away, or 7fff if immortal
+	// -- Removed, MK, 10/16/95, using lifeleft instead: int     lightlevel;
+
+	// movement info, determined by MOVEMENT_TYPE
+	union {
+		physics_info phys_info; // a physics object
+		vms_vector   spin_rate; // for spinning objects
+	} __pack__ mtype ;
+
+	// control info, determined by CONTROL_TYPE
+	union {
+		laser_info_rw   laser_info;
+		explosion_info  expl_info;      // NOTE: debris uses this also
+		ai_static_rw    ai_info;
+		light_info      light_info;     // why put this here?  Didn't know what else to do with it.
+		powerup_info_rw powerup_info;
+	} __pack__ ctype ;
+
+	// render info, determined by RENDER_TYPE
+	union {
+		polyobj_info    pobj_info;      // polygon model
+		vclip_info      vclip_info;     // vclip
+	} __pack__ rtype ;
+
+#ifdef WORDS_NEED_ALIGNMENT
+	short   pad2;
+#endif
+} __pack__ object_rw;
+
+void object_rw_swap(object_rw *obj_rw, int swap);
+
 // Exported functions
 
 extern int GetMyNetRanking();
@@ -279,6 +367,8 @@ void multi_reset_stuff(void);
 void multi_send_data(char *buf, int len, int priority);
 int get_team(int pnum);
 int multi_maybe_disable_friendly_fire(object *killer);
+void multi_object_to_object_rw(object *obj, object_rw *obj_rw);
+void multi_object_rw_to_object(object_rw *obj_rw, object *obj);
 
 
 // Exported variables
@@ -498,4 +588,5 @@ typedef struct netgame_info
 	ubyte						PacketLossPrevention;
 	ubyte						NoFriendlyFire;
 } __pack__ netgame_info;
+
 #endif /* _MULTI_H */
