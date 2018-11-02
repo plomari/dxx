@@ -29,35 +29,22 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 
 struct ramp_state {
-	ubyte 	key_pitch_forward,
-			key_pitch_backward,
-			key_heading_left,
-			key_heading_right,
-			key_slide_left,
-			key_slide_right,
-			key_slide_up,
-			key_slide_down,
-			key_bank_left,
-			key_bank_right;
-};
-
-struct ramp_dtime {
-	float 	key_pitch_forward,
-			key_pitch_backward,
-			key_heading_left,
-			key_heading_right,
-			key_slide_left,
-			key_slide_right,
-			key_slide_up,
-			key_slide_down,
-			key_bank_left,
-			key_bank_right;
+	float down_time;
+	ubyte state;
 };
 
 typedef struct control_info_ {
-	struct ramp_dtime down_time; // to scale movement depending on how long the key is pressed
+	struct ramp_state	key_pitch_forward,
+						key_pitch_backward,
+						key_heading_left,
+						key_heading_right,
+						key_slide_left,
+						key_slide_right,
+						key_slide_up,
+						key_slide_down,
+						key_bank_left,
+						key_bank_right;
 	fix pitch_time, vertical_thrust_time, heading_time, sideways_thrust_time, bank_time, forward_thrust_time;
-	struct ramp_state state; // to scale movement for keys only we need them to be seperate from joystick/mouse buttons
 	ubyte btn_slide_left_state, btn_slide_right_state, btn_slide_up_state, btn_slide_down_state, btn_bank_left_state, btn_bank_right_state;
 	ubyte slide_on_state, bank_on_state;
 	ubyte accelerate_state, reverse_state, cruise_plus_state, cruise_minus_state, cruise_off_count;
