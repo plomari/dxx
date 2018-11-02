@@ -341,7 +341,8 @@ int RegisterPlayer(int at_program_start)
 	if (at_program_start && !(GameCfg.LastPlayer[0]==0)) {
 		snprintf(Players[Player_num].callsign, CALLSIGN_LEN, "%s", GameCfg.LastPlayer);
 		strlwr(Players[Player_num].callsign);
-		return 1;
+		if (read_player_file() == EZERO)
+			return 1;
 	}
 
 	list = PHYSFSX_findFiles(GameArg.SysUsePlayersDir ? "Players/" : "", types);
