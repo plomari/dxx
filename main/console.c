@@ -20,7 +20,6 @@
 #include "vers_id.h"
 #include "timer.h"
 
-PHYSFS_file *gamelog_fp=NULL;
 struct console_buffer con_buffer[CON_LINES_MAX];
 static int con_state = CON_STATE_CLOSED, con_scroll_offset = 0, con_size = 0;
 extern void game_flush_inputs();
@@ -84,17 +83,6 @@ void con_printf(int priority, char *fmt, ...)
 
 		/* Print output to stdout */
 		printf("%s", buffer);
-
-		/* Print output to gamelog.txt */
-		if (gamelog_fp)
-		{
-			struct tm *lt;
-			time_t t;
-			t=time(NULL);
-			lt=localtime(&t);
-			PHYSFSX_printf(gamelog_fp,"%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
-			PHYSFSX_printf(gamelog_fp,"%s",buffer);
-		}
 	}
 }
 
@@ -255,20 +243,9 @@ void con_showup(void)
 
 void con_close(void)
 {
-	if (gamelog_fp)
-		PHYSFS_close(gamelog_fp);
-	
-	gamelog_fp = NULL;
 }
 
 void con_init(void)
 {
-	memset(con_buffer,0,sizeof(con_buffer));
-
-	if (GameArg.DbgVerbose >= CON_VERBOSE)
-		gamelog_fp = PHYSFS_openWrite("gamelog.txt");
-	else
-		gamelog_fp = PHYSFSX_openWriteBuffered("gamelog.txt");
-	atexit(con_close);
 }
 
