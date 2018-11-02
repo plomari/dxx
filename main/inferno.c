@@ -308,12 +308,6 @@ int main(int argc, char *argv[])
 	InitArgs(argc, argv);
 	con_init();  // Initialise the console
 
-	setbuf(stdout, NULL); // unbuffered output via printf
-#ifdef _WIN32
-	freopen( "CON", "w", stdout );
-	freopen( "CON", "w", stderr );
-#endif
-
 	if (GameArg.SysShowCmdHelp) {
 		print_commandline_help();
 		set_exit_message("");
