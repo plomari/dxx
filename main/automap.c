@@ -686,6 +686,11 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 
 static void automap_perform_movement(automap *am)
 {
+	Controls = am->controls;
+	kconfig_process_controls_frame();
+	am->controls = Controls;
+	memset(&Controls, 0, sizeof(control_info));
+
 	if (PlayerCfg.AutomapFreeFlight)
 	{
 		if ( am->controls.fire_primary_state)

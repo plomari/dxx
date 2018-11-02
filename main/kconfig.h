@@ -55,6 +55,7 @@ typedef struct control_info_ {
 	ubyte toggle_bomb_count;
 	ubyte afterburner_state, headlight_count, energy_to_shield_state;
 	fix joy_axis[JOY_MAX_AXES], raw_joy_axis[JOY_MAX_AXES], mouse_axis[3], raw_mouse_axis[3];
+	fix64 mouse_delta_time;
 } control_info;
 
 #define CONTROL_USING_JOYSTICK	1
@@ -65,6 +66,7 @@ typedef struct control_info_ {
 
 extern control_info Controls;
 extern void kconfig_read_controls(d_event *event, int automap_flag);
+void kconfig_process_controls_frame(void);
 extern void kconfig(int n, char *title);
 
 extern const ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS];

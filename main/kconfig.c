@@ -1022,8 +1022,7 @@ static void clamp_symmetric_value(fix *value, fix bound)
 
 void kconfig_read_controls(d_event *event, int automap_flag)
 {
-	int i = 0, j = 0, speed_factor = Game_turbo_mode?2:1;
-	static fix64 mouse_delta_time = 0;
+	int i = 0, j = 0;
 
 #ifndef NDEBUG
 	// --- Don't do anything if in debug mode ---
@@ -1033,8 +1032,6 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		return;
 	}
 #endif
-
-	Controls.pitch_time = Controls.vertical_thrust_time = Controls.heading_time = Controls.sideways_thrust_time = Controls.bank_time = Controls.forward_thrust_time = 0;
 
 	switch (event->type)
 	{
@@ -1154,18 +1151,28 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 				Controls.mouse_axis[0] = (Controls.raw_mouse_axis[0]*FrameTime)/4;
 				Controls.mouse_axis[1] = (Controls.raw_mouse_axis[1]*FrameTime)/4;
 				Controls.mouse_axis[2] = (Controls.raw_mouse_axis[2]*FrameTime);
-				mouse_delta_time = timer_query() + (F1_0/30);
+				Controls.mouse_delta_time = timer_query() + (F1_0/30);
 			}
 			break;
 		}
 		case EVENT_IDLE:
 		default:
-			if (!PlayerCfg.MouseFlightSim && mouse_delta_time < timer_query())
-			{
-				Controls.mouse_axis[0] = Controls.mouse_axis[1] = Controls.mouse_axis[2] = 0;
-				mouse_delta_time = timer_query() + (F1_0/30);
-			}
+
 			break;
+	}
+}
+
+// Call this every frame (after feeding input keys).
+void kconfig_process_controls_frame(void)
+{
+	int speed_factor = Game_turbo_mode ? 2 : 1;
+
+	Controls.pitch_time = Controls.vertical_thrust_time = Controls.heading_time = Controls.sideways_thrust_time = Controls.bank_time = Controls.forward_thrust_time = 0;
+
+	if (!PlayerCfg.MouseFlightSim && Controls.mouse_delta_time < timer_query())
+	{
+		Controls.mouse_axis[0] = Controls.mouse_axis[1] = Controls.mouse_axis[2] = 0;
+		Controls.mouse_delta_time = timer_query() + (F1_0/30);
 	}
 
 	//------------ Read pitch_time -----------
