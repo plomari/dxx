@@ -57,14 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define ARRAY_ELEMS(x) (sizeof(x) / sizeof((x)[0]))
 
-#define lengthof ARRAY_ELEMS
-
-//#define TABLE_CREATION 1
-#define DXX_BUILD_DESCENT_II 1
-#define MAX_DXX_REBIRTH_CONTROLS    MAX_D2X_CONTROLS
-#define kc_d2x kc_rebirth
-#define kcm_d2x kcm_rebirth
-
 // Array used to 'blink' the cursor while waiting for a keypress.
 static const sbyte fades[64] = { 1,1,1,2,2,3,4,4,5,6,8,9,10,12,13,15,16,17,19,20,22,23,24,26,27,28,28,29,30,30,31,31,31,31,31,30,30,29,28,28,27,26,24,23,22,20,19,17,16,15,13,12,10,9,8,6,5,4,4,3,2,2,1,1 };
 
@@ -140,13 +132,8 @@ const ubyte DefaultKeySettingsD2X[MAX_D2X_CONTROLS] = { 0x2,0xff,0xff,0x3,0xff,0
 
 //	  id,  x,  y, w1, w2,  u,  d,   l, r,     text,   type, value
 static const kc_item kc_keyboard[] = {
-#if defined(DXX_BUILD_DESCENT_I)
-	{ 15, 49, 86, 26, 43,  2, 49,  1,"Pitch forward", BT_KEY, STATE_BIT1, {&Controls.state.key_pitch_forward} },
-	{ 15, 49,115, 26, 48,  3,  0, 24,"Pitch forward", BT_KEY, STATE_BIT2, {&Controls.state.key_pitch_forward} },
-#elif defined(DXX_BUILD_DESCENT_II)
 	{ 15, 49, 86, 26, 55,  2, 56,  1,"Pitch forward", BT_KEY, STATE_BIT1, {&Controls.state.key_pitch_forward} },
 	{ 15, 49,115, 26, 50,  3,  0, 24,"Pitch forward", BT_KEY, STATE_BIT2, {&Controls.state.key_pitch_forward} },
-#endif
 	{ 15, 57, 86, 26,  0,  4, 25,  3,"Pitch backward", BT_KEY, STATE_BIT1, {&Controls.state.key_pitch_backward} },
 	{ 15, 57,115, 26,  1,  5,  2, 26,"Pitch backward", BT_KEY, STATE_BIT2, {&Controls.state.key_pitch_backward} },
 	{ 15, 65, 86, 26,  2,  6, 27,  5,"Turn left", BT_KEY, STATE_BIT1, {&Controls.state.key_heading_left} },
@@ -162,17 +149,6 @@ static const kc_item kc_keyboard[] = {
 	{ 15,109, 86, 26, 12, 16, 31, 15,"Slide up", BT_KEY, STATE_BIT1, {&Controls.state.key_slide_up} },
 	{ 15,109,115, 26, 13, 17, 14, 32,"Slide up", BT_KEY, STATE_BIT2, {&Controls.state.key_slide_up} },
 	{ 15,117, 86, 26, 14, 18, 33, 17,"Slide down", BT_KEY, STATE_BIT1, {&Controls.state.key_slide_down} },
-#if defined(DXX_BUILD_DESCENT_I)
-	{ 15,117,115, 26, 15, 19, 16, 38,"Slide down", BT_KEY, STATE_BIT2, {&Controls.state.key_slide_down} },
-	{ 15,129, 86, 26, 16, 20, 39, 19,"Bank on", BT_KEY, STATE_BIT1, {&Controls.bank_on_state} },
-	{ 15,129,115, 26, 17, 21, 18, 40,"Bank on", BT_KEY, STATE_BIT2, {&Controls.bank_on_state} },
-	{ 15,137, 86, 26, 18, 22, 41, 21,"Bank left", BT_KEY, STATE_BIT1, {&Controls.state.key_bank_left} },
-	{ 15,137,115, 26, 19, 23, 20, 42,"Bank left", BT_KEY, STATE_BIT2, {&Controls.state.key_bank_left} },
-	{ 15,145, 86, 26, 20, 46, 43, 23,"Bank right", BT_KEY, STATE_BIT1, {&Controls.state.key_bank_right} },
-	{ 15,145,115, 26, 21, 47, 22, 46,"Bank right", BT_KEY, STATE_BIT2, {&Controls.state.key_bank_right} },
-	{158, 49, 241, 26, 49, 26,  1, 25,"Fire primary", BT_KEY, STATE_BIT1, {&Controls.fire_primary_state} },
-	{158, 49,270, 26, 42, 27, 24,  2,"Fire primary", BT_KEY, STATE_BIT2, {&Controls.fire_primary_state} },
-#elif defined(DXX_BUILD_DESCENT_II)
 	{ 15,117,115, 26, 15, 19, 16, 46,"Slide down", BT_KEY, STATE_BIT2, {&Controls.state.key_slide_down} },
 	{ 15,129, 86, 26, 16, 20, 47, 19,"Bank on", BT_KEY, STATE_BIT1, {&Controls.bank_on_state} },
 	{ 15,129,115, 26, 17, 21, 18, 38,"Bank on", BT_KEY, STATE_BIT2, {&Controls.bank_on_state} },
@@ -182,47 +158,26 @@ static const kc_item kc_keyboard[] = {
 	{ 15,145,115, 26, 21, 49, 22, 42,"Bank right", BT_KEY, STATE_BIT2, {&Controls.state.key_bank_right} },
 	{158, 49, 241, 26, 51, 26,  1, 25,"Fire primary", BT_KEY, STATE_BIT1, {&Controls.fire_primary_state} },
 	{158, 49,270, 26, 56, 27, 24,  2,"Fire primary", BT_KEY, STATE_BIT2, {&Controls.fire_primary_state} },
-#endif
 	{158, 57, 241, 26, 24, 28,  3, 27,"Fire secondary", BT_KEY, STATE_BIT1, {&Controls.fire_secondary_state} },
 	{158, 57,270, 26, 25, 29, 26,  4,"Fire secondary", BT_KEY, STATE_BIT2, {&Controls.fire_secondary_state} },
 	{158, 65, 241, 26, 26, 34,  5, 29,"Fire flare", BT_KEY, 0, {&Controls.fire_flare_count} },
 	{158, 65,270, 26, 27, 35, 28,  6,"Fire flare", BT_KEY, 0, {&Controls.fire_flare_count} },
 	{158,105, 241, 26, 44, 32, 13, 31,"Accelerate", BT_KEY, STATE_BIT1, {&Controls.accelerate_state} },
 	{158,105,270, 26, 45, 33, 30, 14,"Accelerate", BT_KEY, STATE_BIT2, {&Controls.accelerate_state} },
-#if defined(DXX_BUILD_DESCENT_I)
-	{158,113, 241, 26, 30, 38, 15, 33,"Reverse", BT_KEY, STATE_BIT1, {&Controls.reverse_state} },
-	{158,113,270, 26, 31, 39, 32, 16,"Reverse", BT_KEY, STATE_BIT2, {&Controls.reverse_state} },
-#elif defined(DXX_BUILD_DESCENT_II)
 	{158,113, 241, 26, 30, 46, 15, 33,"reverse", BT_KEY, STATE_BIT1, {&Controls.reverse_state} },
 	{158,113,270, 26, 31, 47, 32, 16,"reverse", BT_KEY, STATE_BIT2, {&Controls.reverse_state} },
-#endif
 	{158, 73, 241, 26, 28, 36,  7, 35,"Drop Bomb", BT_KEY, 0, {&Controls.drop_bomb_count} },
 	{158, 73,270, 26, 29, 37, 34,  8,"Drop Bomb", BT_KEY, 0, {&Controls.drop_bomb_count} },
 	{158, 85, 241, 26, 34, 44,  9, 37,"REAR VIEW", BT_KEY, STATE_BIT1, {&Controls.rear_view_state} },
 	{158, 85,270, 26, 35, 45, 36, 10,"REAR VIEW", BT_KEY, STATE_BIT2, {&Controls.rear_view_state} },
-#if defined(DXX_BUILD_DESCENT_I)
-	{158,125, 241, 26, 32, 40, 17, 39,"Cruise faster", BT_KEY, STATE_BIT1, {&Controls.cruise_plus_state} },
-	{158,125,270, 26, 33, 41, 38, 18,"Cruise faster", BT_KEY, STATE_BIT2, {&Controls.cruise_plus_state} },
-	{158,133, 241, 26, 38, 42, 19, 41,"Cruise slower", BT_KEY, STATE_BIT1, {&Controls.cruise_minus_state} },
-	{158,133,270, 26, 39, 43, 40, 20,"Cruise slower", BT_KEY, STATE_BIT2, {&Controls.cruise_minus_state} },
-	{158,141, 241, 26, 40, 25, 21, 43,"Cruise off", BT_KEY, 0, {&Controls.cruise_off_count} },
-	{158,141,270, 26, 41,  0, 42, 22,"Cruise off", BT_KEY, 0, {&Controls.cruise_off_count} },
-#elif defined(DXX_BUILD_DESCENT_II)
 	{158,133, 241, 26, 46, 40, 19, 39,"Cruise Faster", BT_KEY, STATE_BIT1, {&Controls.cruise_plus_state} },
 	{158,133,270, 26, 47, 41, 38, 20,"Cruise Faster", BT_KEY, STATE_BIT2, {&Controls.cruise_plus_state} },
 	{158,141, 241, 26, 38, 42, 21, 41,"Cruise Slower", BT_KEY, STATE_BIT1, {&Controls.cruise_minus_state} },
 	{158,141,270, 26, 39, 43, 40, 22,"Cruise Slower", BT_KEY, STATE_BIT2, {&Controls.cruise_minus_state} },
 	{158,149, 241, 26, 40, 52, 23, 43,"Cruise Off", BT_KEY, 0, {&Controls.cruise_off_count} },
 	{158,149,270, 26, 41, 53, 42, 48,"Cruise Off", BT_KEY, 0, {&Controls.cruise_off_count} },
-#endif
 	{158, 93, 241, 26, 36, 30, 11, 45,"Automap", BT_KEY, STATE_BIT1, {&Controls.automap_state} },
 	{158, 93,270, 26, 37, 31, 44, 12,"Automap", BT_KEY, STATE_BIT2, {&Controls.automap_state} },
-#if defined(DXX_BUILD_DESCENT_I)
-	{ 15,157, 86, 26, 22, 48, 23, 47,"Cycle Primary", BT_KEY, 0, {&Controls.cycle_primary_count} },
-	{ 15,157,115, 26, 23, 49, 46, 48,"Cycle Primary", BT_KEY, 0, {&Controls.cycle_primary_count} },
-	{ 15,165, 86, 26, 46,  1, 47, 49,"Cycle Second.", BT_KEY, 0, {&Controls.cycle_secondary_count} },
-	{ 15,165,115, 26, 47, 24, 48,  0,"Cycle Second.", BT_KEY, 0, {&Controls.cycle_secondary_count} },
-#elif defined(DXX_BUILD_DESCENT_II)
 	{158,121, 241, 26, 32, 38, 17, 47,"Afterburner", BT_KEY, STATE_BIT1, {&Controls.afterburner_state} },
 	{158,121,270, 26, 33, 39, 46, 18,"Afterburner", BT_KEY, STATE_BIT2, {&Controls.afterburner_state} },
 	{ 15,161, 86, 26, 22, 50, 43, 49,"Cycle Primary", BT_KEY, 0, {&Controls.cycle_primary_count} },
@@ -234,28 +189,10 @@ static const kc_item kc_keyboard[] = {
 	{158,171, 241, 26, 52, 56, 51, 55,"Energy->Shield", BT_KEY, STATE_BIT1, {&Controls.energy_to_shield_state} },
 	{158,171,270, 26, 53,  0, 54, 56,"Energy->Shield", BT_KEY, STATE_BIT2, {&Controls.energy_to_shield_state} },
 	{158,179, 241, 26, 54, 25, 55,  0,"Toggle Bomb", BT_KEY, 0, {&Controls.toggle_bomb_count} },
-#endif
 };
-static kc_mitem kcm_keyboard[lengthof(kc_keyboard)];
+static kc_mitem kcm_keyboard[ARRAY_ELEMS(kc_keyboard)];
 
 static const kc_item kc_joystick[] = {
-#if defined(DXX_BUILD_DESCENT_I)
-	{ 22, 46, 104, 26, 15,  1, 24, 29,"Fire primary", BT_JOY_BUTTON, STATE_BIT3, {&Controls.fire_primary_state} },
-	{ 22, 54, 104, 26,  0,  4, 34, 30,"Fire secondary", BT_JOY_BUTTON, STATE_BIT3, {&Controls.fire_secondary_state} },
-	{ 22, 78, 104, 26, 26,  3, 37, 31,"Accelerate", BT_JOY_BUTTON, STATE_BIT3, {&Controls.accelerate_state} },
-	{ 22, 86, 104, 26,  2, 25, 38, 32,"Reverse", BT_JOY_BUTTON, STATE_BIT3, {&Controls.reverse_state} },
-	{ 22, 62, 104, 26,  1, 26, 35, 33,"Fire flare", BT_JOY_BUTTON, 0, {&Controls.fire_flare_count} },
-	{174, 46, 248, 26, 23,  6, 29, 34,"Slide on", BT_JOY_BUTTON, STATE_BIT3, {&Controls.slide_on_state} },
-	{174, 54, 248, 26,  5,  7, 30, 35,"Slide left", BT_JOY_BUTTON, STATE_BIT3, {&Controls.btn_slide_left_state} },
-	{174, 62, 248, 26,  6,  8, 33, 36,"Slide right", BT_JOY_BUTTON, STATE_BIT3, {&Controls.btn_slide_right_state} },
-	{174, 70, 248, 26,  7,  9, 43, 37,"Slide up", BT_JOY_BUTTON, STATE_BIT3, {&Controls.btn_slide_up_state} },
-	{174, 78, 248, 26,  8, 10, 31, 38,"Slide down", BT_JOY_BUTTON, STATE_BIT3, {&Controls.btn_slide_down_state} },
-	{174, 86, 248, 26,  9, 11, 32, 39,"Bank on", BT_JOY_BUTTON, STATE_BIT3, {&Controls.bank_on_state} },
-	{174, 94, 248, 26, 10, 12, 42, 40,"Bank left", BT_JOY_BUTTON, STATE_BIT3, {&Controls.btn_bank_left_state} },
-	{174,102, 248, 26, 11, 44, 28, 41,"Bank right", BT_JOY_BUTTON, STATE_BIT3, {&Controls.btn_bank_right_state} },
-	{ 22,154, 73, 26, 47, 15, 47, 14,"Pitch U/D", BT_JOY_AXIS, 0, {NULL} },
-	{ 22,154, 121,  8, 27, 16, 13, 17,"Pitch U/D", BT_INVERT, 0, {NULL} },
-#elif defined(DXX_BUILD_DESCENT_II)
 	{ 22, 46, 102, 26, 15,  1, 24, 31,"Fire primary", BT_JOY_BUTTON, STATE_BIT3, {&Controls.fire_primary_state} },
 	{ 22, 54, 102, 26,  0,  4, 36, 32,"Fire secondary", BT_JOY_BUTTON, STATE_BIT3, {&Controls.fire_secondary_state} },
 	{ 22, 78, 102, 26, 26,  3, 39, 33,"Accelerate", BT_JOY_BUTTON, STATE_BIT3, {&Controls.accelerate_state} },
@@ -271,48 +208,15 @@ static const kc_item kc_joystick[] = {
 	{174,102, 248, 26, 11, 28, 46, 43,"Bank right", BT_JOY_BUTTON, STATE_BIT3, {&Controls.btn_bank_right_state} },
 	{ 22,154, 73, 26, 55, 15, 55, 14,"Pitch U/D", BT_JOY_AXIS, 0, {NULL} },
 	{ 22,154, 121,  8, 50, 16, 13, 17,"Pitch U/D", BT_INVERT, 0, {NULL} },
-#endif
 	{ 22,162, 73, 26, 13,  0, 18, 16,"Turn L/R", BT_JOY_AXIS, 0, {NULL} },
-#if defined(DXX_BUILD_DESCENT_I)
-	{ 22,162, 121,  8, 14, 29, 15, 19,"Turn L/R", BT_INVERT, 0, {NULL} },
-	{164,154, 222, 26, 28, 19, 14, 18,"Slide L/R", BT_JOY_AXIS, 0, {NULL} },
-	{164,154,270,  8, 45, 20, 17, 15,"Slide L/R", BT_INVERT, 0, {NULL} },
-#elif defined(DXX_BUILD_DESCENT_II)
 	{ 22,162, 121,  8, 14, 31, 15, 19,"Turn L/R", BT_INVERT, 0, {NULL} },
 	{164,154, 222, 26, 51, 19, 14, 18,"Slide L/R", BT_JOY_AXIS, 0, {NULL} },
 	{164,154,270,  8, 54, 20, 17, 15,"Slide L/R", BT_INVERT, 0, {NULL} },
-#endif
 	{164,162, 222, 26, 17, 21, 16, 20,"Slide U/D", BT_JOY_AXIS, 0, {NULL} },
 	{164,162,270,  8, 18, 22, 19, 21,"Slide U/D", BT_INVERT, 0, {NULL} },
 	{164,170, 222, 26, 19, 23, 20, 22,"Bank L/R", BT_JOY_AXIS, 0, {NULL} },
 	{164,170,270,  8, 20, 24, 21, 23,"Bank L/R", BT_INVERT, 0, {NULL} },
 	{164,178, 222, 26, 21,  5, 22, 24,"throttle", BT_JOY_AXIS, 0, {NULL} },
-#if defined(DXX_BUILD_DESCENT_I)
-	{164,178,270,  8, 22, 34, 23,  0,"Throttle", BT_INVERT, 0, {NULL} },
-	{ 22, 94, 104, 26,  3, 27, 39, 42,"Rear view", BT_JOY_BUTTON, STATE_BIT3, {&Controls.rear_view_state} },
-	{ 22, 70, 104, 26,  4,  2, 36, 43,"Drop bomb", BT_JOY_BUTTON, 0, {&Controls.drop_bomb_count} },
-	{ 22,102, 104, 26, 25, 14, 40, 28,"Automap", BT_JOY_BUTTON, STATE_BIT3, {&Controls.automap_state} },
-	{ 22,102,133, 26, 42, 17, 27, 12,"Automap", BT_JOY_BUTTON, STATE_BIT4, {&Controls.automap_state} },
-	{ 22, 46,133, 26, 16, 30,  0,  5,"Fire primary", BT_JOY_BUTTON, STATE_BIT4, {&Controls.fire_primary_state} },
-	{ 22, 54,133, 26, 29, 33,  1,  6,"Fire secondary", BT_JOY_BUTTON, STATE_BIT4, {&Controls.fire_secondary_state} },
-	{ 22, 78,133, 26, 43, 32,  2,  9,"Accelerate", BT_JOY_BUTTON, STATE_BIT4, {&Controls.accelerate_state} },
-	{ 22, 86,133, 26, 31, 42,  3, 10,"Reverse", BT_JOY_BUTTON, STATE_BIT4, {&Controls.reverse_state} },
-	{ 22, 62,133, 26, 30, 43,  4,  7,"Fire flare", BT_JOY_BUTTON, 0, {&Controls.fire_flare_count} },
-	{174, 46,278, 26, 24, 35,  5,  1,"Slide on", BT_JOY_BUTTON, STATE_BIT4, {&Controls.slide_on_state} },
-	{174, 54,278, 26, 34, 36,  6,  4,"Slide left", BT_JOY_BUTTON, STATE_BIT4, {&Controls.btn_slide_left_state} },
-	{174, 62,278, 26, 35, 37,  7, 26,"Slide right", BT_JOY_BUTTON, STATE_BIT4, {&Controls.btn_slide_right_state} },
-	{174, 70,278, 26, 36, 38,  8,  2,"Slide up", BT_JOY_BUTTON, STATE_BIT4, {&Controls.btn_slide_up_state} },
-	{174, 78,278, 26, 37, 39,  9,  3,"Slide down", BT_JOY_BUTTON, STATE_BIT4, {&Controls.btn_slide_down_state} },
-	{174, 86,278, 26, 38, 40, 10, 25,"Bank on", BT_JOY_BUTTON, STATE_BIT4, {&Controls.bank_on_state} },
-	{174, 94,278, 26, 39, 41, 11, 27,"Bank left", BT_JOY_BUTTON, STATE_BIT4, {&Controls.btn_bank_left_state} },
-	{174,102,278, 26, 40, 46, 12, 44,"Bank right", BT_JOY_BUTTON, STATE_BIT4, {&Controls.btn_bank_right_state} },
-	{ 22, 94,133, 26, 32, 28, 25, 11,"Rear view", BT_JOY_BUTTON, STATE_BIT4, {&Controls.rear_view_state} },
-	{ 22, 70,133, 26, 33, 31, 26,  8,"Drop bomb", BT_JOY_BUTTON, 0, {&Controls.drop_bomb_count} },
-	{174,110, 248, 26, 12, 45, 41, 46,"Cycle Primary", BT_JOY_BUTTON, 0, {&Controls.cycle_primary_count} },
-	{174,118, 248, 26, 44, 18, 46, 47,"Cycle Secondary", BT_JOY_BUTTON, 0, {&Controls.cycle_secondary_count} },
-	{174,110,278, 26, 41, 47, 44, 45,"Cycle Primary", BT_JOY_BUTTON, 0, {&Controls.cycle_primary_count} },
-	{174,118,278, 26, 46, 13, 45, 13,"Cycle Secondary", BT_JOY_BUTTON, 0, {&Controls.cycle_secondary_count} },
-#elif defined(DXX_BUILD_DESCENT_II)
 	{164,178,270,  8, 22, 36, 23,  0,"throttle", BT_INVERT, 0, {NULL} },
 	{ 22, 94, 102, 26,  3, 27, 41, 44,"REAR VIEW", BT_JOY_BUTTON, STATE_BIT3, {&Controls.rear_view_state} },
 	{ 22, 70, 102, 26,  4,  2, 38, 45,"Drop Bomb", BT_JOY_BUTTON, 0, {&Controls.drop_bomb_count} },
@@ -345,9 +249,8 @@ static const kc_item kc_joystick[] = {
 	{ 22,118,132, 26, 49, 51, 52, 29,"Energy->Shield", BT_JOY_BUTTON, STATE_BIT4, {&Controls.energy_to_shield_state} },
 	{174,126, 248, 26, 29, 18, 51, 55,"Toggle Bomb", BT_JOY_BUTTON, 0, {&Controls.toggle_bomb_count} },
 	{174,126,278, 26, 48, 13, 54, 13,"Toggle Bomb", BT_JOY_BUTTON, 0, {&Controls.toggle_bomb_count} },
-#endif
 };
-static kc_mitem kcm_joystick[lengthof(kc_joystick)];
+static kc_mitem kcm_joystick[ARRAY_ELEMS(kc_joystick)];
 
 static const kc_item kc_mouse[] = {
 	{ 25, 46, 110, 26, 19,  1, 20,  5,"Fire primary", BT_MOUSE_BUTTON, STATE_BIT5, {&Controls.fire_primary_state} },
@@ -363,13 +266,8 @@ static const kc_item kc_mouse[] = {
 	{180, 86, 239, 26,  9, 11,  3, 25,"Bank on", BT_MOUSE_BUTTON, STATE_BIT5, {&Controls.bank_on_state} },
 	{180, 94, 239, 26, 10, 12, 25, 27,"Bank left", BT_MOUSE_BUTTON, STATE_BIT5, {&Controls.btn_bank_left_state} },
 	{180,102, 239, 26, 11, 22, 27, 28,"Bank right", BT_MOUSE_BUTTON, STATE_BIT5, {&Controls.btn_bank_right_state} },
-#if defined(DXX_BUILD_DESCENT_I)
-	{ 25,154, 83, 26, 24, 15, 28, 14,"Pitch U/D", BT_MOUSE_AXIS, 0, {NULL} },
-	{ 25,154,131,  8, 28, 16, 13, 21,"Pitch U/D", BT_INVERT, 0, {NULL} },
-#elif defined(DXX_BUILD_DESCENT_II)
 	{ 25,154, 83, 26, 24, 15, 29, 14,"Pitch U/D", BT_MOUSE_AXIS, 0, {NULL} },
 	{ 25,154,131,  8, 29, 16, 13, 21,"Pitch U/D", BT_INVERT, 0, {NULL} },
-#endif
 	{ 25,162, 83, 26, 13, 17, 22, 16,"Turn L/R", BT_MOUSE_AXIS, 0, {NULL} },
 	{ 25,162,131,  8, 14, 18, 15, 23,"Turn L/R", BT_INVERT, 0, {NULL} },
 	{ 25,170, 83, 26, 15, 19, 24, 18,"Slide L/R", BT_MOUSE_AXIS, 0, {NULL} },
@@ -382,35 +280,24 @@ static const kc_item kc_mouse[] = {
 	{180,162,286,  8, 22, 13, 23, 17,"Throttle", BT_INVERT, 0, {NULL} },
 	{ 25, 94, 110, 26,  3, 27, 10, 11,"REAR VIEW", BT_MOUSE_BUTTON, STATE_BIT5, {&Controls.rear_view_state} },
 	{ 25, 70, 110, 26,  4,  2,  7,  8,"Drop Bomb", BT_MOUSE_BUTTON, 0, {&Controls.drop_bomb_count} },
-#if defined(DXX_BUILD_DESCENT_I)
-	{ 25,102, 110, 26, 25, 28, 11, 12,"Cycle Primary", BT_MOUSE_BUTTON, 0, {&Controls.cycle_primary_count} },
-	{ 25,110, 110, 26, 27, 14, 12, 13,"Cycle Secondary", BT_MOUSE_BUTTON, 0, {&Controls.cycle_secondary_count} },
-#elif defined(DXX_BUILD_DESCENT_II)
 	{ 25,102, 110, 26, 25, 28, 11, 12,"Afterburner", BT_MOUSE_BUTTON, STATE_BIT5, {&Controls.afterburner_state} },
 	{ 25,110, 110, 26, 27, 29, 12, 29,"Cycle Primary", BT_MOUSE_BUTTON, 0, {&Controls.cycle_primary_count} },
 	{ 25,118, 110, 26, 28, 14, 28, 13,"Cycle Secondary", BT_MOUSE_BUTTON, 0, {&Controls.cycle_secondary_count} },
-#endif
 };
-static kc_mitem kcm_mouse[lengthof(kc_mouse)];
+static kc_mitem kcm_mouse[ARRAY_ELEMS(kc_mouse)];
 
-#if defined(DXX_BUILD_DESCENT_I)
-#define D2X_EXTENDED_WEAPON_STRING(X)
-#elif defined(DXX_BUILD_DESCENT_II)
-#define D2X_EXTENDED_WEAPON_STRING(X)	X
-#endif
+#define WEAPON_STRING_LASER			"(SUPER)LASER CANNON"
+#define WEAPON_STRING_VULCAN		"VULCAN/GAUSS CANNON"
+#define WEAPON_STRING_SPREADFIRE	"SPREADFIRE/HELIX CANNON"
+#define WEAPON_STRING_PLASMA		"PLASMA/PHOENIX CANNON"
+#define WEAPON_STRING_FUSION		"FUSION/OMEGA CANNON"
+#define WEAPON_STRING_CONCUSSION	"CONCUSSION/FLASH MISSILE"
+#define WEAPON_STRING_HOMING		"HOMING/GUIDED MISSILE"
+#define WEAPON_STRING_PROXIMITY		"PROXIMITY BOMB/SMART MINE"
+#define WEAPON_STRING_SMART			"SMART/MERCURY MISSILE"
+#define WEAPON_STRING_MEGA			"MEGA/EARTHSHAKER MISSILE"
 
-#define WEAPON_STRING_LASER	D2X_EXTENDED_WEAPON_STRING("(SUPER)") "LASER CANNON"
-#define WEAPON_STRING_VULCAN	"VULCAN" D2X_EXTENDED_WEAPON_STRING("/GAUSS") " CANNON"
-#define WEAPON_STRING_SPREADFIRE	"SPREADFIRE" D2X_EXTENDED_WEAPON_STRING("/HELIX") " CANNON"
-#define WEAPON_STRING_PLASMA	"PLASMA" D2X_EXTENDED_WEAPON_STRING("/PHOENIX") " CANNON"
-#define WEAPON_STRING_FUSION	"FUSION" D2X_EXTENDED_WEAPON_STRING("/OMEGA") " CANNON"
-#define WEAPON_STRING_CONCUSSION	"CONCUSSION" D2X_EXTENDED_WEAPON_STRING("/FLASH") " MISSILE"
-#define WEAPON_STRING_HOMING	"HOMING" D2X_EXTENDED_WEAPON_STRING("/GUIDED") " MISSILE"
-#define WEAPON_STRING_PROXIMITY	"PROXIMITY BOMB" D2X_EXTENDED_WEAPON_STRING("/SMART MINE")
-#define WEAPON_STRING_SMART	"SMART" D2X_EXTENDED_WEAPON_STRING("/MERCURY") " MISSILE"
-#define WEAPON_STRING_MEGA	"MEGA" D2X_EXTENDED_WEAPON_STRING("/EARTHSHAKER") " MISSILE"
-
-static const kc_item kc_rebirth[] = {
+static const kc_item kc_d2x[] = {
 	{ 15, 69,157, 26, 29,  3, 29,  1,WEAPON_STRING_LASER, BT_KEY, 0, {&Controls.select_weapon_count} },
 	{ 15, 69,215, 26, 27,  4,  0,  2,WEAPON_STRING_LASER, BT_JOY_BUTTON, 0, {&Controls.select_weapon_count} },
 	{ 15, 69,273, 26, 28,  5,  1,  3,WEAPON_STRING_LASER, BT_MOUSE_BUTTON, 0, {&Controls.select_weapon_count} },
@@ -442,7 +329,7 @@ static const kc_item kc_rebirth[] = {
 	{ 15,141,215, 26, 25,  2, 27, 29,WEAPON_STRING_MEGA, BT_JOY_BUTTON, 0, {&Controls.select_weapon_count} },
 	{ 15,141,273, 26, 26,  0, 28,  0,WEAPON_STRING_MEGA, BT_MOUSE_BUTTON, 0, {&Controls.select_weapon_count} },
 };
-static kc_mitem kcm_rebirth[lengthof(kc_rebirth)];
+static kc_mitem kcm_d2x[ARRAY_ELEMS(kc_d2x)];
 
 static void kc_drawitem( const kc_item *item, kc_mitem *mitem, int is_current );
 static void kc_change_key( kc_menu *menu, d_event *event, kc_mitem *mitem );
@@ -452,157 +339,6 @@ static void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_mitem *mitem );
 static void kc_change_mouseaxis( kc_menu *menu, d_event *event, kc_mitem *mitem );
 static void kc_change_invert( kc_menu *menu, kc_mitem * item );
 static void kc_drawquestion( kc_menu *menu, const kc_item *item );
-
-#ifdef TABLE_CREATION
-static int find_item_at( const kc_item * items, unsigned nitems, int x, int y )
-{
-	for (unsigned i=0; i<nitems; i++ )	{
-		if ( ((items[i].xinput)==x) && (items[i].y==y))
-			return i;
-	}
-	return -1;
-}
-
-static int find_next_item_up( const kc_item * items, unsigned nitems, int citem )
-{
-	int x, y, i;
-
-	y = items[citem].y;
-	x = items[citem].xinput;
-	
-	do {	
-		y--;
-		if ( y < 0 ) {
-			y = grd_curcanv->cv_bitmap.bm_h-1;
-			x--;
-			if ( x < 0 ) {
-				x = grd_curcanv->cv_bitmap.bm_w-1;
-			}
-		}
-		i = find_item_at( items, nitems, x, y );
-	} while ( i < 0 );
-	
-	return i;
-}
-
-static int find_next_item_down( const kc_item * items, unsigned nitems, int citem )
-{
-	int x, y, i;
-
-	y = items[citem].y;
-	x = items[citem].xinput;
-	
-	do {	
-		y++;
-		if ( y > grd_curcanv->cv_bitmap.bm_h-1 ) {
-			y = 0;
-			x++;
-			if ( x > grd_curcanv->cv_bitmap.bm_w-1 ) {
-				x = 0;
-			}
-		}
-		i = find_item_at( items, nitems, x, y );
-	} while ( i < 0 );
-	
-	return i;
-}
-
-static int find_next_item_right( const kc_item * items, unsigned nitems, int citem )
-{
-	int x, y, i;
-
-	y = items[citem].y;
-	x = items[citem].xinput;
-	
-	do {	
-		x++;
-		if ( x > grd_curcanv->cv_bitmap.bm_w-1 ) {
-			x = 0;
-			y++;
-			if ( y > grd_curcanv->cv_bitmap.bm_h-1 ) {
-				y = 0;
-			}
-		}
-		i = find_item_at( items, nitems, x, y );
-	} while ( i < 0 );
-	
-	return i;
-}
-
-static int find_next_item_left( const kc_item * items, unsigned nitems, int citem )
-{
-	int x, y, i;
-
-	y = items[citem].y;
-	x = items[citem].xinput;
-	
-	do {	
-		x--;
-		if ( x < 0 ) {
-			x = grd_curcanv->cv_bitmap.bm_w-1;
-			y--;
-			if ( y < 0 ) {
-				y = grd_curcanv->cv_bitmap.bm_h-1;
-			}
-		}
-		i = find_item_at( items, nitems, x, y );
-	} while ( i < 0 );
-	
-	return i;
-}
-
-template <unsigned nitems>
-static int find_next_item_up( const kc_item (&items)[nitems], int citem )
-{
-	return find_next_item_up(items, nitems, citem);
-}
-
-template <unsigned nitems>
-static int find_next_item_down( const kc_item (&items)[nitems], int citem )
-{
-	return find_next_item_down(items, nitems, citem);
-}
-
-template <unsigned nitems>
-static int find_next_item_right( const kc_item (&items)[nitems], int citem )
-{
-	return find_next_item_right(items, nitems, citem);
-}
-
-template <unsigned nitems>
-static int find_next_item_left( const kc_item (&items)[nitems], int citem )
-{
-	return find_next_item_left(items, nitems, citem);
-}
-
-static const char btype_text[][13] = {
-	"KEY",
-	"MOUSE_BUTTON",
-	"MOUSE_AXIS",
-	"JOY_BUTTON",
-	"JOY_AXIS",
-	"INVERT"
-};
-
-template <std::size_t N>
-static void print_create_table_items(PHYSFS_file *fp, const char *type, const kc_item (&items)[N])
-{
-	PHYSFSX_printf( fp, "\nstatic const kc_item kc_%s[] = {\n", type );
-	for (unsigned i=0; i < N; ++i ) {
-		short u,d,l,r;
-		u = find_next_item_up( items, i);
-		d = find_next_item_down( items, i);
-		l = find_next_item_left( items, i);
-		r = find_next_item_right( items, i);
-		PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3hd,%3hd,%3hd,%3hd,\"%s\", BT_%s },\n", 
-					   items[i].x, items[i].y, items[i].xinput, items[i].w2,
-					   u, d, l, r,
-					   items[i].text, btype_text[items[i].type] );
-	}
-	PHYSFSX_printf( fp, "};\n"
-		"static kc_mitem kcm_%1$s[lengthof(kc_%1$s)];\n", type );
-}
-#endif
 
 static const char *get_item_text(const kc_item *item,  const kc_mitem *mitem, char *buf, size_t buf_size)
 {
@@ -883,8 +619,8 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 
 			if ( menu->items==kc_mouse )
 				reset_mitem_values(kcm_mouse, DefaultKeySettings[2]);
-			if ( menu->items==kc_rebirth )
-				reset_mitem_values(kcm_rebirth, DefaultKeySettingsD2X);
+			if ( menu->items==kc_d2x )
+				reset_mitem_values(kcm_d2x, DefaultKeySettingsD2X);
 			return 1;
 		case KEY_DELETE:
 			menu->mitems[menu->citem].value=255;
@@ -917,70 +653,6 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 			} else
 				window_close(wind);
 			return 1;
-#ifdef TABLE_CREATION
-		case KEY_F12:	{
-				PHYSFS_file * fp;
-				fp = PHYSFSX_openWriteBuffered( "kconfig.cod" );
-				
-				PHYSFSX_printf( fp, "const ubyte DefaultKeySettings[3][MAX_CONTROLS] = {\n" );
-				for (i=0; i<3; i++ )	{
-					int j;
-					PHYSFSX_printf( fp, "{0x%2x", PlayerCfg.KeySettings[i][0] );
-					for (j=1; j<MAX_CONTROLS; j++ )
-						PHYSFSX_printf( fp, ",0x%2x", PlayerCfg.KeySettings[i][j] );
-					PHYSFSX_printf( fp, "},\n" );
-				}
-				PHYSFSX_printf( fp, "};\n" );
-				
-				PHYSFSX_printf( fp, "\nkc_item kc_keyboard[] = {\n" );
-				for (unsigned i=0; i<(sizeof(kc_keyboard)/sizeof(kc_keyboard[0])); i++ )	{
-					PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
-							kc_keyboard[i].x, kc_keyboard[i].y, kc_keyboard[i].xinput, kc_keyboard[i].w2,
-							kcr_keyboard[i].u, kcr_keyboard[i].d, kcr_keyboard[i].l, kcr_keyboard[i].r,
-							34, kc_keyboard[i].text, 34, btype_text[kc_keyboard[i].type] );
-				}
-				PHYSFSX_printf( fp, "};" );
-				
-				PHYSFSX_printf( fp, "\nkc_item kc_joystick[] = {\n" );
-				for (unsigned i=0; i<(sizeof(kc_joystick) / sizeof(kc_joystick[0])); i++ )	{
-#if defined(DXX_BUILD_DESCENT_II)
-					if (kc_joystick[i].type == BT_JOY_BUTTON)
-						PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
-								kc_joystick[i].x, kc_joystick[i].y, kc_joystick[i].xinput, kc_joystick[i].w2,
-								kcr_joystick[i].u, kcr_joystick[i].d, kcr_joystick[i].l, kcr_joystick[i].r,
-								34, kc_joystick[i].text, 34, btype_text[kc_joystick[i].type] );
-					else
-						PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
-								kc_joystick[i].x, kc_joystick[i].y, kc_joystick[i].xinput, kc_joystick[i].w2,
-								kcr_joystick[i].u, kcr_joystick[i].d, kcr_joystick[i].l, kcr_joystick[i].r,
-								34, kc_joystick[i].text, 34, btype_text[kc_joystick[i].type] );
-				}
-				PHYSFSX_printf( fp, "};" );
-
-				PHYSFSX_printf( fp, "\nkc_item kc_mouse[] = {\n" );
-				for (unsigned i=0; i<(sizeof(kc_mouse) / sizeof(kc_mouse[0])); i++ )	{
-					PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n",
-							kc_mouse[i].x, kc_mouse[i].y, kc_mouse[i].xinput, kc_mouse[i].w2,
-							kcr_mouse[i].u, kcr_mouse[i].d, kcr_mouse[i].l, kcr_mouse[i].r,
-							34, kc_mouse[i].text, 34, btype_text[kc_mouse[i].type] );
-				}
-				PHYSFSX_printf( fp, "};" );
-#endif
-				
-				PHYSFSX_printf( fp, "\nkc_item kc_rebirth[] = {\n" );
-				for (unsigned i=0; i<(sizeof(kc_rebirth) / sizeof(kc_rebirth[0])); i++ )	{
-					PHYSFSX_printf( fp, "\t{ %3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,%c%s%c, %s, 255 },\n", 
-							kc_rebirth[i].x, kc_rebirth[i].y, kc_rebirth[i].xinput, kc_rebirth[i].w2,
-							kcr_rebirth[i].u, kcr_rebirth[i].d, kcr_rebirth[i].l, kcr_rebirth[i].r,
-							34, kc_rebirth[i].text, 34, btype_text[kc_rebirth[i].type] );
-				}
-				PHYSFSX_printf( fp, "};" );
-				
-				PHYSFS_close(fp);
-				
-			}
-			return 1;
-#endif
 		case 0:		// some other event
 			break;
 			
@@ -1070,17 +742,17 @@ static int kconfig_handler(window *wind, d_event *event, kc_menu *menu)
 			
 			// Update save values...
 			
-			for (unsigned i=0; i < lengthof(kc_keyboard); i++ ) 
+			for (unsigned i=0; i < ARRAY_ELEMS(kc_keyboard); i++ )
 				PlayerCfg.KeySettings[0][i] = kcm_keyboard[i].value;
 			
-			for (unsigned i=0; i < lengthof(kc_joystick); i++ )
+			for (unsigned i=0; i < ARRAY_ELEMS(kc_joystick); i++ )
 				PlayerCfg.KeySettings[1][i] = kcm_joystick[i].value;
 
-			for (unsigned i=0; i < lengthof(kc_mouse); i++ ) 
+			for (unsigned i=0; i < ARRAY_ELEMS(kc_mouse); i++ )
 				PlayerCfg.KeySettings[2][i] = kcm_mouse[i].value;
 			
-			for (unsigned i=0; i < lengthof(kc_rebirth); i++)
-				PlayerCfg.KeySettingsD2X[i] = kcm_rebirth[i].value;
+			for (unsigned i=0; i < ARRAY_ELEMS(kc_d2x); i++)
+				PlayerCfg.KeySettingsD2X[i] = kcm_d2x[i].value;
 			return 0;	// continue closing
 			break;
 			
@@ -1279,7 +951,7 @@ void kconfig(int n, char * title)
 		case 0:kconfig_sub( kc_keyboard,kcm_keyboard,title); break;
 		case 1:kconfig_sub( kc_joystick,kcm_joystick,title); break;
 		case 2:kconfig_sub( kc_mouse,   kcm_mouse,   title); break;
-		case 3:kconfig_sub( kc_rebirth, kcm_rebirth, title); break;
+		case 3:kconfig_sub( kc_d2x, kcm_d2x, title); break;
 		default:
 			Int3();
 			return;
@@ -1369,7 +1041,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	{
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
-			for (i = 0; i < lengthof(kc_keyboard); i++)
+			for (i = 0; i < ARRAY_ELEMS(kc_keyboard); i++)
 			{
 				if (kcm_keyboard[i].value < 255 && kcm_keyboard[i].value == event_key_get_raw(event))
 				{
@@ -1388,7 +1060,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		case EVENT_JOYSTICK_BUTTON_UP:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_JOYSTICK))
 				break;
-			for (i = 0; i < lengthof(kc_joystick); i++)
+			for (i = 0; i < ARRAY_ELEMS(kc_joystick); i++)
 			{
 				if (kcm_joystick[i].value < 255 && kc_joystick[i].type == BT_JOY_BUTTON && kcm_joystick[i].value == event_joystick_get_button(event))
 				{
@@ -1407,7 +1079,7 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 		case EVENT_MOUSE_BUTTON_UP:
 			if (!(PlayerCfg.ControlType & CONTROL_USING_MOUSE))
 				break;
-			for (i = 0; i < lengthof(kc_mouse); i++)
+			for (i = 0; i < ARRAY_ELEMS(kc_mouse); i++)
 			{
 				if (kcm_mouse[i].value < 255 && kc_mouse[i].type == BT_MOUSE_BUTTON && kcm_mouse[i].value == event_mouse_get_button(event))
 				{
@@ -1624,10 +1296,10 @@ void reset_cruise(void)
 
 void kc_set_controls()
 {
-	for (unsigned i=0; i < lengthof(kc_keyboard); i++ )
+	for (unsigned i=0; i < ARRAY_ELEMS(kc_keyboard); i++ )
 		kcm_keyboard[i].value = PlayerCfg.KeySettings[0][i];
 
-	for (unsigned i=0; i < lengthof(kc_joystick); i++ )
+	for (unsigned i=0; i < ARRAY_ELEMS(kc_joystick); i++ )
 	{
 		kcm_joystick[i].value = PlayerCfg.KeySettings[1][i];
 		if (kc_joystick[i].type == BT_INVERT )
@@ -1638,7 +1310,7 @@ void kc_set_controls()
 		}
 	}
 
-	for (unsigned i=0; i < lengthof(kc_mouse); i++ )
+	for (unsigned i=0; i < ARRAY_ELEMS(kc_mouse); i++ )
 	{
 		kcm_mouse[i].value = PlayerCfg.KeySettings[2][i];
 		if (kc_mouse[i].type == BT_INVERT )
@@ -1649,8 +1321,8 @@ void kc_set_controls()
 		}
 	}
 
-	for (unsigned i=0; i < lengthof(kc_rebirth); i++ )
-		kcm_rebirth[i].value = PlayerCfg.KeySettingsD2X[i];
+	for (unsigned i=0; i < ARRAY_ELEMS(kc_d2x); i++ )
+		kcm_d2x[i].value = PlayerCfg.KeySettingsD2X[i];
 }
 
 char GetKeyValue (char key)
