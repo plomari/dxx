@@ -349,18 +349,26 @@ void stop_time()
 		}
 	}
 	time_paused++;
+	gr_update_grab();
 }
 
 void start_time()
 {
 	time_paused--;
 	Assert(time_paused >= 0);
+	gr_update_grab();
 	if (time_paused==0) {
 		fix64 time;
 		timer_update();
 		time = timer_query();
 		last_timer_value = time - last_timer_value;
 	}
+}
+
+// Game is active, and is not paused.
+bool game_is_running(void)
+{
+	return Screen_mode == SCREEN_GAME && !time_paused;
 }
 
 void game_flush_inputs()

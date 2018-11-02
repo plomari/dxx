@@ -244,4 +244,6 @@ void game_init_render_buffers(int render_w, int render_h);
 
 void game_leave_menus(void);
 
+bool game_is_running(void);
+
 #endif /* _GAME_H */

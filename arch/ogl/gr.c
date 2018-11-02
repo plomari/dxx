@@ -175,7 +175,7 @@ int ogl_init_window(int x, int y)
 void gr_update_grab(void)
 {
 	SDL_SetWindowGrab(sdl_window,
-		ogl_fullscreen && (Screen_mode == SCREEN_GAME || force_grab));
+		ogl_fullscreen && (game_is_running() || force_grab));
 }
 
 void gr_force_grab_keys(int force)
