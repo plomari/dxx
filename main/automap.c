@@ -186,6 +186,8 @@ void automap_build_edge_list(automap *am);
 // extern
 void check_and_fix_matrix(vms_matrix *m);
 
+static void automap_perform_movement(automap *am);
+
 #define	MAX_DROP_MULTI	2
 #define	MAX_DROP_SINGLE	9
 
@@ -441,6 +443,8 @@ void draw_automap(automap *am)
 	if ( am->leave_mode==0 && am->controls.automap_state && (timer_query()-am->entry_time)>LEAVE_TIME)
 		am->leave_mode = 1;
 
+	automap_perform_movement(am);
+
 	gr_set_current_canvas(NULL);
 	show_fullscr(&am->automap_background);
 	gr_set_curfont(HUGE_FONT);
@@ -536,7 +540,7 @@ void draw_automap(automap *am)
 		show_mousefs_indicator(am->controls.raw_mouse_axis[0], am->controls.raw_mouse_axis[1], am->controls.raw_mouse_axis[2], GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
 
 	am->t2 = timer_query();
-	while (am->t2 - am->t1 < F1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS)) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
+	while (0&&am->t2 - am->t1 < F1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS)) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
 	{
 		if (GameArg.SysUseNiceFPS && !GameCfg.VSync)
 			timer_delay(f1_0 / GameArg.SysMaxFPS - (am->t2 - am->t1));
@@ -656,8 +660,6 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 
 int automap_process_input(window *wind, d_event *event, automap *am)
 {
-	vms_matrix tempm;
-
 	Controls = am->controls;
 	kconfig_read_controls(event, 1);
 	am->controls = Controls;
@@ -679,6 +681,11 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 		}
 	}
 	
+	return 0;
+}
+
+static void automap_perform_movement(automap *am)
+{
 	if (PlayerCfg.AutomapFreeFlight)
 	{
 		if ( am->controls.fire_primary_state)
@@ -688,11 +695,12 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 			vm_vec_scale_add(&am->view_position, &Objects[Players[Player_num].objnum].pos, &am->viewMatrix.fvec, -ZOOM_DEFAULT );
 			am->controls.fire_primary_state = 0;
 		}
-		
+
 		if (am->controls.pitch_time || am->controls.heading_time || am->controls.bank_time)
 		{
 			vms_angvec tangles;
 			vms_matrix new_m;
+			vms_matrix tempm;
 
 			tangles.p = fixdiv( am->controls.pitch_time, ROT_SPEED_DIVISOR );
 			tangles.h = fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
@@ -703,13 +711,13 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 			am->viewMatrix = new_m;
 			check_and_fix_matrix(&am->viewMatrix);
 		}
-		
+
 		if ( am->controls.forward_thrust_time || am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )
 		{
 			vm_vec_scale_add2( &am->view_position, &am->viewMatrix.fvec, am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR );
 			vm_vec_scale_add2( &am->view_position, &am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
 			vm_vec_scale_add2( &am->view_position, &am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
-			
+
 			// Crude wrapping check
 			if (am->view_position.x >  F1_0*32000) am->view_position.x =  F1_0*32000;
 			if (am->view_position.x < -F1_0*32000) am->view_position.x = -F1_0*32000;
@@ -741,6 +749,7 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 		{
 			vms_angvec      tangles1;
 			vms_vector      old_vt;
+			vms_matrix 		tempm;
 
 			old_vt = am->view_target;
 			tangles1 = am->tangles;
@@ -752,14 +761,13 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 				am->view_target = old_vt;
 		}
 
+		vms_matrix tempm;
 		vm_angles_2_matrix(&tempm,&am->tangles);
 		vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
 
 		if ( am->viewDist < ZOOM_MIN_VALUE ) am->viewDist = ZOOM_MIN_VALUE;
 		if ( am->viewDist > ZOOM_MAX_VALUE ) am->viewDist = ZOOM_MAX_VALUE;
 	}
-	
-	return 0;
 }
 
 int automap_handler(window *wind, d_event *event, automap *am)
