@@ -56,7 +56,6 @@ common_sources = [
 '2d/bitmap.c',
 '2d/box.c',
 '2d/canvas.c',
-'2d/circle.c',
 '2d/font.c',
 '2d/gpixel.c',
 '2d/line.c',
