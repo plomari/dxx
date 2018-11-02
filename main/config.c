@@ -72,49 +72,19 @@ int ReadConfigFile()
 	char line[PATH_MAX+50], *token, *value, *ptr;
 
 	// set defaults
-	GameCfg.DigiVolume = 8;
-	GameCfg.MusicVolume = 8;
-	GameCfg.ReverseStereo = 0;
-	GameCfg.OrigTrackOrder = 0;
-#if defined(__APPLE__) && defined(__MACH__)
-	GameCfg.MusicType = MUSIC_TYPE_REDBOOK;
-#else
-	GameCfg.MusicType = MUSIC_TYPE_BUILTIN;
-#endif
-	GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_CONT;
-	GameCfg.CMLevelMusicTrack[0] = -1;
-	GameCfg.CMLevelMusicTrack[1] = -1;
-	memset(GameCfg.CMLevelMusicPath,0,PATH_MAX+1);
-	memset(GameCfg.CMMiscMusic[SONG_TITLE],0,PATH_MAX+1);
-	memset(GameCfg.CMMiscMusic[SONG_BRIEFING],0,PATH_MAX+1);
-	memset(GameCfg.CMMiscMusic[SONG_ENDLEVEL],0,PATH_MAX+1);
-	memset(GameCfg.CMMiscMusic[SONG_ENDGAME],0,PATH_MAX+1);
-	memset(GameCfg.CMMiscMusic[SONG_CREDITS],0,PATH_MAX+1);
-#if defined(__APPLE__) && defined(__MACH__)
-	GameCfg.OrigTrackOrder = 1;
-	snprintf(GameCfg.CMLevelMusicPath,				PATH_MAX, "%s", "descent2.m3u");
-	snprintf(GameCfg.CMMiscMusic[SONG_TITLE],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Redbook Soundtrack/Descent II, Macintosh CD-ROM/02 Title.mp3");
-	snprintf(GameCfg.CMMiscMusic[SONG_BRIEFING],	PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/03 Outerlimits.mp3");
-	snprintf(GameCfg.CMMiscMusic[SONG_ENDLEVEL],	PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/04 Close Call.mp3");
-	snprintf(GameCfg.CMMiscMusic[SONG_ENDGAME],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Insanity/Descent/14 Insanity.mp3");
-	snprintf(GameCfg.CMMiscMusic[SONG_CREDITS],		PATH_MAX, "%s%s", PHYSFS_getUserDir(), "Music/iTunes/iTunes Music/Redbook Soundtrack/Descent II, Macintosh CD-ROM/03 Crawl.mp3");
-#endif
-	GameCfg.GammaLevel = 0;
-	memset(GameCfg.LastPlayer,0,CALLSIGN_LEN+1);
-	memset(GameCfg.LastMission,0,MISSION_NAME_LEN+1);
-        GameCfg.LastLevel = 1;
-	GameCfg.ResolutionX = 640;
-	GameCfg.ResolutionY = 480;
-	GameCfg.AspectX = 3;
-	GameCfg.AspectY = 4;
-	GameCfg.WindowMode = 0;
-	GameCfg.TexFilt = 0;
-	GameCfg.MovieTexFilt = 0;
-	GameCfg.MovieSubtitles = 0;
-	GameCfg.VSync = 0;
-	GameCfg.Multisample = 0;
-	GameCfg.Grabinput = 1;
-
+	GameCfg = (struct Cfg) {
+		.DigiVolume = 8,
+		.MusicVolume = 8,
+		.MusicType = MUSIC_TYPE_BUILTIN,
+		.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_CONT,
+		.CMLevelMusicTrack[0] = -1,
+		.CMLevelMusicTrack[1] = -1,
+		.ResolutionX = 640,
+		.ResolutionY = 480,
+		.AspectX = 3,
+		.AspectY = 4,
+		.Grabinput = 1,
+	};
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
 
