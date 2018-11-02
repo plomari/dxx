@@ -370,7 +370,8 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "Initializing movie libraries...\n" );
 	init_movies();		//init movie libraries
 
-	show_titles();
+	if (!GameArg.SysNoMovies)
+		show_titles();
 
 	set_screen_mode(SCREEN_MENU);
 
