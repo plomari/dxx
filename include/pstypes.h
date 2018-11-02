@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <limits.h>
 
 typedef int8_t sbyte;
 typedef uint8_t ubyte;
@@ -34,22 +35,6 @@ typedef uint32_t uint;
 #endif
 #ifndef max
 #define max(a,b) (((a)<(b))?(b):(a))
-#endif
-
-#ifdef _WIN32
-# ifndef __MINGW32__
-#  define PATH_MAX _MAX_PATH
-# endif
-# define FNAME_MAX 256
-#elif defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
-# include <sys/types.h>
-# ifndef PATH_MAX
-#  define PATH_MAX 1024
-# endif
-# define FNAME_MAX 256
-#elif defined(macintosh)
-# define PATH_MAX 256
-# define FNAME_MAX 32
 #endif
 
 #ifdef __GNUC__
