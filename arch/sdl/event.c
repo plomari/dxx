@@ -72,9 +72,10 @@ void event_poll()
 			case SDL_JOYBALLMOTION:
 				break;
 			case SDL_QUIT: {
-				d_event qevent = { EVENT_QUIT };
-				call_default_handler(&qevent);
-				idle = 0;
+				//d_event qevent = { EVENT_QUIT };
+				//call_default_handler(&qevent);
+				//idle = 0;
+				exit(0);
 			} break;
                         case SDL_WINDOWEVENT: {
                             switch (event.window.event) {
