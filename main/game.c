@@ -1191,7 +1191,6 @@ int game_handler(window *wind, d_event *event, void *data)
 			break;
 
 		case EVENT_WINDOW_CLOSED:
-			longjmp(LeaveEvents, 0);
 			break;
 
 		default:

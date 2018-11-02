@@ -290,7 +290,6 @@ int standard_handler(d_event *event)
 	return 0;
 }
 
-jmp_buf LeaveEvents;
 #define PROGNAME argv[0]
 
 //	DESCENT II by Parallax Software
@@ -446,7 +445,6 @@ int main(int argc, char *argv[])
 		DoMenu();
 	}
 
-	setjmp(LeaveEvents);
 	while (window_get_front())
 		// Send events to windows and the default handler
 		event_process();

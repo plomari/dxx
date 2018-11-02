@@ -20,8 +20,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _INFERNO_H
 #define _INFERNO_H
 
-#include <setjmp.h>
-
 #include "pstypes.h"
 
 
@@ -60,7 +58,6 @@ typedef char d_fname[FILENAME_LEN];
  **	Global variables
  **/
 
-extern jmp_buf LeaveEvents;
 extern int Quitting;
 extern int Screen_mode;			// editor screen or game screen?
 
