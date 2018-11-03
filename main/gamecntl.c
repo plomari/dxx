@@ -400,6 +400,15 @@ void format_time(char *str, int secs_int)
 
 extern int netplayerinfo_on;
 
+static void run_quit_menu(void)
+{
+	int choice = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+	if (choice == 0)
+		window_close(Game_wind);
+
+	return;
+}
+
 //Process selected keys until game unpaused
 int pause_handler(window *wind, d_event *event, char *msg)
 {
@@ -420,6 +429,7 @@ int pause_handler(window *wind, d_event *event, char *msg)
 					break;
 				case KEY_ESC:
 					window_close(wind);
+					run_quit_menu();
 					return 1;
 				case KEY_F1:
 					show_help();
@@ -814,11 +824,7 @@ int HandleSystemKey(int key)
 
 			case KEY_ESC:
 			{
-				int choice;
-				choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-				if (choice == 0)
-					window_close(Game_wind);
-
+				run_quit_menu();
 				return 1;
 			}
 
