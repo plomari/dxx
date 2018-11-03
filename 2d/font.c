@@ -856,9 +856,6 @@ void gr_remap_font( grs_font *font, char * fontname, char *font_data )
 	int datasize;        //size up to (but not including) palette
 	unsigned char *ptr;
 
-	if (! (font->ft_flags & FT_COLOR))
-		return;
-
 	fontfile = cfopen(fontname, "rb");
 
 	if (!fontfile)
