@@ -201,20 +201,6 @@ int standard_handler(d_event *event)
 		window *wind = window_get_front();
 		if (!wind)
 			return 0;
-	
-		if (wind == Game_wind)
-		{
-			int choice;
-			Quitting = 0;
-			choice=nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
-			if (choice != 0)
-				return 0;
-			else
-			{
-				GameArg.SysAutoDemo = 0;
-				Quitting = 1;
-			}
-		}
 		
 		// Close front window, let the code flow continue until all windows closed or quit cancelled
 		if (!window_close(wind))
