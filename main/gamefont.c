@@ -108,16 +108,13 @@ void gamefont_update_screen_size(int scrx, int scry)
 		for (int gf = 0; gf < MAX_FONTS; gf++) {
 			int m = font_conf[gf].cur;
 
+			FNTScaleX = scrx / (float)font_conf[gf].font[m].x;
+			FNTScaleY = scry / (float)font_conf[gf].font[m].y;
+
 			// if there's no texture filtering, scale by int
-			if (!GameCfg.TexFilt)
-			{
-				FNTScaleX = (int)scrx/font_conf[gf].font[m].x;
-				FNTScaleY = (int)scry/font_conf[gf].font[m].y;
-			}
-			else
-			{
-				FNTScaleX = (float)scrx/font_conf[gf].font[m].x;
-				FNTScaleY = (float)scry/font_conf[gf].font[m].y;
+			if (!GameCfg.TexFilt) {
+				FNTScaleX = (int)FNTScaleX;
+				FNTScaleY = (int)FNTScaleY;
 			}
 
 			// keep proportions
