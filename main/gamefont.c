@@ -100,6 +100,9 @@ static void gamefont_loadfont(int gf,int fi){
 
 void gamefont_update_screen_size(int scrx, int scry)
 {
+	if (!Gamefont_installed)
+		return;
+
 	if (!GameArg.OglFixedFont)
 	{
 		for (int gf = 0; gf < MAX_FONTS; gf++) {
