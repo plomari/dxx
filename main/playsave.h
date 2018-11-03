@@ -77,6 +77,7 @@ typedef struct player_config
 	ubyte NoFireAutoselect;
 	int AlphaEffects;
 	int DynLightColor;
+	int OldKeyboardRamping;
 } __pack__ player_config;
 
 extern struct player_config PlayerCfg;

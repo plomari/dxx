@@ -1030,7 +1030,7 @@ void change_res()
 
 void input_config_sensitivity()
 {
-	newmenu_item m[33];
+	newmenu_item m[34];
 	int i = 0, nitems = 0, keysens = 0, joysens = 0, joydead = 0, mousesens = 0, mousefsdead;
 
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Keyboard Sensitivity:"; nitems++;
@@ -1040,6 +1040,7 @@ void input_config_sensitivity()
 	nm_set_item_slider(&m[nitems], TXT_SLIDE_LR, PlayerCfg.KeyboardSens[2], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_SLIDE_UD, PlayerCfg.KeyboardSens[3], 0, 16); nitems++;
 	nm_set_item_slider(&m[nitems], TXT_BANK_LR, PlayerCfg.KeyboardSens[4], 0, 16); nitems++;
+	nm_set_item_checkbox(&m[nitems], "Old behavior (ignores sensitivity)", PlayerCfg.OldKeyboardRamping); nitems++;
 	nm_set_item_text(& m[nitems++], "");
 	nm_set_item_text(& m[nitems++], "Joystick Sensitivity:");
 	joysens = nitems;
@@ -1083,6 +1084,7 @@ void input_config_sensitivity()
 		PlayerCfg.MouseSens[i] = m[mousesens+i].value;
 	}
 	PlayerCfg.MouseFSDead = m[mousefsdead].value;
+	PlayerCfg.OldKeyboardRamping = m[keysens+5].value;
 }
 
 static int opt_ic_usejoy = 0, opt_ic_usemouse = 0, opt_ic_confkey = 0, opt_ic_confjoy = 0, opt_ic_confmouse = 0, opt_ic_confweap = 0, opt_ic_mouseflightsim = 0, opt_ic_joymousesens = 0, opt_ic_grabinput = 0, opt_ic_mousefsgauge = 0, opt_ic_help0 = 0, opt_ic_help1 = 0, opt_ic_help2 = 0;

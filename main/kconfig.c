@@ -980,10 +980,20 @@ static void adjust_ramped_keyboard_field_div(int sign, struct ramp_state *r, fix
 {
 	if (r->state)
 	{
-		// values based on observation that the original game uses a keyboard ramp of 8 frames. Full sensitivity should reflect 60FPS behaviour, half sensitivity reflects 30FPS behaviour (give or take a frame).
-		if (r->down_time < F1_0)
-			r->down_time += ((float)FrameTime*6.66)*((float)(sensitivity+1)/17);
-		*time += sign * speed_factor * FrameTime / speed_divisor * (r->down_time / F1_0);
+		float down_time;
+		if (PlayerCfg.OldKeyboardRamping) {
+			// The old behavior has a 1 frame delay. Emulate it.
+			down_time = r->down_time;
+
+			r->down_time = F1_0;
+		} else {
+			// values based on observation that the original game uses a keyboard ramp of 8 frames. Full sensitivity should reflect 60FPS behaviour, half sensitivity reflects 30FPS behaviour (give or take a frame).
+			if (r->down_time < F1_0)
+				r->down_time += ((float)FrameTime*6.66)*((float)(sensitivity+1)/17);
+			down_time = r->down_time;
+		}
+
+		*time += sign * speed_factor * FrameTime / speed_divisor * (down_time / F1_0);
 	}
 	else
 		r->down_time = 0;
@@ -992,6 +1002,30 @@ static void adjust_ramped_keyboard_field_div(int sign, struct ramp_state *r, fix
 static void adjust_ramped_keyboard_field(int sign, struct ramp_state *r, fix *time, float sensitivity, int speed_factor)
 {
 	adjust_ramped_keyboard_field_div(sign, r, time, sensitivity, speed_factor, 1);
+}
+
+// time: Controls.NAME (usually initialized to 0 by caller)
+// orig_time: Controls.NAME, value before entering controls processing
+// ktime: key down duration
+static void adjust_kb_time(fix *time, fix orig_time, fix ktime)
+{
+	if (PlayerCfg.OldKeyboardRamping) {
+		ktime /= 8; // PH_SCALE
+
+		if (ktime > 0) {
+			if (orig_time < 0)
+				orig_time = 0;
+		} else if (ktime < 0) {
+			if (orig_time > 0)
+				orig_time = 0;
+		} else {
+			orig_time = 0;
+		}
+
+		ktime += orig_time;
+	}
+
+	*time += ktime;
 }
 
 static void adjust_axis_field_n(fix *time, const fix *axes, int num_axes, unsigned value, unsigned invert, int sensitivity)
@@ -1167,6 +1201,9 @@ void kconfig_process_controls_frame(void)
 {
 	int speed_factor = Game_turbo_mode ? 2 : 1;
 
+	fix orig_heading_time = Controls.heading_time;
+	fix orig_pitch_time = Controls.pitch_time;
+
 	Controls.pitch_time = Controls.vertical_thrust_time = Controls.heading_time = Controls.sideways_thrust_time = Controls.bank_time = Controls.forward_thrust_time = 0;
 
 	if (!PlayerCfg.MouseFlightSim && Controls.mouse_delta_time < timer_query())
@@ -1179,8 +1216,11 @@ void kconfig_process_controls_frame(void)
 	if ( !Controls.slide_on_state )
 	{
 		// From keyboard...
-		adjust_ramped_keyboard_field_div(+1, &Controls.key_pitch_forward, &Controls.pitch_time, PlayerCfg.KeyboardSens[1], speed_factor, 2);
-		adjust_ramped_keyboard_field_div(-1, &Controls.key_pitch_backward, &Controls.pitch_time, PlayerCfg.KeyboardSens[1], speed_factor, 2);
+		fix kp = 0;
+		adjust_ramped_keyboard_field_div(+1, &Controls.key_pitch_forward, &kp, PlayerCfg.KeyboardSens[1], speed_factor, 2);
+		adjust_ramped_keyboard_field_div(-1, &Controls.key_pitch_backward, &kp, PlayerCfg.KeyboardSens[1], speed_factor, 2);
+		adjust_kb_time(&Controls.pitch_time, orig_pitch_time, kp);
+
 		// From joystick...
 		adjust_axis_field(&Controls.pitch_time, Controls.joy_axis, kcm_joystick[13].value, kcm_joystick[14].value, PlayerCfg.JoystickSens[1]);
 		// From mouse...
@@ -1216,8 +1256,11 @@ void kconfig_process_controls_frame(void)
 	if (!Controls.slide_on_state && !Controls.bank_on_state)
 	{
 		// From keyboard...
-		adjust_ramped_keyboard_field(+1, &Controls.key_heading_right, &Controls.heading_time, (PlayerCfg.KeyboardSens[0]==16?15.5:PlayerCfg.KeyboardSens[0]), speed_factor);
-		adjust_ramped_keyboard_field(-1, &Controls.key_heading_left, &Controls.heading_time, (PlayerCfg.KeyboardSens[0]==16?15.5:PlayerCfg.KeyboardSens[0]), speed_factor);
+		fix kp = 0;
+		adjust_ramped_keyboard_field_div(+1, &Controls.key_heading_right, &kp, PlayerCfg.KeyboardSens[0], speed_factor, 1);
+		adjust_ramped_keyboard_field_div(-1, &Controls.key_heading_left, &kp, PlayerCfg.KeyboardSens[0], speed_factor, 1);
+		adjust_kb_time(&Controls.heading_time, orig_heading_time, kp);
+
 		// From joystick...
 		adjust_axis_field(&Controls.heading_time, Controls.joy_axis, kcm_joystick[15].value, !kcm_joystick[16].value, PlayerCfg.JoystickSens[0]);
 		// From mouse...

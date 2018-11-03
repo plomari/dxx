@@ -120,6 +120,7 @@ int new_player_config()
 	PlayerCfg.NoFireAutoselect = 0;
 	PlayerCfg.AlphaEffects = 0;
 	PlayerCfg.DynLightColor = 0;
+	PlayerCfg.OldKeyboardRamping = 1;
 
 	// Default taunt macros
 	#ifdef NETWORK
@@ -169,6 +170,8 @@ int read_player_d2x(char *filename)
 					PlayerCfg.KeyboardSens[3] = atoi(line);
 				if(!strcmp(word,"SENSITIVITY4"))
 					PlayerCfg.KeyboardSens[4] = atoi(line);
+				if(!strcmp(word,"OLDRAMPING"))
+					PlayerCfg.OldKeyboardRamping = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -418,6 +421,7 @@ int write_player_d2x(char *filename)
 		PHYSFSX_printf(fout,"sensitivity2=%d\n",PlayerCfg.KeyboardSens[2]);
 		PHYSFSX_printf(fout,"sensitivity3=%d\n",PlayerCfg.KeyboardSens[3]);
 		PHYSFSX_printf(fout,"sensitivity4=%d\n",PlayerCfg.KeyboardSens[4]);
+		PHYSFSX_printf(fout,"oldramping=%d\n",PlayerCfg.OldKeyboardRamping);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[joystick]\n");
 		PHYSFSX_printf(fout,"sensitivity0=%d\n",PlayerCfg.JoystickSens[0]);
