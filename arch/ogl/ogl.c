@@ -590,6 +590,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	glDisableClientState(GL_COLOR_ARRAY);
 	glPopMatrix();
 	glLineWidth(linedotscale);
+	glEnable(GL_CULL_FACE);
 }
 
 void gr_enable_depth(int enable)
@@ -602,7 +603,7 @@ void gr_enable_depth(int enable)
 		glDepthMask(GL_FALSE);
         glDisable(GL_DEPTH_TEST);
     }
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
 }
 
 /*
@@ -641,7 +642,7 @@ int g3_draw_sphere(g3s_point *pnt,fix rad){
 	ogl_drawcircle(20, GL_TRIANGLE_FAN, sphere_va);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glPopMatrix();
-	//glEnable(GL_CULL_FACE); // TODO: they forgot it?
+	glEnable(GL_CULL_FACE);
 	return 0;
 }
 
