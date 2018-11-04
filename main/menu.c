@@ -833,7 +833,7 @@ try_again:
 			nm_set_item_input(&m[1], 10, num_text);
 			n_items = 2;
 
-                snprintf(num_text, sizeof(num_text), "%d", GameCfg.LastLevel);
+                snprintf(num_text, sizeof(num_text), "%d", max(GameCfg.LastLevel, 1));
 
 		choice = newmenu_do( NULL, TXT_SELECT_START_LEV, n_items, m, NULL, NULL );
 
