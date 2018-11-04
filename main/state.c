@@ -985,9 +985,9 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		}
 
 		//Restore wall info
+		PHYSFS_read(fp, &i, sizeof(int), 1);
+		Num_walls = i;
 		if (version <= 24) {
-			PHYSFS_read(fp, &i, sizeof(int), 1);
-			Num_walls = i;
 			for (int n = 0; n < Num_walls; n++) {
 				st24_wall old;
 				PHYSFS_read(fp, &old, sizeof(old), 1);
@@ -1005,6 +1005,8 @@ int state_restore_all_sub(char *filename, int secret_restore)
 				if (old.controlling_trigger >= 0)
 					Walls[n].flags |= WALL_HAS_TRIGGERS;
 			}
+		} else {
+			PHYSFS_read(fp, Walls, sizeof(wall), Num_walls);
 		}
 
 		//now that we have the walls, check if any sounds are linked to
