@@ -76,8 +76,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #endif
 
-#define ARRAY_ELEMS(x) (sizeof(x) / sizeof((x)[0]))
-
 void obj_detach_all(object *parent);
 void obj_detach_one(object *sub);
 

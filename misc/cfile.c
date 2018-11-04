@@ -6,8 +6,6 @@
 
 #include "cfile.h"
 
-#define ARRAY_ELEMS(arr) (sizeof(arr) / sizeof((arr)[0]))
-
 // PATH_MAX tends to be bogus - don't use it.
 #define PATH_LEN 4096
 

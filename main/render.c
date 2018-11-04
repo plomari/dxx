@@ -499,10 +499,8 @@ static void highlight_side_triggers(int segnum, int sidenum)
 	segment *segp = &Segments[segnum];
 	int		vertnum_list[4];
 
-#define ARRAY_SIZE(arr) \
-	(sizeof(arr) / sizeof((arr)[0]))
 #define ARRAY_OR_DEF(idx, arr, def) \
-	((idx) >= 0 && (idx) < ARRAY_SIZE(arr) && (arr)[(idx)] ? (arr)[(idx)] : (def))
+	((idx) >= 0 && (idx) < ARRAY_ELEMS(arr) && (arr)[(idx)] ? (arr)[(idx)] : (def))
 #define APPENDF(s, ...)  do { 								\
 	int pos_ = strlen(s);									\
 	snprintf((s) + pos_, sizeof(s) - pos_, __VA_ARGS__);	\
@@ -531,7 +529,7 @@ static void highlight_side_triggers(int segnum, int sidenum)
 
 		char flags_str[80];
 		flags_str[0] = '\0';
-		for (int n = 0; n < ARRAY_SIZE(Wall_flags); n++) {
+		for (int n = 0; n < ARRAY_ELEMS(Wall_flags); n++) {
 			if (wall->flags & (1 << n))
 				APPENDF(flags_str, "%s%s", flags_str[0] ? "+" : "", Wall_flags[n]);
 		}
