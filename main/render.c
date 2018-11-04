@@ -17,6 +17,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -88,10 +89,6 @@ vms_vector Viewer_eye;  //valid during render
 int	N_render_segs;
 
 fix Render_zoom = 0x9000;					//the player's zoom factor
-
-#ifndef NDEBUG
-ubyte object_rendered[MAX_OBJECTS];
-#endif
 
 #ifdef EDITOR
 int	Render_only_bottom=0;
@@ -245,9 +242,7 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 	// -- Using new headlight system...face_light = -vm_vec_dot(&Viewer->orient.fvec,norm);
 
 	if (tmap1 >= NumTextures) {
-#ifndef RELEASE
 		Int3();
-#endif
 		Segments[segnum].sides[sidenum].tmap_num = 0;
 	}
 
@@ -350,9 +345,7 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
 
-#ifndef NDEBUG
 	if (Outline_mode) draw_outline(nv, pointlist);
-#endif
 
 #if 1
 	for (int i = 0; i < 3; i++)
@@ -389,21 +382,13 @@ void check_face(int segnum, int sidenum, int facenum, int nv, int *vp, int tmap1
 		}
 
 		gr_setcolor(0);
-#ifdef OGL
 		ogl_end_frame();
-#endif
 		gr_pixel(_search_x,_search_y);	//set our search pixel to color zero
-#ifdef OGL
 		ogl_start_frame();
-#endif
 		gr_setcolor(1);					//and render in color one
 		save_lighting = Lighting_on;
 		Lighting_on = 2;
-#ifdef OGL
 		g3_draw_poly(nv,&pointlist[0]);
-#else
-		g3_draw_tmap(nv,&pointlist[0], uvl_copy, dyn_light, bm);
-#endif
 		Lighting_on = save_lighting;
 
 		if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) == 1) {
@@ -743,12 +728,8 @@ void render_side(segment *segp, int sidenum)
 
 	get_side_verts(vertnum_list,segp-Segments,sidenum);
 
-#ifdef COMPACT_SEGS
-	get_side_normals(segp, sidenum, &normals[0], &normals[1] );
-#else
 	normals[0] = segp->sides[sidenum].normals[0];
 	normals[1] = segp->sides[sidenum].normals[1];
-#endif
 
 	//	========== Mark: Here is the change...beginning here: ==========
 
@@ -837,8 +818,6 @@ void render_side(segment *segp, int sidenum)
 			max_dot = v_dot_n0;
 		}
 
-		{
-im_so_ashamed: ;
 			if (sidep->type == SIDE_IS_TRI_02) {
 				if (v_dot_n0 >= 0) {
 					render_face(segp-Segments, sidenum, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
@@ -874,7 +853,6 @@ im_so_ashamed: ;
 
 			} else
 				Error("Illegal side type in render_side, type = %i, segment # = %i, side # = %i\n", sidep->type, (int)(segp-Segments), sidenum);
-		}
 	}
 
     end:;
@@ -893,7 +871,6 @@ void render_object_search(object *obj)
 	//in case the object itself is rendering color 0
 
 	gr_setcolor(0);	//set our search pixel to color zero
-#ifdef OGL
 	ogl_end_frame();
 
 	// For OpenGL we use gr_rect instead of gr_pixel,
@@ -905,21 +882,14 @@ void render_object_search(object *obj)
 	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1);
 
 	ogl_start_frame();
-#else
-	gr_pixel(_search_x,_search_y);
-#endif
 	render_object(obj);
 	if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) != 0)
 		changed=1;
 
 	gr_setcolor(1);
-#ifdef OGL
 	ogl_end_frame();
 	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1);
 	ogl_start_frame();
-#else
-	gr_pixel(_search_x,_search_y);
-#endif
 	render_object(obj);
 	if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) != 1)
 		changed=1;
@@ -944,15 +914,6 @@ void do_render_object(int objnum, int window_num)
 	int n;
 
 	Assert(objnum < MAX_OBJECTS);
-
-	#ifndef NDEBUG
-	if (object_rendered[objnum]) {		//already rendered this...
-		Int3();		//get Matt!!!
-		return;
-	}
-
-	object_rendered[objnum] = 1;
-	#endif
 
    if (Newdemo_state==ND_STATE_PLAYBACK)  
 	 {
@@ -1021,23 +982,6 @@ void do_render_object(int objnum, int window_num)
 
 
 }
-
-#ifndef NDEBUG
-int	draw_boxes=0;
-int window_check=1,draw_edges=0,new_seg_sorting=1,pre_draw_segs=0;
-int no_migrate_segs=1,migrate_objects=1,behind_check=1;
-int check_window_check=0;
-#else
-#define draw_boxes			0
-#define window_check			1
-#define draw_edges			0
-#define new_seg_sorting		1
-#define pre_draw_segs		0
-#define no_migrate_segs		1
-#define migrate_objects		1
-#define behind_check			1
-#define check_window_check	0
-#endif
 
 //increment counter for checking if points rotated
 //This must be called at the start of the frame if rotate_list() will be used
@@ -1118,20 +1062,6 @@ void render_segment(int segnum, int window_num)
 		for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 			render_side(seg, sn);
 	}
-
-	//draw any objects that happen to be in this segment
-
-	//sort objects!
-	//object_sort_segment_objects( seg );
-		
-	#ifndef NDEBUG
-	if (!migrate_objects) {
-		int objnum;
-		for (objnum=seg->objects;objnum!=-1;objnum=Objects[objnum].next)
-			do_render_object(objnum, window_num);
-	}
-	#endif
-
 }
 
 // ----- This used to be called when Show_only_curside was set.
@@ -1253,36 +1183,7 @@ ubyte code_window_point(fix x,fix y,rect *w)
 	return code;
 }
 
-#ifndef NDEBUG
-void draw_window_box(int color,short left,short top,short right,short bot)
-{
-	short l,t,r,b;
-
-	gr_setcolor(color);
-
-	l=left; t=top; r=right; b=bot;
-
-	if ( r<0 || b<0 || l>=grd_curcanv->cv_bitmap.bm_w || (t>=grd_curcanv->cv_bitmap.bm_h && b>=grd_curcanv->cv_bitmap.bm_h))
-		return;
-
-	if (l<0) l=0;
-	if (t<0) t=0;
-	if (r>=grd_curcanv->cv_bitmap.bm_w) r=grd_curcanv->cv_bitmap.bm_w-1;
-	if (b>=grd_curcanv->cv_bitmap.bm_h) b=grd_curcanv->cv_bitmap.bm_h-1;
-
-	gr_line(i2f(l),i2f(t),i2f(r),i2f(t));
-	gr_line(i2f(r),i2f(t),i2f(r),i2f(b));
-	gr_line(i2f(r),i2f(b),i2f(l),i2f(b));
-	gr_line(i2f(l),i2f(b),i2f(l),i2f(t));
-
-}
-#endif
-
 int matt_find_connect_side(int seg0,int seg1);
-
-#ifndef NDEBUG
-char visited2[MAX_SEGMENTS];
-#endif
 
 unsigned char visited[MAX_SEGMENTS];
 short Render_list[MAX_RENDER_SEGS];
@@ -1479,15 +1380,10 @@ int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_vector *
 //		  IS_CHILD(seg1->children[edgeside1])) 
 //		return 0;
 
-	#ifdef COMPACT_SEGS
-		get_side_normals(seg0, edgeside0, norm0_0, norm0_1 );
-		get_side_normals(seg1, edgeside1, norm1_0, norm1_1 );
-	#else 
 		*norm0_0 = seg0->sides[edgeside0].normals[0];
 		*norm0_1 = seg0->sides[edgeside0].normals[1];
 		*norm1_0 = seg1->sides[edgeside1].normals[0];
 		*norm1_1 = seg1->sides[edgeside1].normals[1];
-	#endif
 
 	*pnt0 = &Vertices[seg0->verts[Side_to_verts[edgeside0][seg0->sides[edgeside0].type==3?1:0]]];
 	*pnt1 = &Vertices[seg1->verts[Side_to_verts[edgeside1][seg1->sides[edgeside1].type==3?1:0]]];
@@ -1717,14 +1613,14 @@ void build_object_lists(int n_segs)
 		segnum = Render_list[nn];
 
 		if (segnum != -1) {
-			int t,lookn,i,n;
+			int lookn,i;
 
 			//first count the number of objects & copy into sort list
 
 			lookn = render_seg_to_render_objs[nn];
 			n_sort_items = 0;
-                        // the code below copies it into the sort list unconditionally
-                        static int assert_enough[SORT_LIST_SIZE >= MAX_RENDER_OBJS ? 1 : -1];
+			// the code below copies it into the sort list unconditionally
+			static_assert(SORT_LIST_SIZE >= MAX_RENDER_OBJS, "increase SORT_LIST_SIZE");
 
 			while (lookn!=-1) {
                             int t = render_objs[lookn].objnum;
@@ -1763,9 +1659,7 @@ extern ubyte RenderingType;
 void start_lighting_frame(object *viewer);
 #include "internal.h"
 extern int linedotscale;
-#ifdef JOHN_ZOOM
-fix Zoom_factor=F1_0;
-#endif
+
 //renders onto current canvas
 void render_frame(fix eye_offset, int window_num)
 {
@@ -1818,18 +1712,7 @@ void render_frame(fix eye_offset, int window_num)
 		vm_matrix_x_matrix(&viewm,&Viewer->orient,&headm);
 		g3_set_view_matrix(&Viewer_eye,&viewm,Render_zoom);
 	} else	{
-#ifdef JOHN_ZOOM
-		if (keyd_pressed[KEY_RSHIFT] )	{
-			Zoom_factor += FrameTime*4;
-			if (Zoom_factor > F1_0*5 ) Zoom_factor=F1_0*5;
-		} else {
-			Zoom_factor -= FrameTime*4;
-			if (Zoom_factor < F1_0 ) Zoom_factor = F1_0;
-		}
-		g3_set_view_matrix(&Viewer_eye,&Viewer->orient,fixdiv(Render_zoom,Zoom_factor));
-#else
 		g3_set_view_matrix(&Viewer_eye,&Viewer->orient,Render_zoom);
-#endif
 	}
 
 	if (Clear_window == 1) {
@@ -1837,10 +1720,6 @@ void render_frame(fix eye_offset, int window_num)
 			Clear_window_color = BM_XRGB(0, 0, 0);	//BM_XRGB(31, 15, 7);
 		gr_clear_canvas(Clear_window_color);
 	}
-	#ifndef NDEBUG
-	if (Show_only_curside)
-		gr_clear_canvas(Clear_window_color);
-	#endif
 
 	render_mine(start_seg_num, eye_offset, window_num);
 
@@ -1878,21 +1757,12 @@ void build_segment_list(int start_seg_num, int window_num)
 	//memset(no_render_flag, 0, sizeof(no_render_flag[0])*(MAX_RENDER_SEGS));
 	memset(processed, 0, sizeof(processed));
 
-	#ifndef NDEBUG
-	memset(visited2, 0, sizeof(visited2[0])*(Highest_segment_index+1));
-	#endif
-
 	lcnt = scnt = 0;
 
 	Render_list[lcnt] = start_seg_num; visited[start_seg_num]=1;
 	lcnt++;
 	ecnt = lcnt;
 	render_pos[start_seg_num] = 0;
-
-	#ifndef NDEBUG
-	if (pre_draw_segs)
-		render_segment(start_seg_num, window_num);
-	#endif
 
 	render_windows[0].left=render_windows[0].top=0;
 	render_windows[0].right=grd_curcanv->cv_bitmap.bm_w-1;
@@ -1920,11 +1790,6 @@ void build_segment_list(int start_seg_num, int window_num)
 			segnum = Render_list[scnt];
 			check_w = &render_windows[scnt];
 
-			#ifndef NDEBUG
-			if (draw_boxes)
-				draw_window_box(RED,check_w->left,check_w->top,check_w->right,check_w->bot);
-			#endif
-
 			if (segnum == -1) continue;
 
 			seg = &Segments[segnum];
@@ -1940,8 +1805,7 @@ void build_segment_list(int start_seg_num, int window_num)
 
 				ch=seg->children[c];
 
-				if ( (window_check || !visited[ch]) && (wid & WID_RENDPAST_FLAG) ) {
-					if (behind_check) {
+				if (wid & WID_RENDPAST_FLAG) {
 						const sbyte *sv = Side_to_verts[c];
 						ubyte codes_and=0xff;
 						int i;
@@ -1954,7 +1818,6 @@ void build_segment_list(int start_seg_num, int window_num)
 
 						if (codes_and & CC_BEHIND) continue;
 
-					}
 					child_list[n_children++] = c;
 				} else if (ch < 0 && wall_check_transparency(seg, c)) {
 					Render_sky_seg = Sky_box_segment;
@@ -1962,9 +1825,7 @@ void build_segment_list(int start_seg_num, int window_num)
 			}
 
 			//now order the sides in some magical way
-
-			if (new_seg_sorting)
-				sort_seg_children(seg,n_children,child_list);
+			sort_seg_children(seg,n_children,child_list);
 
 			//for (c=0;c<MAX_SIDES_PER_SEGMENT;c++)	{
 			//	ch=seg->children[c];
@@ -1974,9 +1835,7 @@ void build_segment_list(int start_seg_num, int window_num)
 
 				siden = child_list[c];
 				ch=seg->children[siden];
-				//if ( (window_check || !visited[ch])&& (WALL_IS_DOORWAY(seg, c))) {
-				{
-					if (window_check) {
+
 						int i;
 						ubyte codes_and_3d,codes_and_2d;
 						short _x,_y,min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
@@ -2001,15 +1860,6 @@ void build_segment_list(int start_seg_num, int window_num)
 							codes_and_3d &= pnt->p3_codes;
 							codes_and_2d &= code_window_point(_x,_y,check_w);
 
-							#ifndef NDEBUG
-							if (draw_edges) {
-								gr_setcolor(BM_XRGB(31,0,31));
-								gr_line(pnt->p3_sx,pnt->p3_sy,
-									Segment_points[seg->verts[Side_to_verts[siden][(i+1)%4]]].p3_sx,
-									Segment_points[seg->verts[Side_to_verts[siden][(i+1)%4]]].p3_sy);
-							}
-							#endif
-
 							if (_x < min_x) min_x = _x;
 							if (_x > max_x) max_x = _x;
 
@@ -2017,11 +1867,6 @@ void build_segment_list(int start_seg_num, int window_num)
 							if (_y > max_y) max_y = _y;
 
 						}
-
-						#ifndef NDEBUG
-						if (draw_boxes)
-							draw_window_box(WHITE,min_x,min_y,max_x,max_y);
-						#endif
 
 						if (no_proj_flag || (!codes_and_3d && !codes_and_2d)) {	//maybe add this segment
 							int rp = render_pos[ch];
@@ -2048,23 +1893,13 @@ void build_segment_list(int start_seg_num, int window_num)
 									new_w->top   = min(new_w->top,render_windows[rp].top);
 									new_w->bot   = max(new_w->bot,render_windows[rp].bot);
 
-									if (no_migrate_segs) {
 										//no_render_flag[lcnt] = 1;
 										Render_list[lcnt] = -1;
 										render_windows[rp] = *new_w;		//get updated window
 										processed[rp] = 0;		//force reprocess
-										goto no_add;
-									}
-									else
-										Render_list[rp]=-1;
 								}
-								else goto no_add;
+								goto no_add;
 							}
-
-							#ifndef NDEBUG
-							if (draw_boxes)
-								draw_window_box(5,new_w->left,new_w->top,new_w->right,new_w->bot);
-							#endif
 
 							render_pos[ch] = lcnt;
 							Render_list[lcnt] = ch;
@@ -2072,22 +1907,10 @@ void build_segment_list(int start_seg_num, int window_num)
 							if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
 							visited[ch] = 1;
 
-							#ifndef NDEBUG
-							if (pre_draw_segs)
-								render_segment(ch, window_num);
-							#endif
 no_add:
 	;
 
 						}
-					}
-					else {
-						Render_list[lcnt] = ch;
-						lcnt++;
-						if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
-						visited[ch] = 1;
-					}
-				}
 			}
 		}
 
@@ -2108,18 +1931,10 @@ done_list:
 //renders onto current canvas
 void render_mine(int start_seg_num,fix eye_offset, int window_num)
 {
-#ifndef NDEBUG
-	int		i;
-#endif
 	int		nn;
 
 	//	Initialize number of objects (actually, robots!) rendered this frame.
 	Window_rendered_data[window_num].num_objects = 0;
-
-	#ifndef NDEBUG
-	for (i=0;i<=Highest_object_index;i++)
-		object_rendered[i] = 0;
-	#endif
 
 	//set up for rendering
 
@@ -2147,33 +1962,9 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 	//render away
 
-	#ifndef NDEBUG
-	if (!window_check) {
 		Window_clip_left  = Window_clip_top = 0;
 		Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
 		Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
-	}
-	#endif
-
-	#ifndef NDEBUG
-	if (!(_search_mode)) {
-		int i;
-
-		for (i=0;i<N_render_segs;i++) {
-			int segnum;
-
-			segnum = Render_list[i];
-
-			if (segnum != -1)
-			{
-				if (visited2[segnum])
-					Int3();		//get Matt
-				else
-					visited2[segnum] = 1;
-			}
-		}
-	}
-	#endif
 
 	if (!(_search_mode))
 		build_object_lists(N_render_segs);
@@ -2192,11 +1983,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	
 			for (i=first_terminal_seg; i<N_render_segs; i++) {
 				if (Render_list[i] != -1) {
-					#ifndef NDEBUG
-					if ((render_windows[i].left == -1) || (render_windows[i].top == -1) || (render_windows[i].right == -1) || (render_windows[i].bot == -1))
-						Int3();
-					else
-					#endif
 						//NOTE LINK TO ABOVE!
 						gr_rect(render_windows[i].left, render_windows[i].top, render_windows[i].right, render_windows[i].bot);
 				}
@@ -2207,68 +1993,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	if (Render_sky_seg >= 0)
 		render_segment(Render_sky_seg, window_num);
 
-#ifndef OGL
-	for (nn=N_render_segs;nn--;) {
-		int segnum;
-		int objnp;
-
-		segnum = Render_list[nn];
-
-		//if (!no_render_flag[nn])
-		if (segnum!=-1 && (_search_mode || visited[segnum]!=255)) {
-			//set global render window vars
-
-			if (window_check) {
-				Window_clip_left  = render_windows[nn].left;
-				Window_clip_top   = render_windows[nn].top;
-				Window_clip_right = render_windows[nn].right;
-				Window_clip_bot   = render_windows[nn].bot;
-			}
-
-			render_segment(segnum, window_num);
-			visited[segnum]=255;
-
-			if (window_check) {		//reset for objects
-				Window_clip_left  = Window_clip_top = 0;
-				Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
-				Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
-			}
-
-			if (migrate_objects) {
-				//int n_expl_objs=0,expl_objs[5],i;
-				int index;
-				int save_linear_depth = Max_linear_depth;
-
-				Max_linear_depth = Max_linear_depth_objects;
-
-				index = render_seg_to_render_objs[nn];
-
-				for (;index >= 0;index = render_objs[index].next) {
-					int ObjNumber = render_objs[index].objnum;
-
-						#ifdef LASER_HACK
-						if ( 	(Objects[ObjNumber].type==OBJ_WEAPON) && 								//if its a weapon
-								(Objects[ObjNumber].lifeleft==Laser_max_time ) && 	//  and its in it's first frame
-								(Hack_nlasers< MAX_HACKED_LASERS) && 									//  and we have space for it
-								(Objects[ObjNumber].laser_info.parent_num>-1) &&					//  and it has a parent
-								((Viewer-Objects)==Objects[ObjNumber].laser_info.parent_num)	//  and it's parent is the viewer
-						   )		{
-							Hack_laser_list[Hack_nlasers++] = ObjNumber;								//then make it draw after everything else.
-						} else	
-						#endif
-							do_render_object(ObjNumber, window_num);	// note link to above else
-
-						objnp++;
-
-				}
-
-				Max_linear_depth = save_linear_depth;
-
-			}
-
-		}
-	}
-#else
 	// Sorting elements for Alpha - 3 passes
 	// First Pass: render opaque level geometry + transculent level geometry with high Alpha-Test func
 	for (nn=N_render_segs;nn--;)
@@ -2281,12 +2005,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		{
 			//set global render window vars
 
-			if (window_check) {
+
 				Window_clip_left  = render_windows[nn].left;
 				Window_clip_top   = render_windows[nn].top;
 				Window_clip_right = render_windows[nn].right;
 				Window_clip_bot   = render_windows[nn].bot;
-			}
 
 			// render segment
 			{
@@ -2333,23 +2056,15 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		{
 			//set global render window vars
 
-			if (window_check) {
-				Window_clip_left  = render_windows[nn].left;
-				Window_clip_top   = render_windows[nn].top;
-				Window_clip_right = render_windows[nn].right;
-				Window_clip_bot   = render_windows[nn].bot;
-			}
 
 			visited[segnum]=255;
 
-			if (window_check) {		//reset for objects
+
 				Window_clip_left  = Window_clip_top = 0;
 				Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
 				Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
-			}
 
 			// render objects
-			{
 				int index;
 				int save_linear_depth = Max_linear_depth;
 
@@ -2366,7 +2081,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 				}
 
 				Max_linear_depth = save_linear_depth;
-			}
 		}
 	}
 
@@ -2383,15 +2097,12 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		{
 			//set global render window vars
 
-			if (window_check) {
 				Window_clip_left  = render_windows[nn].left;
 				Window_clip_top   = render_windows[nn].top;
 				Window_clip_right = render_windows[nn].right;
 				Window_clip_bot   = render_windows[nn].bot;
-			}
 
 			// render segment
-			{
 				segment		*seg = &Segments[segnum];
 				g3s_codes 	cc;
 				int			sn;
@@ -2410,21 +2121,15 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 						WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
 							render_side(seg, sn);
 				}
-			}
 			visited[segnum]=255;
 		}
 	}
-#endif
 
 	// -- commented out by mk on 09/14/94...did i do a good thing??  object_render_targets();
 
     highlight_all_triggers();
 
 #ifdef EDITOR
-	#ifndef NDEBUG
-	//draw curedge stuff
-	if (Outline_mode) outline_seg_side(Cursegp,Curside,Curedge,Curvert);
-	#endif
 
 
 done_rendering:
