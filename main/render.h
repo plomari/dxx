@@ -30,9 +30,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#define N_EXTRA_OBJ_LISTS    50
 
 extern int Render_depth; //how many segments deep to render
-extern int Max_perspective_depth; //	Deepest segment at which perspective extern interpolation will be used.
-extern int Max_linear_depth; //	Deepest segment at which linear extern interpolation will be used.
-extern int Max_linear_depth_objects;
 extern int Simple_model_threshhold_scale; // switch to simpler model when the object has depth greater than this value times its radius.
 extern int Max_debris_objects; // How many debris objects to create
 

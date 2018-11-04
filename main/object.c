@@ -790,8 +790,6 @@ static void draw_object_debug(object *obj)
 //	Render an object.  Calls one of several routines based on type
 void render_object(object *obj)
 {
-	int mld_save;
-
 	if ( obj == Viewer )
 		return;
 
@@ -802,9 +800,6 @@ void render_object(object *obj)
 		#endif
 		return;
 	}
-
-	mld_save = Max_linear_depth;
-	Max_linear_depth = Max_linear_depth_objects;
 
 	switch (obj->render_type)
 	{
@@ -884,8 +879,6 @@ void render_object(object *obj)
 
 	if ( obj->render_type != RT_NONE && Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_render_object(obj);
-
-	Max_linear_depth = mld_save;
 
 	// Abuse this as indication whether to show debug stuff
 	extern int highlight_seg;

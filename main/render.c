@@ -67,9 +67,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // (former) "detail level" values
 int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
-int Max_perspective_depth = 8; // Deepest segment at which perspective interpolation will be used.
-int Max_linear_depth = 50; // Deepest segment at which linear interpolation will be used.
-int Max_linear_depth_objects = 20;
 int Simple_model_threshhold_scale = 50; // switch to simpler model when the object has depth greater than this value times its radius.
 int Max_debris_objects = 15; // How many debris objects to create
 
@@ -2094,18 +2091,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 			Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
 
 			// render objects
-			int save_linear_depth = Max_linear_depth;
-
-			Max_linear_depth = Max_linear_depth_objects;
-
 			for (;index >= 0;index = render_objs[index].next) {
 				int ObjNumber = render_objs[index].objnum;
 
 				do_render_object(ObjNumber, window_num);	// note link to above else
 			}
-
-			Max_linear_depth = save_linear_depth;
-
 		}
 	}
 
