@@ -246,4 +246,6 @@ void game_leave_menus(void);
 
 bool game_is_running(void);
 
+void ProcessControls(void);
+
 #endif /* _GAME_H */

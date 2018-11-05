@@ -2074,11 +2074,18 @@ int ReadControls(d_event *event)
 			return 1;
 	}
 
-	if (!Endlevel_sequence && !Player_is_dead && (Newdemo_state != ND_STATE_PLAYBACK))
-	{
-
+	if (!Endlevel_sequence && !Player_is_dead && (Newdemo_state != ND_STATE_PLAYBACK)) {
 		kconfig_read_controls(event, 0);
+	}
 
+	return 0;
+}
+
+void ProcessControls(void)
+{
+	kconfig_process_controls_frame();
+
+	if (!Endlevel_sequence && !Player_is_dead && (Newdemo_state != ND_STATE_PLAYBACK)) {
 		check_rear_view();
 
 		// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
@@ -2088,17 +2095,14 @@ int ReadControls(d_event *event)
 			if (Player_is_dead || (!((Game_mode & GM_MULTI) && Control_center_destroyed && (Countdown_seconds_left < 10))))
 			{
 				do_automap(0);
-				return 1;
+				return;
 			}
 		}
 		if (Player_is_dead)
-			return 0;
+			return;
 		do_weapon_n_item_stuff();
 	}
 
 	if (gr_focus_lost)
 		do_game_pause();
-
-	return 0;
 }
-

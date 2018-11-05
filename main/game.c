@@ -1148,7 +1148,7 @@ int game_handler(window *wind, d_event *event, void *data)
 			return ReadControls(event);
 
 		case EVENT_WINDOW_DRAW:
-			kconfig_process_controls_frame();
+			ProcessControls();
 
 			if (!time_paused)
 			{
