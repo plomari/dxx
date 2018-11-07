@@ -273,6 +273,5 @@ void credits_show(char *credits_filename)
 		return;
 	}
 
-	while (window_exists(wind))
-		event_process();
+	window_run_event_loop(wind);
 }

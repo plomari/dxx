@@ -471,8 +471,7 @@ int newmenu_do2( char * title, char * subtitle, int nitems, newmenu_item * item,
 
 	// newmenu_do2 and simpler get their own event loop
 	// This is so the caller doesn't have to provide a callback that responds to EVENT_NEWMENU_SELECTED
-	while (window_exists(wind))
-		event_process();
+	window_run_event_loop(wind);
 
 	return rval;
 }
@@ -494,8 +493,7 @@ int newmenu_doreorder( char * title, char * subtitle, int nitems, newmenu_item *
 
 	// newmenu_do2 and simpler get their own event loop
 	// This is so the caller doesn't have to provide a callback that responds to EVENT_NEWMENU_SELECTED
-	while (window_exists(wind))
-		event_process();
+	window_run_event_loop(wind);
 
 	return rval;
 }

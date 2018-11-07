@@ -2136,8 +2136,7 @@ void polygon_models_viewer()
 		return;
 	}
 
-	while (window_exists(wind))
-		event_process();
+	window_run_event_loop(wind);
 }
 
 int gamebitmaps_viewer_handler(window *wind, d_event *event)
@@ -2214,8 +2213,7 @@ void gamebitmaps_viewer()
 		return;
 	}
 
-	while (window_exists(wind))
-		event_process();
+	window_run_event_loop(wind);
 }
 
 int sandbox_menuset(newmenu *menu, d_event *event, void *userdata)

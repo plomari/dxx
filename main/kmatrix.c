@@ -415,6 +415,5 @@ void kmatrix_view(int network)
 		return;
 	}
 	
-	while (window_exists(wind))
-		event_process();
+	window_run_event_loop(wind);
 }

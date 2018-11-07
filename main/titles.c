@@ -173,8 +173,7 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 		return 0;
 	}
 
-	while (window_exists(wind))
-		event_process();
+	window_run_event_loop(wind);
 
 	return 0;
 }
@@ -1426,8 +1425,7 @@ void do_briefing_screens(char *filename, int level_num)
 
 	// Stay where we are in the stack frame until briefing done
 	// Too complicated otherwise
-	while (window_exists(wind))
-		event_process();
+	window_run_event_loop(wind);
 }
 
 void do_end_briefing_screens(char *filename)

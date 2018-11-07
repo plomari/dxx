@@ -403,9 +403,12 @@ int main(int argc, char *argv[])
 		DoMenu();
 	}
 
-	while (window_get_front())
-		// Send events to windows and the default handler
-		event_process();
+	while (1) {
+		window *win = window_get_front();
+		if (!win)
+			break;
+		window_run_event_loop(win);
+	}
 	
 	// Tidy up - avoids a crash on exit
 	{

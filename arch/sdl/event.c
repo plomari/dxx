@@ -167,7 +167,7 @@ void event_send(d_event *event)
 // Process the first event in queue, sending to the appropriate handler
 // This is the new object-oriented system
 // Uses the old system for now, but this may change
-void event_process(void)
+static void event_process(void)
 {
 	d_event event;
 	window *wind = window_get_front();
@@ -204,6 +204,13 @@ void event_process(void)
 	}
 
 	gr_flip();
+}
+
+// Run event loop until it's closed.
+void window_run_event_loop(window *wind)
+{
+	while (window_exists(wind))
+		event_process();
 }
 
 void event_toggle_focus(int activate_focus)

@@ -463,8 +463,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_sfCallbacks(MovieShowFrame);
 	MVE_palCallbacks(MovieSetPalette);
 
-	while (window_exists(wind))
-		event_process();
+	window_run_event_loop(wind);
 
     MVE_rmEndMovie();
 
