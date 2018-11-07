@@ -159,8 +159,7 @@ int ui_dialog_handler(window *wind, d_event *event, UI_DIALOG *dlg)
 {
 	int rval = 0;
 
-	if (event->type == EVENT_WINDOW_CLOSED ||
-		event->type == EVENT_WINDOW_ACTIVATED ||
+	if (event->type == EVENT_WINDOW_ACTIVATED ||
 		event->type == EVENT_WINDOW_DEACTIVATED)
 		return 0;
 	

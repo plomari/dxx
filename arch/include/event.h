@@ -44,7 +44,6 @@ typedef enum event_type
 	EVENT_WINDOW_DEACTIVATED,
 	EVENT_WINDOW_DRAW,
 	EVENT_WINDOW_CLOSE,
-	EVENT_WINDOW_CLOSED,
 
 	EVENT_NEWMENU_DRAW,					// draw after the newmenu stuff is drawn (e.g. savegame previews)
 	EVENT_NEWMENU_CHANGED,				// an item had its value/text changed

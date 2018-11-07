@@ -92,14 +92,11 @@ int window_close(window *wind)
 	if (wind->prev)
 		wind->prev->next = wind->next;
 
+	d_free(wind);
+
 	if ((prev = window_get_front()))
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_ACTIVATED);
 
-	d_free(wind);
-	
-	event.type = EVENT_WINDOW_CLOSED;
-	w_callback(wind, &event, NULL);	// callback needs to recognise this is a NULL pointer!
-	
 	return 1;
 }
 

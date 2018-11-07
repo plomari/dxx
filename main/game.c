@@ -1192,9 +1192,6 @@ int game_handler(window *wind, d_event *event, void *data)
 			key_toggle_repeat(1);
 			break;
 
-		case EVENT_WINDOW_CLOSED:
-			break;
-
 		default:
 			break;
 	}
