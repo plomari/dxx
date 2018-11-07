@@ -74,14 +74,7 @@ int window_close(window *wind)
 	con_printf(CON_DEBUG,	"Sending event EVENT_WINDOW_CLOSE to window of dimensions %dx%d\n",
 			   (wind)->w_canv.cv_bitmap.bm_w, (wind)->w_canv.cv_bitmap.bm_h);
 	if (window_send_event(wind, &event))
-	{
-		// User 'handled' the event, cancelling close
-		if (wind == window_get_front())
-		{
-			WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
-		}
-		return 0;
-	}
+		printf("Warning: window doesn't want to be closed\n");
 
 	if (wind == FrontWindow)
 		FrontWindow = wind->prev;

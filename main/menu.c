@@ -297,8 +297,10 @@ int player_menu_handler( listbox *lb, d_event *event, char **list )
 			break;
 
 		case EVENT_WINDOW_CLOSE:
-			if (read_player_file() != EZERO)
-				return 1;		// abort close!
+			if (read_player_file() != EZERO) {
+				printf("could not read player file, exiting\n");
+				exit(0);
+			}
 
 			WriteConfigFile();		// Update lastplr
 

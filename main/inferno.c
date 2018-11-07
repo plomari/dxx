@@ -189,25 +189,10 @@ void print_commandline_help()
 	printf( "\n\n");
 }
 
-int Quitting = 0;
-
 // Default event handler for everything except the editor
 int standard_handler(d_event *event)
 {
 	int key;
-
-	if (Quitting)
-	{
-		window *wind = window_get_front();
-		if (!wind)
-			return 0;
-		
-		// Close front window, let the code flow continue until all windows closed or quit cancelled
-		if (!window_close(wind))
-			Quitting = 0;
-		
-		return 1;
-	}
 
 	switch (event->type)
 	{
@@ -244,12 +229,6 @@ int standard_handler(d_event *event)
 					return 1;
 #endif
 
-#if defined(__APPLE__) || defined(macintosh)
-				case KEY_COMMAND+KEY_Q:
-					// Alt-F4 already taken, too bad
-					Quitting = 1;
-					return 1;
-#endif
 				case KEY_SHIFTED + KEY_ESC:
 					con_showup();
 					return 1;
@@ -260,13 +239,6 @@ int standard_handler(d_event *event)
 		case EVENT_IDLE:
 			//see if redbook song needs to be restarted
 			RBACheckFinishedHook();
-			return 1;
-
-		case EVENT_QUIT:
-#ifdef EDITOR
-			if (SafetyCheck())
-#endif
-				Quitting = 1;
 			return 1;
 
 		default:

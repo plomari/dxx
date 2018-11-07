@@ -26,6 +26,7 @@ extern int joy_axis_handler(SDL_JoyAxisEvent *jae);
 extern void mouse_cursor_autohide();
 
 static int initialised=0;
+static bool quitting;
 
 void event_poll()
 {
@@ -73,7 +74,7 @@ void event_poll()
 				break;
 			case SDL_QUIT: {
 				d_event qevent = { EVENT_QUIT };
-				call_default_handler(&qevent);
+				event_send(&qevent);
 				idle = 0;
 			} break;
                         case SDL_WINDOWEVENT: {
@@ -143,6 +144,11 @@ void event_send(d_event *event)
 	window *wind;
 	int handled = 0;
 
+	if (event->type == EVENT_QUIT) {
+		quitting = true;
+		return;
+	}
+
 	for (wind = window_get_front(); wind != NULL && !handled; wind = window_get_prev(wind))
 		if (window_is_visible(wind))
 		{
@@ -165,6 +171,11 @@ void event_process(void)
 {
 	d_event event;
 	window *wind = window_get_front();
+
+	if (wind && quitting) {
+		window_close(wind);
+		return;
+	}
 
 	timer_update();
 
