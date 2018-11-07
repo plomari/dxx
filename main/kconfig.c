@@ -507,6 +507,12 @@ static void kconfig_draw(kc_menu *menu)
 	gr_set_current_canvas( save_canvas );
 }
 
+static void kc_menu_set_changing(kc_menu *menu, bool changing)
+{
+	menu->changing = changing;
+	window_set_grab_input(menu->wind, changing);
+}
+
 static void kconfig_start_changing(kc_menu *menu)
 {
 	if (menu->items[menu->citem].type == BT_INVERT)
@@ -516,8 +522,7 @@ static void kconfig_start_changing(kc_menu *menu)
 	}
 
 	menu->q_fade_i = 0;	// start question mark flasher
-	menu->changing = 1;
-	gr_force_grab_keys(1);
+	kc_menu_set_changing(menu, true);
 }
 
 static inline int in_bounds(unsigned mx, unsigned my, unsigned x1, unsigned xw, unsigned y1, unsigned yh)
@@ -572,8 +577,7 @@ static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 		else
 		{
 			// Click out of changing mode - kreatordxx
-			menu->changing = 0;
-			gr_force_grab_keys(0);
+			kc_menu_set_changing(menu, false);
 			rval = 1;
 		}
 	}
@@ -646,8 +650,7 @@ static int kconfig_key_command(window *wind, d_event *event, kc_menu *menu)
 		case -2:	
 		case KEY_ESC:
 			if (menu->changing) {
-				menu->changing = 0;
-				gr_force_grab_keys(0);
+				kc_menu_set_changing(menu, false);
 			} else
 				window_close(wind);
 			return 1;
@@ -778,7 +781,6 @@ void kconfig_sub_n(const kc_item * items, kc_mitem * mitems, int nitems, char *t
 	menu->title = title;
 	menu->citem = 0;
 	menu->changing = 0;
-	gr_force_grab_keys(0);
 
 	menu->mouse_state = 0;
 
@@ -853,8 +855,7 @@ static void kc_set_exclusive_binding(kc_menu *menu, kc_mitem *mitem, unsigned ty
 		}
 	}
 	mitem->value = value;
-	menu->changing = 0;
-	gr_force_grab_keys(0);
+	kc_menu_set_changing(menu, false);
 }
 
 static void kc_change_key( kc_menu *menu, d_event *event, kc_mitem *mitem )
@@ -933,8 +934,7 @@ static void kc_change_invert( kc_menu *menu, kc_mitem * item )
 	else 
 		item->value = 1;
 
-	menu->changing = 0;		// in case we were changing something else
-	gr_force_grab_keys(0);
+	kc_menu_set_changing(menu, false); // in case we were changing something else
 }
 
 #include "screens.h"

@@ -402,8 +402,7 @@ void gr_enable_depth(int enable);
 
 void gr_sdl_ogl_resize_window(int w, int h);
 
-void gr_update_grab(void);
-void gr_force_grab_keys(int force);
+void gr_set_input_grab(bool val);
 
 extern int gr_focus_lost;
 

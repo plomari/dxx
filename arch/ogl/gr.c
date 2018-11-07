@@ -55,13 +55,19 @@ int gr_focus_lost;
 static int curx=-1,cury=-1,curfull=0;
 int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated once when resolution changes
 static SDL_Window *sdl_window;
-static int force_grab;
+static bool user_grab;
 
 extern void ogl_init_pixel_buffers(int w, int h);
 extern void ogl_close_pixel_buffers(void);
 extern int gcd(int a, int b);
 
 static void ogl_get_verinfo(void);
+
+static void gr_update_grab(void)
+{
+	if (sdl_window)
+		SDL_SetWindowGrab(sdl_window, ogl_fullscreen && user_grab);
+}
 
 void ogl_swap_buffers_internal(void)
 {
@@ -172,16 +178,12 @@ int ogl_init_window(int x, int y)
 	return 0;
 }
 
-void gr_update_grab(void)
+void gr_set_input_grab(bool val)
 {
-	SDL_SetWindowGrab(sdl_window,
-		ogl_fullscreen && (game_is_running() || force_grab));
-}
-
-void gr_force_grab_keys(int force)
-{
-	force_grab = force;
-	gr_update_grab();
+	if (user_grab != val) {
+		user_grab = val;
+		gr_update_grab();
+	}
 }
 
 int gr_check_fullscreen(void)

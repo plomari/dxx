@@ -290,7 +290,6 @@ int set_screen_mode(int sm)
 #endif
 
 	Screen_mode = sm;
-	gr_update_grab();
 
 	switch( Screen_mode )
 	{
@@ -349,26 +348,18 @@ void stop_time()
 		}
 	}
 	time_paused++;
-	gr_update_grab();
 }
 
 void start_time()
 {
 	time_paused--;
 	Assert(time_paused >= 0);
-	gr_update_grab();
 	if (time_paused==0) {
 		fix64 time;
 		timer_update();
 		time = timer_query();
 		last_timer_value = time - last_timer_value;
 	}
-}
-
-// Game is active, and is not paused.
-bool game_is_running(void)
-{
-	return Screen_mode == SCREEN_GAME && !time_paused;
 }
 
 void game_flush_inputs()
@@ -1054,6 +1045,8 @@ window *game_setup(void)
 	game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, NULL);
 	if (!game_wind)
 		return NULL;
+
+	window_set_grab_input(game_wind, true);
 
 	reset_palette_add();
 	init_cockpit();

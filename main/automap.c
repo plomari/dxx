@@ -857,6 +857,8 @@ void do_automap( int key_code )
 		return;
 	}
 
+	window_set_grab_input(automap_wind, true);
+
 	am->leave_mode = 0;
 	am->pause_game = 1; // Set to 1 if everything is paused during automap...No pause during net.
 	am->max_segments_away = 0;

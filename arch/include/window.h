@@ -33,6 +33,8 @@ extern int window_send_event(window *wind, d_event *event);
 extern void window_set_modal(window *wind, int modal);
 extern int window_is_modal(window *wind);
 void window_run_event_loop(window *wind);
+bool window_get_grab_input(window *wind);
+void window_set_grab_input(window *wind, bool v);
 
 #define WINDOW_SEND_EVENT(w, e)	\
 do {	\

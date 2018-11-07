@@ -19,6 +19,7 @@ struct window
 	int (*w_callback)(window *wind, d_event *event, void *data);	// the event handler
 	int w_visible;						// whether it's visible
 	int w_modal;						// modal = accept all user input exclusively
+	bool grab_input;
 	void *data;							// whatever the user wants (eg menu data for 'newmenu' menus)
 	struct window *prev;				// the previous window in the doubly linked list
 	struct window *next;				// the next window in the doubly linked list
@@ -26,6 +27,17 @@ struct window
 
 static window *FrontWindow = NULL;
 static window *FirstWindow = NULL;
+static bool current_grab;
+
+static void update_top_window(void)
+{
+	window *wind = window_get_front();
+
+	bool new_grab = wind && wind->grab_input;
+	if (new_grab != current_grab)
+		gr_set_input_grab(new_grab);
+	current_grab = new_grab;
+}
 
 window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_callback)(window *wind, d_event *event, void *data), void *data)
 {
@@ -36,6 +48,8 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 	wind = d_malloc(sizeof(window));
 	if (wind == NULL)
 		return NULL;
+
+	*wind = (window){0};
 
 	Assert(src != NULL);
 	Assert(event_callback != NULL);
@@ -57,6 +71,7 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 
 	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_CREATED);
 	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
+	update_top_window();
 
 	return wind;
 }
@@ -67,8 +82,10 @@ int window_close(window *wind)
 	d_event event;
 	int (*w_callback)(window *wind, d_event *event, void *data) = wind->w_callback;
 
-	if (wind == window_get_front())
+	if (wind == window_get_front()) {
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);	// Deactivate first
+		update_top_window();
+	}
 
 	event.type = EVENT_WINDOW_CLOSE;
 	con_printf(CON_DEBUG,	"Sending event EVENT_WINDOW_CLOSE to window of dimensions %dx%d\n",
@@ -89,6 +106,8 @@ int window_close(window *wind)
 
 	if ((prev = window_get_front()))
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_ACTIVATED);
+
+	update_top_window();
 
 	return 1;
 }
@@ -155,6 +174,8 @@ void window_select(window *wind)
 			WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 	}
+
+	update_top_window();
 }
 
 void window_set_visible(window *wind, int visible)
@@ -172,6 +193,8 @@ void window_set_visible(window *wind, int visible)
 
 	if (wind)
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
+
+	update_top_window();
 }
 
 int window_is_visible(window *wind)
@@ -210,4 +233,15 @@ void window_set_modal(window *wind, int modal)
 int window_is_modal(window *wind)
 {
 	return wind->w_modal;
+}
+
+bool window_get_grab_input(window *wind)
+{
+	return wind->grab_input;
+}
+
+void window_set_grab_input(window *wind, bool v)
+{
+	wind->grab_input = v;
+	update_top_window();
 }
