@@ -1154,6 +1154,9 @@ int game_handler(window *wind, d_event *event, void *data)
 			{
 				calc_frame_time();
 				GameProcessFrame();
+
+				if (gr_focus_lost)
+					do_game_pause();
 			}
 
 			if (!Automap_active)		// efficiency hack

@@ -462,7 +462,7 @@ int pause_handler(window *wind, d_event *event, char *msg)
 	return 0;
 }
 
-int do_game_pause()
+int do_game_pause(void)
 {
 	char *msg;
 	char total_time[9],level_time[9];
@@ -2102,7 +2102,4 @@ void ProcessControls(void)
 			return;
 		do_weapon_n_item_stuff();
 	}
-
-	if (gr_focus_lost)
-		do_game_pause();
 }
