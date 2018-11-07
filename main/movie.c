@@ -238,7 +238,7 @@ void MovieSetPalette(unsigned char *p, unsigned start, unsigned count)
 
 typedef struct movie
 {
-	int result, aborted;
+	int result;
 	int frame_num;
 	int paused;
 } movie;
@@ -306,7 +306,6 @@ int MovieHandler(window *wind, d_event *event, movie *m)
 
 			// If ESCAPE pressed, then quit movie.
 			if (key == KEY_ESC) {
-				m->result = m->aborted = 1;
 				window_close(wind);
 				return 1;
 			}
@@ -337,11 +336,6 @@ int MovieHandler(window *wind, d_event *event, movie *m)
 
 			if (!m->paused)
 				m->frame_num++;
-			break;
-
-		case EVENT_WINDOW_CLOSE:
-			if (Quitting)
-				m->result = m->aborted = 1;
 			break;
 			
 		default:
@@ -415,8 +409,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	if (!m)
 		return MOVIE_NOT_PLAYED;
 
-	m->result = 1;
-	m->aborted = 0;
+	m->result = 0;
 	m->frame_num = 0;
 	m->paused = 0;
 
@@ -473,14 +466,12 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	while (window_exists(wind))
 		event_process();
 
-	Assert(m->aborted || m->result == MVE_ERR_EOF);	 ///movie should be over
-
     MVE_rmEndMovie();
 
 	SDL_FreeRW(filehndl);                           // Close Movie File
 	if (reshow)
 		show_menus();
-	aborted = m->aborted;
+	aborted = m->result != MVE_ERR_EOF;
 	d_free(m);
 
 	// Restore old graphic state
