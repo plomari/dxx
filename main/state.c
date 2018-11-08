@@ -483,7 +483,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	if ( cnv )
 	{
 		ubyte *buf;
-		int k;
 		grs_canvas * cnv_save;
 		cnv_save = grd_curcanv;
 
@@ -491,16 +490,17 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 		render_frame(0, 0);
 
-		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 3);
+		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 4);
 		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
 		glReadBuffer(gl_draw_buffer);
-		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGB, GL_UNSIGNED_BYTE, buf);
-		k = THUMBNAIL_H;
-		for (i = 0; i < THUMBNAIL_W * THUMBNAIL_H; i++) {
-			if (!(j = i % THUMBNAIL_W))
-				k--;
-			cnv->cv_bitmap.bm_data[THUMBNAIL_W * k + j] =
-				gr_find_closest_color(buf[3*i]/4, buf[3*i+1]/4, buf[3*i+2]/4);
+		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+		for (int y = THUMBNAIL_H - 1; y >= 0; y--) {
+			ubyte *dst = &cnv->cv_bitmap.bm_data[y * THUMBNAIL_W];
+			ubyte *src = &buf[y * THUMBNAIL_W * 4];
+			for (int x = 0; x < THUMBNAIL_W; x++) {
+				*dst++ = gr_find_closest_color(src[0] / 4, src[1] / 4, src[2] / 4);
+				src += 4;
+			}
 		}
 		d_free(buf);
 
