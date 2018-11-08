@@ -3598,8 +3598,6 @@ void newdemo_start_playback(char * filename)
 	PlayerCfg.Cockpit3DView[0] = PlayerCfg.Cockpit3DView[1] = CV_NONE;       //turn off 3d views on cockpit
 	DemoDoLeft = DemoDoRight = 0;
 	HUD_clear_messages();
-	if (!Game_wind)
-		hide_menus();
 	newdemo_playback_one_frame();       // this one loads new level
 	newdemo_playback_one_frame();       // get all of the objects to renderb game
 	if (!Game_wind)

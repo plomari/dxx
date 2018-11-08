@@ -873,9 +873,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		init_player_stats_game();		//clear all stats
 	}
 
-	if (Game_wind)
-		window_set_visible(Game_wind, 0);
-
 //Read player info
 
 	{
@@ -1193,9 +1190,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 	PHYSFS_close(fp);
 
-	if (Game_wind)
-		if (!window_is_visible(Game_wind))
-			window_set_visible(Game_wind, 1);
 	reset_time();
 
 	return 1;

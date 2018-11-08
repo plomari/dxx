@@ -301,9 +301,7 @@ void start_endlevel_sequence()
 	if (Newdemo_state == ND_STATE_PLAYBACK) {		// don't do this if in playback mode
 		if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		{
-			window_set_visible(Game_wind, 0);	// suspend the game, including drawing
 			start_endlevel_movie();
-			window_set_visible(Game_wind, 1);
 		}
 		strcpy(last_palette_loaded,"");		//force palette load next time
 		return;
@@ -328,14 +326,10 @@ void start_endlevel_sequence()
 		multi_do_protocol_frame(1, 1);
 	}
 #endif
-
-	window_set_visible(Game_wind, 0);	// suspend the game, including drawing
 	
 	if (PLAYING_BUILTIN_MISSION) // only play movie for built-in mission
 		if (!(Game_mode & GM_MULTI))
 			endlevel_movie_played = start_endlevel_movie();
-	
-	window_set_visible(Game_wind, 1);
 
 	if (!(Game_mode & GM_MULTI) && (endlevel_movie_played == MOVIE_NOT_PLAYED) && endlevel_data_loaded)
 	{   //don't have movie.  Do rendered sequence, if available

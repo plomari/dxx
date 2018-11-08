@@ -1552,6 +1552,17 @@ newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * 
 	if (!menu)
 		return NULL;
 
+	bool opaque = false;
+
+	//  gross hack for do_screen_message(), until we can pass extra parameters more easily
+	if (title && strcmp(title, "#opaque") == 0) {
+		title = NULL;
+		opaque = true;
+	}
+
+	if (filename)
+		opaque = true;
+
 	memset(menu, 0, sizeof(newmenu));
 	menu->citem = citem;
 	menu->scroll_offset = 0;
@@ -1597,6 +1608,8 @@ newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * 
 	}
 	menu->wind = wind;
 	menu_canvas = window_get_canvas(wind);
+
+	window_set_opaque(menu->wind, opaque);
 
 	return menu;
 }

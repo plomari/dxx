@@ -409,15 +409,6 @@ int main(int argc, char *argv[])
 			break;
 		window_run_event_loop(win);
 	}
-	
-	// Tidy up - avoids a crash on exit
-	{
-		window *wind;
-
-		show_menus();
-		while ((wind = window_get_front()))
-			window_close(wind);
-	}
 
 	WriteConfigFile();
 	show_order_form();

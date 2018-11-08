@@ -173,6 +173,8 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 		return 0;
 	}
 
+	window_set_opaque(wind, true);
+
 	window_run_event_loop(wind);
 
 	return 0;
@@ -1403,6 +1405,8 @@ void do_briefing_screens(char *filename, int level_num)
 		d_free(br);
 		return;
 	}
+
+	window_set_opaque(wind, true);
 
 	if (EMULATING_D1 || is_SHAREWARE || is_MAC_SHARE || is_D2_OEM || !PLAYING_BUILTIN_MISSION)
 	{

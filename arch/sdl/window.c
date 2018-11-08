@@ -17,8 +17,7 @@ struct window
 {
 	grs_canvas w_canv;					// the window's canvas to draw to
 	int (*w_callback)(window *wind, d_event *event, void *data);	// the event handler
-	int w_visible;						// whether it's visible
-	int w_modal;						// modal = accept all user input exclusively
+	bool opaque;						// if true, don't render the windows behind this one
 	bool grab_input;
 	void *data;							// whatever the user wants (eg menu data for 'newmenu' menus)
 	struct window *prev;				// the previous window in the doubly linked list
@@ -55,8 +54,6 @@ window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_c
 	Assert(event_callback != NULL);
 	gr_init_sub_canvas(&wind->w_canv, src, x, y, w, h);
 	wind->w_callback = event_callback;
-	wind->w_visible = 1;	// default to visible
-	wind->w_modal =	1;		// default to modal
 	wind->data = data;
 
 	if (FirstWindow == NULL)
@@ -124,11 +121,7 @@ int window_exists(window *wind)
 // Get the top window that's visible
 window *window_get_front(void)
 {
-	window *wind;
-
-	for (wind = FrontWindow; (wind != NULL) && !wind->w_visible; wind = wind->prev) {}
-
-	return wind;
+	return FrontWindow;
 }
 
 window *window_get_first(void)
@@ -168,38 +161,21 @@ void window_select(window *wind)
 	wind->next = NULL;
 	FrontWindow = wind;
 	
-	if (window_is_visible(wind))
-	{
-		if (prev)
-			WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
-		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
-	}
-
-	update_top_window();
-}
-
-void window_set_visible(window *wind, int visible)
-{
-	window *prev = window_get_front();
-	d_event event;
-
-	wind->w_visible = visible;
-	wind = window_get_front();	// get the new front window
-	if (wind == prev)
-		return;
-	
 	if (prev)
 		WINDOW_SEND_EVENT(prev, EVENT_WINDOW_DEACTIVATED);
-
-	if (wind)
-		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
+	WINDOW_SEND_EVENT(wind, EVENT_WINDOW_ACTIVATED);
 
 	update_top_window();
 }
 
-int window_is_visible(window *wind)
+void window_set_opaque(window *wind, bool val)
 {
-	return wind->w_visible;
+	wind->opaque = val;
+}
+
+bool window_get_opaque(window *wind)
+{
+	return wind->opaque;
 }
 
 grs_canvas *window_get_canvas(window *wind)
@@ -210,16 +186,6 @@ grs_canvas *window_get_canvas(window *wind)
 int window_send_event(window *wind, d_event *event)
 {
 	return wind->w_callback(wind, event, wind->data);
-}
-
-void window_set_modal(window *wind, int modal)
-{
-	wind->w_modal = modal;
-}
-
-int window_is_modal(window *wind)
-{
-	return wind->w_modal;
 }
 
 bool window_get_grab_input(window *wind)

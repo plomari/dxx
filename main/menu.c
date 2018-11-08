@@ -117,8 +117,6 @@ enum MENUS
 
 #define ADD_ITEM(t,value,key)  do { m[num_options].type=NM_TYPE_MENU; m[num_options].text=t; menu_choice[num_options]=value;num_options++; } while (0)
 
-static window *menus[16] = { NULL };
-
 // Function Prototypes added after LINTING
 int do_option(int select);
 int do_new_game_menu(void);
@@ -130,40 +128,6 @@ void do_sandbox_menu();
 extern void newmenu_free_background();
 extern void ReorderPrimary();
 extern void ReorderSecondary();
-
-// Hide all menus
-int hide_menus(void)
-{
-	window *wind;
-	int i;
-
-	if (menus[0])
-		return 0;		// there are already hidden menus
-
-	for (i = 0; (i < 15) && (wind = window_get_front()); i++)
-	{
-		menus[i] = wind;
-		window_set_visible(wind, 0);
-	}
-
-	Assert(window_get_front() == NULL);
-	menus[i] = NULL;
-
-	return 1;
-}
-
-// Show all menus, with the front one shown first
-// This makes sure EVENT_WINDOW_ACTIVATED is only sent to that window
-void show_menus(void)
-{
-	int i;
-
-	for (i = 0; (i < 16) && menus[i]; i++)
-		if (window_exists(menus[i]))
-			window_set_visible(menus[i], 1);
-
-	menus[0] = NULL;
-}
 
 //pairs of chars describing ranges
 char playername_allowed_chars[] = "azAZ09__--";
@@ -592,7 +556,6 @@ int do_option ( int select)
 				SetPlayerFromCurseg();
 			}
 
-			hide_menus();
 			init_editor();
 			break;
 		#endif

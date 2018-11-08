@@ -141,26 +141,14 @@ int call_default_handler(d_event *event)
 
 void event_send(d_event *event)
 {
-	window *wind;
-	int handled = 0;
-
 	if (event->type == EVENT_QUIT) {
 		quitting = true;
 		return;
 	}
 
-	for (wind = window_get_front(); wind != NULL && !handled; wind = window_get_prev(wind))
-		if (window_is_visible(wind))
-		{
-			handled = window_send_event(wind, event);
+	window *wind = window_get_front();
 
-			if (!window_exists(wind)) // break away if necessary: window_send_event() could have closed wind by now
-				break;
-			if (window_is_modal(wind))
-				break;
-		}
-	
-	if (!handled)
+	if (!wind || !window_send_event(wind, event))
 		call_default_handler(event);
 }
 
@@ -169,7 +157,6 @@ void event_send(d_event *event)
 // Uses the old system for now, but this may change
 static void event_process(void)
 {
-	d_event event;
 	window *wind = window_get_front();
 
 	if (wind && quitting) {
@@ -185,14 +172,19 @@ static void event_process(void)
 	// such as some network menus when they report a problem
 	if (window_get_front() != wind)
 		return;
-	
-	event.type = EVENT_WINDOW_DRAW;	// then draw all visible windows
-	wind = window_get_first();
+
+	window *last_opaque = NULL;
+	for (window *w = window_get_first(); w; w = window_get_next(w)) {
+		if (!last_opaque || window_get_opaque(w))
+			last_opaque = w;
+	}
+	wind = last_opaque;
+
 	while (wind != NULL)
 	{
 		window *prev = window_get_prev(wind);
-		if (window_is_visible(wind))
-			window_send_event(wind, &event);
+
+		window_send_event(wind, &(d_event){EVENT_WINDOW_DRAW});
 		if (!window_exists(wind))
 		{
 			if (!prev) // well there isn't a previous window ...

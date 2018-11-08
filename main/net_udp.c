@@ -1273,11 +1273,7 @@ net_udp_disconnect_player(int playernum)
 	{
 		if (Network_status==NETSTAT_PLAYING)
 			multi_leave_game();
-		if (Game_wind)
-			window_set_visible(Game_wind, 0);
 		nm_messagebox(NULL, 1, TXT_OK, "Host left the game!");
-		if (Game_wind)
-			window_set_visible(Game_wind, 1);
 		multi_quit_game = 1;
 		game_leave_menus();
 		multi_reset_stuff();
@@ -2582,14 +2578,10 @@ void net_udp_process_dump(ubyte *data, int len, struct _sockaddr sender_addr)
 		case DUMP_KICKED:
 			if (Network_status==NETSTAT_PLAYING)
 				multi_leave_game();
-			if (Game_wind)
-				window_set_visible(Game_wind, 0);
 			if (data[1] == DUMP_PKTTIMEOUT)
 				nm_messagebox(NULL, 1, TXT_OK, "You were removed from the game.\nYou failed receiving important\npackets. Sorry.");
 			if (data[1] == DUMP_KICKED)
 				nm_messagebox(NULL, 1, TXT_OK, "You were kicked by Host!");
-			if (Game_wind)
-				window_set_visible(Game_wind, 1);
 			multi_quit_game = 1;
 			game_leave_menus();
 			multi_reset_stuff();
@@ -4016,7 +4008,6 @@ net_udp_level_sync(void)
 		net_udp_send_endlevel_packet();
 		if (Game_wind)
 			window_close(Game_wind);
-		show_menus();
 		net_udp_close();
 		return -1;
 	}
@@ -4419,11 +4410,7 @@ void net_udp_noloss_add_queue_pkt(uint32_t pkt_num, fix64 time, ubyte *data, ush
 			Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
 			if (Network_status==NETSTAT_PLAYING)
 				multi_leave_game();
-			if (Game_wind)
-				window_set_visible(Game_wind, 0);
 			nm_messagebox(NULL, 1, TXT_OK, "You left the game. You failed\nsending important packets.\nSorry.");
-			if (Game_wind)
-				window_set_visible(Game_wind, 1);
 			multi_quit_game = 1;
 			game_leave_menus();
 			multi_reset_stuff();
@@ -4595,11 +4582,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					Netgame.PacketLossPrevention = 0; // Disable PLP - otherwise we get stuck in an infinite loop here. NOTE: We could as well clean the whole queue to continue protect our disconnect signal bit it's not that important - we just wanna leave.
 					if (Network_status==NETSTAT_PLAYING)
 						multi_leave_game();
-					if (Game_wind)
-						window_set_visible(Game_wind, 0);
 					nm_messagebox(NULL, 1, TXT_OK, "You left the game. You failed\nsending important packets.\nSorry.");
-					if (Game_wind)
-						window_set_visible(Game_wind, 1);
 					multi_quit_game = 1;
 					game_leave_menus();
 					multi_reset_stuff();

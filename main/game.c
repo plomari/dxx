@@ -1047,6 +1047,7 @@ window *game_setup(void)
 		return NULL;
 
 	window_set_grab_input(game_wind, true);
+	window_set_opaque(game_wind, true);
 
 	reset_palette_add();
 	init_cockpit();
@@ -1152,14 +1153,12 @@ int game_handler(window *wind, d_event *event, void *data)
 					do_game_pause();
 			}
 
-			if (!Automap_active)		// efficiency hack
-			{
-				if (force_cockpit_redraw) {			//screen need redrawing?
-					init_cockpit();
-					force_cockpit_redraw=0;
-				}
-				game_render_frame();
+			if (force_cockpit_redraw) {			//screen need redrawing?
+				init_cockpit();
+				force_cockpit_redraw=0;
 			}
+			game_render_frame();
+
 			break;
 
 		case EVENT_WINDOW_CLOSE:
@@ -1179,10 +1178,6 @@ int game_handler(window *wind, d_event *event, void *data)
 
 			game_disable_cheats();
 			Game_mode = GM_GAME_OVER;
-#ifdef EDITOR
-			if (!EditorWindow)		// have to do it this way because of the necessary longjmp. Yuck.
-#endif
-				show_menus();
 			Game_wind = NULL;
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
@@ -1198,7 +1193,6 @@ int game_handler(window *wind, d_event *event, void *data)
 // Initialise game, actually runs in main event loop
 void game()
 {
-	hide_menus();
 	Game_wind = game_setup();
 }
 

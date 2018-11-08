@@ -823,7 +823,6 @@ int automap_handler(window *wind, d_event *event, automap *am)
 			d_free(am->edges);
 			d_free(am->drawingListBright);
 			d_free(am);
-			window_set_visible(Game_wind, 1);
 			Automap_active = 0;
 			return 0;	// continue closing
 			break;
@@ -858,6 +857,7 @@ void do_automap( int key_code )
 	}
 
 	window_set_grab_input(automap_wind, true);
+	window_set_opaque(automap_wind, true);
 
 	am->leave_mode = 0;
 	am->pause_game = 1; // Set to 1 if everything is paused during automap...No pause during net.
@@ -890,9 +890,6 @@ void do_automap( int key_code )
 	if ((Game_mode & GM_MULTI) && (!Endlevel_sequence))
 		am->pause_game = 0;
 
-	if (am->pause_game) {
-		window_set_visible(Game_wind, 0);
-	}
 	if (!am->pause_game)	{
 		am->old_wiggle = ConsoleObject->mtype.phys_info.flags & PF_WIGGLE;	// Save old wiggle
 		ConsoleObject->mtype.phys_info.flags &= ~PF_WIGGLE;		// Turn off wiggle

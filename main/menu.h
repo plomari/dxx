@@ -20,9 +20,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MENU_H
 #define _MENU_H
 
-extern int hide_menus(void);
-extern void show_menus(void);
-
 // called once at program startup to get the player's name
 // at_program_start==1 if it's actually at startup
 int RegisterPlayer(int at_program_start);

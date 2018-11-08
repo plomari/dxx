@@ -1019,7 +1019,7 @@ void do_screen_message(char *fmt, ...)
 	
 	newmenu_item nm_message_items[1];
 	nm_set_item_menu(& nm_message_items[0], TXT_OK);
-	newmenu_do( NULL, msg, 1, nm_message_items, (int (*)(newmenu *, d_event *, void *))draw_stars_bg, &background);
+	newmenu_do( "#opaque", msg, 1, nm_message_items, (int (*)(newmenu *, d_event *, void *))draw_stars_bg, &background);
 	gr_free_bitmap_data(&background);
 }
 
@@ -1136,9 +1136,6 @@ void ExitSecretLevel(void)
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		return;
 
-	if (Game_wind)
-		window_set_visible(Game_wind, 0);
-
 	if (!Control_center_destroyed) {
 		state_save_all(0, 2, SECRETC_FILENAME, 0);
 	}
@@ -1163,8 +1160,6 @@ void ExitSecretLevel(void)
 		}
 	}
 
-	if (Game_wind)
-		window_set_visible(Game_wind, 1);
 	reset_time();
 }
 
@@ -1198,9 +1193,6 @@ void EnterSecretLevel(void)
 	int	i;
 
 	Assert(! (Game_mode & GM_MULTI) );
-
-	if (Game_wind)
-		window_set_visible(Game_wind, 0);
 
 	digi_play_sample( SOUND_SECRET_EXIT, F1_0 );	// after above call which stops all sounds
 	
@@ -1239,8 +1231,6 @@ void EnterSecretLevel(void)
 	// END NMN
 
 	// do_cloak_invul_stuff();
-	if (Game_wind)
-		window_set_visible(Game_wind, 1);
 	reset_time();
 }
 
@@ -1248,9 +1238,6 @@ void EnterSecretLevel(void)
 void PlayerFinishedLevel(int secret_flag)
 {
 	Assert(!secret_flag);
-
-	if (Game_wind)
-		window_set_visible(Game_wind, 0);
 
 	//credit the player for hostages
 	Players[Player_num].hostages_rescued_total += Players[Player_num].hostages_on_board;
@@ -1262,8 +1249,6 @@ void PlayerFinishedLevel(int secret_flag)
 
 	AdvanceLevel(secret_flag);				//now go on to the next one (if one)
 
-	if (Game_wind)
-		window_set_visible(Game_wind, 1);
 	reset_time();
 }
 
@@ -1403,9 +1388,6 @@ void AdvanceLevel(int secret_flag)
 
 void DoPlayerDead()
 {
-	if (Game_wind)
-		window_set_visible(Game_wind, 0);
-
 	reset_palette_add();
 
 	gr_palette_load (gr_palette);
@@ -1416,8 +1398,6 @@ void DoPlayerDead()
 	if (Game_mode == GM_EDITOR) {			//test mine, not real level
 		object * playerobj = &Objects[Players[Player_num].objnum];
 		//nm_messagebox( "You're Dead!", 1, "Continue", "Not a real game, though." );
-		if (Game_wind)
-			window_set_visible(Game_wind, 1);
 		load_level("gamesave.lvl");
 		init_player_stats_new_ship();
 		playerobj->flags &= ~OF_SHOULD_BE_DEAD;
@@ -1504,8 +1484,6 @@ void DoPlayerDead()
 
 	digi_sync_sounds();
 
-	if (Game_wind)
-		window_set_visible(Game_wind, 1);
 	reset_time();
 }
 
@@ -1759,8 +1737,6 @@ void maybe_set_first_secret_visit(int level_num)
 //	secret_flag if came from a secret level
 void StartNewLevel(int level_num, int secret_flag)
 {
-	hide_menus();
-
 	GameTime = 0;
 	ThisLevelTime=0;
 

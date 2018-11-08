@@ -1359,7 +1359,6 @@ int HandleTestKey(int key)
 #ifdef EDITOR		//editor-specific functions
 
 		case KEY_E + KEY_DEBUGGED:
-			window_set_visible(Game_wind, 0);	// don't let the game do anything while we set the editor up
 			init_editor();
 			window_close(Game_wind);
 			break;
@@ -1684,9 +1683,7 @@ void FinalCheats(int key)
 		if (item != -1) {
 			new_level_num = atoi(m.text);
 			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level) {
-				window_set_visible(Game_wind, 0);
 				StartNewLevel(new_level_num, 0);
-				window_set_visible(Game_wind, 1);
 				do_cheat_penalty();
 			}
 		}
