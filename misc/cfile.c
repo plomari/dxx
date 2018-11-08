@@ -487,11 +487,11 @@ bool cfile_write_fixed_str(CFILE *file, size_t field_len, const char *str)
 	if (!(len <= field_len))
 		return false;
 
-	if (cfile_write(file, str, len, 1) < 1)
+	if (cfile_write(file, str, 1, len) < len)
 		return false;
 
 	while (len < field_len) {
-		if (cfile_write(file, &(char){0}, 1, 1) < 0)
+		if (cfile_write(file, &(char){0}, 1, 1) < 1)
 			return false;
 		len++;
 	}
