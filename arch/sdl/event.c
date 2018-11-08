@@ -28,17 +28,25 @@ extern void mouse_cursor_autohide();
 static int initialised=0;
 static bool quitting;
 
-void event_poll()
+static void event_poll(void)
 {
 	SDL_Event event;
 	int clean_uniframe=1;
 	window *wind = window_get_front();
 	int idle = 1;
-	
-	// If the front window changes, exit this loop, otherwise unintended behavior can occur
-	// like pressing 'Return' really fast at 'Difficulty Level' causing multiple games to be started
-	while ((wind == window_get_front()) && SDL_PollEvent(&event))
-	{
+
+	window *cur = window_get_front();
+	window_register_weak_ptr(&cur);
+
+	while (1) {
+		// If the front window changes, exit this loop, otherwise unintended behavior can occur
+		// like pressing 'Return' really fast at 'Difficulty Level' causing multiple games to be started
+		if (cur != window_get_front())
+			goto done;
+
+		if (!SDL_PollEvent(&event))
+			break;
+
 		switch(event.type) {
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
@@ -107,6 +115,9 @@ void event_poll()
 		event_reset_idle_seconds();
 	
 	mouse_cursor_autohide();
+
+done:
+	window_unregister_weak_ptr(&cur);
 }
 
 void event_flush()
@@ -184,9 +195,15 @@ static void event_process(void)
 	{
 		window *prev = window_get_prev(wind);
 
+		window_register_weak_ptr(&prev);
+		window_register_weak_ptr(&wind);
+
 		window_send_event(wind, &(d_event){EVENT_WINDOW_DRAW});
-		if (!window_exists(wind))
-		{
+
+		window_unregister_weak_ptr(&wind);
+		window_unregister_weak_ptr(&prev);
+
+		if (!wind) {
 			if (!prev) // well there isn't a previous window ...
 				break; // ... just bail out - we've done everything for this frame we can.
 			wind = window_get_next(prev); // the current window seemed to be closed. so take the next one from the previous which should be able to point to the one after the current closed
@@ -201,8 +218,10 @@ static void event_process(void)
 // Run event loop until it's closed.
 void window_run_event_loop(window *wind)
 {
-	while (window_exists(wind))
+	window_register_weak_ptr(&wind);
+	while (wind)
 		event_process();
+	window_unregister_weak_ptr(&wind);
 }
 
 void event_toggle_focus(int activate_focus)

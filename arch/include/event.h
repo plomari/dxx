@@ -64,8 +64,6 @@ typedef struct d_event
 
 int event_init();
 
-// Sends input events to event handlers
-void event_poll();
 void event_flush();
 
 // Set and call the default event handler

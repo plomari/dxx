@@ -27,6 +27,7 @@ struct window
 static window *FrontWindow = NULL;
 static window *FirstWindow = NULL;
 static bool current_grab;
+static window **weak_ptrs[10];
 
 static void update_top_window(void)
 {
@@ -36,6 +37,37 @@ static void update_top_window(void)
 	if (new_grab != current_grab)
 		gr_set_input_grab(new_grab);
 	current_grab = new_grab;
+}
+
+static int find_weak_ptr(window **ptr)
+{
+	for (size_t n = 0; n < ARRAY_ELEMS(weak_ptrs); n++) {
+		if (weak_ptrs[n] == ptr)
+			return n;
+	}
+	return -1;
+}
+
+// A weak pointer is a pointer that is reset to NULL when the window it points
+// to is deallocated.
+void window_register_weak_ptr(window **ptr)
+{
+	int n = find_weak_ptr(NULL);
+	if (n < 0) {
+		Assert(0); // increase number of elements in weak_ptrs[]
+		return;
+	}
+	weak_ptrs[n] = ptr;
+}
+
+void window_unregister_weak_ptr(window **ptr)
+{
+	int n = find_weak_ptr(ptr);
+	if (n < 0) {
+		Assert(0); // pointer was not registered
+		return;
+	}
+	weak_ptrs[n] = NULL;
 }
 
 window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_callback)(window *wind, d_event *event, void *data), void *data)
@@ -99,6 +131,11 @@ int window_close(window *wind)
 	if (wind->prev)
 		wind->prev->next = wind->next;
 
+	for (size_t n = 0; n < ARRAY_ELEMS(weak_ptrs); n++) {
+		if (weak_ptrs[n] && *weak_ptrs[n] == wind)
+			*weak_ptrs[n] = NULL;
+	}
+
 	d_free(wind);
 
 	if ((prev = window_get_front()))
@@ -107,15 +144,6 @@ int window_close(window *wind)
 	update_top_window();
 
 	return 1;
-}
-
-int window_exists(window *wind)
-{
-	window *w;
-
-	for (w = FirstWindow; w && w != wind; w = w->next) {}
-	
-	return w && w == wind;
 }
 
 // Get the top window that's visible

@@ -19,7 +19,6 @@ typedef struct window window;
 
 extern window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_callback)(window *wind, d_event *event, void *data), void *data);
 extern int window_close(window *wind);
-extern int window_exists(window *wind);
 extern window *window_get_front(void);
 extern window *window_get_first(void);
 extern window *window_get_next(window *wind);
@@ -32,6 +31,8 @@ extern int window_send_event(window *wind, d_event *event);
 void window_run_event_loop(window *wind);
 bool window_get_grab_input(window *wind);
 void window_set_grab_input(window *wind, bool v);
+void window_register_weak_ptr(window **ptr);
+void window_unregister_weak_ptr(window **ptr);
 
 #define WINDOW_SEND_EVENT(w, e)	\
 do {	\
