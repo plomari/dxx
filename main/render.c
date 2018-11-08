@@ -1893,17 +1893,13 @@ void build_segment_list(int start_seg_num, int window_num)
 										render_windows[rp] = *new_w;		//get updated window
 										processed[rp] = 0;		//force reprocess
 								}
-								goto no_add;
+							} else {
+								render_pos[ch] = lcnt;
+								Render_list[lcnt] = ch;
+								lcnt++;
+								if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
+								visited[ch] = 1;
 							}
-
-							render_pos[ch] = lcnt;
-							Render_list[lcnt] = ch;
-							lcnt++;
-							if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
-							visited[ch] = 1;
-
-no_add:
-	;
 
 						}
 			}
