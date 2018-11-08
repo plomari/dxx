@@ -143,8 +143,6 @@ extern void DropMarker();
 extern void DropSecondaryWeapon();
 extern void DropCurrentWeapon();
 
-void FinalCheats(int key);
-
 #ifndef RELEASE
 void do_cheat_menu(void);
 #endif
@@ -1553,14 +1551,15 @@ extern char Monster_mode;
 
 extern int Robots_kill_robots_cheat;
 
-void FinalCheats(int key)
+static bool FinalCheats(int key)
 {
   int i;
   char *cryptstring;
 
    key=key_ascii();
 
-	if (key == 255) return;
+	if (key == 255)
+		return false;
 
   for (i=0;i<15;i++)
    CheatBuffer[i]=CheatBuffer[i+1];
@@ -1617,7 +1616,7 @@ void FinalCheats(int key)
     }
 
   if (Game_mode & GM_MULTI)
-   return;
+   return false;
 
   if (!(strcmp (&CheatBuffer[8],"blueorb")))
    {
@@ -1685,6 +1684,7 @@ void FinalCheats(int key)
 			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level) {
 				StartNewLevel(new_level_num, 0);
 				do_cheat_penalty();
+				return true;
 			}
 		}
 	 }
@@ -1906,6 +1906,8 @@ void FinalCheats(int key)
 		}
 	}
 
+	return false;
+
 }
 
 
@@ -2056,7 +2058,8 @@ int ReadControls(d_event *event)
 		}
 		else
 		{
-			FinalCheats(key);
+			if (FinalCheats(key))
+				return 1;
 
 			if (HandleSystemKey(key)) return 1;
 			if (HandleGameKey(key)) return 1;
