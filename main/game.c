@@ -365,8 +365,6 @@ void start_time()
 void game_flush_inputs()
 {
 	int dx,dy,dz;
-	event_flush();
-	key_flush();
 	joy_flush();
 	mouse_flush();
 	mouse_get_delta( &dx, &dy, &dz );	// Read mouse
@@ -1100,8 +1098,6 @@ int game_handler(window *wind, d_event *event, void *data)
 		case EVENT_WINDOW_ACTIVATED:
 			set_screen_mode(SCREEN_GAME);
 
-			event_toggle_focus(1);
-			key_toggle_repeat(0);
 			game_flush_inputs();
 
 			if (time_paused)
@@ -1126,8 +1122,6 @@ int game_handler(window *wind, d_event *event, void *data)
 			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				full_palette_save();
 
-			event_toggle_focus(0);
-			key_toggle_repeat(1);
 			break;
 
 		case EVENT_JOYSTICK_BUTTON_UP:
@@ -1179,8 +1173,6 @@ int game_handler(window *wind, d_event *event, void *data)
 			game_disable_cheats();
 			Game_mode = GM_GAME_OVER;
 			Game_wind = NULL;
-			event_toggle_focus(0);
-			key_toggle_repeat(1);
 			break;
 
 		default:

@@ -263,8 +263,6 @@ void credits_show(char *credits_filename)
 	show_fullscr(&cr->backdrop);
 	gr_palette_load( gr_palette );
 
-	key_flush();
-
 	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))credits_handler, cr);
 	if (!wind)
 	{

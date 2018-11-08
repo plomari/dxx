@@ -120,13 +120,6 @@ done:
 	window_unregister_weak_ptr(&cur);
 }
 
-void event_flush()
-{
-	SDL_Event event;
-	
-	while (SDL_PollEvent(&event));
-}
-
 int event_init()
 {
 	// We should now be active and responding to events.
@@ -222,17 +215,6 @@ void window_run_event_loop(window *wind)
 	while (wind)
 		event_process();
 	window_unregister_weak_ptr(&wind);
-}
-
-void event_toggle_focus(int activate_focus)
-{
-	/*
-	if (activate_focus && GameCfg.Grabinput)
-		SDL_WM_GrabInput(SDL_GRAB_ON);
-	else
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
-	*/
-	mouse_toggle_cursor(!activate_focus);
 }
 
 static fix64 last_event = 0;

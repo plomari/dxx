@@ -1099,7 +1099,6 @@ multi_define_macro(int key)
 	}
 
 	if (multi_defining_message)     {
-		key_toggle_repeat(1);
 		multi_message_index = 0;
 		Network_message[multi_message_index] = 0;
 	}
@@ -1207,7 +1206,6 @@ multi_send_message_start()
 		multi_sending_message = 1;
 		multi_message_index = 0;
 		Network_message[multi_message_index] = 0;
-		key_toggle_repeat(1);
 	}
 }
 
@@ -1396,7 +1394,6 @@ void multi_send_message_end()
 
 	multi_message_index = 0;
 	multi_sending_message = 0;
-	key_toggle_repeat(0);
 	game_flush_inputs();
 }
 
@@ -1409,7 +1406,6 @@ void multi_define_macro_end()
 
 	multi_message_index = 0;
 	multi_defining_message = 0;
-	key_toggle_repeat(0);
 	game_flush_inputs();
 }
 
@@ -1421,7 +1417,6 @@ int multi_message_input_sub(int key)
 		case KEY_ESC:
 			multi_sending_message = 0;
 			multi_defining_message = 0;
-			key_toggle_repeat(0);
 			game_flush_inputs();
 			return 1;
 		case KEY_LEFT:

@@ -31,6 +31,8 @@ extern int window_send_event(window *wind, d_event *event);
 void window_run_event_loop(window *wind);
 bool window_get_grab_input(window *wind);
 void window_set_grab_input(window *wind, bool v);
+bool window_get_mouse_cursor(window *wind);
+void window_set_mouse_cursor(window *wind, bool v);
 void window_register_weak_ptr(window **ptr);
 void window_unregister_weak_ptr(window **ptr);
 

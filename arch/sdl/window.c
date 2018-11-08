@@ -10,6 +10,7 @@
 
 #include "gr.h"
 #include "window.h"
+#include "mouse.h"
 #include "u_mem.h"
 #include "dxxerror.h"
 
@@ -19,6 +20,7 @@ struct window
 	int (*w_callback)(window *wind, d_event *event, void *data);	// the event handler
 	bool opaque;						// if true, don't render the windows behind this one
 	bool grab_input;
+	bool mouse_cursor;
 	void *data;							// whatever the user wants (eg menu data for 'newmenu' menus)
 	struct window *prev;				// the previous window in the doubly linked list
 	struct window *next;				// the next window in the doubly linked list
@@ -37,6 +39,8 @@ static void update_top_window(void)
 	if (new_grab != current_grab)
 		gr_set_input_grab(new_grab);
 	current_grab = new_grab;
+
+	mouse_toggle_cursor(wind && wind->mouse_cursor);
 }
 
 static int find_weak_ptr(window **ptr)
@@ -204,6 +208,17 @@ void window_set_opaque(window *wind, bool val)
 bool window_get_opaque(window *wind)
 {
 	return wind->opaque;
+}
+
+bool window_get_mouse_cursor(window *wind)
+{
+	return wind->mouse_cursor;
+}
+
+void window_set_mouse_cursor(window *wind, bool v)
+{
+	wind->mouse_cursor = v;
+	update_top_window();
 }
 
 grs_canvas *window_get_canvas(window *wind)

@@ -781,13 +781,9 @@ int automap_handler(window *wind, d_event *event, automap *am)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
-			event_toggle_focus(1);
-			key_toggle_repeat(0);
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
-			event_toggle_focus(0);
-			key_toggle_repeat(1);
 			break;
 
 		case EVENT_IDLE:
@@ -815,8 +811,6 @@ int automap_handler(window *wind, d_event *event, automap *am)
 		case EVENT_WINDOW_CLOSE:
 			if (!am->pause_game)
 				ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
-			event_toggle_focus(0);
-			key_toggle_repeat(1);
 #ifdef OGL
 			gr_free_bitmap_data(&am->automap_background);
 #endif
@@ -1450,7 +1444,6 @@ void InitMarkerInput ()
 	Marker_index=0;
 	DefiningMarkerMessage=1;
 	MarkerBeingDefined = i;
-	key_toggle_repeat(1);
 }
 
 int MarkerInputMessage(int key)
@@ -1460,7 +1453,6 @@ int MarkerInputMessage(int key)
 		case KEY_F8:
 		case KEY_ESC:
 			DefiningMarkerMessage = 0;
-			key_toggle_repeat(0);
 			game_flush_inputs();
 			break;
 		case KEY_LEFT:
@@ -1474,7 +1466,6 @@ int MarkerInputMessage(int key)
 			strcpy (MarkerMessage[(Player_num*2)+MarkerBeingDefined],Marker_input);
 			DropMarker(MarkerBeingDefined);
 			LastMarkerDropped = MarkerBeingDefined;
-			key_toggle_repeat(0);
 			game_flush_inputs();
 			DefiningMarkerMessage = 0;
 			break;

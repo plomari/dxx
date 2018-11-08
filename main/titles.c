@@ -284,8 +284,6 @@ void show_order_form()
 #ifndef EDITOR
 	char    exit_screen[PATH_MAX];
 
-	key_flush();
-
 	strcpy(exit_screen, HIRESMODE?"ordrd2ob.pcx":"ordrd2o.pcx"); // OEM
 	if (! cfexist(exit_screen))
 		strcpy(exit_screen, HIRESMODE?"orderd2b.pcx":"orderd2.pcx"); // SHAREWARE, prefer mac if hires
@@ -1267,7 +1265,6 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 		case EVENT_WINDOW_DEACTIVATED:
-			key_flush();
 			break;
 
 		case EVENT_MOUSE_BUTTON_DOWN:

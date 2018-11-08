@@ -1069,6 +1069,8 @@ void kconfig_read_controls(d_event *event, int automap_flag)
 	{
 		case EVENT_KEY_COMMAND:
 		case EVENT_KEY_RELEASE:
+			if (event_key_get_repeated(event))
+				break;
 			for (i = 0; i < ARRAY_ELEMS(kc_keyboard); i++)
 			{
 				if (kcm_keyboard[i].value < 255 && kcm_keyboard[i].value == event_key_get_raw(event))

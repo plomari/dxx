@@ -2025,7 +2025,6 @@ int polygon_models_viewer_handler(window *wind, d_event *event)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			gr_use_palette_table("groupa.256");
-			key_toggle_repeat(1);
 			view_idx = 0;
 			ang.p = ang.b = 0;
 			ang.h = F1_0/2;
@@ -2080,7 +2079,6 @@ int polygon_models_viewer_handler(window *wind, d_event *event)
 			break;
 		case EVENT_WINDOW_CLOSE:
 			load_palette(MENU_PALETTE,0,1);
-			key_toggle_repeat(0);
 			break;
 		default:
 			break;
@@ -2117,7 +2115,6 @@ int gamebitmaps_viewer_handler(window *wind, d_event *event)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			gr_use_palette_table("groupa.256");
-			key_toggle_repeat(1);
 			view_idx = 0;
 			break;
 		case EVENT_KEY_COMMAND:
@@ -2157,7 +2154,6 @@ int gamebitmaps_viewer_handler(window *wind, d_event *event)
 			break;
 		case EVENT_WINDOW_CLOSE:
 			load_palette(MENU_PALETTE,0,1);
-			key_toggle_repeat(0);
 			break;
 		default:
 			break;

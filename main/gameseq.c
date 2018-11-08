@@ -1276,8 +1276,6 @@ void DoEndGame(void)
 
 	gr_set_current_canvas(NULL);
 
-	key_flush();
-
 	if (PLAYING_BUILTIN_MISSION && !(Game_mode & GM_MULTI))
 	{ //only built-in mission, & not multi
 		int played=MOVIE_NOT_PLAYED;	//default is not played
@@ -1300,8 +1298,6 @@ void DoEndGame(void)
 		snprintf(tname, sizeof(tname), "%s.ctb", Current_mission_filename);
 		credits_show(tname);
 	}
-
-	key_flush();
 
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)

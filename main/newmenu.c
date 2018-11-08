@@ -1495,13 +1495,9 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
-			event_toggle_focus(0);
-			key_toggle_repeat(1);
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
-			//event_toggle_focus(1);	// No cursor recentering
-			key_toggle_repeat(1);
 			menu->mouse_state = 0;
 			break;
 
@@ -1607,6 +1603,7 @@ newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * 
 	menu_canvas = window_get_canvas(wind);
 
 	window_set_opaque(menu->wind, opaque);
+	window_set_mouse_cursor(menu->wind, true);
 
 	return menu;
 }
@@ -2059,13 +2056,9 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 	{
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
-			event_toggle_focus(0);
-			key_toggle_repeat(1);
 			break;
 
 		case EVENT_WINDOW_DEACTIVATED:
-			//event_toggle_focus(1);	// No cursor recentering
-			key_toggle_repeat(0);
 			break;
 
 		case EVENT_MOUSE_BUTTON_DOWN:

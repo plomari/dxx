@@ -21,7 +21,6 @@
 static unsigned char Installed = 0;
 
 //-------- Variable accessed by outside functions ---------
-int			keyd_repeat = 0; // 1 = use repeats, 0 no repeats
 volatile unsigned char 	keyd_last_pressed;
 volatile unsigned char 	keyd_last_released;
 volatile unsigned char	keyd_pressed[256];
@@ -303,6 +302,7 @@ typedef struct d_event_keycommand
 {
 	event_type	type;	// EVENT_KEY_COMMAND/RELEASE
 	int			keycode;
+	bool		repeated;
 } d_event_keycommand;
 
 char *key_text[256];
@@ -367,9 +367,6 @@ void key_handler(SDL_KeyboardEvent *kevent)
         event_keysym = kevent->keysym.sym;
         key_state = (kevent->state == SDL_PRESSED)?1:0;
 
-	if (key_state && kevent->repeat)
-		return;
-
 	// fill the unicode frame-related unicode buffer 
         // TODO: SDL1.x used proper unicode (but it didn't work there either)
 	if (key_state && event_keysym > 31 && event_keysym < 255)
@@ -391,14 +388,7 @@ void key_handler(SDL_KeyboardEvent *kevent)
 	if (keycode == 0)
 		return;
 
-	/* 
-	 * process the key if:
-	 * - it's a valid key AND
-	 * - if the keystate has changed OR
-	 * - key state same as last one and game accepts key repeats but keep out mod/lock keys
-	 */
-	if (key_state != keyd_pressed[keycode] || (keyd_repeat && !key_ismodlck(keycode)))
-	{
+	if (1) {
 		d_event_keycommand event;
 
 		// now update the key props
@@ -424,6 +414,7 @@ void key_handler(SDL_KeyboardEvent *kevent)
 		// because there are still input loops without associated windows
 		event.type = key_state?EVENT_KEY_COMMAND:EVENT_KEY_RELEASE;
 		event.keycode = keycode;
+		event.repeated = kevent->repeat;
 		con_printf(CON_DEBUG, "Sending event %s: %s %s %s %s %s %s\n",
 				(key_state)                  ? "EVENT_KEY_COMMAND": "EVENT_KEY_RELEASE",
 				(keycode & KEY_METAED)	? "META" : "",
@@ -449,40 +440,11 @@ void key_init()
 	if (Installed) return;
 
 	Installed=1;
-	key_toggle_repeat(1);
 
 	keyd_time_when_last_pressed = timer_query();
 	
 	for(i=0; i<256; i++)
 		key_text[i] = key_properties[i].key_text;
-	  
-	// Clear the keyboard array
-	key_flush();
-}
-
-void key_flush()
-{
- 	int i;
-
-	if (!Installed)
-		key_init();
-
-	//Clear the unicode buffer
-	for (i=0; i<KEY_BUFFER_SIZE; i++ )
-		unicode_frame_buffer[i] = '\0';
-
-	for (i=0; i<256; i++ )	{
-		if (key_ismodlck(i) == KEY_ISLCK && /* keystate[key_properties[i].sym] && */ !GameArg.CtlNoStickyKeys) // do not flush status of sticky keys
-		{
-			keyd_pressed[i] = 1;
-			key_data.state[i] = 0;
-		}
-		else
-		{
-			keyd_pressed[i] = 0;
-			key_data.state[i] = 1;
-		}
-	}
 }
 
 int event_key_get(d_event *event)
@@ -504,8 +466,8 @@ int event_key_get_raw(d_event *event)
 	return keycode;
 }
 
-void key_toggle_repeat(int enable)
+bool event_key_get_repeated(d_event *event)
 {
-	keyd_repeat = enable;
-	key_flush();
+	Assert(event->type == EVENT_KEY_COMMAND || event->type == EVENT_KEY_RELEASE);
+	return ((d_event_keycommand *)event)->repeated;
 }

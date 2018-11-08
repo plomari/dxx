@@ -198,8 +198,6 @@ int ui_messagebox_n( short xc, short yc, int NumButtons, char * text, char * But
 
 	ui_gadget_calc_keys(dlg);
 
-	//key_flush();
-
 	dlg->keyboard_focus_gadget = (UI_GADGET *)m->button_g[0];
 
 	choice = 0;
