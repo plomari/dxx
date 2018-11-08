@@ -219,62 +219,75 @@ void InitWeaponOrdering ()
 	PlayerCfg.SecondaryOrder[i]=DefaultSecondaryOrder[i];
  }
 
-void CyclePrimary ()
+static void cycle_weapon(int class)
 {
-	int cur_order_slot = POrderList(Primary_weapon), desired_weapon = Primary_weapon, loop=0;
-	
-	// some remapping for SUPER LASER which is not an actual weapon type at all
-	if (Primary_weapon == LASER_INDEX && Players[Player_num].laser_level > MAX_LASER_LEVEL)
-		cur_order_slot = POrderList(SUPER_LASER_INDEX);
+	int cur;
+	ubyte *order;
+	bool has_super_laser = false;
 
-	while (loop<(MAX_PRIMARY_WEAPONS+1))
-	{
-		loop++;
-		cur_order_slot++; // next slot
-		if (cur_order_slot >= MAX_PRIMARY_WEAPONS+1) // loop if necessary
-			cur_order_slot = 0;
-		if (cur_order_slot == POrderList(255)) // ignore "do not autoselect"
-			continue;
-		desired_weapon = PlayerCfg.PrimaryOrder[cur_order_slot]; // now that is the weapon next to our current one
-		// some remapping for SUPER LASER which is not an actual weapon type at all
-		if (desired_weapon == LASER_INDEX && Players[Player_num].laser_level > MAX_LASER_LEVEL)
-			continue;
-		if (desired_weapon == SUPER_LASER_INDEX)
-		{
-			if (Players[Player_num].laser_level <= MAX_LASER_LEVEL)
-				continue;
-			else
-				desired_weapon = LASER_INDEX;
+	switch (class) {
+	case CLASS_PRIMARY:
+		cur = Primary_weapon;
+		order = PlayerCfg.PrimaryOrder;
+		has_super_laser = Players[Player_num].laser_level > MAX_LASER_LEVEL;
+		// Internally, LASER_INDEX is always used. Map it to the normally unused
+		// index for checking the user set weapon order.
+		if (has_super_laser && cur == LASER_INDEX)
+			cur = SUPER_LASER_INDEX;
+		break;
+	case CLASS_SECONDARY:
+		cur = Secondary_weapon;
+		order = PlayerCfg.SecondaryOrder;
+		break;
+	default:
+		abort();
+	}
+
+	_Static_assert(MAX_PRIMARY_WEAPONS == 10, "");
+	_Static_assert(MAX_SECONDARY_WEAPONS == 10, "");
+
+	int count = 0;
+	int index = -1; // if not found, use first
+
+	// (order[] contains +1 element, 255, for "do not autoselect after this")
+	for (int n = 0; n < 11; n++) {
+		if (order[n] == 255) {
+			count = n;
+			break;
 		}
-		// select the weapon if we have it
-		if (player_has_weapon(desired_weapon, 0) == HAS_ALL)
-		{
-			select_weapon(desired_weapon, 0, 1, 1);
-			return;
+		if (order[n] == cur)
+			index = n;
+	}
+
+	Assert(!count || index < count);
+
+	for (int n = 0; n < count; n++) {
+		int weapon = order[(index + 1 + n) % count];
+
+		if (has_super_laser) {
+			// Normal laser is not available with super laser.
+			if (weapon == LASER_INDEX)
+				continue;
+			// Internally, LASER_INDEX must always be used.
+			if (weapon == SUPER_LASER_INDEX)
+				weapon = LASER_INDEX;
+		}
+
+		if (player_has_weapon(weapon, class) == HAS_ALL) {
+			select_weapon(weapon, class, 1, 1);
+			break;
 		}
 	}
 }
 
+void CyclePrimary ()
+{
+	cycle_weapon(CLASS_PRIMARY);
+}
+
 void CycleSecondary ()
 {
-	int cur_order_slot = SOrderList(Secondary_weapon), desired_weapon = Secondary_weapon, loop=0;
-	
-	while (loop<(MAX_SECONDARY_WEAPONS+1))
-	{
-		loop++;
-		cur_order_slot++; // next slot
-		if (cur_order_slot >= MAX_SECONDARY_WEAPONS+1) // loop if necessary
-			cur_order_slot = 0;
-		if (cur_order_slot == SOrderList(255)) // ignore "do not autoselect"
-			continue;
-		desired_weapon = PlayerCfg.SecondaryOrder[cur_order_slot]; // now that is the weapon next to our current one
-		// select the weapon if we have it
-		if (player_has_weapon(desired_weapon, 1) == HAS_ALL)
-		{
-			select_weapon(desired_weapon, 1, 1, 1);
-			return;
-		}
-	}
+	cycle_weapon(CLASS_SECONDARY);
 }
 
 
