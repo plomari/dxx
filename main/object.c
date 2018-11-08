@@ -1233,93 +1233,52 @@ void obj_free(int objnum)
 }
 
 //-----------------------------------------------------------------------------
-//	Scan the object list, freeing down to num_used objects
-//	Returns number of slots freed.
-static void free_object_slots(int num_used)
+//	If there are more than MAX_USED_OBJECTS objects in use, try to free
+//  disposable ones.
+static void free_object_slots(void)
 {
-	int	i, olind;
-	int	obj_list[MAX_OBJECTS];
-	int	num_already_free, num_to_free;
+	int	num_to_free = num_objects - MAX_USED_OBJECTS;
 
-	olind = 0;
-	num_already_free = MAX_OBJECTS - Highest_object_index - 1;
-
-	if (MAX_OBJECTS - num_already_free < num_used)
+	if (num_to_free <= 0)
 		return;
 
-	for (i=0; i<=Highest_object_index; i++) {
+	int candidates[MAX_OBJECTS - MAX_USED_OBJECTS][4];
+	int num_candidates[4];
+
+	for (int i = 0; i <= Highest_object_index; i++) {
 		if (Objects[i].flags & OF_SHOULD_BE_DEAD) {
-			num_already_free++;
-			if (MAX_OBJECTS - num_already_free < num_used)
+			num_to_free--;
+			if (num_to_free <= 0)
 				return;
-		} else
+		} else {
+			int cand_num = -1;
 			switch (Objects[i].type) {
-				case OBJ_NONE:
-					num_already_free++;
-					if (MAX_OBJECTS - num_already_free < num_used)
-						return;
-					break;
-				case OBJ_WALL:
-				case OBJ_FLARE:
-					Int3();		//	This is curious.  What is an object that is a wall?
-					break;
-				case OBJ_FIREBALL:
-				case OBJ_WEAPON:
-				case OBJ_DEBRIS:
-					obj_list[olind++] = i;
-					break;
-				case OBJ_ROBOT:
-				case OBJ_HOSTAGE:
-				case OBJ_PLAYER:
-				case OBJ_CNTRLCEN:
-				case OBJ_CLUTTER:
-				case OBJ_GHOST:
-				case OBJ_LIGHT:
-				case OBJ_CAMERA:
-				case OBJ_POWERUP:
-					break;
+			case OBJ_DEBRIS:
+				cand_num = 0;
+				break;
+			case OBJ_FIREBALL:
+				if (Objects[i].ctype.expl_info.delete_objnum == -1)
+					cand_num = 1;
+				break;
+			case OBJ_WEAPON:
+				cand_num = Objects[i].id == FLARE_ID ? 2 : 3;
+				break;
 			}
-
+			if (cand_num >= 0 && num_candidates[cand_num] < ARRAY_ELEMS(candidates[0])) {
+				candidates[cand_num][num_candidates[cand_num]] = i;
+				num_candidates[cand_num]++;
+			}
+		}
 	}
 
-	num_to_free = MAX_OBJECTS - num_used - num_already_free;
-
-	if (num_to_free > olind) {
-		num_to_free = olind;
+	for (int cand = 0; cand < 4; cand++) {
+		for (int n = 0; n < num_candidates[cand]; n++) {
+			if (!num_to_free)
+				return;
+			Objects[candidates[cand][n]].flags |= OF_SHOULD_BE_DEAD;
+			num_to_free--;
+		}
 	}
-
-	for (i=0; i<num_to_free; i++)
-		if (Objects[obj_list[i]].type == OBJ_DEBRIS) {
-			num_to_free--;
-			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
-		}
-
-	if (!num_to_free)
-		return;
-
-	for (i=0; i<num_to_free; i++)
-		if (Objects[obj_list[i]].type == OBJ_FIREBALL  &&  Objects[obj_list[i]].ctype.expl_info.delete_objnum==-1) {
-			num_to_free--;
-			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
-		}
-
-	if (!num_to_free)
-		return;
-
-	for (i=0; i<num_to_free; i++)
-		if ((Objects[obj_list[i]].type == OBJ_WEAPON) && (Objects[obj_list[i]].id == FLARE_ID)) {
-			num_to_free--;
-			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
-		}
-
-	if (!num_to_free)
-		return;
-
-	for (i=0; i<num_to_free; i++)
-		if ((Objects[obj_list[i]].type == OBJ_WEAPON) && (Objects[obj_list[i]].id != FLARE_ID)) {
-			num_to_free--;
-			Objects[obj_list[i]].flags |= OF_SHOULD_BE_DEAD;
-		}
 }
 
 //-----------------------------------------------------------------------------
@@ -2140,8 +2099,7 @@ void object_move_all()
 	int i;
 	object *objp;
 
-	if (Highest_object_index > MAX_USED_OBJECTS)
-		free_object_slots(MAX_USED_OBJECTS);		//	Free all possible object slots.
+	free_object_slots();
 
 	obj_delete_all_that_should_be_dead();
 
