@@ -21,17 +21,11 @@
 static unsigned char Installed = 0;
 
 //-------- Variable accessed by outside functions ---------
-volatile unsigned char 	keyd_last_pressed;
-volatile unsigned char 	keyd_last_released;
-volatile unsigned char	keyd_pressed[256];
+unsigned char 	keyd_last_pressed;
+unsigned char 	keyd_last_released;
+unsigned char	keyd_pressed[256];
 fix64			keyd_time_when_last_pressed;
-unsigned char		unicode_frame_buffer[KEY_BUFFER_SIZE] = { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0' };
-
-typedef struct keyboard	{
-	ubyte state[256];
-} keyboard;
-
-static keyboard key_data;
+unsigned char		unicode_frame_buffer[KEY_BUFFER_SIZE];
 
 typedef struct key_props {
 	char *key_text;
@@ -307,31 +301,9 @@ typedef struct d_event_keycommand
 
 char *key_text[256];
 
-int key_ismodlck(int keycode)
-{
-	switch (keycode)
-	{
-		case KEY_LSHIFT:
-		case KEY_RSHIFT:
-		case KEY_LALT:
-		case KEY_RALT:
-		case KEY_LCTRL:
-		case KEY_RCTRL:
-		case KEY_LMETA:
-		case KEY_RMETA:
-			return KEY_ISMOD;
-		case KEY_NUMLOCK:
-		case KEY_SCROLLOCK:
-		case KEY_CAPSLOCK:
-			return KEY_ISLCK;
-		default:
-			return 0;
-	}
-}
-
 unsigned char key_ascii()
 {
-	static unsigned char unibuffer[KEY_BUFFER_SIZE] = { '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0', '\0' };
+	static unsigned char unibuffer[KEY_BUFFER_SIZE];
 	int i=0, offset=0, count=0;
 	
 	offset=strlen((const char*)unibuffer);
@@ -361,14 +333,12 @@ unsigned char key_ascii()
 
 void key_handler(SDL_KeyboardEvent *kevent)
 {
-	int keycode, event_keysym=-1, key_state;
-
 	// Read SDLK symbol and state
-        event_keysym = kevent->keysym.sym;
-        key_state = (kevent->state == SDL_PRESSED)?1:0;
+	int event_keysym = kevent->keysym.sym;
+	int key_state = (kevent->state == SDL_PRESSED)?1:0;
 
 	// fill the unicode frame-related unicode buffer 
-        // TODO: SDL1.x used proper unicode (but it didn't work there either)
+	// TODO: SDL1.x used proper unicode (but it didn't work there either)
 	if (key_state && event_keysym > 31 && event_keysym < 255)
 	{
 		int i = 0;
@@ -380,7 +350,7 @@ void key_handler(SDL_KeyboardEvent *kevent)
 			}
 	}
 
-	//=====================================================
+	int keycode;
 	for (keycode = 255; keycode > 0; keycode--)
 		if (key_properties[keycode].sym == event_keysym)
 			break;
@@ -388,44 +358,42 @@ void key_handler(SDL_KeyboardEvent *kevent)
 	if (keycode == 0)
 		return;
 
-	if (1) {
-		d_event_keycommand event;
+	d_event_keycommand event;
 
-		// now update the key props
-		if (key_state) {
-			keyd_last_pressed = keycode;
-			keyd_pressed[keycode] = key_data.state[keycode] = 1;
-		} else {
-			keyd_pressed[keycode] = key_data.state[keycode] = 0;
-		}
-
-		if ( keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT])
-			keycode |= KEY_SHIFTED;
-		if ( keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT])
-			keycode |= KEY_ALTED;
-		if ( keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL])
-			keycode |= KEY_CTRLED;
-		if ( keyd_pressed[KEY_DELETE] )
-			keycode |= KEY_DEBUGGED;
-		if ( keyd_pressed[KEY_LMETA] || keyd_pressed[KEY_RMETA])
-			keycode |= KEY_METAED;
-
-		// We allowed the key to be added to the queue for now,
-		// because there are still input loops without associated windows
-		event.type = key_state?EVENT_KEY_COMMAND:EVENT_KEY_RELEASE;
-		event.keycode = keycode;
-		event.repeated = kevent->repeat;
-		con_printf(CON_DEBUG, "Sending event %s: %s %s %s %s %s %s\n",
-				(key_state)                  ? "EVENT_KEY_COMMAND": "EVENT_KEY_RELEASE",
-				(keycode & KEY_METAED)	? "META" : "",
-				(keycode & KEY_DEBUGGED)	? "DEBUG" : "",
-				(keycode & KEY_CTRLED)	? "CTRL" : "",
-				(keycode & KEY_ALTED)	? "ALT" : "",
-				(keycode & KEY_SHIFTED)	? "SHIFT" : "",
-				key_properties[keycode & 0xff].key_text
-				);
-		event_send((d_event *)&event);
+	// now update the key props
+	if (key_state) {
+		keyd_last_pressed = keycode;
+		keyd_pressed[keycode] = 1;
+	} else {
+		keyd_pressed[keycode] = 0;
 	}
+
+	if ( keyd_pressed[KEY_LSHIFT] || keyd_pressed[KEY_RSHIFT])
+		keycode |= KEY_SHIFTED;
+	if ( keyd_pressed[KEY_LALT] || keyd_pressed[KEY_RALT])
+		keycode |= KEY_ALTED;
+	if ( keyd_pressed[KEY_LCTRL] || keyd_pressed[KEY_RCTRL])
+		keycode |= KEY_CTRLED;
+	if ( keyd_pressed[KEY_DELETE] )
+		keycode |= KEY_DEBUGGED;
+	if ( keyd_pressed[KEY_LMETA] || keyd_pressed[KEY_RMETA])
+		keycode |= KEY_METAED;
+
+	// We allowed the key to be added to the queue for now,
+	// because there are still input loops without associated windows
+	event.type = key_state?EVENT_KEY_COMMAND:EVENT_KEY_RELEASE;
+	event.keycode = keycode;
+	event.repeated = kevent->repeat;
+	con_printf(CON_DEBUG, "Sending event %s: %s %s %s %s %s %s\n",
+			(key_state)                  ? "EVENT_KEY_COMMAND": "EVENT_KEY_RELEASE",
+			(keycode & KEY_METAED)	? "META" : "",
+			(keycode & KEY_DEBUGGED)	? "DEBUG" : "",
+			(keycode & KEY_CTRLED)	? "CTRL" : "",
+			(keycode & KEY_ALTED)	? "ALT" : "",
+			(keycode & KEY_SHIFTED)	? "SHIFT" : "",
+			key_properties[keycode & 0xff].key_text
+			);
+	event_send((d_event *)&event);
 }
 
 void key_close()

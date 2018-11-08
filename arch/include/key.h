@@ -46,15 +46,11 @@ bool event_key_get_repeated(d_event *event);	// whether the key event is generat
 extern unsigned char key_ascii();
 
 // Set to 1 if the key is currently down, else 0
-extern volatile unsigned char keyd_pressed[];
-extern volatile unsigned char keyd_last_pressed;
-extern volatile unsigned char keyd_last_released;
+extern unsigned char keyd_pressed[];
+extern unsigned char keyd_last_pressed;
+extern unsigned char keyd_last_released;
 
 extern char * key_text[256];
-
-// for key_ismodlck
-#define KEY_ISMOD	1
-#define KEY_ISLCK	2
 
 #define KEY_SHIFTED     0x100
 #define KEY_ALTED       0x200
