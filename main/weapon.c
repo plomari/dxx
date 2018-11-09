@@ -219,7 +219,7 @@ void InitWeaponOrdering ()
 	PlayerCfg.SecondaryOrder[i]=DefaultSecondaryOrder[i];
  }
 
-static void cycle_weapon(int class)
+static bool cycle_weapon(int class)
 {
 	int cur;
 	ubyte *order;
@@ -275,9 +275,11 @@ static void cycle_weapon(int class)
 
 		if (player_has_weapon(weapon, class) == HAS_ALL) {
 			select_weapon(weapon, class, 1, 1);
-			break;
+			return true;
 		}
 	}
+
+	return false;
 }
 
 void CyclePrimary ()
@@ -290,6 +292,36 @@ void CycleSecondary ()
 	cycle_weapon(CLASS_SECONDARY);
 }
 
+
+//	----------------------------------------------------------------------------------------
+//	Automatically select next best weapon if unable to fire current weapon.
+// Weapon type: 0==primary, 1==secondary
+void auto_select_weapon(int weapon_type)
+{
+	int cur;
+
+	switch (weapon_type) {
+	case CLASS_PRIMARY:
+		cur = Primary_weapon;
+		break;
+	case CLASS_SECONDARY:
+		cur = Secondary_weapon;
+		break;
+	default:
+		abort();
+	}
+
+	if (player_has_weapon(cur, weapon_type) == HAS_ALL)
+		return;
+
+	if (!cycle_weapon(weapon_type)) {
+		if (weapon_type == CLASS_PRIMARY) {
+			HUD_init_message(HM_DEFAULT, TXT_NO_PRIMARY);
+		} else {
+			HUD_init_message(HM_DEFAULT, "No secondary weapons selected!");
+		}
+	}
+}
 
 //	------------------------------------------------------------------------------------
 //if message flag set, print message saying selected
@@ -424,106 +456,6 @@ void do_weapon_select(int weapon_num, int secondary_flag)
 
 	//now actually select the weapon
 	select_weapon(weapon_num, secondary_flag, 1, 1);
-}
-
-//	----------------------------------------------------------------------------------------
-//	Automatically select next best weapon if unable to fire current weapon.
-// Weapon type: 0==primary, 1==secondary
-void auto_select_weapon(int weapon_type)
-{
-	int	r;
-	int cutpoint;
-	int looped=0;
-
-	if (weapon_type==0) {
-		r = player_has_weapon(Primary_weapon, 0);
-		if (r != HAS_ALL) {
-			int	cur_weapon;
-			int	try_again = 1;
-
-			cur_weapon = POrderList(Primary_weapon);
-			cutpoint = POrderList (255);
-
-			while (try_again) {
-				cur_weapon++;
-
-				if (cur_weapon>=cutpoint)
-				{
-					if (looped)
-					{
-						HUD_init_message(HM_DEFAULT, TXT_NO_PRIMARY);
-						select_weapon(0, 0, 0, 1);
-						try_again = 0;
-						continue;
-					}
-					cur_weapon=0;
-					looped=1;
-				}
-
-
-				if (cur_weapon==MAX_PRIMARY_WEAPONS)
-					cur_weapon = 0;
-
-				//	Hack alert!  Because the fusion uses 0 energy at the end (it's got the weird chargeup)
-				//	it looks like it takes 0 to fire, but it doesn't, so never auto-select.
-				// if (PlayerCfg.PrimaryOrder[cur_weapon] == FUSION_INDEX)
-				//	continue;
-
-				if (PlayerCfg.PrimaryOrder[cur_weapon] == Primary_weapon) {
-					HUD_init_message(HM_DEFAULT, TXT_NO_PRIMARY);
-					select_weapon(0, 0, 0, 1);
-					try_again = 0;			// Tried all weapons!
-
-				} else if (PlayerCfg.PrimaryOrder[cur_weapon]!=255 && player_has_weapon(PlayerCfg.PrimaryOrder[cur_weapon], 0) == HAS_ALL) {
-					select_weapon(PlayerCfg.PrimaryOrder[cur_weapon], 0, 1, 1 );
-					try_again = 0;
-				}
-			}
-		}
-
-	} else {
-
-		Assert(weapon_type==1);
-		r = player_has_weapon(Secondary_weapon, 1);
-		if (r != HAS_ALL) {
-			int	cur_weapon;
-			int	try_again = 1;
-
-			cur_weapon = SOrderList(Secondary_weapon);
-			cutpoint = SOrderList (255);
-
-
-			while (try_again) {
-				cur_weapon++;
-
-				if (cur_weapon>=cutpoint)
-				{
-					if (looped)
-					{
-						HUD_init_message(HM_DEFAULT, "No secondary weapons selected!");
-						try_again = 0;
-						continue;
-					}
-					cur_weapon=0;
-					looped=1;
-				}
-
-				if (cur_weapon==MAX_SECONDARY_WEAPONS)
-					cur_weapon = 0;
-
-				if (PlayerCfg.SecondaryOrder[cur_weapon] == Secondary_weapon) {
-					HUD_init_message(HM_DEFAULT, "No secondary weapons available!");
-					try_again = 0;				// Tried all weapons!
-				} else if (player_has_weapon(PlayerCfg.SecondaryOrder[cur_weapon], 1) == HAS_ALL) {
-					select_weapon(PlayerCfg.SecondaryOrder[cur_weapon], 1, 1, 1 );
-					try_again = 0;
-				}
-			}
-		}
-
-
-	}
-
 }
 
 //	---------------------------------------------------------------------
