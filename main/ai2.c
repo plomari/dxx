@@ -1224,10 +1224,10 @@ void move_away_from_player(object *objp, vms_vector *vec_to_player, int attack_t
 		objref = ((objp-Objects) ^ ((d_tick_count + 3*(objp-Objects)) >> 5)) & 3;
 
 		switch (objref) {
-			case 0:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.uvec, FrameTime << 5);	break;
-			case 1:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.uvec, -FrameTime << 5);	break;
-			case 2:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.rvec, FrameTime << 5);	break;
-			case 3:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.rvec, -FrameTime << 5);	break;
+			case 0:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.uvec, FrameTime * 32);	break;
+			case 1:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.uvec, -FrameTime * 32);	break;
+			case 2:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.rvec, FrameTime * 32);	break;
+			case 3:	vm_vec_scale_add2(&pptr->velocity, &objp->orient.rvec, -FrameTime * 32);	break;
 			default:	Int3();	//	Impossible, bogus value on objref, must be in 0..3
 		}
 	}
