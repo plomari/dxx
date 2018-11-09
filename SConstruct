@@ -162,7 +162,6 @@ common_sources = [
 'maths/rand.c',
 'maths/tables.c',
 'maths/vecmat.c',
-'mem/mem.c',
 'misc/args.c',
 'misc/cfile.c',
 'misc/dl_list.c',

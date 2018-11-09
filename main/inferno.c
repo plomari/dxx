@@ -259,7 +259,6 @@ char	Auto_file[128] = "";
 
 int main(int argc, char *argv[])
 {
-	mem_init();
 	error_init(NULL, NULL);
 	cfile_init_paths(argc, argv);
 	InitArgs(argc, argv);
