@@ -1544,9 +1544,9 @@ bool ogl_ubitmapm_3d(vms_vector *p, vms_vector *dx, vms_vector *dy, grs_bitmap *
 			color_array[n * 4 + 2] = CPAL2Tb(c);
 		}
 		color_array[n * 4 + 3] = 1.0;
-		vertex_array[n * 3 + 0] = pt[n].x;
-		vertex_array[n * 3 + 1] = pt[n].y;
-		vertex_array[n * 3 + 2] = -pt[n].z;
+		vertex_array[n * 3 + 0] = f2glf(pt[n].x);
+		vertex_array[n * 3 + 1] = f2glf(pt[n].y);
+		vertex_array[n * 3 + 2] = -f2glf(pt[n].z);
 	}
 
 	texcoord_array[0 * 2 + 0] = u1;
@@ -1561,7 +1561,7 @@ bool ogl_ubitmapm_3d(vms_vector *p, vms_vector *dx, vms_vector *dy, grs_bitmap *
 	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
 	glColorPointer(4, GL_FLOAT, 0, color_array);
 	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);
-	glDrawArrays(GL_QUADS, 0, 4);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
