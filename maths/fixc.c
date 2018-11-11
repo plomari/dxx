@@ -74,7 +74,7 @@ void fixmulaccum(quadint *q,fix a,fix b)
 //extract a fix from a quad product
 fix fixquadadjust(quadint *q)
 {
-	return (q->high<<16) + (q->low>>16);
+	return (q->high * (1 << 16)) + (q->low / (1 << 16));
 }
 
 
@@ -271,13 +271,13 @@ void fix_sincos(fix a,fix *s,fix *c)
 	if (s)
 	{
 		fix ss = sincos_table[i];
-		*s = (ss + (((sincos_table[i+1] - ss) * f)>>8))<<2;
+		*s = (ss + (((sincos_table[i+1] - ss) * f) / (1 << 8))) * (1 << 2);
 	}
 
 	if (c)
 	{
 		fix cc = sincos_table[i+64];
-		*c = (cc + (((sincos_table[i+64+1] - cc) * f)>>8))<<2;
+		*c = (cc + (((sincos_table[i+64+1] - cc) * f) / (1 << 8))) * (1 << 2);
 	}
 }
 
@@ -290,8 +290,8 @@ void fix_fastsincos(fix a,fix *s,fix *c)
 
 	i = (a>>8)&0xff;
 
-	if (s) *s = sincos_table[i] << 2;
-	if (c) *c = sincos_table[i+64] << 2;
+	if (s) *s = sincos_table[i] * (1 << 2);
+	if (c) *c = sincos_table[i+64] * (1 << 2);
 }
 
 //compute inverse sine

@@ -1516,8 +1516,8 @@ void slide_textures(void)
 					int tmn = Segments[segnum].sides[sidenum].tmap_num;
 					if (TmapInfo[tmn].slide_u != 0 || TmapInfo[tmn].slide_v != 0) {
 						for (i=0;i<4;i++) {
-							Segments[segnum].sides[sidenum].uvls[i].u += fixmul(FrameTime,TmapInfo[tmn].slide_u<<8);
-							Segments[segnum].sides[sidenum].uvls[i].v += fixmul(FrameTime,TmapInfo[tmn].slide_v<<8);
+							Segments[segnum].sides[sidenum].uvls[i].u += fixmul(FrameTime,TmapInfo[tmn].slide_u*(1<<8));
+							Segments[segnum].sides[sidenum].uvls[i].v += fixmul(FrameTime,TmapInfo[tmn].slide_v*(1<<8));
 							if (Segments[segnum].sides[sidenum].uvls[i].u > f2_0) {
 								int j;
 								for (j=0;j<4;j++)

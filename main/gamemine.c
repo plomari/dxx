@@ -1062,11 +1062,11 @@ int load_mine_data_compiled(CFILE *LoadFile)
 				// Read uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
 				for (i=0; i<4; i++ )	{
 					temp_short = cfile_read_short(LoadFile);
-					Segments[segnum].sides[sidenum].uvls[i].u = ((fix)temp_short) << 5;
+					Segments[segnum].sides[sidenum].uvls[i].u = ((fix)temp_short) * (1 << 5);
 					temp_short = cfile_read_short(LoadFile);
-					Segments[segnum].sides[sidenum].uvls[i].v = ((fix)temp_short) << 5;
+					Segments[segnum].sides[sidenum].uvls[i].v = ((fix)temp_short) * (1 << 5);
 					temp_ushort = cfile_read_short(LoadFile);
-					Segments[segnum].sides[sidenum].uvls[i].l = ((fix)temp_ushort) << 1;
+					Segments[segnum].sides[sidenum].uvls[i].l = ((fix)temp_ushort) * (1 << 1);
 					//cfread( &Segments[segnum].sides[sidenum].uvls[i].l, sizeof(fix), 1, LoadFile );
 				}
 			} else {
