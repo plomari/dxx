@@ -41,8 +41,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define SCRNS_DIR "screenshots/"
 
-extern float Gr_color[3];
-
 typedef struct _grs_point {
 	fix x,y;
 } grs_point;

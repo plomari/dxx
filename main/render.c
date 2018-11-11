@@ -61,10 +61,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define INITIAL_LOCAL_LIGHT (F1_0/4)    // local light value in segment of occurence (of light emission)
 
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
-
 // (former) "detail level" values
 int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
 int Simple_model_threshhold_scale = 50; // switch to simpler model when the object has depth greater than this value times its radius.
@@ -87,28 +83,10 @@ int	N_render_segs;
 
 fix Render_zoom = 0x9000;					//the player's zoom factor
 
-#ifdef EDITOR
-int	Render_only_bottom=0;
-int	Bottom_bitmap_num = 9;
-#endif
-
-fix	Face_reflectivity = (F1_0/2);
-
-//Global vars for window clip test
-int Window_clip_left,Window_clip_top,Window_clip_right,Window_clip_bot;
-
-#ifdef EDITOR
-int _search_mode = 0;			//true if looking for curseg,side,face
-short _search_x,_search_y;	//pixel we're looking at
-int found_seg,found_side,found_face,found_poly;
-#else
-#define _search_mode 0
-#endif
-
 int highlight_seg = -1;
 int highlight_side = -1;
 
-int Outline_mode=0,Show_only_curside=0;
+int Outline_mode=0;
 
 static void find_connect_side2(int segnum, int sidenum,
 							   int *conn_seg, int *conn_side)
@@ -132,11 +110,6 @@ int toggle_outline_mode(void)
 	return Outline_mode = !Outline_mode;
 }
 
-int toggle_show_only_curside(void)
-{
-	return Show_only_curside = !Show_only_curside;
-}
-
 void draw_outline(int nverts,const g3s_point **pointlist)
 {
 	int i;
@@ -156,8 +129,6 @@ fix flash_scale;
 
 #define FLASH_CYCLE_RATE f1_0
 
-fix Flash_rate = FLASH_CYCLE_RATE;
-
 //cycle the flashing light for when mine destroyed
 void flash_frame()
 {
@@ -172,7 +143,6 @@ void flash_frame()
 	if (PaletteBlueAdd > 10 )		//whiting out
 		return;
 
-//	flash_ang += fixmul(FLASH_CYCLE_RATE,FrameTime);
 	if (Seismic_tremor_magnitude) {
 		fix	added_flash;
 
@@ -180,11 +150,11 @@ void flash_frame()
 		if (added_flash < F1_0)
 			added_flash *= 16;
 
-		flash_ang += fixmul(Flash_rate, fixmul(FrameTime, added_flash+F1_0));
+		flash_ang += fixmul(FLASH_CYCLE_RATE, fixmul(FrameTime, added_flash+F1_0));
 		fix_fastsincos(flash_ang,&flash_scale,NULL);
 		flash_scale = (flash_scale + F1_0*3)/4;	//	gets in range 0.5 to 1.0
 	} else {
-		flash_ang += fixmul(Flash_rate,FrameTime);
+		flash_ang += fixmul(FLASH_CYCLE_RATE,FrameTime);
 		fix_fastsincos(flash_ang,&flash_scale,NULL);
 		flash_scale = (flash_scale + f1_0)/2;
 		if (Difficulty_level == 0)
@@ -254,8 +224,7 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 			bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
 			bm2 = NULL;
 		}
-	}else
-
+	} else {
 		// New code for overlapping textures...
 		if (tmap2 != 0) {
 			bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
@@ -263,148 +232,73 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 			bm = &GameBitmaps[Textures[tmap1].index];
 			PIGGY_PAGE_IN(Textures[tmap1]);
 		}
+	}
 
 	Assert( !(bm->bm_flags & BM_FLAG_PAGED_OUT) );
 
-	//reflect = fl2f((1.0-TmapInfo[p->tmap_num].reflect)/2.0 + 0.5);
-	//reflect = fl2f((1.0-TmapInfo[p->tmap_num].reflect));
-
-	reflect = Face_reflectivity;		// f1_0;	//until we figure this stuff out...
-
 	//set light values for each vertex & build pointlist
+	for (int i = 0; i < nv; i++)
 	{
-		int i;
+		//the uvl struct has static light already in it
 
-		// -- Using new headlight system...face_light = fixmul(face_light,reflect);
+		//scale static light for destruction effect
+		if (Control_center_destroyed || Seismic_tremor_magnitude)	//make lights flash
+			uvl_copy[i].l = fixmul(flash_scale,uvl_copy[i].l);
+		//add in dynamic light (from explosions, etc.)
+		uvl_copy[i].l += (Dynamic_light[vp[i]].r+Dynamic_light[vp[i]].g+Dynamic_light[vp[i]].b)/3;
+		//saturate at max value
+		if (uvl_copy[i].l > MAX_LIGHT)
+			uvl_copy[i].l = MAX_LIGHT;
 
-		for (i=0;i<nv;i++)
+		// And now the same for the ACTUAL (rgb) light we want to use
+
+		//scale static light for destruction effect
+		if (Seismic_tremor_magnitude)	//make lights flash
+			dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
+		else if (Control_center_destroyed)	//make lights flash
 		{
-			//the uvl struct has static light already in it
-
-			//scale static light for destruction effect
-			if (Control_center_destroyed || Seismic_tremor_magnitude)	//make lights flash
-				uvl_copy[i].l = fixmul(flash_scale,uvl_copy[i].l);
-			//add in dynamic light (from explosions, etc.)
-			uvl_copy[i].l += (Dynamic_light[vp[i]].r+Dynamic_light[vp[i]].g+Dynamic_light[vp[i]].b)/3;
-			//saturate at max value
-			if (uvl_copy[i].l > MAX_LIGHT)
-				uvl_copy[i].l = MAX_LIGHT;
-
-			// And now the same for the ACTUAL (rgb) light we want to use
-
-			//scale static light for destruction effect
-			if (Seismic_tremor_magnitude)	//make lights flash
+			if (PlayerCfg.DynLightColor) // let the mine glow red a little
+			{
+				dyn_light[i].r = fixmul(flash_scale>=f0_5*1.5?flash_scale:f0_5*1.5,uvl_copy[i].l);
+				dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
+			}
+			else
 				dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
-			else if (Control_center_destroyed)	//make lights flash
-			{
-				if (PlayerCfg.DynLightColor) // let the mine glow red a little
-				{
-					dyn_light[i].r = fixmul(flash_scale>=f0_5*1.5?flash_scale:f0_5*1.5,uvl_copy[i].l);
-					dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
-				}
-				else
-					dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = fixmul(flash_scale,uvl_copy[i].l);
-			}
+		}
 
-			// add light color
-			dyn_light[i].r += Dynamic_light[vp[i]].r;
-			dyn_light[i].g += Dynamic_light[vp[i]].g;
-			dyn_light[i].b += Dynamic_light[vp[i]].b;
-			// saturate at max value
-			if (dyn_light[i].r > MAX_LIGHT)
-				dyn_light[i].r = MAX_LIGHT;
-			if (dyn_light[i].g > MAX_LIGHT)
-				dyn_light[i].g = MAX_LIGHT;
-			if (dyn_light[i].b > MAX_LIGHT)
-				dyn_light[i].b = MAX_LIGHT;
-			if (PlayerCfg.AlphaEffects) // due to additive blending, transparent sprites will become invivible in font of white surfaces (lamps). Fix that with a little desaturation
-			{
-				dyn_light[i].r *= .93;
-				dyn_light[i].g *= .93;
-				dyn_light[i].b *= .93;
-			}
+		// add light color
+		dyn_light[i].r += Dynamic_light[vp[i]].r;
+		dyn_light[i].g += Dynamic_light[vp[i]].g;
+		dyn_light[i].b += Dynamic_light[vp[i]].b;
+		// saturate at max value
+		if (dyn_light[i].r > MAX_LIGHT)
+			dyn_light[i].r = MAX_LIGHT;
+		if (dyn_light[i].g > MAX_LIGHT)
+			dyn_light[i].g = MAX_LIGHT;
+		if (dyn_light[i].b > MAX_LIGHT)
+			dyn_light[i].b = MAX_LIGHT;
+		if (PlayerCfg.AlphaEffects) // due to additive blending, transparent sprites will become invivible in font of white surfaces (lamps). Fix that with a little desaturation
+		{
+			dyn_light[i].r *= .93;
+			dyn_light[i].g *= .93;
+			dyn_light[i].b *= .93;
 		}
 	}
 
 	if ( PlayerCfg.AlphaEffects && ( TmapInfo[tmap1].eclip_num == ECLIP_NUM_FUELCEN || TmapInfo[tmap1].eclip_num == ECLIP_NUM_FORCE_FIELD ) ) // set nice transparency/blending for some special effects (if we do more, we should maybe use switch here)
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_C);
 
-#ifdef EDITOR
-	if ((Render_only_bottom) && (sidenum == WBOTTOM))
-		g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,&GameBitmaps[Textures[Bottom_bitmap_num].index]);
-	else
-#endif
-
-		if (bm2){
-			g3_draw_tmap_2(nv,pointlist,uvl_copy,dyn_light,bm,bm2,((tmap2&0xC000)>>14) & 3);
-		}else
-			g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,bm);
+	if (bm2) {
+		g3_draw_tmap_2(nv,pointlist,uvl_copy,dyn_light,bm,bm2,((tmap2&0xC000)>>14) & 3);
+	} else {
+		g3_draw_tmap(nv,pointlist,uvl_copy,dyn_light,bm);
+	}
 
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL); // revert any transparency/blending setting back to normal
 
-	if (Outline_mode) draw_outline(nv, pointlist);
-
-#if 1
-	for (int i = 0; i < 3; i++)
-		Gr_color[i] = 1;
-#endif
+	if (Outline_mode)
+		draw_outline(nv, pointlist);
 }
-
-#ifdef EDITOR
-// ----------------------------------------------------------------------------
-//	Only called if editor active.
-//	Used to determine which face was clicked on.
-void check_face(int segnum, int sidenum, int facenum, int nv, int *vp, int tmap1, int tmap2, uvl *uvlp)
-{
-	int	i;
-
-	if (_search_mode) {
-		grs_bitmap *bm;
-		g3s_uvl uvl_copy[8];
-		g3s_lrgb dyn_light[8];
-		const g3s_point *pointlist[4];
-
-		memset(dyn_light, 0, sizeof(dyn_light));
-
-		if (tmap2 > 0 )
-			bm = texmerge_get_cached_bitmap( tmap1, tmap2 );
-		else
-			bm = &GameBitmaps[Textures[tmap1].index];
-
-		for (i=0; i<nv; i++) {
-			uvl_copy[i].u = uvlp[i].u;
-			uvl_copy[i].v = uvlp[i].v;
-			dyn_light[i].r = dyn_light[i].g = dyn_light[i].b = uvl_copy[i].l = uvlp[i].l;
-			pointlist[i] = &Segment_points[vp[i]];
-		}
-
-		gr_setcolor(0);
-		ogl_end_frame();
-		gr_pixel(_search_x,_search_y);	//set our search pixel to color zero
-		ogl_start_frame();
-		gr_setcolor(1);					//and render in color one
-		save_lighting = Lighting_on;
-		Lighting_on = 2;
-		g3_draw_poly(nv,&pointlist[0]);
-		Lighting_on = save_lighting;
-
-		if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) == 1) {
-			found_seg = segnum;
-			found_side = sidenum;
-			found_face = facenum;
-		}
-	}
-}
-#endif
-
-fix	Tulate_min_dot = (F1_0/4);
-//--unused-- fix	Tulate_min_ratio = (2*F1_0);
-fix	Min_n0_n1_dot	= (F1_0*15/16);
-
-extern int contains_flare(segment *segp, int sidenum);
-extern fix	Obj_light_xlate[16];
-
-extern short render_pos[MAX_SEGMENTS];
 
 void highlight_seg_side(segment *segp, int sidenum)
 {
@@ -713,9 +607,6 @@ void render_side(segment *segp, int sidenum)
 
 	wid_flags = WALL_IS_DOORWAY(segp,sidenum);
 
-	//if (!(wid_flags & WID_RENDER_FLAG))		//if (WALL_IS_DOORWAY(segp, sidenum) == WID_NO_WALL)
-	//	goto end;
-
 	if (!(wid_flags & WID_RENDER_FLAG))
 		goto end;
 
@@ -734,67 +625,12 @@ void render_side(segment *segp, int sidenum)
 	vm_vec_sub(&tvec, &Viewer_eye, &Vertices[vertnum_list[which_vertnum]]);
 	vm_vec_normalize_quick(&tvec);
 	fix v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
-	//	========== Mark: Here is the change...beginning here: ==========
 
 	if (sidep->type == SIDE_IS_QUAD) {
-
-
-		// -- Old, slow way --	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
-		// -- Old, slow way --	//	deal with it, get the dot product.
-		// -- Old, slow way --	if (sidep->type == SIDE_IS_TRI_13)
-		// -- Old, slow way --		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][1]]]);
-		// -- Old, slow way --	else
-		// -- Old, slow way --		vm_vec_normalized_dir(&tvec, &Viewer_eye, &Vertices[segp->verts[Side_to_verts[sidenum][0]]]);
-
-
-// -- flare creates point -- {
-// -- flare creates point -- 	int	flare_index;
-// -- flare creates point -- 
-// -- flare creates point -- 	flare_index = contains_flare(segp, sidenum);
-// -- flare creates point -- 
-// -- flare creates point -- 	if (flare_index != -1) {
-// -- flare creates point -- 		int			tri;
-// -- flare creates point -- 		fix			u, v, l;
-// -- flare creates point -- 		vms_vector	*hit_point;
-// -- flare creates point -- 		short			vertnum_list[4];
-// -- flare creates point -- 
-// -- flare creates point -- 		hit_point = &Objects[flare_index].pos;
-// -- flare creates point -- 
-// -- flare creates point -- 		find_hitpoint_uv( &u, &v, &l, hit_point, segp, sidenum, 0);	//	last parm means always use face 0.
-// -- flare creates point -- 
-// -- flare creates point -- 		get_side_verts(vertnum_list, segp-Segments, sidenum);
-// -- flare creates point -- 
-// -- flare creates point -- 		g3_rotate_point(&Segment_points[MAX_VERTICES-1], hit_point);
-// -- flare creates point -- 
-// -- flare creates point -- 		for (tri=0; tri<4; tri++) {
-// -- flare creates point -- 			short	tri_verts[3];
-// -- flare creates point -- 			uvl	tri_uvls[3];
-// -- flare creates point -- 
-// -- flare creates point -- 			tri_verts[0] = vertnum_list[tri];
-// -- flare creates point -- 			tri_verts[1] = vertnum_list[(tri+1) % 4];
-// -- flare creates point -- 			tri_verts[2] = MAX_VERTICES-1;
-// -- flare creates point -- 
-// -- flare creates point -- 			tri_uvls[0] = sidep->uvls[tri];
-// -- flare creates point -- 			tri_uvls[1] = sidep->uvls[(tri+1)%4];
-// -- flare creates point -- 			tri_uvls[2].u = u;
-// -- flare creates point -- 			tri_uvls[2].v = v;
-// -- flare creates point -- 			tri_uvls[2].l = F1_0;
-// -- flare creates point -- 
-// -- flare creates point -- 			render_face(segp-Segments, sidenum, 3, tri_verts, sidep->tmap_num, sidep->tmap_num2, tri_uvls, &normals[0]);
-// -- flare creates point -- 		}
-// -- flare creates point -- 
-// -- flare creates point -- 	return;
-// -- flare creates point -- 	}
-// -- flare creates point -- }
-
 		if (v_dot_n0 >= 0) {
 			render_face(segp-Segments, sidenum, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
-			#ifdef EDITOR
-			check_face(segp-Segments, sidenum, 0, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
-			#endif
 		}
 	} else {
-		//	========== Mark: The change ends here. ==========
 
 		//	Although this side has been triangulated, because it is not planar, see if it is acceptable
 		//	to render it as a single quadrilateral.  This is a function of how far away the viewer is, how non-planar
@@ -810,41 +646,29 @@ void render_side(segment *segp, int sidenum)
 			max_dot = v_dot_n0;
 		}
 
-			if (sidep->type == SIDE_IS_TRI_02) {
-				if (v_dot_n0 >= 0) {
-					render_face(segp-Segments, sidenum, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
-					#ifdef EDITOR
-					check_face(segp-Segments, sidenum, 0, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
-					#endif
-				}
+		if (sidep->type == SIDE_IS_TRI_02) {
+			if (v_dot_n0 >= 0) {
+				render_face(segp-Segments, sidenum, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
+			}
 
-				if (v_dot_n1 >= 0) {
-					temp_uvls[0] = sidep->uvls[0];		temp_uvls[1] = sidep->uvls[2];		temp_uvls[2] = sidep->uvls[3];
-					vertnum_list[1] = vertnum_list[2];	vertnum_list[2] = vertnum_list[3];	// want to render from vertices 0, 2, 3 on side
-					render_face(segp-Segments, sidenum, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
-					#ifdef EDITOR
-					check_face(segp-Segments, sidenum, 1, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
-					#endif
-				}
-			} else if (sidep->type ==  SIDE_IS_TRI_13) {
-				if (v_dot_n1 >= 0) {
-					render_face(segp-Segments, sidenum, 3, &vertnum_list[1], sidep->tmap_num, sidep->tmap_num2, &sidep->uvls[1], wid_flags);	// rendering 1,2,3, so just skip 0
-					#ifdef EDITOR
-					check_face(segp-Segments, sidenum, 1, 3, &vertnum_list[1], sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
-					#endif
-				}
+			if (v_dot_n1 >= 0) {
+				temp_uvls[0] = sidep->uvls[0];		temp_uvls[1] = sidep->uvls[2];		temp_uvls[2] = sidep->uvls[3];
+				vertnum_list[1] = vertnum_list[2];	vertnum_list[2] = vertnum_list[3];	// want to render from vertices 0, 2, 3 on side
+				render_face(segp-Segments, sidenum, 3, &vertnum_list[0], sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
+			}
+		} else if (sidep->type ==  SIDE_IS_TRI_13) {
+			if (v_dot_n1 >= 0) {
+				render_face(segp-Segments, sidenum, 3, &vertnum_list[1], sidep->tmap_num, sidep->tmap_num2, &sidep->uvls[1], wid_flags);	// rendering 1,2,3, so just skip 0
+			}
 
-				if (v_dot_n0 >= 0) {
-					temp_uvls[0] = sidep->uvls[0];		temp_uvls[1] = sidep->uvls[1];		temp_uvls[2] = sidep->uvls[3];
-					vertnum_list[2] = vertnum_list[3];		// want to render from vertices 0,1,3
-					render_face(segp-Segments, sidenum, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
-					#ifdef EDITOR
-					check_face(segp-Segments, sidenum, 0, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls);
-					#endif
-				}
+			if (v_dot_n0 >= 0) {
+				temp_uvls[0] = sidep->uvls[0];		temp_uvls[1] = sidep->uvls[1];		temp_uvls[2] = sidep->uvls[3];
+				vertnum_list[2] = vertnum_list[3];		// want to render from vertices 0,1,3
+				render_face(segp-Segments, sidenum, 3, vertnum_list, sidep->tmap_num, sidep->tmap_num2, temp_uvls, wid_flags);
+			}
 
-			} else
-				Error("Illegal side type in render_side, type = %i, segment # = %i, side # = %i\n", sidep->type, (int)(segp-Segments), sidenum);
+		} else
+			Int3();
 	}
 
     end:;
@@ -853,54 +677,10 @@ void render_side(segment *segp, int sidenum)
 		highlight_side_triggers(segnum, sidenum);
 }
 
-#ifdef EDITOR
-void render_object_search(object *obj)
-{
-	int changed=0;
-
-	//note that we draw each pixel object twice, since we cannot control
-	//what color the object draws in, so we try color 0, then color 1,
-	//in case the object itself is rendering color 0
-
-	gr_setcolor(0);	//set our search pixel to color zero
-	ogl_end_frame();
-
-	// For OpenGL we use gr_rect instead of gr_pixel,
-	// because in some implementations (like my Macbook Pro 5,1)
-	// point smoothing can't be turned off.
-	// Point smoothing would change the pixel to dark grey, but it MUST be black.
-	// Making a 3x3 rectangle wouldn't matter
-	// (but it only seems to draw a single pixel anyway)
-	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1);
-
-	ogl_start_frame();
-	render_object(obj);
-	if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) != 0)
-		changed=1;
-
-	gr_setcolor(1);
-	ogl_end_frame();
-	gr_rect(_search_x - 1, _search_y - 1, _search_x + 1, _search_y + 1);
-	ogl_start_frame();
-	render_object(obj);
-	if (gr_ugpixel(&grd_curcanv->cv_bitmap,_search_x,_search_y) != 1)
-		changed=1;
-
-	if (changed) {
-		if (obj->segnum != -1)
-			Cursegp = &Segments[obj->segnum];
-		found_seg = -(obj-Objects+1);
-	}
-}
-#endif
-
 extern ubyte DemoDoingRight,DemoDoingLeft;
 
 void do_render_object(int objnum, int window_num)
 {
-	#ifdef EDITOR
-	int save_3d_outline=0;
-	#endif
 	object *obj = &Objects[objnum];
 	int count = 0;
 	int n;
@@ -938,41 +718,15 @@ void do_render_object(int objnum, int window_num)
 		return;					// get out of this infinite loop!
 	}
 
-		//g3_draw_object(obj->class_id,&obj->pos,&obj->orient,obj->size);
-
-	//check for editor object
-
-	#ifdef EDITOR
-	if (EditorWindow && objnum==Cur_object_index) {
-		save_3d_outline = g3d_interp_outline;
-		g3d_interp_outline=1;
-	}
-	#endif
-
-	#ifdef EDITOR
-	if (_search_mode)
-		render_object_search(obj);
-	else
-	#endif
-		//NOTE LINK TO ABOVE
-		render_object(obj);
+	render_object(obj);
 
 	for (n=obj->attached_obj;n!=-1;n=Objects[n].ctype.expl_info.next_attach) {
-
 		Assert(Objects[n].type == OBJ_FIREBALL);
 		Assert(Objects[n].control_type == CT_EXPLOSION);
 		Assert(Objects[n].flags & OF_ATTACHED);
 
 		render_object(&Objects[n]);
 	}
-
-
-	#ifdef EDITOR
-	if (EditorWindow && objnum==Cur_object_index)
-		g3d_interp_outline = save_3d_outline;
-	#endif
-
-
 }
 
 //increment counter for checking if points rotated
@@ -1034,8 +788,6 @@ void project_list(int nv,int *pointnumlist)
 	}
 }
 
-
-// -----------------------------------------------------------------------------------
 void render_segment(int segnum, int window_num)
 {
 	segment		*seg = &Segments[segnum];
@@ -1047,116 +799,13 @@ void render_segment(int segnum, int window_num)
 	cc=rotate_list(8,seg->verts);
 
 	if (! cc.and) {		//all off screen?
-
-      if (Viewer->type!=OBJ_ROBOT)
-  	   	Automap_visited[segnum]=1;
+		if (Viewer->type!=OBJ_ROBOT)
+			Automap_visited[segnum]=1;
 
 		for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 			render_side(seg, sn);
 	}
 }
-
-// ----- This used to be called when Show_only_curside was set.
-// ----- It is wholly and superiorly replaced by render_side.
-// -- //render one side of one segment
-// -- void render_seg_side(segment *seg,int _side)
-// -- {
-// -- 	g3s_codes cc;
-// -- 	short vertnum_list[4];
-// -- 
-// -- 	cc=g3_rotate_list(8,&seg->verts);
-// -- 
-// -- 	if (! cc.and) {		//all off screen?
-// -- 		int fn,pn,i;
-// -- 		side *s;
-// -- 		face *f;
-// -- 		poly *p;
-// -- 
-// -- 		s=&seg->sides[_side];
-// -- 
-// -- 		for (f=s->faces,fn=s->num_faces;fn;fn--,f++)
-// -- 			for (p=f->polys,pn=f->num_polys;pn;pn--,p++) {
-// -- 				grs_bitmap *tmap;
-// -- 	
-// -- 				for (i=0;i<p->num_vertices;i++) vertnum_list[i] = seg->verts[p->verts[i]];
-// -- 	
-// -- 				if (p->tmap_num >= NumTextures) {
-// -- 					Warning("Invalid tmap number %d, NumTextures=%d\n...Changing in poly structure to tmap 0",p->tmap_num,NumTextures);
-// -- 					p->tmap_num = 0;		//change it permanantly
-// -- 				}
-// -- 	
-// -- 				tmap = Textures[p->tmap_num];
-// -- 	
-// -- 				g3_check_and_draw_tmap(p->num_vertices,vertnum_list,(g3s_uvl *) &p->uvls,tmap,&f->normal);
-// -- 	
-// -- 				if (Outline_mode) draw_outline(p->num_vertices,vertnum_list);
-// -- 			}
-// -- 		}
-// -- 
-// -- }
-
-#define CROSS_WIDTH  i2f(8)
-#define CROSS_HEIGHT i2f(8)
-
-//draw outline for curside
-void outline_seg_side(segment *seg,int _side,int edge,int vert)
-{
-	g3s_codes cc;
-
-	cc=rotate_list(8,seg->verts);
-
-	if (! cc.and) {		//all off screen?
-		side *s;
-		g3s_point *pnt;
-
-		s=&seg->sides[_side];
-
-		//render curedge of curside of curseg in green
-
-		gr_setcolor(BM_XRGB(0,63,0));
-		g3_draw_line(&Segment_points[seg->verts[Side_to_verts[_side][edge]]],&Segment_points[seg->verts[Side_to_verts[_side][(edge+1)%4]]]);
-
-		//draw a little cross at the current vert
-
-		pnt = &Segment_points[seg->verts[Side_to_verts[_side][vert]]];
-
-		g3_project_point(pnt);		//make sure projected
-
-//		gr_setcolor(BM_XRGB(0,0,63));
-//		gr_line(pnt->p3_sx-CROSS_WIDTH,pnt->p3_sy,pnt->p3_sx+CROSS_WIDTH,pnt->p3_sy);
-//		gr_line(pnt->p3_sx,pnt->p3_sy-CROSS_HEIGHT,pnt->p3_sx,pnt->p3_sy+CROSS_HEIGHT);
-
-		gr_line(pnt->p3_sx-CROSS_WIDTH,pnt->p3_sy,pnt->p3_sx,pnt->p3_sy-CROSS_HEIGHT);
-		gr_line(pnt->p3_sx,pnt->p3_sy-CROSS_HEIGHT,pnt->p3_sx+CROSS_WIDTH,pnt->p3_sy);
-		gr_line(pnt->p3_sx+CROSS_WIDTH,pnt->p3_sy,pnt->p3_sx,pnt->p3_sy+CROSS_HEIGHT);
-		gr_line(pnt->p3_sx,pnt->p3_sy+CROSS_HEIGHT,pnt->p3_sx-CROSS_WIDTH,pnt->p3_sy);
-	}
-}
-//
-#if 0		//this stuff could probably just be deleted
-
-#define DEFAULT_PERSPECTIVE_DEPTH 6
-
-int Perspective_depth=DEFAULT_PERSPECTIVE_DEPTH;	//how many levels deep to render in perspective
-
-int inc_perspective_depth(void)
-{
-	return ++Perspective_depth;
-
-}
-
-int dec_perspective_depth(void)
-{
-	return Perspective_depth==1?Perspective_depth:--Perspective_depth;
-
-}
-
-int reset_perspective_depth(void)
-{
-	return Perspective_depth = DEFAULT_PERSPECTIVE_DEPTH;
-
-}
-#endif
 
 typedef struct rect {
 	short left,top,right,bot;
@@ -1175,16 +824,11 @@ ubyte code_window_point(fix x,fix y,rect *w)
 	return code;
 }
 
-int matt_find_connect_side(int seg0,int seg1);
-
 unsigned char visited[MAX_SEGMENTS];
 short Render_list[MAX_RENDER_SEGS];
 int Render_sky_seg;
 ubyte processed[MAX_RENDER_SEGS];		//whether each entry has been processed
-int	lcnt_save,scnt_save;
-//@@short *persp_ptr;
 short render_pos[MAX_SEGMENTS];	//where in render_list does this segment appear?
-//ubyte no_render_flag[MAX_RENDER_SEGS];
 rect render_windows[MAX_RENDER_SEGS];
 
 // render_seg_to_render_obj_list[render_seg_id] = -1 or index into render_objs
@@ -1194,6 +838,7 @@ struct render_obj_item {
     int objnum; // index into Objects[]
     int next;   // next list item in render_objs
 };
+
 // there needs to be an entry for each time an object is in some segment
 // an object can be in multiple segments, in the worst (unrealistic) case, all
 // objects are large enough to be in all segments (MAX_SEGMENTS*MAX_OBJECTS)
@@ -1203,15 +848,10 @@ struct render_obj_item {
 static struct render_obj_item render_objs[MAX_RENDER_OBJS];
 static int render_objs_next;
 
-//for objects
-
-
-
-#define RED   BM_XRGB(63,0,0)
-#define WHITE BM_XRGB(63,63,63)
-
 //Given two sides of segment, tell the two verts which form the 
 //edge between them
+// Invariant:
+//	Two_sides_to_edge[i][j][k] == Two_sides_to_edge[j][i][k]
 short Two_sides_to_edge[6][6][2] = {
 	{ {-1,-1}, {3,7}, {-1,-1}, {2,6}, {6,7}, {2,3} },
 	{ {3,7}, {-1,-1}, {0,4}, {-1,-1}, {4,7}, {0,3} },
@@ -1222,6 +862,8 @@ short Two_sides_to_edge[6][6][2] = {
 };
 
 //given an edge specified by two verts, give the two sides on that edge
+// Invariant:
+//	Edge_to_sides[i][j][k] == Edge_to_sides[j][i][k]
 int Edge_to_sides[8][8][2] = {
 	{ {-1,-1}, {2,5}, {-1,-1}, {1,5}, {1,2}, {-1,-1}, {-1,-1}, {-1,-1} },
 	{ {2,5}, {-1,-1}, {3,5}, {-1,-1}, {-1,-1}, {2,3}, {-1,-1}, {-1,-1} },
@@ -1233,25 +875,6 @@ int Edge_to_sides[8][8][2] = {
 	{ {-1,-1}, {-1,-1}, {-1,-1}, {0,1}, {1,4}, {-1,-1}, {0,4}, {-1,-1} },
 };
 
-//@@//perform simple check on tables
-//@@check_check()
-//@@{
-//@@	int i,j;
-//@@
-//@@	for (i=0;i<8;i++)
-//@@		for (j=0;j<8;j++)
-//@@			Assert(Edge_to_sides[i][j][0] == Edge_to_sides[j][i][0] && 
-//@@					Edge_to_sides[i][j][1] == Edge_to_sides[j][i][1]);
-//@@
-//@@	for (i=0;i<6;i++)
-//@@		for (j=0;j<6;j++)
-//@@			Assert(Two_sides_to_edge[i][j][0] == Two_sides_to_edge[j][i][0] && 
-//@@					Two_sides_to_edge[i][j][1] == Two_sides_to_edge[j][i][1]);
-//@@
-//@@
-//@@}
-
-
 //given an edge, tell what side is on that edge
 int find_seg_side(segment *seg,int *verts,int notside)
 {
@@ -1261,8 +884,6 @@ int find_seg_side(segment *seg,int *verts,int notside)
 	int *eptr;
 	int	v0,v1;
 	int	*vp;
-
-//@@	check_check();
 
 	v0 = verts[0];
 	v1 = verts[1];
@@ -1334,48 +955,10 @@ int find_joining_side_norms(vms_vector *norm0_0,vms_vector *norm0_1,vms_vector *
 	edgeside1 = find_seg_side(seg1,edge_verts,notside1);
 	if (edgeside1 == -1) return 0;
 
-	//deal with the case where an edge is shared by more than two segments
-
-//@@	if (IS_CHILD(seg0->children[edgeside0])) {
-//@@		segment *seg00;
-//@@		int notside00;
-//@@
-//@@		seg00 = &Segments[seg0->children[edgeside0]];
-//@@
-//@@		if (seg00 != seg1) {
-//@@
-//@@			notside00 = find_connect_side(seg0,seg00);
-//@@			Assert(notside00 != -1);
-//@@
-//@@			edgeside0 = find_seg_side(seg00,edge_verts,notside00);
-//@@	 		seg0 = seg00;
-//@@		}
-//@@
-//@@	}
-//@@
-//@@	if (IS_CHILD(seg1->children[edgeside1])) {
-//@@		segment *seg11;
-//@@		int notside11;
-//@@
-//@@		seg11 = &Segments[seg1->children[edgeside1]];
-//@@
-//@@		if (seg11 != seg0) {
-//@@			notside11 = find_connect_side(seg1,seg11);
-//@@			Assert(notside11 != -1);
-//@@
-//@@			edgeside1 = find_seg_side(seg11,edge_verts,notside11);
-//@@ 			seg1 = seg11;
-//@@		}
-//@@	}
-
-//	if ( IS_CHILD(seg0->children[edgeside0]) ||
-//		  IS_CHILD(seg1->children[edgeside1])) 
-//		return 0;
-
-		*norm0_0 = seg0->sides[edgeside0].normals[0];
-		*norm0_1 = seg0->sides[edgeside0].normals[1];
-		*norm1_0 = seg1->sides[edgeside1].normals[0];
-		*norm1_1 = seg1->sides[edgeside1].normals[1];
+	*norm0_0 = seg0->sides[edgeside0].normals[0];
+	*norm0_1 = seg0->sides[edgeside0].normals[1];
+	*norm1_0 = seg1->sides[edgeside1].normals[0];
+	*norm1_1 = seg1->sides[edgeside1].normals[1];
 
 	*pnt0 = &Vertices[seg0->verts[Side_to_verts[edgeside0][seg0->sides[edgeside0].type==3?1:0]]];
 	*pnt1 = &Vertices[seg1->verts[Side_to_verts[edgeside1][seg1->sides[edgeside1].type==3?1:0]]];
@@ -1436,9 +1019,10 @@ int sort_seg_children(segment *seg,int n_children,short *child_list)
 	int r;
 	int made_swaps,count;
 
-	if (n_children == 0) return 0;
+	if (n_children == 0)
+		return 0;
 
- ssc_total++;
+	ssc_total++;
 
 	//for each child,  compare with other children and see if order matters
 	//if order matters, fix if wrong
@@ -1448,8 +1032,8 @@ int sort_seg_children(segment *seg,int n_children,short *child_list)
 	do {
 		made_swaps = 0;
 
-		for (i=0;i<n_children-1;i++)
-			for (j=i+1;child_list[i]!=-1 && j<n_children;j++)
+		for (i=0;i<n_children-1;i++) {
+			for (j=i+1;child_list[i]!=-1 && j<n_children;j++) {
 				if (child_list[j]!=-1) {
 					r = compare_children(seg,child_list[i],child_list[j]);
 
@@ -1460,11 +1044,13 @@ int sort_seg_children(segment *seg,int n_children,short *child_list)
 						made_swaps=1;
 					}
 				}
+			}
+		}
 
 	} while (made_swaps && ++count<n_children);
 
- if (count)
-  ssc_swaps++;
+	if (count)
+		ssc_swaps++;
 
 	return count;
 }
@@ -1513,13 +1099,13 @@ static int sort_func(const void *pa, const void *pb)
 		//or laser or something that should plot on top.  Don't do this for
 		//the afterburner blobs, though.
 
-		if (obj_a->type == OBJ_WEAPON || (obj_a->type == OBJ_FIREBALL && obj_a->id != VCLIP_AFTERBURNER_BLOB))
+		if (obj_a->type == OBJ_WEAPON || (obj_a->type == OBJ_FIREBALL && obj_a->id != VCLIP_AFTERBURNER_BLOB)) {
 			if (!(obj_b->type == OBJ_WEAPON || obj_b->type == OBJ_FIREBALL))
 				return -1;	//a is weapon, b is not, so say a is closer
-			else;				//both are weapons 
-		else
+		} else {
 			if (obj_b->type == OBJ_WEAPON || (obj_b->type == OBJ_FIREBALL && obj_b->id != VCLIP_AFTERBURNER_BLOB))
 				return 1;	//b is weapon, a is not, so say a is farther
+		}
 
 		//no special case, fall through to normal return
 	}
@@ -1533,7 +1119,8 @@ void build_object_lists(int n_segs)
 
 	for (nn=0;nn<MAX_RENDER_SEGS;nn++)
 		render_seg_to_render_objs[nn] = -1;
-        render_objs_next = 0;
+
+	render_objs_next = 0;
 
 	for (nn=0;nn<n_segs;nn++) {
 		int segnum;
@@ -1545,7 +1132,6 @@ void build_object_lists(int n_segs)
 			object *obj;
 
 			for (objnum=Segments[segnum].objects;objnum!=-1;objnum = obj->next) {
-				int new_segnum,did_migrate,list_pos;
 
 				obj = &Objects[objnum];
 				
@@ -1557,21 +1143,18 @@ void build_object_lists(int n_segs)
 				if (obj->flags & OF_ATTACHED)
 					continue;		//ignore this object
 
-				new_segnum = segnum;
-				list_pos = nn;
+				int new_segnum = segnum;
+				int list_pos = nn;
 
-				if (obj->type != OBJ_CNTRLCEN && !(obj->type==OBJ_ROBOT && obj->id==65))		//don't migrate controlcen
-				do {
+				if (obj->type != OBJ_CNTRLCEN && !(obj->type==OBJ_ROBOT && obj->id==65)) {		//don't migrate controlcen
 					segmasks m;
-
-					did_migrate = 0;
 	
 					m = get_seg_masks(&obj->pos, new_segnum, obj->size, __FILE__, __LINE__);
 	
 					if (m.sidemask) {
 						int sn,sf;
 
-						for (sn=0,sf=1;sn<6;sn++,sf<<=1)
+						for (sn=0,sf=1;sn<6;sn++,sf<<=1) {
 							if (m.sidemask & sf) {
 								segment *seg = &Segments[new_segnum];
 		
@@ -1579,22 +1162,20 @@ void build_object_lists(int n_segs)
 									int child = seg->children[sn];
 									int checknp;
 
-									for (checknp=list_pos;checknp--;)
+									for (checknp=list_pos;checknp--;) {
 										if (Render_list[checknp] == child) {
 											new_segnum = child;
 											list_pos = checknp;
-											did_migrate = 1;
 										}
+									}
 								}
 							}
+						}
 					}
-	
-				} while (0);	//while (did_migrate);
+				}
 
 				add_obj_to_seglist(objnum,list_pos);
-
 			}
-
 		}
 	}
 
@@ -1611,46 +1192,41 @@ void build_object_lists(int n_segs)
 
 			lookn = render_seg_to_render_objs[nn];
 			n_sort_items = 0;
+
 			// the code below copies it into the sort list unconditionally
 			static_assert(SORT_LIST_SIZE >= MAX_RENDER_OBJS, "increase SORT_LIST_SIZE");
 
 			while (lookn!=-1) {
-                            int t = render_objs[lookn].objnum;
-						sort_list[n_sort_items].objnum = t;
-						//NOTE: maybe use depth, not dist - quicker computation
-						sort_list[n_sort_items].dist = vm_vec_dist(&Objects[t].pos,&Viewer_eye);
-						n_sort_items++;
-                            lookn = render_objs[lookn].next;
-                        }
+				int t = render_objs[lookn].objnum;
+				sort_list[n_sort_items].objnum = t;
+				//NOTE: maybe use depth, not dist - quicker computation
+				sort_list[n_sort_items].dist = vm_vec_dist(&Objects[t].pos,&Viewer_eye);
+				n_sort_items++;
+				lookn = render_objs[lookn].next;
+			}
 
-			qsort(sort_list,n_sort_items,sizeof(*sort_list),
-				   sort_func);
+			qsort(sort_list,n_sort_items,sizeof(*sort_list), sort_func);
 
 			//now copy back into list
 
 			lookn = render_seg_to_render_objs[nn];
 			i = n_sort_items - 1;
 			while (lookn!=-1) {
-                            render_objs[lookn].objnum = sort_list[i].objnum;
-                            lookn = render_objs[lookn].next;
-                            i--;
-                        }
+				render_objs[lookn].objnum = sort_list[i].objnum;
+				lookn = render_objs[lookn].next;
+				i--;
+			}
 		}
 	}
 }
 
 vms_angvec Player_head_angles;
 
-extern int Num_tmaps_drawn;
-extern int Total_pixels;
-//--unused-- int Total_num_tmaps_drawn=0;
-
 int Rear_view=0;
 extern ubyte RenderingType;
 
 void start_lighting_frame(object *viewer);
 #include "internal.h"
-extern int linedotscale;
 
 //renders onto current canvas
 void render_frame(fix eye_offset, int window_num)
@@ -1663,15 +1239,11 @@ void render_frame(fix eye_offset, int window_num)
 	}
 
 	if ( Newdemo_state == ND_STATE_RECORDING && eye_offset >= 0 )	{
-     
-      if (RenderingType==0)
-   		newdemo_record_start_frame(FrameTime );
-      if (RenderingType!=255)
-   		newdemo_record_viewer_object(Viewer);
+		if (RenderingType==0)
+			newdemo_record_start_frame(FrameTime );
+		if (RenderingType!=255)
+			newdemo_record_viewer_object(Viewer);
 	}
-
-  
-   //Here:
 
 	start_lighting_frame(Viewer);		//this is for ugly light-smoothing hack
   
@@ -1679,17 +1251,9 @@ void render_frame(fix eye_offset, int window_num)
 
 	Viewer_eye = Viewer->pos;
 
-//	if (Viewer->type == OBJ_PLAYER && (PlayerCfg.CockpitMode[1]!=CM_REAR_VIEW))
-//		vm_vec_scale_add2(&Viewer_eye,&Viewer->orient.fvec,(Viewer->size*3)/4);
-
 	if (eye_offset)	{
 		vm_vec_scale_add2(&Viewer_eye,&Viewer->orient.rvec,eye_offset);
 	}
-
-	#ifdef EDITOR
-	if (EditorWindow)
-		Viewer_eye = Viewer->pos;
-	#endif
 
 	start_seg_num = find_point_seg(&Viewer_eye,Viewer->segnum);
 
@@ -1718,10 +1282,6 @@ void render_frame(fix eye_offset, int window_num)
 	gr_setcolor(BM_XRGB(31,0,31));
 
 	g3_end_frame();
-
-   //RenderingType=0;
-
-	// -- Moved from here by MK, 05/17/95, wrong if multiple renders/frame! FrameCount++;		//we have rendered a frame
 }
 
 int first_terminal_seg;
@@ -1740,13 +1300,11 @@ void build_segment_list(int start_seg_num, int window_num)
 {
 	int	lcnt,scnt,ecnt;
 	int	l,c;
-	int	ch;
 
 	Render_sky_seg = -1;
 
 	memset(visited, 0, sizeof(visited[0])*(Highest_segment_index+1));
 	memset(render_pos, -1, sizeof(render_pos[0])*(Highest_segment_index+1));
-	//memset(no_render_flag, 0, sizeof(no_render_flag[0])*(MAX_RENDER_SEGS));
 	memset(processed, 0, sizeof(processed));
 
 	lcnt = scnt = 0;
@@ -1761,9 +1319,6 @@ void build_segment_list(int start_seg_num, int window_num)
 	render_windows[0].bot=grd_curcanv->cv_bitmap.bm_h-1;
 
 	//breadth-first renderer
-
-	//build list
-
 	for (l=0;l<Render_depth;l++) {
 
 		//while (scnt < ecnt) {
@@ -1782,7 +1337,8 @@ void build_segment_list(int start_seg_num, int window_num)
 			segnum = Render_list[scnt];
 			check_w = &render_windows[scnt];
 
-			if (segnum == -1) continue;
+			if (segnum == -1)
+				continue;
 
 			seg = &Segments[segnum];
 			rotated=0;
@@ -1791,24 +1347,23 @@ void build_segment_list(int start_seg_num, int window_num)
 			//tricky code to look at sides in correct order follows
 
 			for (c=n_children=0;c<MAX_SIDES_PER_SEGMENT;c++) {		//build list of sides
-				int wid;
+				int wid = WALL_IS_DOORWAY(seg, c);
 
-				wid = WALL_IS_DOORWAY(seg, c);
-
-				ch=seg->children[c];
+				int ch = seg->children[c];
 
 				if (wid & WID_RENDPAST_FLAG) {
-						const sbyte *sv = Side_to_verts[c];
-						ubyte codes_and=0xff;
-						int i;
+					const sbyte *sv = Side_to_verts[c];
+					ubyte codes_and=0xff;
+					int i;
 
-						rotate_list(8,seg->verts);
-						rotated=1;
+					rotate_list(8,seg->verts);
+					rotated=1;
 
-						for (i=0;i<4;i++)
-							codes_and &= Segment_points[seg->verts[sv[i]]].p3_codes;
+					for (i=0;i<4;i++)
+						codes_and &= Segment_points[seg->verts[sv[i]]].p3_codes;
 
-						if (codes_and & CC_BEHIND) continue;
+					if (codes_and & CC_BEHIND)
+						continue;
 
 					child_list[n_children++] = c;
 				} else if (ch < 0 && wall_check_transparency(seg, c)) {
@@ -1819,97 +1374,93 @@ void build_segment_list(int start_seg_num, int window_num)
 			//now order the sides in some magical way
 			sort_seg_children(seg,n_children,child_list);
 
-			//for (c=0;c<MAX_SIDES_PER_SEGMENT;c++)	{
-			//	ch=seg->children[c];
-
 			for (c=0;c<n_children;c++) {
-				int siden;
+				int siden = child_list[c];
+				int ch = seg->children[siden];
 
-				siden = child_list[c];
-				ch=seg->children[siden];
+				int i;
+				ubyte codes_and_3d,codes_and_2d;
+				short _x,_y,min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
+				int no_proj_flag=0;	//a point wasn't projected
 
-						int i;
-						ubyte codes_and_3d,codes_and_2d;
-						short _x,_y,min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
-						int no_proj_flag=0;	//a point wasn't projected
+				if (rotated<2) {
+					if (!rotated)
+						rotate_list(8,seg->verts);
+					project_list(8,seg->verts);
+					rotated=2;
+				}
 
-						if (rotated<2) {
-							if (!rotated)
-								rotate_list(8,seg->verts);
-							project_list(8,seg->verts);
-							rotated=2;
+				for (i=0,codes_and_3d=codes_and_2d=0xff;i<4;i++) {
+					int p = seg->verts[Side_to_verts[siden][i]];
+					g3s_point *pnt = &Segment_points[p];
+
+					if (! (pnt->p3_flags&PF_PROJECTED)) {
+						no_proj_flag=1;
+						break;
+					}
+
+					_x = f2i(pnt->p3_sx);
+					_y = f2i(pnt->p3_sy);
+
+					codes_and_3d &= pnt->p3_codes;
+					codes_and_2d &= code_window_point(_x,_y,check_w);
+
+					if (_x < min_x) min_x = _x;
+					if (_x > max_x) max_x = _x;
+
+					if (_y < min_y) min_y = _y;
+					if (_y > max_y) max_y = _y;
+
+				}
+
+				if (no_proj_flag || (!codes_and_3d && !codes_and_2d)) {	//maybe add this segment
+					int rp = render_pos[ch];
+					rect *new_w = &render_windows[lcnt];
+
+					if (no_proj_flag) {
+						*new_w = *check_w;
+					} else {
+						new_w->left  = max(check_w->left,min_x);
+						new_w->right = min(check_w->right,max_x);
+						new_w->top   = max(check_w->top,min_y);
+						new_w->bot   = min(check_w->bot,max_y);
+					}
+
+					//see if this seg already visited, and if so, does current window
+					//expand the old window?
+					if (rp != -1) {
+						if (new_w->left < render_windows[rp].left ||
+									new_w->top < render_windows[rp].top ||
+									new_w->right > render_windows[rp].right ||
+									new_w->bot > render_windows[rp].bot)
+						{
+
+							new_w->left  = min(new_w->left,render_windows[rp].left);
+							new_w->right = max(new_w->right,render_windows[rp].right);
+							new_w->top   = min(new_w->top,render_windows[rp].top);
+							new_w->bot   = max(new_w->bot,render_windows[rp].bot);
+
+							Render_list[lcnt] = -1;
+							render_windows[rp] = *new_w;		//get updated window
+							processed[rp] = 0;		//force reprocess
 						}
-
-						for (i=0,codes_and_3d=codes_and_2d=0xff;i<4;i++) {
-							int p = seg->verts[Side_to_verts[siden][i]];
-							g3s_point *pnt = &Segment_points[p];
-
-							if (! (pnt->p3_flags&PF_PROJECTED)) {no_proj_flag=1; break;}
-
-							_x = f2i(pnt->p3_sx);
-							_y = f2i(pnt->p3_sy);
-
-							codes_and_3d &= pnt->p3_codes;
-							codes_and_2d &= code_window_point(_x,_y,check_w);
-
-							if (_x < min_x) min_x = _x;
-							if (_x > max_x) max_x = _x;
-
-							if (_y < min_y) min_y = _y;
-							if (_y > max_y) max_y = _y;
-
-						}
-
-						if (no_proj_flag || (!codes_and_3d && !codes_and_2d)) {	//maybe add this segment
-							int rp = render_pos[ch];
-							rect *new_w = &render_windows[lcnt];
-
-							if (no_proj_flag) *new_w = *check_w;
-							else {
-								new_w->left  = max(check_w->left,min_x);
-								new_w->right = min(check_w->right,max_x);
-								new_w->top   = max(check_w->top,min_y);
-								new_w->bot   = min(check_w->bot,max_y);
-							}
-
-							//see if this seg already visited, and if so, does current window
-							//expand the old window?
-							if (rp != -1) {
-								if (new_w->left < render_windows[rp].left ||
-										 new_w->top < render_windows[rp].top ||
-										 new_w->right > render_windows[rp].right ||
-										 new_w->bot > render_windows[rp].bot) {
-
-									new_w->left  = min(new_w->left,render_windows[rp].left);
-									new_w->right = max(new_w->right,render_windows[rp].right);
-									new_w->top   = min(new_w->top,render_windows[rp].top);
-									new_w->bot   = max(new_w->bot,render_windows[rp].bot);
-
-										//no_render_flag[lcnt] = 1;
-										Render_list[lcnt] = -1;
-										render_windows[rp] = *new_w;		//get updated window
-										processed[rp] = 0;		//force reprocess
-								}
-							} else {
-								render_pos[ch] = lcnt;
-								Render_list[lcnt] = ch;
-								lcnt++;
-								if (lcnt >= MAX_RENDER_SEGS) {goto done_list;}
-								visited[ch] = 1;
-							}
-
-						}
+					} else {
+						render_pos[ch] = lcnt;
+						Render_list[lcnt] = ch;
+						lcnt++;
+						if (lcnt >= MAX_RENDER_SEGS)
+							goto done_list;
+						visited[ch] = 1;
+					}
+				}
 			}
 		}
 
 		scnt = ecnt;
 		ecnt = lcnt;
-
 	}
-done_list:
 
-	lcnt_save = lcnt;
-	scnt_save = scnt;
+done_list:
 
 	first_terminal_seg = scnt;
 	N_render_segs = lcnt;
@@ -1928,39 +1479,14 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 	render_start_frame();
 
+	build_segment_list(start_seg_num, window_num);		//fills in Render_list & N_render_segs
 
-	#if defined(EDITOR)
-	if (Show_only_curside) {
-		rotate_list(8,Cursegp->verts);
-		render_side(Cursegp,Curside);
-		goto done_rendering;
-	}
-	#endif
-
-
-	#ifdef EDITOR
-	if (_search_mode)	{
-		//lcnt = lcnt_save;
-		//scnt = scnt_save;
-	}
-	else
-	#endif
-		//NOTE LINK TO ABOVE!!
-		build_segment_list(start_seg_num, window_num);		//fills in Render_list & N_render_segs
-
-	//render away
-
-		Window_clip_left  = Window_clip_top = 0;
-		Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
-		Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
-
-	if (!(_search_mode))
-		build_object_lists(N_render_segs);
+	build_object_lists(N_render_segs);
 
 	if (eye_offset<=0) // Do for left eye or zero.
 		set_dynamic_light();
 
-	if (!_search_mode && Clear_window == 2) {
+	if (Clear_window == 2) {
 		if (first_terminal_seg < N_render_segs) {
 			int i;
 
@@ -1971,8 +1497,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	
 			for (i=first_terminal_seg; i<N_render_segs; i++) {
 				if (Render_list[i] != -1) {
-						//NOTE LINK TO ABOVE!
-						gr_rect(render_windows[i].left, render_windows[i].top, render_windows[i].right, render_windows[i].bot);
+					gr_rect(render_windows[i].left, render_windows[i].top, render_windows[i].right, render_windows[i].bot);
 				}
 			}
 		}
@@ -1988,43 +1513,32 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
     // First Pass: render opaque level geometry and level geometry with alpha pixels (high Alpha-Test func)
 	for (nn=N_render_segs;nn--;)
 	{
-		int segnum;
+		int segnum = Render_list[nn];
 
-		segnum = Render_list[nn];
-
-		if (segnum!=-1 && (_search_mode || visited[segnum]!=255))
+		if (segnum!=-1 && visited[segnum]!=255)
 		{
-			//set global render window vars
-
-
-				Window_clip_left  = render_windows[nn].left;
-				Window_clip_top   = render_windows[nn].top;
-				Window_clip_right = render_windows[nn].right;
-				Window_clip_bot   = render_windows[nn].bot;
 
 			// render segment
-			{
-				segment		*seg = &Segments[segnum];
-				g3s_codes 	cc;
-				int			sn;
+			segment		*seg = &Segments[segnum];
+			g3s_codes 	cc;
+			int			sn;
 
-				Assert(segnum!=-1 && segnum<=Highest_segment_index);
+			Assert(segnum!=-1 && segnum<=Highest_segment_index);
 
-				cc=rotate_list(8,seg->verts);
+			cc=rotate_list(8,seg->verts);
 
-				if (! cc.and) {		//all off screen?
+			if (! cc.and) {		//all off screen?
 
-					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
-						if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL ||
-						WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
-						{
-							// Note: geometry with alpha blending should render in the second pass instead
-							glAlphaFunc(GL_GEQUAL,0.8);
-							render_side(seg, sn);
-							glAlphaFunc(GL_GEQUAL,0.02);
-						}
-						else
-							render_side(seg, sn);
+				for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++) {
+					if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL || WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
+					{
+						// Note: geometry with alpha blending should render in the second pass instead
+						glAlphaFunc(GL_GEQUAL,0.8);
+						render_side(seg, sn);
+						glAlphaFunc(GL_GEQUAL,0.02);
+					}
+					else
+						render_side(seg, sn);
 				}
 			}
 		}
@@ -2035,39 +1549,30 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
     // Second pass: Render objects and level geometry with alpha pixels (normal Alpha-Test func) and eclips with blending
 	for (nn=N_render_segs;nn--;)
 	{
-		int segnum;
+		int segnum = Render_list[nn];
 
-		segnum = Render_list[nn];
-
-		if (segnum!=-1 && (_search_mode || visited[segnum]!=255))
+		if (segnum!=-1 && visited[segnum]!=255)
 		{
+			segment		*seg = &Segments[segnum];
+			g3s_codes 	cc;
+			int			sn;
 
-				Window_clip_left  = render_windows[nn].left;
-				Window_clip_top   = render_windows[nn].top;
-				Window_clip_right = render_windows[nn].right;
-				Window_clip_bot   = render_windows[nn].bot;
+			Assert(segnum!=-1 && segnum<=Highest_segment_index);
 
-			// render segment
-				segment		*seg = &Segments[segnum];
-				g3s_codes 	cc;
-				int			sn;
+			cc=rotate_list(8,seg->verts);
 
-				Assert(segnum!=-1 && segnum<=Highest_segment_index);
+			if (! cc.and) {		//all off screen?
 
-				cc=rotate_list(8,seg->verts);
+				if (Viewer->type!=OBJ_ROBOT)
+				Automap_visited[segnum]=1;
 
-				if (! cc.and) {		//all off screen?
-
-				  if (Viewer->type!=OBJ_ROBOT)
-					Automap_visited[segnum]=1;
-
-					for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
-						if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL ||
-						WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
-						{
-							render_side(seg, sn);
-						}
+				for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++) {
+					if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL || WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
+					{
+						render_side(seg, sn);
+					}
 				}
+			}
 
 			visited[segnum]=255;
 
@@ -2075,11 +1580,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 			if (index < 0)
 				continue;
-
-			//reset for objects
-			Window_clip_left  = Window_clip_top = 0;
-			Window_clip_right = grd_curcanv->cv_bitmap.bm_w-1;
-			Window_clip_bot   = grd_curcanv->cv_bitmap.bm_h-1;
 
 			// render objects
 			for (;index >= 0;index = render_objs[index].next) {
@@ -2090,53 +1590,5 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		}
 	}
 
-	// -- commented out by mk on 09/14/94...did i do a good thing??  object_render_targets();
-
     highlight_all_triggers();
-
-#ifdef EDITOR
-
-
-done_rendering:
-	;
-
-#endif
-
 }
-#ifdef EDITOR
-
-extern int render_3d_in_big_window;
-
-//finds what segment is at a given x&y -  seg,side,face are filled in
-//works on last frame rendered. returns true if found
-//if seg<0, then an object was found, and the object number is -seg-1
-int find_seg_side_face(short x,short y,int *seg,int *side,int *face,int *poly)
-{
-	_search_mode = -1;
-
-	_search_x = x; _search_y = y;
-
-	found_seg = -1;
-
-	if (render_3d_in_big_window) {
-		gr_set_current_canvas(LargeView.ev_canv);
-
-		render_frame(0, 0);
-	}
-	else {
-		gr_set_current_canvas(Canv_editor_game);
-		render_frame(0, 0);
-	}
-
-	_search_mode = 0;
-
-	*seg = found_seg;
-	*side = found_side;
-	*face = found_face;
-	*poly = found_poly;
-
-	return (found_seg!=-1);
-
-}
-
-#endif

@@ -739,7 +739,6 @@ bool g3_draw_poly(int nv,const g3s_point **pointlist)
 	return 0;
 }
 
-float Gr_color[3] = {1,1,1};
 static bool tmap_flat;
 
 void g3_set_flat_shading(bool enable)
@@ -866,7 +865,6 @@ bool g3_draw_tmap_2(int nv, const g3s_point **pointlist, g3s_uvl *uvl_list, g3s_
 				break;
 		}
 		
-		// TODO: missing Gr_color mult.?
 		color_array[index4]      = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].r);
 		color_array[index4+1]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].g);
 		color_array[index4+2]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].b);
