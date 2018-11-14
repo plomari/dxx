@@ -66,10 +66,6 @@ int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
 int Simple_model_threshhold_scale = 50; // switch to simpler model when the object has depth greater than this value times its radius.
 int Max_debris_objects = 15; // How many debris objects to create
 
-//used for checking if points have been rotated
-int	Clear_window_color=-1;
-int	Clear_window=2;	// 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
-
 int framecount=-1;
 short Rotated_last[MAX_VERTICES];
 
@@ -1271,11 +1267,8 @@ void render_frame(fix eye_offset, int window_num)
 		g3_set_view_matrix(&Viewer_eye,&Viewer->orient,Render_zoom);
 	}
 
-	if (Clear_window == 1) {
-		if (Clear_window_color == -1)
-			Clear_window_color = BM_XRGB(0, 0, 0);	//BM_XRGB(31, 15, 7);
-		gr_clear_canvas(Clear_window_color);
-	}
+	if (window_num > 0)
+		gr_clear_canvas(BM_XRGB(0, 0, 0));
 
 	render_mine(start_seg_num, eye_offset, window_num);
 
@@ -1283,8 +1276,6 @@ void render_frame(fix eye_offset, int window_num)
 
 	g3_end_frame();
 }
-
-int first_terminal_seg;
 
 void update_rendered_data(int window_num, object *viewer, int rear_view_flag)
 {
@@ -1462,7 +1453,6 @@ void build_segment_list(int start_seg_num, int window_num)
 
 done_list:
 
-	first_terminal_seg = scnt;
 	N_render_segs = lcnt;
 
 }
@@ -1485,23 +1475,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 	if (eye_offset<=0) // Do for left eye or zero.
 		set_dynamic_light();
-
-	if (Clear_window == 2) {
-		if (first_terminal_seg < N_render_segs) {
-			int i;
-
-			if (Clear_window_color == -1)
-				Clear_window_color = BM_XRGB(0, 0, 0);	//BM_XRGB(31, 15, 7);
-	
-			gr_setcolor(Clear_window_color);
-	
-			for (i=first_terminal_seg; i<N_render_segs; i++) {
-				if (Render_list[i] != -1) {
-					gr_rect(render_windows[i].left, render_windows[i].top, render_windows[i].right, render_windows[i].bot);
-				}
-			}
-		}
-	}
 
 	if (Render_sky_seg >= 0)
 		render_segment(Render_sky_seg, window_num);
