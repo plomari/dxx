@@ -1506,7 +1506,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 					if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL || WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
 					{
 						// Note: geometry with alpha blending should render in the second pass instead
-						glAlphaFunc(GL_GEQUAL,0.8);
+						glAlphaFunc(GL_GEQUAL,1.0);
 						render_side(seg, sn);
 						glAlphaFunc(GL_GEQUAL,0.02);
 					}
@@ -1542,7 +1542,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 				for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++) {
 					if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL || WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
 					{
+						glAlphaFunc(GL_LESS,1.0);
+						glDepthMask(GL_FALSE);
 						render_side(seg, sn);
+						glDepthMask(GL_TRUE);
+						glAlphaFunc(GL_GEQUAL,0.02);
 					}
 				}
 			}
