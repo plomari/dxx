@@ -1240,18 +1240,16 @@ void update_rendered_data(int window_num, object *viewer, int rear_view_flag)
 //fills in Render_list & N_render_segs
 void build_segment_list(int start_seg_num, int window_num)
 {
-	int	l,c;
-
 	int sky_seg = -1;
 
 	memset(render_pos, -1, sizeof(render_pos[0])*(Highest_segment_index+1));
 	memset(processed, 0, sizeof(processed));
 
-	int lcnt = 0;
+	N_render_segs = 0;
 
-	Render_list[lcnt] = start_seg_num;
-	render_pos[start_seg_num] = lcnt;
-	lcnt++;
+	Render_list[N_render_segs] = start_seg_num;
+	render_pos[start_seg_num] = N_render_segs;
+	N_render_segs++;
 
 	render_windows[0].left=render_windows[0].top=0;
 	render_windows[0].right=grd_curcanv->cv_bitmap.bm_w-1;
@@ -1259,51 +1257,46 @@ void build_segment_list(int start_seg_num, int window_num)
 
 	//breadth-first renderer
 	int reprocess_pos = 0;
-	for (l=0;l<Render_depth;l++) {
-		int ecnt = lcnt;
-		if (reprocess_pos == ecnt)
+	for (int depth = 0; depth < Render_depth; depth++) {
+		int end_pos = N_render_segs;
+		if (reprocess_pos == end_pos)
 			break;
 
 		int start = reprocess_pos;
-		reprocess_pos = ecnt;
+		reprocess_pos = end_pos;
 
-		for (int scnt=start;scnt < ecnt;scnt++) {
-			int segnum;
-			rect *check_w;
-			short child_list[MAX_SIDES_PER_SEGMENT];		//list of ordered sides to process
-			int n_children;										//how many sides in child_list
-			segment *seg;
-
-			if (processed[scnt])
+		for (int cur = start; cur < end_pos; cur++) {
+			if (processed[cur])
 				continue;
 
-			processed[scnt]=1;
+			processed[cur] = 1;
 
-			segnum = Render_list[scnt];
-			check_w = &render_windows[scnt];
+			int segnum = Render_list[cur];
+			rect *check_w = &render_windows[cur];
 
 			if (segnum == -1)
 				continue;
 
-			seg = &Segments[segnum];
+			segment *seg = &Segments[segnum];
 
 			g3s_codes cc = rotate_list(8,seg->verts);
 			if (cc.and) {
-				Render_list[scnt] = -1;
+				Render_list[cur] = -1;
 				continue;
 			}
 
 			//look at all sides of this segment.
 			//tricky code to look at sides in correct order follows
 
-			for (c=n_children=0;c<MAX_SIDES_PER_SEGMENT;c++) {		//build list of sides
-				int wid = WALL_IS_DOORWAY(seg, c);
+			short child_list[MAX_SIDES_PER_SEGMENT];  //list of ordered sides to process
+			int n_children = 0;						  //how many sides in child_list
 
-				int ch = seg->children[c];
+			for (int c = 0; c < MAX_SIDES_PER_SEGMENT; c++) {
+				int wid = WALL_IS_DOORWAY(seg, c);
 
 				if (wid & WID_RENDPAST_FLAG) {
 					child_list[n_children++] = c;
-				} else if (ch < 0 && wall_check_transparency(seg, c)) {
+				} else if (seg->children[c] < 0 && wall_check_transparency(seg, c)) {
 					sky_seg = Sky_box_segment;
 				}
 			}
@@ -1319,39 +1312,36 @@ void build_segment_list(int start_seg_num, int window_num)
 					g3_project_point(&Segment_points[seg->verts[n]]);
 			}
 
-			for (c=0;c<n_children;c++) {
+			for (int c = 0; c < n_children; c++) {
 				int siden = child_list[c];
-				int ch = seg->children[siden];
-
-				int i;
-				ubyte codes_and_3d,codes_and_2d;
-				short _x,_y,min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
+				short min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
 				int no_proj_flag=0;	//a point wasn't projected
+				ubyte codes_and_3d = 0xFF;
+				ubyte codes_and_2d = 0xFF;
 
-				for (i=0,codes_and_3d=codes_and_2d=0xff;i<4;i++) {
+				for (int i = 0; i < 4; i++) {
 					int p = seg->verts[Side_to_verts[siden][i]];
 					g3s_point *pnt = &Segment_points[p];
 
-					if (! (pnt->p3_flags&PF_PROJECTED)) {
-						no_proj_flag=1;
+					if (!(pnt->p3_flags & PF_PROJECTED)) {
+						no_proj_flag = 1;
 						break;
 					}
 
-					_x = f2i(pnt->p3_sx);
-					_y = f2i(pnt->p3_sy);
+					short x = f2i(pnt->p3_sx);
+					short y = f2i(pnt->p3_sy);
 
 					codes_and_3d &= pnt->p3_codes;
-					codes_and_2d &= code_window_point(_x,_y,check_w);
+					codes_and_2d &= code_window_point(x, y, check_w);
 
-					if (_x < min_x) min_x = _x;
-					if (_x > max_x) max_x = _x;
-
-					if (_y < min_y) min_y = _y;
-					if (_y > max_y) max_y = _y;
-
+					min_x = min(min_x, x);
+					max_x = max(max_x, x);
+					min_y = min(min_y, y);
+					max_y = max(max_y, y);
 				}
 
 				if (no_proj_flag || (!codes_and_3d && !codes_and_2d)) {	//maybe add this segment
+					int ch = seg->children[siden];
 					int rp = render_pos[ch];
 					rect new_w = *check_w;
 
@@ -1380,27 +1370,22 @@ void build_segment_list(int start_seg_num, int window_num)
 							reprocess_pos = min(reprocess_pos, rp);
 						}
 					} else {
-						if (lcnt >= MAX_RENDER_SEGS)
-							goto done_list;
-						render_pos[ch] = lcnt;
-						render_windows[lcnt] = new_w;
-						Render_list[lcnt] = ch;
-						lcnt++;
+						if (N_render_segs >= MAX_RENDER_SEGS)
+							break;
+						render_pos[ch] = N_render_segs;
+						render_windows[N_render_segs] = new_w;
+						Render_list[N_render_segs] = ch;
+						N_render_segs++;
 					}
 				}
 			}
 		}
 	}
 
-done_list:
-
-	if (sky_seg >= 0 && lcnt < MAX_RENDER_SEGS) {
-		Render_list[lcnt] = sky_seg;
-		lcnt++;
+	if (sky_seg >= 0 && N_render_segs < MAX_RENDER_SEGS) {
+		Render_list[N_render_segs] = sky_seg;
+		N_render_segs++;
 	}
-
-	N_render_segs = lcnt;
-
 }
 
 //renders onto current canvas
