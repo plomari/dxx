@@ -66,8 +66,7 @@ int Render_depth = MAX_RENDER_SEGS; //how many segments deep to render
 int Simple_model_threshhold_scale = 50; // switch to simpler model when the object has depth greater than this value times its radius.
 int Max_debris_objects = 15; // How many debris objects to create
 
-int framecount=-1;
-short Rotated_last[MAX_VERTICES];
+static uint8_t Rotated_flags[BIT_ARRAY_SIZE(MAX_VERTICES)];
 
 // When any render function needs to know what's looking at it, it should 
 // access Viewer members.
@@ -729,13 +728,7 @@ void do_render_object(int objnum, int window_num)
 //This must be called at the start of the frame if rotate_list() will be used
 void render_start_frame()
 {
-	framecount++;
-
-	if (framecount==0) {		//wrap!
-
-		memset(Rotated_last,0,sizeof(Rotated_last));		//clear all to zero
-		framecount=1;											//and set this frame to 1
-	}
+	memset(Rotated_flags, 0, sizeof(Rotated_flags));
 }
 
 //Given a lit of point numbers, rotate any that haven't been rotated this frame
@@ -753,12 +746,8 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 
 		pnt = &Segment_points[pnum];
 
-		if (Rotated_last[pnum] != framecount) {
-
+		if (!bit_array_test_set(Rotated_flags, pnum))
 			g3_rotate_point(pnt,&Vertices[pnum]);
-
-			Rotated_last[pnum] = framecount;
-		}
 
 		cc.and &= pnt->p3_codes;
 		cc.or  |= pnt->p3_codes;
