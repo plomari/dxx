@@ -738,7 +738,7 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 	g3s_point *pnt;
 	g3s_codes cc;
 
-	cc.and = 0xff;  cc.or = 0;
+	cc.and = 0xff;
 
 	for (i=0;i<nv;i++) {
 
@@ -750,7 +750,6 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 			g3_rotate_point(pnt,&Vertices[pnum]);
 
 		cc.and &= pnt->p3_codes;
-		cc.or  |= pnt->p3_codes;
 	}
 
 	return cc;
