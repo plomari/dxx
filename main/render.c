@@ -1375,14 +1375,10 @@ void build_segment_list(int start_seg_num, int window_num)
 	}
 }
 
-static bool wall_uses_transparency(segment *seg, int side)
+static bool wall_uses_alpha(segment *seg, int side)
 {
 	int wid = WALL_IS_DOORWAY(seg, side);
-	if ((wid & WID_RENDER_FLAG) && (wid & WID_RENDPAST_FLAG))
-		return true;
-	if (wid & WID_CLOAKED_FLAG)
-		return true;
-	return false;
+	return (wid & WID_RENDER_FLAG) && (wid & WID_RENDPAST_FLAG);
 }
 
 //renders onto current canvas
@@ -1412,8 +1408,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		segment *seg = &Segments[segnum];
 
 		for (int sn = 0; sn < MAX_SIDES_PER_SEGMENT; sn++) {
-			if (wall_uses_transparency(seg, sn)) {
-				// Special case for classic binary transparency
+			if (wall_uses_alpha(seg, sn)) {
 				glAlphaFunc(GL_GEQUAL,1.0);
 				render_side(seg, sn);
 				glAlphaFunc(GL_GEQUAL,0.02);
@@ -1436,10 +1431,8 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 			Automap_visited[segnum] = 1;
 
 		for (int sn = 0; sn < MAX_SIDES_PER_SEGMENT; sn++) {
-			if (wall_uses_transparency(seg, sn)) {
-				// Render transparent or alpha textures. (This alpha blends
-				// transparent pixels for classic binary transparency, which
-				// is not ideal, but doesn't harm.)
+			if (wall_uses_alpha(seg, sn)) {
+				// Render alpha textures.
 				glAlphaFunc(GL_LESS,1.0);
 				glDepthMask(GL_FALSE);
 				render_side(seg, sn);

@@ -99,15 +99,15 @@ int wall_check_transparency(segment * seg, int side)
 	if ((seg->sides[side].tmap_num2 & 0x3FFF) == 0) {
 		int tmap_flags = GameBitmaps[Textures[seg->sides[side].tmap_num].index].bm_flags;
 		if (tmap_flags & BM_FLAG_TRANSPARENT )
-			return 1;
-		else if (tmap_flags & BM_FLAG_SEE_THRU)
-			return 1;
+			return WID_RENDPAST_FLAG;
+		else if (tmap_flags & BM_FLAG_ALPHA)
+			return WID_RENDPAST_FLAG | WID_RENDER_ALPHA_FLAG;
 		else
 			return 0;
 	}
 
 	if (GameBitmaps[Textures[seg->sides[side].tmap_num2 & 0x3FFF ].index].bm_flags & BM_FLAG_SUPER_TRANSPARENT )
-		return 1;
+		return WID_RENDPAST_FLAG;
 	else
 		return 0;
 }
@@ -120,7 +120,7 @@ int wall_check_transparency(segment * seg, int side)
 int wall_is_doorway_rest(segment * seg, int side)
 {
 	int flags, type;
-	int state;
+
 //--Covered by macro	// No child.
 //--Covered by macro	if (seg->children[side] == -1)
 //--Covered by macro		return WID_RENDER_FLAG;
@@ -139,45 +139,35 @@ int wall_is_doorway_rest(segment * seg, int side)
 	type = Walls[seg->sides[side].wall_num].type;
 	flags = Walls[seg->sides[side].wall_num].flags;
 
+	int res = WID_RENDER_FLAG;
+
 	if (type == WALL_OPEN)
 		return WID_FLY_FLAG | WID_RENDPAST_FLAG;
 
 	if (type == WALL_ILLUSION) {
-		if (Walls[seg->sides[side].wall_num].flags & WALL_ILLUSION_OFF)
-			return WID_FLY_FLAG | WID_RENDPAST_FLAG;
-		else {
-			if (wall_check_transparency( seg, side))
-				return WID_FLY_FLAG | WID_RENDER_FLAG | WID_RENDPAST_FLAG;
-		 	else
-				return WID_FLY_FLAG | WID_RENDER_FLAG;
-		}
+		res |= WID_FLY_FLAG;
+		if ((Walls[seg->sides[side].wall_num].flags & WALL_ILLUSION_OFF))
+			res &= ~WID_RENDER_FLAG;
 	}
 
 	if (type == WALL_BLASTABLE) {
-	 	if (flags & WALL_BLASTED)
-			return WID_FLY_FLAG | WID_RENDER_FLAG | WID_RENDPAST_FLAG;
+		if (flags & WALL_BLASTED)
+			res |= WID_FLY_FLAG;
+	} else if (flags & WALL_DOOR_OPENED) {
+		// (Are there any levels that use WALL_BLASTABLE with a WALL_DOOR_OPENED
+		// flag?)
+		res |= WID_FLY_FLAG;
+	}
 
-		if (wall_check_transparency( seg, side))
-			return WID_RENDER_FLAG | WID_RENDPAST_FLAG;
-		else
-			return WID_RENDER_FLAG;
-	}	
-	
-	if (flags & WALL_DOOR_OPENED)
-		return WID_FLY_FLAG | WID_RENDER_FLAG | WID_RENDPAST_FLAG;
-	
-	if (type == WALL_CLOAKED)
-		return WID_RENDER_FLAG | WID_RENDPAST_FLAG | WID_CLOAKED_FLAG;
+	if (type == WALL_CLOAKED) {
+		return WID_RENDER_FLAG | WID_RENDPAST_FLAG | WID_CLOAKED_FLAG |
+			   WID_RENDER_ALPHA_FLAG;
+	}
 
-	state = Walls[seg->sides[side].wall_num].state;
-	if ((type == WALL_DOOR) && (state == WALL_DOOR_OPENING))
-		return WID_RENDER_FLAG | WID_RENDPAST_FLAG;
-	
-// If none of the above flags are set, there is no doorway.
-	if (wall_check_transparency( seg, side))
-		return WID_RENDER_FLAG | WID_RENDPAST_FLAG;
-	else
-		return WID_RENDER_FLAG; // There are children behind the door.
+	if (res & WID_RENDER_FLAG)
+		res |= wall_check_transparency(seg, side);
+
+	return res;
 }
 
 #ifdef EDITOR
