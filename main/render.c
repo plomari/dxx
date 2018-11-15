@@ -1294,7 +1294,7 @@ void build_segment_list(int start_seg_num, int window_num)
 
 		//while (scnt < ecnt) {
 		for (scnt=0;scnt < ecnt;scnt++) {
-			int rotated,segnum;
+			int segnum;
 			rect *check_w;
 			short child_list[MAX_SIDES_PER_SEGMENT];		//list of ordered sides to process
 			int n_children;										//how many sides in child_list
@@ -1312,7 +1312,12 @@ void build_segment_list(int start_seg_num, int window_num)
 				continue;
 
 			seg = &Segments[segnum];
-			rotated=0;
+
+			g3s_codes cc = rotate_list(8,seg->verts);
+			if (cc.and) {
+				Render_list[scnt] = -1;
+				continue;
+			}
 
 			//look at all sides of this segment.
 			//tricky code to look at sides in correct order follows
@@ -1323,27 +1328,19 @@ void build_segment_list(int start_seg_num, int window_num)
 				int ch = seg->children[c];
 
 				if (wid & WID_RENDPAST_FLAG) {
-					const sbyte *sv = Side_to_verts[c];
-					ubyte codes_and=0xff;
-					int i;
-
-					rotate_list(8,seg->verts);
-					rotated=1;
-
-					for (i=0;i<4;i++)
-						codes_and &= Segment_points[seg->verts[sv[i]]].p3_codes;
-
-					if (codes_and & CC_BEHIND)
-						continue;
-
 					child_list[n_children++] = c;
 				} else if (ch < 0 && wall_check_transparency(seg, c)) {
 					sky_seg = Sky_box_segment;
 				}
 			}
 
+			if (!n_children)
+				continue;
+
 			//now order the sides in some magical way
 			sort_seg_children(seg,n_children,child_list);
+
+			project_list(8,seg->verts);
 
 			for (c=0;c<n_children;c++) {
 				int siden = child_list[c];
@@ -1353,13 +1350,6 @@ void build_segment_list(int start_seg_num, int window_num)
 				ubyte codes_and_3d,codes_and_2d;
 				short _x,_y,min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
 				int no_proj_flag=0;	//a point wasn't projected
-
-				if (rotated<2) {
-					if (!rotated)
-						rotate_list(8,seg->verts);
-					project_list(8,seg->verts);
-					rotated=2;
-				}
 
 				for (i=0,codes_and_3d=codes_and_2d=0xff;i<4;i++) {
 					int p = seg->verts[Side_to_verts[siden][i]];
@@ -1476,14 +1466,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 			// render segment
 			segment		*seg = &Segments[segnum];
-			g3s_codes 	cc;
 			int			sn;
 
 			Assert(segnum!=-1 && segnum<=Highest_segment_index);
 
-			cc=rotate_list(8,seg->verts);
-
-			if (! cc.and) {		//all off screen?
+			{
 
 				for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++) {
 					if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL || WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
@@ -1510,14 +1497,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		if (segnum!=-1 && visited[segnum]!=255)
 		{
 			segment		*seg = &Segments[segnum];
-			g3s_codes 	cc;
 			int			sn;
 
 			Assert(segnum!=-1 && segnum<=Highest_segment_index);
 
-			cc=rotate_list(8,seg->verts);
-
-			if (! cc.and) {		//all off screen?
+			{		//all off screen?
 
 				if (Viewer->type!=OBJ_ROBOT)
 				Automap_visited[segnum]=1;
