@@ -1371,6 +1371,7 @@ void build_segment_list(int start_seg_num, int window_num)
 	if (sky_seg >= 0 && N_render_segs < MAX_RENDER_SEGS) {
 		Render_list[N_render_segs] = sky_seg;
 		N_render_segs++;
+		rotate_list(8, Segments[sky_seg].verts);
 	}
 }
 
