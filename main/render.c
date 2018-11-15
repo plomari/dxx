@@ -1240,7 +1240,6 @@ void update_rendered_data(int window_num, object *viewer, int rear_view_flag)
 //fills in Render_list & N_render_segs
 void build_segment_list(int start_seg_num, int window_num)
 {
-	int	lcnt,scnt,ecnt;
 	int	l,c;
 
 	int sky_seg = -1;
@@ -1248,22 +1247,27 @@ void build_segment_list(int start_seg_num, int window_num)
 	memset(render_pos, -1, sizeof(render_pos[0])*(Highest_segment_index+1));
 	memset(processed, 0, sizeof(processed));
 
-	lcnt = scnt = 0;
+	int lcnt = 0;
 
 	Render_list[lcnt] = start_seg_num;
+	render_pos[start_seg_num] = lcnt;
 	lcnt++;
-	ecnt = lcnt;
-	render_pos[start_seg_num] = 0;
 
 	render_windows[0].left=render_windows[0].top=0;
 	render_windows[0].right=grd_curcanv->cv_bitmap.bm_w-1;
 	render_windows[0].bot=grd_curcanv->cv_bitmap.bm_h-1;
 
 	//breadth-first renderer
+	int reprocess_pos = 0;
 	for (l=0;l<Render_depth;l++) {
+		int ecnt = lcnt;
+		if (reprocess_pos == ecnt)
+			break;
 
-		//while (scnt < ecnt) {
-		for (scnt=0;scnt < ecnt;scnt++) {
+		int start = reprocess_pos;
+		reprocess_pos = ecnt;
+
+		for (int scnt=start;scnt < ecnt;scnt++) {
 			int segnum;
 			rect *check_w;
 			short child_list[MAX_SIDES_PER_SEGMENT];		//list of ordered sides to process
@@ -1373,6 +1377,7 @@ void build_segment_list(int start_seg_num, int window_num)
 
 							render_windows[rp] = new_w;		//set updated window
 							processed[rp] = 0;		//force reprocess
+							reprocess_pos = min(reprocess_pos, rp);
 						}
 					} else {
 						if (lcnt >= MAX_RENDER_SEGS)
@@ -1385,9 +1390,6 @@ void build_segment_list(int start_seg_num, int window_num)
 				}
 			}
 		}
-
-		scnt = ecnt;
-		ecnt = lcnt;
 	}
 
 done_list:
