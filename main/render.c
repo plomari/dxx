@@ -778,8 +778,8 @@ ubyte processed[MAX_RENDER_SEGS];		//whether each entry has been processed
 short render_pos[MAX_SEGMENTS];	//where in render_list does this segment appear?
 rect render_windows[MAX_RENDER_SEGS];
 
-// render_seg_to_render_obj_list[render_seg_id] = -1 or index into render_objs
-static int render_seg_to_render_objs[MAX_RENDER_SEGS];
+// Render_list_objs[render_seg_id] = -1 or index into render_objs
+static int Render_list_objs[MAX_RENDER_SEGS];
 // each entry is starts a list
 struct render_obj_item {
     int objnum; // index into Objects[]
@@ -1013,9 +1013,9 @@ void add_obj_to_seglist(int objnum,int listnum)
 
     index = render_objs_next++;
     render_objs[index].objnum = objnum;
-    render_objs[index].next = render_seg_to_render_objs[listnum];
+    render_objs[index].next = Render_list_objs[listnum];
 
-    render_seg_to_render_objs[listnum] = index;
+    Render_list_objs[listnum] = index;
 }
 
 #define SORT_LIST_SIZE MAX_RENDER_OBJS
@@ -1065,7 +1065,7 @@ void build_object_lists(int n_segs)
 	int nn;
 
 	for (nn=0;nn<MAX_RENDER_SEGS;nn++)
-		render_seg_to_render_objs[nn] = -1;
+		Render_list_objs[nn] = -1;
 
 	render_objs_next = 0;
 
@@ -1137,7 +1137,7 @@ void build_object_lists(int n_segs)
 
 			//first count the number of objects & copy into sort list
 
-			lookn = render_seg_to_render_objs[nn];
+			lookn = Render_list_objs[nn];
 			n_sort_items = 0;
 
 			// the code below copies it into the sort list unconditionally
@@ -1156,7 +1156,7 @@ void build_object_lists(int n_segs)
 
 			//now copy back into list
 
-			lookn = render_seg_to_render_objs[nn];
+			lookn = Render_list_objs[nn];
 			i = n_sort_items - 1;
 			while (lookn!=-1) {
 				render_objs[lookn].objnum = sort_list[i].objnum;
@@ -1292,9 +1292,7 @@ void build_segment_list(int start_seg_num, int window_num)
 			int n_children = 0;						  //how many sides in child_list
 
 			for (int c = 0; c < MAX_SIDES_PER_SEGMENT; c++) {
-				int wid = WALL_IS_DOORWAY(seg, c);
-
-				if (wid & WID_RENDPAST_FLAG) {
+				if (WALL_IS_DOORWAY(seg, c) & WID_RENDPAST_FLAG) {
 					child_list[n_children++] = c;
 				} else if (seg->children[c] < 0 && wall_check_transparency(seg, c)) {
 					sky_seg = Sky_box_segment;
@@ -1314,8 +1312,9 @@ void build_segment_list(int start_seg_num, int window_num)
 
 			for (int c = 0; c < n_children; c++) {
 				int siden = child_list[c];
-				short min_x=32767,max_x=-32767,min_y=32767,max_y=-32767;
-				int no_proj_flag=0;	//a point wasn't projected
+				short min_x = SHRT_MAX, max_x = SHRT_MIN,
+					  min_y = SHRT_MAX, max_y = SHRT_MIN;
+				bool projected = true;
 				ubyte codes_and_3d = 0xFF;
 				ubyte codes_and_2d = 0xFF;
 
@@ -1324,7 +1323,8 @@ void build_segment_list(int start_seg_num, int window_num)
 					g3s_point *pnt = &Segment_points[p];
 
 					if (!(pnt->p3_flags & PF_PROJECTED)) {
-						no_proj_flag = 1;
+						// Point is e.g. behind the screen.
+						projected = false;
 						break;
 					}
 
@@ -1340,12 +1340,12 @@ void build_segment_list(int start_seg_num, int window_num)
 					max_y = max(max_y, y);
 				}
 
-				if (no_proj_flag || (!codes_and_3d && !codes_and_2d)) {	//maybe add this segment
+				if (!projected || (!codes_and_3d && !codes_and_2d)) {	//maybe add this segment
 					int ch = seg->children[siden];
 					int rp = render_pos[ch];
 					rect new_w = *check_w;
 
-					if (!no_proj_flag) {
+					if (projected) {
 						new_w.left  = max(new_w.left,  min_x);
 						new_w.right = min(new_w.right, max_x);
 						new_w.top   = max(new_w.top,   min_y);
@@ -1388,100 +1388,85 @@ void build_segment_list(int start_seg_num, int window_num)
 	}
 }
 
+static bool wall_uses_transparency(segment *seg, int side)
+{
+	int wid = WALL_IS_DOORWAY(seg, side);
+	if ((wid & WID_RENDER_FLAG) && (wid & WID_RENDPAST_FLAG))
+		return true;
+	if (wid & WID_CLOAKED_FLAG)
+		return true;
+	return false;
+}
+
 //renders onto current canvas
 void render_mine(int start_seg_num,fix eye_offset, int window_num)
 {
-	int		nn;
-
 	//	Initialize number of objects (actually, robots!) rendered this frame.
 	Window_rendered_data[window_num].num_objects = 0;
 
-	//set up for rendering
-
 	render_start_frame();
 
-	build_segment_list(start_seg_num, window_num);		//fills in Render_list & N_render_segs
+	build_segment_list(start_seg_num, window_num);
 
 	build_object_lists(N_render_segs);
 
 	if (eye_offset<=0) // Do for left eye or zero.
 		set_dynamic_light();
 
-	// Two pass rendering. Since sprites and some level geometry can have transparency (blending), we need some fancy sorting.
-	// GL_DEPTH_TEST helps to sort everything in view but we should make sure translucent sprites are rendered after geometry to prevent them to turn walls invisible (if rendered BEFORE geometry but still in FRONT of it).
-	// If walls use blending, they should be rendered along with objects (in same pass) to prevent some ugly clipping.
-
-    // First Pass: render opaque level geometry and level geometry with alpha pixels (high Alpha-Test func)
-	for (nn=N_render_segs;nn--;)
-	{
+    // First Pass: render opaque level geometry
+	for (int nn = N_render_segs - 1; nn >= 0; nn--) {
 		int segnum = Render_list[nn];
 
-		if (segnum!=-1)
-		{
+		if (segnum == -1)
+			continue;
 
-			// render segment
-			segment		*seg = &Segments[segnum];
-			int			sn;
+		Assert(segnum >= 0 && segnum <= Highest_segment_index);
 
-			Assert(segnum!=-1 && segnum<=Highest_segment_index);
+		segment *seg = &Segments[segnum];
 
-			{
-
-				for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++) {
-					if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL || WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
-					{
-						// Note: geometry with alpha blending should render in the second pass instead
-						glAlphaFunc(GL_GEQUAL,1.0);
-						render_side(seg, sn);
-						glAlphaFunc(GL_GEQUAL,0.02);
-					}
-					else
-						render_side(seg, sn);
-				}
+		for (int sn = 0; sn < MAX_SIDES_PER_SEGMENT; sn++) {
+			if (wall_uses_transparency(seg, sn)) {
+				// Special case for classic binary transparency
+				glAlphaFunc(GL_GEQUAL,1.0);
+				render_side(seg, sn);
+				glAlphaFunc(GL_GEQUAL,0.02);
+			} else {
+				render_side(seg, sn);
 			}
 		}
 	}
 
-    // Second pass: Render objects and level geometry with alpha pixels (normal Alpha-Test func) and eclips with blending
-	for (nn=N_render_segs;nn--;)
-	{
+    // Second pass: Render objects and level geometry with alpha pixels
+	for (int nn = N_render_segs - 1; nn >= 0; nn--) {
 		int segnum = Render_list[nn];
 
-		if (segnum!=-1)
+		if (segnum == -1)
+			continue;
+
+		segment *seg = &Segments[segnum];
+
+		if (Viewer->type != OBJ_ROBOT)
+			Automap_visited[segnum] = 1;
+
+		for (int sn = 0; sn < MAX_SIDES_PER_SEGMENT; sn++) {
+			if (wall_uses_transparency(seg, sn)) {
+				// Render transparent or alpha textures. (This alpha blends
+				// transparent pixels for classic binary transparency, which
+				// is not ideal, but doesn't harm.)
+				glAlphaFunc(GL_LESS,1.0);
+				glDepthMask(GL_FALSE);
+				render_side(seg, sn);
+				glDepthMask(GL_TRUE);
+				glAlphaFunc(GL_GEQUAL,0.02);
+			}
+		}
+
+		// render objects
+		for (int index = Render_list_objs[nn];
+			 index >= 0;
+			 index = render_objs[index].next)
 		{
-			segment		*seg = &Segments[segnum];
-			int			sn;
-
-			Assert(segnum!=-1 && segnum<=Highest_segment_index);
-
-			{		//all off screen?
-
-				if (Viewer->type!=OBJ_ROBOT)
-				Automap_visited[segnum]=1;
-
-				for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++) {
-					if (WALL_IS_DOORWAY(seg,sn) == WID_TRANSPARENT_WALL || WALL_IS_DOORWAY(seg,sn) == WID_TRANSILLUSORY_WALL || WALL_IS_DOORWAY(seg,sn) & WID_CLOAKED_FLAG)
-					{
-						glAlphaFunc(GL_LESS,1.0);
-						glDepthMask(GL_FALSE);
-						render_side(seg, sn);
-						glDepthMask(GL_TRUE);
-						glAlphaFunc(GL_GEQUAL,0.02);
-					}
-				}
-			}
-
-			int index = render_seg_to_render_objs[nn];
-
-			if (index < 0)
-				continue;
-
-			// render objects
-			for (;index >= 0;index = render_objs[index].next) {
-				int ObjNumber = render_objs[index].objnum;
-
-				do_render_object(ObjNumber, window_num);	// note link to above else
-			}
+			do_render_object(render_objs[index].objnum, window_num);
 		}
 	}
 
