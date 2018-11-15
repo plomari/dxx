@@ -1279,11 +1279,7 @@ void build_segment_list(int start_seg_num, int window_num)
 
 			segment *seg = &Segments[segnum];
 
-			g3s_codes cc = rotate_list(8,seg->verts);
-			if (cc.and) {
-				Render_list[cur] = -1;
-				continue;
-			}
+			rotate_list(8,seg->verts);
 
 			//look at all sides of this segment.
 			//tricky code to look at sides in correct order follows
@@ -1293,7 +1289,16 @@ void build_segment_list(int start_seg_num, int window_num)
 
 			for (int c = 0; c < MAX_SIDES_PER_SEGMENT; c++) {
 				if (WALL_IS_DOORWAY(seg, c) & WID_RENDPAST_FLAG) {
-					child_list[n_children++] = c;
+					int cc_and = 0xFF;
+
+					for (int i = 0; i < 4; i++) {
+						int p = seg->verts[Side_to_verts[c][i]];
+						g3s_point *pnt = &Segment_points[p];
+						cc_and &= pnt->p3_codes;
+					}
+
+					if (!cc_and)
+						child_list[n_children++] = c;
 				} else if (seg->children[c] < 0 && wall_check_transparency(seg, c)) {
 					sky_seg = Sky_box_segment;
 				}
