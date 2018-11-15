@@ -1436,11 +1436,11 @@ void build_segment_list(int start_seg_num, int window_num)
 							processed[rp] = 0;		//force reprocess
 						}
 					} else {
+						if (lcnt >= MAX_RENDER_SEGS)
+							goto done_list;
 						render_pos[ch] = lcnt;
 						Render_list[lcnt] = ch;
 						lcnt++;
-						if (lcnt >= MAX_RENDER_SEGS)
-							goto done_list;
 						visited[ch] = 1;
 					}
 				}
