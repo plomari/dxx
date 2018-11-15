@@ -1349,39 +1349,36 @@ void build_segment_list(int start_seg_num, int window_num)
 
 				if (no_proj_flag || (!codes_and_3d && !codes_and_2d)) {	//maybe add this segment
 					int rp = render_pos[ch];
-					rect *new_w = &render_windows[lcnt];
+					rect new_w = *check_w;
 
-					if (no_proj_flag) {
-						*new_w = *check_w;
-					} else {
-						new_w->left  = max(check_w->left,min_x);
-						new_w->right = min(check_w->right,max_x);
-						new_w->top   = max(check_w->top,min_y);
-						new_w->bot   = min(check_w->bot,max_y);
+					if (!no_proj_flag) {
+						new_w.left  = max(new_w.left,  min_x);
+						new_w.right = min(new_w.right, max_x);
+						new_w.top   = max(new_w.top,   min_y);
+						new_w.bot   = min(new_w.bot,   max_y);
 					}
 
 					//see if this seg already visited, and if so, does current window
 					//expand the old window?
 					if (rp != -1) {
-						if (new_w->left < render_windows[rp].left ||
-									new_w->top < render_windows[rp].top ||
-									new_w->right > render_windows[rp].right ||
-									new_w->bot > render_windows[rp].bot)
+						if (new_w.left  < render_windows[rp].left ||
+							new_w.top   < render_windows[rp].top ||
+							new_w.right > render_windows[rp].right ||
+							new_w.bot   > render_windows[rp].bot)
 						{
+							new_w.left  = min(new_w.left,  render_windows[rp].left);
+							new_w.right = max(new_w.right, render_windows[rp].right);
+							new_w.top   = min(new_w.top,   render_windows[rp].top);
+							new_w.bot   = max(new_w.bot,   render_windows[rp].bot);
 
-							new_w->left  = min(new_w->left,render_windows[rp].left);
-							new_w->right = max(new_w->right,render_windows[rp].right);
-							new_w->top   = min(new_w->top,render_windows[rp].top);
-							new_w->bot   = max(new_w->bot,render_windows[rp].bot);
-
-							Render_list[lcnt] = -1;
-							render_windows[rp] = *new_w;		//get updated window
+							render_windows[rp] = new_w;		//set updated window
 							processed[rp] = 0;		//force reprocess
 						}
 					} else {
 						if (lcnt >= MAX_RENDER_SEGS)
 							goto done_list;
 						render_pos[ch] = lcnt;
+						render_windows[lcnt] = new_w;
 						Render_list[lcnt] = ch;
 						lcnt++;
 					}
