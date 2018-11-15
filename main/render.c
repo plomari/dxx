@@ -784,25 +784,6 @@ void project_list(int nv,int *pointnumlist)
 	}
 }
 
-void render_segment(int segnum, int window_num)
-{
-	segment		*seg = &Segments[segnum];
-	g3s_codes 	cc;
-	int			sn;
-
-	Assert(segnum!=-1 && segnum<=Highest_segment_index);
-
-	cc=rotate_list(8,seg->verts);
-
-	if (! cc.and) {		//all off screen?
-		if (Viewer->type!=OBJ_ROBOT)
-			Automap_visited[segnum]=1;
-
-		for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
-			render_side(seg, sn);
-	}
-}
-
 typedef struct rect {
 	short left,top,right,bot;
 } rect;
@@ -822,7 +803,6 @@ ubyte code_window_point(fix x,fix y,rect *w)
 
 unsigned char visited[MAX_SEGMENTS];
 short Render_list[MAX_RENDER_SEGS];
-int Render_sky_seg;
 ubyte processed[MAX_RENDER_SEGS];		//whether each entry has been processed
 short render_pos[MAX_SEGMENTS];	//where in render_list does this segment appear?
 rect render_windows[MAX_RENDER_SEGS];
@@ -1292,7 +1272,7 @@ void build_segment_list(int start_seg_num, int window_num)
 	int	lcnt,scnt,ecnt;
 	int	l,c;
 
-	Render_sky_seg = -1;
+	int sky_seg = -1;
 
 	memset(visited, 0, sizeof(visited[0])*(Highest_segment_index+1));
 	memset(render_pos, -1, sizeof(render_pos[0])*(Highest_segment_index+1));
@@ -1358,7 +1338,7 @@ void build_segment_list(int start_seg_num, int window_num)
 
 					child_list[n_children++] = c;
 				} else if (ch < 0 && wall_check_transparency(seg, c)) {
-					Render_sky_seg = Sky_box_segment;
+					sky_seg = Sky_box_segment;
 				}
 			}
 
@@ -1453,6 +1433,12 @@ void build_segment_list(int start_seg_num, int window_num)
 
 done_list:
 
+	if (sky_seg >= 0 && lcnt < MAX_RENDER_SEGS) {
+		Render_list[lcnt] = sky_seg;
+		lcnt++;
+		visited[sky_seg] = 1;
+	}
+
 	N_render_segs = lcnt;
 
 }
@@ -1475,9 +1461,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 	if (eye_offset<=0) // Do for left eye or zero.
 		set_dynamic_light();
-
-	if (Render_sky_seg >= 0)
-		render_segment(Render_sky_seg, window_num);
 
 	// Two pass rendering. Since sprites and some level geometry can have transparency (blending), we need some fancy sorting.
 	// GL_DEPTH_TEST helps to sort everything in view but we should make sure translucent sprites are rendered after geometry to prevent them to turn walls invisible (if rendered BEFORE geometry but still in FRONT of it).
