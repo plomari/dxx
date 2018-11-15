@@ -801,7 +801,6 @@ ubyte code_window_point(fix x,fix y,rect *w)
 	return code;
 }
 
-unsigned char visited[MAX_SEGMENTS];
 short Render_list[MAX_RENDER_SEGS];
 ubyte processed[MAX_RENDER_SEGS];		//whether each entry has been processed
 short render_pos[MAX_SEGMENTS];	//where in render_list does this segment appear?
@@ -1274,13 +1273,12 @@ void build_segment_list(int start_seg_num, int window_num)
 
 	int sky_seg = -1;
 
-	memset(visited, 0, sizeof(visited[0])*(Highest_segment_index+1));
 	memset(render_pos, -1, sizeof(render_pos[0])*(Highest_segment_index+1));
 	memset(processed, 0, sizeof(processed));
 
 	lcnt = scnt = 0;
 
-	Render_list[lcnt] = start_seg_num; visited[start_seg_num]=1;
+	Render_list[lcnt] = start_seg_num;
 	lcnt++;
 	ecnt = lcnt;
 	render_pos[start_seg_num] = 0;
@@ -1411,7 +1409,6 @@ void build_segment_list(int start_seg_num, int window_num)
 						render_pos[ch] = lcnt;
 						Render_list[lcnt] = ch;
 						lcnt++;
-						visited[ch] = 1;
 					}
 				}
 			}
@@ -1426,7 +1423,6 @@ done_list:
 	if (sky_seg >= 0 && lcnt < MAX_RENDER_SEGS) {
 		Render_list[lcnt] = sky_seg;
 		lcnt++;
-		visited[sky_seg] = 1;
 	}
 
 	N_render_segs = lcnt;
@@ -1461,7 +1457,7 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	{
 		int segnum = Render_list[nn];
 
-		if (segnum!=-1 && visited[segnum]!=255)
+		if (segnum!=-1)
 		{
 
 			// render segment
@@ -1487,14 +1483,12 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 		}
 	}
 
-	memset(visited, 0, sizeof(visited[0])*(Highest_segment_index+1));
-
     // Second pass: Render objects and level geometry with alpha pixels (normal Alpha-Test func) and eclips with blending
 	for (nn=N_render_segs;nn--;)
 	{
 		int segnum = Render_list[nn];
 
-		if (segnum!=-1 && visited[segnum]!=255)
+		if (segnum!=-1)
 		{
 			segment		*seg = &Segments[segnum];
 			int			sn;
@@ -1517,8 +1511,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 					}
 				}
 			}
-
-			visited[segnum]=255;
 
 			int index = render_seg_to_render_objs[nn];
 
