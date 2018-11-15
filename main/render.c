@@ -594,10 +594,8 @@ void render_side(segment *segp, int sidenum)
 	int		vertnum_list[4];
 	side		*sidep = &segp->sides[sidenum];
 	uvl		temp_uvls[3];
-	vms_vector	normals[2];
 	int		wid_flags;
 	int segnum = segp-Segments;
-
 
 	wid_flags = WALL_IS_DOORWAY(segp,sidenum);
 
@@ -605,9 +603,6 @@ void render_side(segment *segp, int sidenum)
 		goto end;
 
 	get_side_verts(vertnum_list,segp-Segments,sidenum);
-
-	normals[0] = segp->sides[sidenum].normals[0];
-	normals[1] = segp->sides[sidenum].normals[1];
 
  	//	Regardless of whether this side is comprised of a single quad, or two triangles, we need to know one normal, so
  	//	deal with it, get the dot product.
@@ -618,14 +613,14 @@ void render_side(segment *segp, int sidenum)
 	vms_vector tvec;
 	vm_vec_sub(&tvec, &Viewer_eye, &Vertices[vertnum_list[which_vertnum]]);
 	vm_vec_normalize_quick(&tvec);
-	fix v_dot_n0 = vm_vec_dot(&tvec, &normals[0]);
+	fix v_dot_n0 = vm_vec_dot(&tvec, &sidep->normals[0]);
 
 	if (sidep->type == SIDE_IS_QUAD) {
 		if (v_dot_n0 >= 0) {
 			render_face(segp-Segments, sidenum, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 		}
 	} else {
-		fix v_dot_n1 = vm_vec_dot(&tvec, &normals[1]);
+		fix v_dot_n1 = vm_vec_dot(&tvec, &sidep->normals[1]);
 
 		if (sidep->type == SIDE_IS_TRI_02) {
 			if (v_dot_n0 >= 0) {
