@@ -265,9 +265,9 @@ static int check_pixel_type(uint8_t *p, int bm_flags, int bm_depth)
 		if (p[0] == 120 && p[1] == 88 && p[2] == 128)
 			return BM_FLAG_SUPER_TRANSPARENT;
 		if (p[3] <= 5)
-			return BM_FLAG_TRANSPARENT;
+			return BM_FLAG_TRANSPARENT | BM_FLAG_ALPHA;
 		if (p[3] < 255)
-			return BM_FLAG_SEE_THRU;
+			return BM_FLAG_SEE_THRU | BM_FLAG_ALPHA;
 		return 0;
 	}
 
@@ -347,7 +347,8 @@ void gr_bitmap_check_transparency(grs_bitmap *bmp)
 {
 	bmp->bm_flags &= ~(BM_FLAG_TRANSPARENT |
 					   BM_FLAG_SUPER_TRANSPARENT |
-					   BM_FLAG_SEE_THRU);
+					   BM_FLAG_SEE_THRU |
+					   BM_FLAG_ALPHA);
 
 	if (bmp->bm_depth == 4) {
 		// D2X-XL computes these flags on loading in CTGA::SetProperties(). It's

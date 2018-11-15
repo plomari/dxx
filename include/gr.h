@@ -75,6 +75,8 @@ typedef struct _grs_point {
 #define BM_FLAG_SEE_THRU			64	// apparently means transparent for viewing, but no fly through
 #define BM_FLAG_TGA					128
 #define BM_FLAG_OPAQUE				256
+// This software
+#define BM_FLAG_ALPHA				512
 
 typedef struct _grs_bitmap {
 	short   bm_x,bm_y;  // Offset from parent's origin
