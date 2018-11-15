@@ -81,19 +81,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_CLIP_FRAMES         50
 
 // WALL_IS_DOORWAY flags.
-#define WID_FLY_FLAG            1
-#define WID_RENDER_FLAG         2
-#define WID_RENDPAST_FLAG       4
-#define WID_EXTERNAL_FLAG       8
-#define WID_CLOAKED_FLAG        16
-
-//  WALL_IS_DOORWAY return values          F/R/RP
-#define WID_WALL                    2   // 0/1/0        wall
-#define WID_TRANSPARENT_WALL        6   // 0/1/1        transparent wall
-#define WID_ILLUSORY_WALL           3   // 1/1/0        illusory wall
-#define WID_TRANSILLUSORY_WALL      7   // 1/1/1        transparent illusory wall
-#define WID_NO_WALL                 5   //  1/0/1       no wall, can fly through
-#define WID_EXTERNAL                8   // 0/0/0/1  don't see it, dont fly through it
+#define WID_FLY_FLAG            1	// player can go through (for physics)
+#define WID_RENDER_FLAG         2	// a texture/polygon of any kind is rendered
+#define WID_RENDPAST_FLAG       4	// things behind the wall need to be rendered
+#define WID_EXTERNAL_FLAG       8	// ?
+#define WID_CLOAKED_FLAG        16	// cloaked wall (renderer special effects)
 
 #define MAX_STUCK_OBJECTS   32
 
@@ -183,9 +175,8 @@ typedef struct {
 
 extern char Wall_names[7][10];
 
-//#define WALL_IS_DOORWAY(seg,side) wall_is_doorway(seg, side)
-
-#define WALL_IS_DOORWAY(seg,side) (((seg)->children[(side)] == -1) ? WID_RENDER_FLAG : ((seg)->children[(side)] == -2) ? WID_EXTERNAL_FLAG : ((seg)->sides[(side)].wall_num == -1) ? (WID_FLY_FLAG|WID_RENDPAST_FLAG) : wall_is_doorway((seg), (side)))
+// Automatically checks if a there is a doorway (i.e. can fly through)
+#define WALL_IS_DOORWAY(seg,side) (((seg)->children[(side)] == -1) ? WID_RENDER_FLAG : ((seg)->children[(side)] == -2) ? WID_EXTERNAL_FLAG : ((seg)->sides[(side)].wall_num == -1) ? (WID_FLY_FLAG|WID_RENDPAST_FLAG) : wall_is_doorway_rest((seg), (side)))
 
 extern wall Walls[MAX_WALLS];           // Master walls array
 extern int Num_walls;                   // Number of walls
@@ -204,8 +195,8 @@ extern int walls_bm_num[MAX_WALL_ANIMS];
 // Initializes all walls (i.e. no special walls.)
 extern void wall_init();
 
-// Automatically checks if a there is a doorway (i.e. can fly through)
-extern int wall_is_doorway ( segment *seg, int side );
+// Call WALL_IS_DOORWAY().
+extern int wall_is_doorway_rest(segment *seg, int side );
 
 // Deteriorate appearance of wall. (Changes bitmap (paste-ons))
 extern void wall_damage(segment *seg, int side, fix damage);

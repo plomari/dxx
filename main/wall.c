@@ -115,23 +115,15 @@ int wall_check_transparency(segment * seg, int side)
 //-----------------------------------------------------------------
 // This function checks whether we can fly through the given side.
 //	In other words, whether or not we have a 'doorway'
-//	 Flags:
-//		WID_FLY_FLAG				1
-//		WID_RENDER_FLAG			2
-//		WID_RENDPAST_FLAG			4
-//	 Return values:
-//		WID_WALL						2	// 0/1/0		wall	
-//		WID_TRANSPARENT_WALL		6	//	0/1/1		transparent wall
-//		WID_ILLUSORY_WALL			3	//	1/1/0		illusory wall
-//		WID_TRANSILLUSORY_WALL	7	//	1/1/1		transparent illusory wall
-//		WID_NO_WALL					5	//	1/0/1		no wall, can fly through
-int wall_is_doorway ( segment * seg, int side )
+// It also informs you whether to render textures.
+// Don't call directly. Use WALL_IS_DOORWAY().
+int wall_is_doorway_rest(segment * seg, int side)
 {
 	int flags, type;
 	int state;
 //--Covered by macro	// No child.
 //--Covered by macro	if (seg->children[side] == -1)
-//--Covered by macro		return WID_WALL;
+//--Covered by macro		return WID_RENDER_FLAG;
 
 //--Covered by macro	if (seg->children[side] == -2)
 //--Covered by macro		return WID_EXTERNAL_FLAG;
@@ -148,44 +140,44 @@ int wall_is_doorway ( segment * seg, int side )
 	flags = Walls[seg->sides[side].wall_num].flags;
 
 	if (type == WALL_OPEN)
-		return WID_NO_WALL;
+		return WID_FLY_FLAG | WID_RENDPAST_FLAG;
 
 	if (type == WALL_ILLUSION) {
 		if (Walls[seg->sides[side].wall_num].flags & WALL_ILLUSION_OFF)
-			return WID_NO_WALL;
+			return WID_FLY_FLAG | WID_RENDPAST_FLAG;
 		else {
 			if (wall_check_transparency( seg, side))
-				return WID_TRANSILLUSORY_WALL;
+				return WID_FLY_FLAG | WID_RENDER_FLAG | WID_RENDPAST_FLAG;
 		 	else
-				return WID_ILLUSORY_WALL;
+				return WID_FLY_FLAG | WID_RENDER_FLAG;
 		}
 	}
 
 	if (type == WALL_BLASTABLE) {
 	 	if (flags & WALL_BLASTED)
-			return WID_TRANSILLUSORY_WALL;
+			return WID_FLY_FLAG | WID_RENDER_FLAG | WID_RENDPAST_FLAG;
 
 		if (wall_check_transparency( seg, side))
-			return WID_TRANSPARENT_WALL;
+			return WID_RENDER_FLAG | WID_RENDPAST_FLAG;
 		else
-			return WID_WALL;
+			return WID_RENDER_FLAG;
 	}	
 	
 	if (flags & WALL_DOOR_OPENED)
-		return WID_TRANSILLUSORY_WALL;
+		return WID_FLY_FLAG | WID_RENDER_FLAG | WID_RENDPAST_FLAG;
 	
 	if (type == WALL_CLOAKED)
 		return WID_RENDER_FLAG | WID_RENDPAST_FLAG | WID_CLOAKED_FLAG;
 
 	state = Walls[seg->sides[side].wall_num].state;
 	if ((type == WALL_DOOR) && (state == WALL_DOOR_OPENING))
-		return WID_TRANSPARENT_WALL;
+		return WID_RENDER_FLAG | WID_RENDPAST_FLAG;
 	
 // If none of the above flags are set, there is no doorway.
 	if (wall_check_transparency( seg, side))
-		return WID_TRANSPARENT_WALL;
+		return WID_RENDER_FLAG | WID_RENDPAST_FLAG;
 	else
-		return WID_WALL; // There are children behind the door.
+		return WID_RENDER_FLAG; // There are children behind the door.
 }
 
 #ifdef EDITOR

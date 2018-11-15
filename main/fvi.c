@@ -1223,8 +1223,6 @@ int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
 	side *side = &seg->sides[sidenum];
 	fix u,v;
 
-//	Assert(WALL_IS_DOORWAY(seg,sidenum) == WID_TRANSPARENT_WALL);
-
 	find_hitpoint_uv(&u,&v,NULL,pnt,seg,sidenum,facenum);	//	Don't compute light value.
 
 	return !!(texmerge_test_pixel(side->tmap_num, side->tmap_num2, u, v) & WID_RENDPAST_FLAG);
