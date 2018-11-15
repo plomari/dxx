@@ -94,25 +94,7 @@ static inline void vm_set_identity(vms_matrix *m)
 
 vms_vector * vm_vec_make (vms_vector * v, fix x, fix y, fix z);
 
-
-#ifdef __WATCOMC__
-#pragma aux vm_vec_make "*_" parm [eax] [edx] [ebx] [ecx] value [eax] modify exact [] = \
-"mov 0[eax],edx" \
-"mov 4[eax],ebx" \
-"mov 8[eax],ecx";
-
-#endif
-
 vms_angvec * vm_angvec_make (vms_angvec * v, fixang p, fixang b, fixang h);
-
-
-#ifdef __WATCOMC__
-#pragma aux vm_angvec_make "*_" parm [eax] [dx] [bx] [cx] value [eax] modify exact [] = \
-"mov 0[eax],dx" \
-"mov 2[eax],bx" \
-"mov 4[eax],cx";
-
-#endif
 
 //Global constants
 
@@ -313,29 +295,6 @@ fix vm_vec_normalized_dir_quick (vms_vector * dest, const vms_vector * end, cons
 fix vm_vec_dotprod (const vms_vector * v0, const vms_vector * v1);
 
 #define vm_vec_dot(v0,v1) vm_vec_dotprod((v0),(v1))
-
-#ifdef INLINE
-#ifdef __WATCOMC__
-#pragma aux vm_vec_dotprod parm [esi] [edi] value [eax] modify exact [eax ebx ecx edx] = \
-"mov    eax,[esi]" \
-"imul   dword ptr [edi]" \
-"mov    ebx,eax" \
-"mov    ecx,edx" \
-\
-"mov    eax,4[esi]" \
-"imul   dword ptr 4[edi]" \
-"add    ebx,eax" \
-"adc    ecx,edx" \
-\
-"mov    eax,8[esi]" \
-"imul   dword ptr 8[edi]" \
-"add    eax,ebx" \
-"adc    edx,ecx" \
-\
-"shrd   eax,edx,16";
-
-#endif
-#endif  /* INLINE */
 
 //computes cross product of two vectors. returns ptr to dest
 //dest CANNOT equal either source

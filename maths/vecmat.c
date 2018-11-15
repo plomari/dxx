@@ -819,8 +819,8 @@ vms_angvec *vm_extract_angles_vector(vms_angvec *a,const vms_vector *v)
 }
 
 //compute the distance from a point to a plane.  takes the normalized normal
-//of the plane (ebx), a point on the plane (edi), and the point to check (esi).
-//returns distance in eax
+//of the plane, a point on the plane, and the point to check.
+//returns distance
 //distance is signed, so negative dist is on the back of the plane
 fix vm_dist_to_plane(const vms_vector *checkp,const vms_vector *norm,const vms_vector *planep)
 {

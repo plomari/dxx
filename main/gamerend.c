@@ -405,26 +405,6 @@ void game_draw_hud_stuff()
 extern int gr_bitblt_dest_step_shift;
 extern int gr_bitblt_double;
 
-#if 0
-void expand_row(ubyte * dest, ubyte * src, int num_src_pixels );
-#pragma aux expand_row parm [edi] [esi] [ecx] modify exact [ecx esi edi eax ebx] = \
-	"add	esi, ecx"			\
-	"dec	esi"					\
-	"add	edi, ecx"			\
-	"add	edi, ecx"			\
-	"dec	edi"					\
-	"dec	edi"					\
-"nextpixel:"					\
-	"mov	al,[esi]"			\
-	"mov	ah, al"				\
-	"dec	esi"					\
-	"mov	[edi], ax"			\
-	"dec	edi"					\
-	"dec	edi"					\
-	"dec	ecx"					\
-	"jnz	nextpixel"			\
-"done:"
-#else
 void expand_row(ubyte * dest, ubyte * src, int num_src_pixels )
 {
 	int i;
@@ -434,7 +414,6 @@ void expand_row(ubyte * dest, ubyte * src, int num_src_pixels )
 		*dest++ = *src++;
 	}
 }
-#endif
 
 // doubles the size in x or y of a bitmap in place.
 void game_expand_bitmap( grs_bitmap * bmp, uint flags )
