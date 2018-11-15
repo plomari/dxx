@@ -768,22 +768,6 @@ g3s_codes rotate_list(int nv,int *pointnumlist)
 
 }
 
-//Given a lit of point numbers, project any that haven't been projected
-void project_list(int nv,int *pointnumlist)
-{
-	int i,pnum;
-
-	for (i=0;i<nv;i++) {
-
-		pnum = pointnumlist[i];
-
-		if (!(Segment_points[pnum].p3_flags & PF_PROJECTED))
-
-			g3_project_point(&Segment_points[pnum]);
-
-	}
-}
-
 typedef struct rect {
 	short left,top,right,bot;
 } rect;
@@ -1338,7 +1322,10 @@ void build_segment_list(int start_seg_num, int window_num)
 			//now order the sides in some magical way
 			sort_seg_children(seg,n_children,child_list);
 
-			project_list(8,seg->verts);
+			for (int n = 0; n < MAX_VERTICES_PER_SEGMENT; n++) {
+				if (!(Segment_points[seg->verts[n]].p3_flags & PF_PROJECTED))
+					g3_project_point(&Segment_points[seg->verts[n]]);
+			}
 
 			for (c=0;c<n_children;c++) {
 				int siden = child_list[c];
