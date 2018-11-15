@@ -26,6 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //#include "3d.h"
 //#include "inferno.h"
 #include "cfile.h"
+#include "bitarray.h"
 
 // Version 1 - Initial version
 // Version 2 - Mike changed some shorts to bytes in segments, so incompatible!
@@ -303,10 +304,10 @@ void delta_light_write(delta_light *dl, PHYSFS_file *fp);
 void dl_index_write(dl_index *di, PHYSFS_file *fp);
 
 struct segment_bit_array {
-	uint8_t bits[(MAX_SEGMENTS + 7) / 8];
+	uint8_t bits[BIT_ARRAY_SIZE(MAX_SEGMENTS)];
 };
 
-#define SEGMENT_BIT_ARRAY_GET(arr, n) ((arr)->bits[(n) / 8] & (1 << ((n) % 8)))
-#define SEGMENT_BIT_ARRAY_SET(arr, n) ((arr)->bits[(n) / 8] |= (1 << ((n) % 8)))
+#define SEGMENT_BIT_ARRAY_GET(arr, n) bit_array_get((arr)->bits, n)
+#define SEGMENT_BIT_ARRAY_SET(arr, n) bit_array_set((arr)->bits, n, true)
 
 #endif
