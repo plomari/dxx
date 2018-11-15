@@ -594,7 +594,6 @@ void render_side(segment *segp, int sidenum)
 	int		vertnum_list[4];
 	side		*sidep = &segp->sides[sidenum];
 	uvl		temp_uvls[3];
-	fix		min_dot, max_dot;
 	vms_vector	normals[2];
 	int		wid_flags;
 	int segnum = segp-Segments;
@@ -626,20 +625,7 @@ void render_side(segment *segp, int sidenum)
 			render_face(segp-Segments, sidenum, 4, vertnum_list, sidep->tmap_num, sidep->tmap_num2, sidep->uvls, wid_flags);
 		}
 	} else {
-
-		//	Although this side has been triangulated, because it is not planar, see if it is acceptable
-		//	to render it as a single quadrilateral.  This is a function of how far away the viewer is, how non-planar
-		//	the face is, how normal to the surfaces the view is.
-		//	Now, if both dot products are close to 1.0, then render two triangles as a single quad.
 		fix v_dot_n1 = vm_vec_dot(&tvec, &normals[1]);
-
-		if (v_dot_n0 < v_dot_n1) {
-			min_dot = v_dot_n0;
-			max_dot = v_dot_n1;
-		} else {
-			min_dot = v_dot_n1;
-			max_dot = v_dot_n0;
-		}
 
 		if (sidep->type == SIDE_IS_TRI_02) {
 			if (v_dot_n0 >= 0) {
