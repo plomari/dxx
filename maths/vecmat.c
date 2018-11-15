@@ -433,38 +433,6 @@ void check_vec(vms_vector *v)
 //product of the magnitudes of the two source vectors.  This means it is
 //quite easy for this routine to overflow and underflow.  Be careful that
 //your inputs are ok.
-//#ifndef __powerc
-#if 0
-vms_vector *vm_vec_crossprod(vms_vector *dest,vms_vector *src0,vms_vector *src1)
-{
-	double d;
-	Assert(dest!=src0 && dest!=src1);
-
-	d = (double)(src0->y) * (double)(src1->z);
-	d += (double)-(src0->z) * (double)(src1->y);
-	d /= 65536.0;
-	if (d < 0.0)
-		d = d - 1.0;
-	dest->x = (fix)d;
-
-	d = (double)(src0->z) * (double)(src1->x);
-	d += (double)-(src0->x) * (double)(src1->z);
-	d /= 65536.0;
-	if (d < 0.0)
-		d = d - 1.0;
-	dest->y = (fix)d;
-
-	d = (double)(src0->x) * (double)(src1->y);
-	d += (double)-(src0->y) * (double)(src1->x);
-	d /= 65536.0;
-	if (d < 0.0)
-		d = d - 1.0;
-	dest->z = (fix)d;
-
-	return dest;
-}
-#else
-
 vms_vector *vm_vec_crossprod(vms_vector *dest,const vms_vector *src0,const vms_vector *src1)
 {
 	quadint q;
@@ -488,9 +456,6 @@ vms_vector *vm_vec_crossprod(vms_vector *dest,const vms_vector *src0,const vms_v
 
 	return dest;
 }
-
-#endif
-
 
 //computes non-normalized surface normal from three points. 
 //returns ptr to dest

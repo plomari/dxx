@@ -2451,34 +2451,31 @@ void collide_weapon_and_debris( object * weapon, object * debris, vms_vector *co
 //##}
 
 
-/* DPH: Put these macros on one long line to avoid CR/LF problems on linux */
 #define COLLISION_OF(a,b) (((a)<<8) + (b))
 
-#define DO_COLLISION(type1,type2,collision_function)	case COLLISION_OF( (type1), (type2) ):	(collision_function)( (A), (B), collision_point ); break;   case COLLISION_OF( (type2), (type1) ):  (collision_function)( (B), (A), collision_point );  break;
+#define DO_COLLISION(type1,type2,collision_function) 			\
+	case COLLISION_OF( (type1), (type2) ):						\
+		(collision_function)( (A), (B), collision_point ); 		\
+		break;   												\
+	case COLLISION_OF( (type2), (type1) ):  					\
+		(collision_function)( (B), (A), collision_point );  	\
+		break;
 
-#define DO_SAME_COLLISION(type1,type2,collision_function)    case COLLISION_OF( (type1), (type1) ):  (collision_function)( (A), (B), collision_point ); break;
+#define DO_SAME_COLLISION(type1,type2,collision_function)    	\
+	case COLLISION_OF( (type1), (type1) ):  					\
+		(collision_function)( (A), (B), collision_point ); 		\
+		break;
 
 //these next two macros define a case that does nothing
-#define NO_COLLISION(type1,type2,collision_function)	case COLLISION_OF( (type1), (type2) ):	break;	case COLLISION_OF( (type2), (type1) ):	break;
-
-#define NO_SAME_COLLISION(type1,type2,collision_function)    case COLLISION_OF( (type1), (type1) ):    break;
-
-/* DPH: These ones are never used so I'm not going to bother */
-#ifndef __GNUC__
-#define IGNORE_COLLISION(type1,type2,collision_function)					\
-	case COLLISION_OF( (type1), (type2) ):										\
-		break;																			\
-	case COLLISION_OF( (type2), (type1) ):										\
+#define NO_COLLISION(type1,type2,collision_function)			\
+	case COLLISION_OF( (type1), (type2) ):						\
+		break;													\
+	case COLLISION_OF( (type2), (type1) ):						\
 		break;
 
-#define ERROR_COLLISION(type1,type2,collision_function)					\
-	case COLLISION_OF( (type1), (type2) ):										\
-		Error( "Error in collision type!" );									\
-		break;																			\
-	case COLLISION_OF( (type2), (type1) ):										\
-		Error( "Error in collision type!" );									\
+#define NO_SAME_COLLISION(type1,type2,collision_function)    	\
+	case COLLISION_OF( (type1), (type1) ):    					\
 		break;
-#endif
 
 void collide_two_objects( object * A, object * B, vms_vector *collision_point )
 {

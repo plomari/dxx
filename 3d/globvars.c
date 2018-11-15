@@ -35,11 +35,6 @@ int			Canvas_height;		//the actual height
 fix			Canv_w2;				//fixed-point width/2
 fix			Canv_h2;				//fixed-point height/2
 
-#ifdef __powerc
-double		fCanv_w2;
-double		fCanv_h2;
-#endif
-
 //vertex buffers for polygon drawing and clipping
 g3s_point * Vbuf0[MAX_POINTS_IN_POLY];
 g3s_point *Vbuf1[MAX_POINTS_IN_POLY];

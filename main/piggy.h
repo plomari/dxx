@@ -82,24 +82,12 @@ extern void piggy_bitmap_page_in( bitmap_index bmp );
 extern void piggy_bitmap_page_out_all();
 extern int piggy_page_flushed;
 
-/* Make GNUC use static inline function as #define with backslash continuations causes problems with dos linefeeds */
-# ifdef __GNUC__
-#  define  PIGGY_PAGE_IN(bmp) _piggy_page_in(bmp)
-static inline void _piggy_page_in(bitmap_index bmp) {
+#define  PIGGY_PAGE_IN(bmp) piggy_page_in_bmp(bmp)
+static inline void piggy_page_in_bmp(bitmap_index bmp) {
     if ( GameBitmaps[(bmp).index].bm_flags & BM_FLAG_PAGED_OUT ) {
         piggy_bitmap_page_in( bmp );
     }
 }
-
-# else /* __GNUC__ */
-
-	#define PIGGY_PAGE_IN(bmp)	\
-do {					\
-	if ( GameBitmaps[(bmp).index].bm_flags & BM_FLAG_PAGED_OUT )	{\
-		piggy_bitmap_page_in( bmp ); \
-	}				\
-} while(0)
-# endif /* __GNUC__ */
 
 void piggy_read_sounds();
 

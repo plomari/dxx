@@ -274,10 +274,8 @@ grs_bitmap *WinBoxOverlay[2] = { NULL, NULL }; // Overlay subbitmaps for both we
 #define VULCAN_AMMO_INT() \
     (int)(f2i((unsigned int)Players[Player_num].primary_ammo[VULCAN_INDEX] * (unsigned long long)VULCAN_AMMO_SCALE))
 
-/* Use static inline function under GCC to avoid CR/LF issues */
-#ifdef __GNUC__
-#define PAGE_IN_GAUGE(x) _page_in_gauge(x)
-static inline void _page_in_gauge(int x)
+#define PAGE_IN_GAUGE(x) page_in_gauge(x)
+static inline void page_in_gauge(int x)
 {
     if (HIRESMODE) {
         PIGGY_PAGE_IN(Gauges_hires[x]);
@@ -285,18 +283,6 @@ static inline void _page_in_gauge(int x)
 	PIGGY_PAGE_IN(Gauges[x]);
     }
 }
-
-#else
-#define PAGE_IN_GAUGE(x) \
-	do {									 				\
-		if (HIRESMODE) {				\
-			PIGGY_PAGE_IN(Gauges_hires[x]);	  	\
-		} else {										  	\
-			PIGGY_PAGE_IN(Gauges[x]);			  	\
-		}													\
-	} while (0)
-// #endif
-#endif
 
 void draw_ammo_info(int x,int y,int ammo_count,int primary);
 

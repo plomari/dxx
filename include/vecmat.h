@@ -22,8 +22,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "maths.h"
 
-//#define INLINE 1              //are some of these functions inline?
-
 //The basic fixed-point vector.  Access elements by name or position
 typedef struct vms_vector
 {
@@ -72,25 +70,11 @@ typedef struct vms_quaternion
 //Note: NO RETURN VALUE
 #define vm_vec_zero(v) (v)->x=(v)->y=(v)->z=0
 
-//macro set set a matrix to the identity. Note: NO RETURN VALUE
-
-// DPH (18/9/98): Begin mod to fix linefeed problem under linux. Uses an
-// inline function instead of a multi-line macro to fix CR/LF problems.
-
-#ifdef __unix__
 static inline void vm_set_identity(vms_matrix *m)
 {
 	m->rvec.x = m->uvec.y = m->fvec.z = f1_0;
 	m->rvec.y = m->rvec.z = m->uvec.x = m->uvec.z = m->fvec.x = m->fvec.y = 0;
 }
-#else
-#define vm_set_identity(m) do {m->rvec.x = m->uvec.y = m->fvec.z = f1_0; \
-	m->rvec.y = m->rvec.z = \
-	m->uvec.x = m->uvec.z = \
-	m->fvec.x = m->fvec.y = 0;} while (0)
-#endif
-
-// DPH (19/8/98): End changes.
 
 vms_vector * vm_vec_make (vms_vector * v, fix x, fix y, fix z);
 
@@ -108,48 +92,10 @@ extern const vms_matrix vmd_identity_matrix;
 #define ZERO_VECTOR {0,0,0}
 #define IDENTITY_MATRIX { {f1_0,0,0}, {0,f1_0,0}, {0,0,f1_0} }
 
-//#define vm_vec_make(v,_x,_y,_z) (((v)->x=(_x), (v)->y=(_y), (v)->z=(_z)), (v))
-
-//#pragma off (unreferenced)
-////make this local, so compiler can in-line it
-//static vms_vector *vm_vec_make(vms_vector *v,fix x,fix y,fix z)
-//{
-//      v->x = x;
-//      v->y = y;
-//      v->z = z;
-//
-//      return v;
-//}
-//#pragma on (unreferenced)
-
-
-////macro to fill in elements of a matrix, also for Mike
-/*
-   #define vm_mat_make(m,_m1,_m2,_m3,_m4,_m5,_m6,_m7,_m8,_m9) \
-   do { (m)->m1=(_m1); (m)->m2=(_m2); (m)->m3=(_m3); \
-   (m)->m4=(_m4); (m)->m5=(_m5); (m)->m6=(_m6); \
-   (m)->m7=(_m7); (m)->m8=(_m8); (m)->m9=(_m9);} while (0)
- */
-
-#if 0               //kill this, since bogus with new matrix ordering
-
-//macro to fill in elements of a matrix, also for Mike
-#define vm_mat_make(m,_m1,_m2,_m3,_m4,_m5,_m6,_m7,_m8,_m9) \
-(((m)->m1 = (_m1), (m)->m2 = (_m2), (m)->m3 = (_m3), \
-  (m)->m4 = (_m4), (m)->m5 = (_m5), (m)->m6 = (_m6), \
-  (m)->m7 = (_m7), (m)->m8 = (_m8), (m)->m9 = (_m9)), (m))
-
-#endif /* 0 */
-
-////fills in fields of an angle vector
-//#define vm_angvec_make(v,_p,_b,_h) (((v)->p=(_p), (v)->b=(_b), (v)->h=(_h)), (v))
-
 //negate a vector
 #define vm_vec_negate(v) do {(v)->x = - (v)->x; (v)->y = - (v)->y; (v)->z = - (v)->z;} while (0);
 
 //Functions in library
-
-#ifndef INLINE
 
 //adds two vectors, fills in dest, returns ptr to dest
 //ok for dest to equal either source, but should use vm_vec_add2() if so
@@ -169,55 +115,6 @@ vms_vector * vm_vec_add2 (vms_vector * dest, const vms_vector * src);
 //subs one vector from another, returns ptr to dest
 //dest can equal source
 vms_vector * vm_vec_sub2 (vms_vector * dest, const vms_vector * src);
-
-
-#else   /* INLINE */
-
-#define vm_vec_add(dest,src0,src1) do { \
-(dest)->x = (src0)->x + (src1)->x;
-\
-(dest)->y = (src0)->y + (src1)->y;
-\
-(dest)->z = (src0)->z + (src1)->z;
-\
-}
-while (0);
-
-
-#define vm_vec_sub(dest,src0,src1) do { \
-(dest)->x = (src0)->x - (src1)->x;
-\
-(dest)->y = (src0)->y - (src1)->y;
-\
-(dest)->z = (src0)->z - (src1)->z;
-\
-}
-while (0);
-
-
-#define vm_vec_add2(dest,src) do {  \
-(dest)->x += (src)->x;
-\
-(dest)->y += (src)->y;
-\
-(dest)->z += (src)->z;
-\
-}
-while (0);
-
-
-#define vm_vec_sub2(dest,src) do {  \
-(dest)->x -= (src)->x;
-\
-(dest)->y -= (src)->y;
-\
-(dest)->z -= (src)->z;
-\
-}
-while (0);
-
-
-#endif  /* INLINE */
 
 //averages two vectors. returns ptr to dest
 //dest can equal either source
