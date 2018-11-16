@@ -29,55 +29,6 @@ extern ushort asin_table[];
 extern ushort acos_table[];
 extern fix isqrt_guess_table[];
 
-//negate a quad
-void fixquadnegate(quadint *q)
-{
-	q->low  = 0 - q->low;
-	q->high = 0 - q->high - (q->low != 0);
-}
-
-//multiply two ints & add 64-bit result to 64-bit sum
-void fixmulaccum(quadint *q,fix a,fix b)
-{
-	u_int32_t aa,bb;
-	u_int32_t ah,al,bh,bl;
-	u_int32_t t,c=0,old;
-	int neg;
-
-	neg = ((a^b) < 0);
-
-	aa = labs(a); bb = labs(b);
-
-	ah = aa>>16;  al = aa&0xffff;
-	bh = bb>>16;  bl = bb&0xffff;
-
-	t = ah*bl + bh*al;
-
-	if (neg)
-		fixquadnegate(q);
-
-	old = q->low;
-	q->low += al*bl;
-	if (q->low < old) q->high++;
-	
-	old = q->low;
-	q->low += (t<<16);
-	if (q->low < old) q->high++;
-	
-	q->high += ah*bh + (t>>16) + c;
-	
-	if (neg)
-		fixquadnegate(q);
-
-}
-
-//extract a fix from a quad product
-fix fixquadadjust(quadint *q)
-{
-	return (q->high * (1 << 16)) + (q->low / (1 << 16));
-}
-
-
 #define EPSILON (F1_0/100)
 
 fix fixmul(fix a, fix b)
@@ -136,66 +87,48 @@ fixang fix_atan2(fix cos,fix sin)
 	}
 }
 
-int32_t fixdivquadlong(u_int32_t nl,u_int32_t nh,u_int32_t d)
-{
-	int64_t n = (int64_t)nl | (((int64_t)nh) << 32 );
-	return (signed int) (n / ((int64_t)d));
-}
-
-unsigned int fixdivquadlongu(uint nl, uint nh, uint d)
-{
-	u_int64_t n = (u_int64_t)nl | (((u_int64_t)nh) << 32 );
-	return (unsigned int) (n / ((u_int64_t)d));
-}
-
-u_int32_t quad_sqrt(u_int32_t low,int32_t high)
+uint32_t int64_sqrt(int64_t a)
 {
 	int i, cnt;
-	u_int32_t r,old_r,t;
-	quadint tq;
+	uint32_t r,old_r,t;
 
-	if (high<0)
+	if (a <= 0)
 		return 0;
 
-	if (high==0 && (int32_t)low>=0)
-		return long_sqrt((int32_t)low);
+	if (a <= INT32_MAX)
+		return long_sqrt(a);
 
-	if (high & 0xff000000) {
-		cnt=12+16; i = high >> 24;
-	} else if (high & 0xff0000) {
-		cnt=8+16; i = high >> 16;
-	} else if (high & 0xff00) {
-		cnt=4+16; i = high >> 8;
+	if (a & 0xff00000000000000ULL) {
+		cnt=12+16; i = a >> 56;
+	} else if (a & 0xff000000000000ULL) {
+		cnt=8+16; i = a >> 48;
+	} else if (a & 0xff0000000000ULL) {
+		cnt=4+16; i = a >> 40;
 	} else {
-		cnt=0+16; i = high;
+		cnt=0+16; i = a >> 32;
 	}
-	
+
 	r = guess_table[i]<<cnt;
 
 	//quad loop usually executed 4 times
 
-	r = fixdivquadlongu(low,high,r)/2 + r/2;
-	r = fixdivquadlongu(low,high,r)/2 + r/2;
-	r = fixdivquadlongu(low,high,r)/2 + r/2;
+	r = (uint32_t)(a/r)/2 + r/2;
+	r = (uint32_t)(a/r)/2 + r/2;
+	r = (uint32_t)(a/r)/2 + r/2;
 
 	do {
 
 		old_r = r;
-		t = fixdivquadlongu(low,high,r);
+		t = a/r;
 
 		if (t==r)	//got it!
 			return r;
- 
+
 		r = t/2 + r/2;
 
 	} while (!(r==t || r==old_r));
 
-	t = fixdivquadlongu(low,high,r);
-	//edited 05/17/99 Matt Mueller - tq.high is undefined here.. so set them to = 0
-	tq.low=tq.high=0;
-	//end edit -MM
-	fixmulaccum(&tq,r,t);
-	if (tq.low!=low || tq.high!=high)
+	if (a % r)
 		r++;
 
 	return r;

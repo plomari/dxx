@@ -20,14 +20,6 @@ typedef int64_t fix64;		//64 bits int, for timers
 typedef int32_t fix;		//16 bits int, 16 bits frac
 typedef int16_t fixang;		//angles
 
-typedef struct quadint // integer 64 bit, previously called "quad"
-  {
-    u_int32_t low;
-    int32_t high;
-  }
-quadint;
-
-
 //Convert an int to a fix/fix64 and back
 #define i2f(i) ((i)<<16)
 #define f2i(f) ((f)>>16)
@@ -72,24 +64,11 @@ fix fixdiv (fix a, fix b);
 //multiply two fixes, then divide by a third, return a fix
 fix fixmuldiv (fix a, fix b, fix c);
 
-//multiply two fixes, and add 64-bit product to a quadint
-void fixmulaccum (quadint * q, fix a, fix b);
-
-//extract a fix from a quadint product
-fix fixquadadjust (quadint * q);
-
-//divide a quadint by a long
-int32_t fixdivquadlong (u_int32_t qlow, u_int32_t qhigh, u_int32_t d);
-
-//negate a quadint
-void fixquadnegate (quadint * q);
-
 //computes the square root of a long, returning a short
 ushort long_sqrt (int32_t a);
 
-//computes the square root of a quadint, returning a long
-u_int32_t quad_sqrt (u_int32_t low, int32_t high);
-//unsigned long quad_sqrt (long low, long high);
+//computes the square root of a
+uint32_t int64_sqrt(int64_t a);
 
 //computes the square root of a fix, returning a fix
 fix fix_sqrt (fix a);

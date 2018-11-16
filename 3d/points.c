@@ -60,29 +60,22 @@ ubyte g3_rotate_point(g3s_point *dest,const vms_vector *src)
 
 }
 
-//checks for overflow & divides if ok, fillig in r
+//checks for overflow & divides if ok, filling in r
 //returns true if div is ok, else false
 int checkmuldiv(fix *r,fix a,fix b,fix c)
 {
-	quadint q,qt;
+	int64_t q = a * (int64_t)b;
 
-	q.low=q.high=0;
-	fixmulaccum(&q,a,b);
-
-	qt = q;
-	if (qt.high < 0)
-		fixquadnegate(&qt);
-
-	qt.high *= 2;
-	if (qt.low > 0x7fff)
-		qt.high++;
-
-	if (qt.high >= c)
+	if (!c)
 		return 0;
-	else {
-		*r = fixdivquadlong(q.low,q.high,c);
-		return 1;
-	}
+
+	q = q / c;
+
+	if (q < FIX_MIN || q > FIX_MAX)
+		return 0;
+
+	*r = q;
+	return 1;
 }
 
 static int checkadd(fix *r, fix a, fix b)
@@ -188,15 +181,7 @@ ubyte g3_add_delta_vec(g3s_point *dest,const g3s_point *src,const vms_vector *de
 //calculate the depth of a point - returns the z coord of the rotated point
 fix g3_calc_point_depth(const vms_vector *pnt)
 {
-	quadint q;
-
-	q.low=q.high=0;
-	fixmulaccum(&q,(pnt->x - View_position.x),View_matrix.fvec.x);
-	fixmulaccum(&q,(pnt->y - View_position.y),View_matrix.fvec.y);
-	fixmulaccum(&q,(pnt->z - View_position.z),View_matrix.fvec.z);
-
-	return fixquadadjust(&q);
+	return ((pnt->x - View_position.x) * (int64_t)View_matrix.fvec.x +
+		    (pnt->y - View_position.y) * (int64_t)View_matrix.fvec.y +
+		    (pnt->z - View_position.z) * (int64_t)View_matrix.fvec.z) / 65536;
 }
-
-
-

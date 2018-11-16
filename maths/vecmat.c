@@ -25,8 +25,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "dxxerror.h"
 
-//#define USE_ISQRT 1
-
 const vms_vector vmd_zero_vector = ZERO_VECTOR;
 const vms_matrix vmd_identity_matrix = IDENTITY_MATRIX;
 
@@ -154,17 +152,6 @@ vms_vector *vm_vec_scale2(vms_vector *dest,fix n,fix d)
 
 fix vm_vec_dotprod(const vms_vector *v0,const vms_vector *v1)
 {
-#if 0
-	quadint q;
-
-	q.low = q.high = 0;
-
-	fixmulaccum(&q,v0->x,v1->x);
-	fixmulaccum(&q,v0->y,v1->y);
-	fixmulaccum(&q,v0->z,v1->z);
-
-	return fixquadadjust(&q);
-#else
 	int64_t x0 = v0->x;
 	int64_t x1 = v1->x;
 	int64_t y0 = v0->y;
@@ -174,22 +161,10 @@ fix vm_vec_dotprod(const vms_vector *v0,const vms_vector *v1)
 	int64_t p = (x0 * x1) + (y0 * y1) + (z0 * z1);
 	/* Convert back to fix and return. */
 	return p >> 16;
-#endif
 }
 
 fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector *v)
 {
-#if 0
-	quadint q;
-
-	q.low = q.high = 0;
-
-	fixmulaccum(&q,x,v->x);
-	fixmulaccum(&q,y,v->y);
-	fixmulaccum(&q,z,v->z);
-
-	return fixquadadjust(&q);
-#else
 	int64_t x0 = x;
 	int64_t x1 = v->x;
 	int64_t y0 = y;
@@ -199,21 +174,15 @@ fix vm_vec_dot3(fix x,fix y,fix z,const vms_vector *v)
 	int64_t p = (x0 * x1) + (y0 * y1) + (z0 * z1);
 	/* Convert back to fix and return. */
 	return p >> 16;
-#endif
 }
 
 //returns magnitude of a vector
 fix vm_vec_mag(const vms_vector *v)
 {
-	quadint q;
-
-	q.low = q.high = 0;
-
-	fixmulaccum(&q,v->x,v->x);
-	fixmulaccum(&q,v->y,v->y);
-	fixmulaccum(&q,v->z,v->z);
-
-	return quad_sqrt(q.low,q.high);
+	int64_t q = v->x * (int64_t)v->x +
+				v->y * (int64_t)v->y +
+				v->z * (int64_t)v->z;
+	return int64_sqrt(q);
 }
 
 //computes the distance between two points. (does sub and mag)
@@ -288,7 +257,6 @@ fix vm_vec_normalize(vms_vector *v)
 	return vm_vec_copy_normalize(v,v);
 }
 
-#ifndef USE_ISQRT
 //normalize a vector. returns mag of source vec. uses approx mag
 fix vm_vec_copy_normalize_quick(vms_vector *dest,const vms_vector *src)
 {
@@ -304,45 +272,6 @@ fix vm_vec_copy_normalize_quick(vms_vector *dest,const vms_vector *src)
 
 	return m;
 }
-
-#else
-//these routines use an approximation for 1/sqrt
-
-//returns approximation of 1/magnitude of a vector
-fix vm_vec_imag(vms_vector *v)
-{
-	quadint q;
-
-	q.low = q.high = 0;
-
-	fixmulaccum(&q,v->x,v->x);
-	fixmulaccum(&q,v->y,v->y);
-	fixmulaccum(&q,v->z,v->z);
-
-	if (q.high==0)
-		return fix_isqrt(fixquadadjust(&q));
-	else if (q.high >= 0x800000) {
-		return (fix_isqrt(q.high) >> 8);
-	}
-	else
-		return (fix_isqrt((q.high<<8) + (q.low>>24)) >> 4);
-}
-
-//normalize a vector. returns 1/mag of source vec. uses approx 1/mag
-fix vm_vec_copy_normalize_quick(vms_vector *dest,vms_vector *src)
-{
-	fix im;
-
-	im = vm_vec_imag(src);
-
-	dest->x = fixmul(src->x,im);
-	dest->y = fixmul(src->y,im);
-	dest->z = fixmul(src->z,im);
-
-	return im;
-}
-
-#endif
 
 //normalize a vector. returns 1/mag of source vec. uses approx 1/mag
 fix vm_vec_normalize_quick(vms_vector *v)
@@ -435,24 +364,16 @@ void check_vec(vms_vector *v)
 //your inputs are ok.
 vms_vector *vm_vec_crossprod(vms_vector *dest,const vms_vector *src0,const vms_vector *src1)
 {
-	quadint q;
-
 	Assert(dest!=src0 && dest!=src1);
 
-	q.low = q.high = 0;
-	fixmulaccum(&q,src0->y,src1->z);
-	fixmulaccum(&q,-src0->z,src1->y);
-	dest->x = fixquadadjust(&q);
+	dest->x = (src0->y * (int64_t)src1->z -
+			   src0->z * (int64_t)src1->y) / 65536;
 
-	q.low = q.high = 0;
-	fixmulaccum(&q,src0->z,src1->x);
-	fixmulaccum(&q,-src0->x,src1->z);
-	dest->y = fixquadadjust(&q);
+	dest->y = (src0->z * (int64_t)src1->x -
+			   src0->x * (int64_t)src1->z) / 65536;
 
-	q.low = q.high = 0;
-	fixmulaccum(&q,src0->x,src1->y);
-	fixmulaccum(&q,-src0->y,src1->x);
-	dest->z = fixquadadjust(&q);
+	dest->z = (src0->x * (int64_t)src1->y -
+			   src0->y * (int64_t)src1->x) / 65536;
 
 	return dest;
 }
