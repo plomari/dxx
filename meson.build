@@ -6,7 +6,6 @@ common_sources = [
     '2d/bitmap.c',
     '2d/box.c',
     '2d/canvas.c',
-    '2d/circle.c',
     '2d/font.c',
     '2d/gpixel.c',
     '2d/line.c',
@@ -29,10 +28,10 @@ common_sources = [
     'arch/sdl/joy.c',
     'arch/sdl/key.c',
     'arch/sdl/mouse.c',
-    'arch/sdl/rbaudio.c',
     'arch/sdl/timer.c',
     'arch/sdl/digi.c',
     'arch/sdl/digi_audio.c',
+	'arch/sdl/window.c',
     'iff/iff.c',
     'libmve/decoder8.c',
     'libmve/decoder16.c',
@@ -72,7 +71,6 @@ common_sources = [
     'main/hostage.c',
     'main/hud.c',
     'main/inferno.c',
-	'main/ipxdrv.c',
     'main/kconfig.c',
     'main/kmatrix.c',
     'main/laser.c',
@@ -84,7 +82,7 @@ common_sources = [
     'main/movie.c',
     'main/multi.c',
     'main/multibot.c',
-    'main/net_ipx.c',
+	'main/net_udp.c',
     'main/newdemo.c',
     'main/newmenu.c',
     'main/object.c',
@@ -110,7 +108,9 @@ common_sources = [
     'main/vclip.c',
     'main/wall.c',
     'main/weapon.c',
-    'mem/mem.c',
+	'maths/fixc.c',
+    'maths/rand.c',
+    'maths/vecmat.c',
     'misc/args.c',
 	'misc/cfile.c',
     'misc/dl_list.c',
@@ -181,16 +181,12 @@ editor_sources = [
 ]
 
 arch_linux_sources = [
-    'arch/linux/ipx.c',
-    'arch/linux/ipx_kali.c',
-    'arch/linux/ukali.c'
 ]
 
 arch_sdlmixer = [
     'misc/hmp2mid.c',
     'arch/sdl/digi_mixer.c',
     'arch/sdl/digi_mixer_music.c',
-    'arch/sdl/jukebox.c'
 ]
 
 arch_ogl_sources = [
@@ -201,20 +197,6 @@ arch_ogl_sources = [
 arch_sdl_sources = [
     'arch/sdl/gr.c',
     'texmap/tmapflat.c'
-]
-
-asm_sources = [
-    'maths/fix.asm',
-    'maths/rand.c',
-    'maths/vecmat.c',
-    'maths/vecmata.asm',
-]
-
-noasm_sources = [
-    'maths/fixc.c',
-    'maths/rand.c',
-    'maths/tables.c',
-    'maths/vecmat.c'
 ]
 
 sdl2 = dependency('sdl2', required: true)
@@ -229,26 +211,25 @@ args = [
     '-DD2XMINOR="@0@"'.format(version[1]),
     '-DD2XMICRO="@0@"'.format(version[2]),
     '-DNETWORK',
-    '-DHAVE_NETIPX_IPX_H',
     '-D_REENTRANT',
 
 	'-DRELEASE',
 	'-DNDEBUG',
 
     '-D__LINUX__',
-    '-DNATIVE_IPX',
-    '-DKALINIX',
     '-DHAVE_STRUCT_TIMESPEC',
     '-DHAVE_STRUCT_TIMEVAL',
     '-DOGL',
-    '-DNO_ASM',
 
     '-DIPv6',
+	'-DUSE_UDP',
+	'-DUSE_TRACKER',
+
     '-DSHAREPATH="@0@"'.format(join_paths(get_option('prefix'), 'share', 'games', meson.project_name()))
 ]
 
 executable(meson.project_name(),
-           common_sources, arch_linux_sources, arch_ogl_sources, noasm_sources,
+           common_sources, arch_linux_sources, arch_ogl_sources,
            c_args: args,
            include_directories: include_directories('include', 'main', 'arch/include', 'arch/linux/include'),
            dependencies: [sdl2, libm, gl])
