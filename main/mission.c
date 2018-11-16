@@ -594,6 +594,7 @@ void free_mission(void)
 
 			sprintf(hogpath, MISSION_DIR "%s.hog", Current_mission->path);
 			cfile_hog_remove(hogpath);
+			cfile_hog_remove("d2x.hog");
 		}
 
 		if (Current_mission->path)
@@ -714,6 +715,10 @@ int load_mission_ham()
 			cfile_hog_remove(p);
 		return 1;
 	} else if (Current_mission->enhanced) {
+		if (Current_mission->enhanced == 4) {
+			cfile_hog_add("d2x.hog", 0);
+			bm_read_extra_robots("d2x.ham", 2);
+		}
 		char t[50];
 		snprintf(t,sizeof(t),"%s.ham",Current_mission_filename);
 		bm_read_extra_robots(t, Current_mission->enhanced);
