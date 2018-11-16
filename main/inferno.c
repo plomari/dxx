@@ -309,7 +309,7 @@ int main(int argc, char *argv[])
 	arch_init();
 
 	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
-	gr_set_mode(Game_screen_mode);
+	gr_create_window();
 
 	// Load the palette stuff. Returns non-zero if error.
 	con_printf(CON_DEBUG, "Initializing palette system...\n" );

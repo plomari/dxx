@@ -291,15 +291,9 @@ int set_screen_mode(int sm)
 	switch( Screen_mode )
 	{
 		case SCREEN_MENU:
-			if  (grd_curscreen->sc_mode != Game_screen_mode)
-				if (gr_set_mode(Game_screen_mode))
-					Error("Cannot set screen mode.");
 			break;
 
 		case SCREEN_GAME:
-			if  (grd_curscreen->sc_mode != Game_screen_mode)
-				if (gr_set_mode(Game_screen_mode))
-					Error("Cannot set screen mode.");
 			break;
 #ifdef EDITOR
 		case SCREEN_EDITOR:
@@ -317,10 +311,6 @@ int set_screen_mode(int sm)
 			break;
 #endif
 		case SCREEN_MOVIE:
-			if (grd_curscreen->sc_mode != SM(MOVIE_WIDTH,MOVIE_HEIGHT))	{
-				if (gr_set_mode(SM(MOVIE_WIDTH,MOVIE_HEIGHT))) Error("Cannot set screen mode for game!");
-				gr_palette_load( gr_palette );
-			}
 			break;
 		default:
 			Error("Invalid screen mode %d",sm);

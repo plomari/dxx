@@ -59,7 +59,6 @@ static bool user_grab;
 
 extern void ogl_init_pixel_buffers(int w, int h);
 extern void ogl_close_pixel_buffers(void);
-extern int gcd(int a, int b);
 
 static void ogl_get_verinfo(void);
 
@@ -85,19 +84,16 @@ void gr_sdl_ogl_resize_window(int w, int h)
 	if (!gl_initialized)
 		return;
 
-	int screen_mode = SM(w, h);
-
-	GameCfg.AspectY = SM_W(screen_mode)/gcd(SM_W(screen_mode),SM_H(screen_mode));
-	GameCfg.AspectX = SM_H(screen_mode)/gcd(SM_W(screen_mode),SM_H(screen_mode));
-
 	linedotscale = ((w/640<h/480?w/640:h/480)<1?1:(w/640<h/480?w/640:h/480));
+
+	int screen_mode = SM(w, h);
 
 	char *gr_bm_data = (char *)grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 	grd_curscreen->sc_mode = screen_mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
+	grd_curscreen->sc_aspect = F1_0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
 	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
@@ -178,6 +174,12 @@ int ogl_init_window(int x, int y)
 	return 0;
 }
 
+void gr_create_window(void)
+{
+	if (!gl_initialized)
+		ogl_init_window(GameCfg.ResolutionX, GameCfg.ResolutionY);
+}
+
 void gr_set_input_grab(bool val)
 {
 	if (user_grab != val) {
@@ -237,27 +239,6 @@ static void ogl_get_verinfo(void)
 		GameCfg.TexFilt = 2;
 }
 
-// returns possible (fullscreen) resolutions if any.
-int gr_list_modes( u_int32_t gsmodes[] )
-{
-	return 0;
-}
-
-int gr_set_mode(u_int32_t mode)
-{
-	unsigned int w, h;
-
-	if (mode<=0)
-		return 0;
-
-	w=SM_W(mode);
-	h=SM_H(mode);
-
-	ogl_init_window(w,h);//platform specific code
-
-	return 0;
-}
-
 #define GLstrcmptestr(a,b) if (stricmp(a,#b)==0 || stricmp(a,"GL_" #b)==0)return GL_ ## b;
 int ogl_atotexfilti(char *a,int min)
 {
@@ -300,8 +281,6 @@ void gr_set_attributes(void)
 
 int gr_init(int mode)
 {
-	int retcode;
-
  	// Only do this function once!
 	if (gr_installed==1)
 		return -1;
@@ -316,10 +295,6 @@ int gr_init(int mode)
 	MALLOC( grd_curscreen,grs_screen,1 );
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 	grd_curscreen->sc_canvas.cv_bitmap.bm_data = NULL;
-
-	// Set the mode.
-	if ((retcode=gr_set_mode(mode)))
-		return retcode;
 
 	grd_curscreen->sc_canvas.cv_color = 0;
 	grd_curscreen->sc_canvas.cv_fade_level = GR_FADE_OFF;
@@ -636,9 +611,4 @@ void save_screen_shot(int automap_flag)
 	d_free(buf);
 
 	start_time();
-}
-
-int gr_check_mode(u_int32_t mode)
-{
-	return 1;
 }

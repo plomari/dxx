@@ -56,8 +56,6 @@ static const char *LastMissionStr = "LastMission";
 static const char *LastLevelStr = "LastLevel";
 static const char *ResolutionXStr="ResolutionX";
 static const char *ResolutionYStr="ResolutionY";
-static const char *AspectXStr="AspectX";
-static const char *AspectYStr="AspectY";
 static const char *WindowModeStr="WindowMode";
 static const char *TexFiltStr="TexFilt";
 static const char *MovieTexFiltStr="MovieTexFilt";
@@ -81,8 +79,6 @@ int ReadConfigFile()
 		.CMLevelMusicTrack[1] = -1,
 		.ResolutionX = 640,
 		.ResolutionY = 480,
-		.AspectX = 3,
-		.AspectY = 4,
 		.Grabinput = 1,
 	};
 
@@ -177,10 +173,6 @@ int ReadConfigFile()
 				GameCfg.ResolutionX = strtol(value, NULL, 10);
 			else if (!strcmp(token, ResolutionYStr))
 				GameCfg.ResolutionY = strtol(value, NULL, 10);
-			else if (!strcmp(token, AspectXStr))
-				GameCfg.AspectX = strtol(value, NULL, 10);
-			else if (!strcmp(token, AspectYStr))
-				GameCfg.AspectY = strtol(value, NULL, 10);
 			else if (!strcmp(token, WindowModeStr))
 				GameCfg.WindowMode = strtol(value, NULL, 10);
 			else if (!strcmp(token, TexFiltStr))
@@ -202,9 +194,6 @@ int ReadConfigFile()
 
 	if ( GameCfg.DigiVolume > 8 ) GameCfg.DigiVolume = 8;
 	if ( GameCfg.MusicVolume > 8 ) GameCfg.MusicVolume = 8;
-
-	if (GameCfg.ResolutionX >= 320 && GameCfg.ResolutionY >= 200)
-		Game_screen_mode = SM(GameCfg.ResolutionX,GameCfg.ResolutionY);
 
 	return 0;
 }
@@ -241,8 +230,6 @@ int WriteConfigFile()
         PHYSFSX_printf(infile, "%s=%i\n", LastLevelStr, GameCfg.LastLevel);
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
-	PHYSFSX_printf(infile, "%s=%i\n", AspectXStr, GameCfg.AspectX);
-	PHYSFSX_printf(infile, "%s=%i\n", AspectYStr, GameCfg.AspectY);
 	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, GameCfg.WindowMode);
 	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, GameCfg.TexFilt);
 	PHYSFSX_printf(infile, "%s=%i\n", MovieTexFiltStr, GameCfg.MovieTexFilt);

@@ -142,10 +142,7 @@ typedef struct _grs_screen {    // This is a video screen
 // canvas.  Saves the current VGA state and screen mode.
 
 int gr_init(int mode);
-
-int gr_list_modes( u_int32_t gsmodes[] );
-int gr_check_mode(u_int32_t mode);
-int gr_set_mode(u_int32_t mode);
+void gr_create_window(void);
 void gr_set_attributes(void);
 
 extern void gr_pal_setblock( int start, int number, unsigned char * pal );

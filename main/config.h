@@ -41,8 +41,6 @@ typedef struct Cfg
         int LastLevel;
 	int ResolutionX;
 	int ResolutionY;
-	int AspectX;
-	int AspectY;
 	int WindowMode;
 	int TexFilt;
 	int MovieTexFilt;
