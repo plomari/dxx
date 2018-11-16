@@ -239,7 +239,6 @@ void create_buddy_bot(void)
 //	Boss is allowed to teleport to segments he fits in (calls object_intersects_wall) and
 //	he can reach from his initial position (calls find_connected_distance).
 //	If size_check is set, then only add segment if boss can fit in it, else any segment is legal.
-//	one_wall_hack added by MK, 10/13/95: A mega-hack!  Set to !0 to ignore the 
 void init_boss_segments(short segptr[], int *num_segs, int size_check, int one_wall_hack)
 {
 	int			boss_objnum=-1;
@@ -1301,7 +1300,7 @@ void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to_player
 	} else {
 		int	objval = ((objp-Objects) & 0x0f) ^ 0x0a;
 
-		//	Changes here by MK, 12/29/95.  Trying to get rid of endless circling around bots in a large room.
+		//	Trying to get rid of endless circling around bots in a large room.
 		if (robptr->kamikaze) {
 			move_towards_player(objp, vec_to_player);
 		} else if (dist_to_player < circle_distance)
@@ -1454,7 +1453,7 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 			}
 			*player_visibility = player_is_visible_from_object(objp, pos, robptr->field_of_view[Difficulty_level], vec_to_player);
 
-			//	This horrible code added by MK in desperation on 12/13/94 to make robots wake up as soon as they
+			//	Horrible code to make robots wake up as soon as they
 			//	see you without killing frame rate.
 			{
 				ai_static	*aip = &objp->ctype.ai_info;
@@ -2260,8 +2259,6 @@ void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ailp, robo
 		if (!robptr->attack_type && (player_visibility != 2))
 			fire_pos = Last_fired_upon_player_pos;
 
-		//	Changed by mk, 01/04/95, onearm would take about 9 seconds until he can fire at you.
-		//	Above comment corrected.  Date changed from 1994, to 1995.  Should fix some very subtle bugs, as well as not cause me to wonder, in the future, why I was writing AI code for onearm ten months before he existed.
 		if (!object_animates || ready_to_fire(robptr, ailp)) {
 			dot = vm_vec_dot(&obj->orient.fvec, vec_to_player);
 			if ((dot >= 7*F1_0/8) || ((dot > F1_0/4) &&  robptr->boss_flag)) {

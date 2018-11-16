@@ -985,7 +985,7 @@ void do_escort_frame(object *objp, fix dist_to_player, int player_visibility)
 
 	if (player_visibility) {
 		Buddy_last_seen_player = GameTime;
-		if (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON)	//	DAMN! MK, stupid bug, fixed 12/08/95, changed PLAYER_FLAGS_HEADLIGHT to PLAYER_FLAGS_HEADLIGHT_ON
+		if (Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON)
 			if (f2i(Players[Player_num].energy) < 40)
 				if ((f2i(Players[Player_num].energy)/2) & 2)
 					if (!Player_is_dead)

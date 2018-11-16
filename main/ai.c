@@ -89,12 +89,6 @@ fix             Boss_dying_start_time;
 fix             Boss_hit_time;
 sbyte           Boss_dying, Boss_dying_sound_playing, unused123, unused234;
 
-// -- MK, 10/21/95, unused! -- int             Boss_been_hit=0;
-
-
-// ------ John: End of variables which must be saved as part of gamesave. -----
-
-
 // -- ubyte Boss_cloaks[NUM_D2_BOSSES]              = {1,1,1,1,1,1};      // Set byte if this boss can cloak
 
 const ubyte Boss_teleports[NUM_D2_BOSSES]           = {1,1,1,1,1,1, 1,1}; // Set byte if this boss can teleport
@@ -797,7 +791,7 @@ _exit_cheat:
 
 		if (ready_to_fire(robptr, ailp)) {
 			if (check_any_openable_doors(obj)) {
-				// @mk, 05/08/95: Firing flare from center of object, this is dumb...
+				// Firing flare from center of object, this is dumb...
 				Laser_create_new_easy( &obj->orient.fvec, &obj->pos, obj-Objects, FLARE_ID, 1);
 				ailp->next_fire = F1_0/2;
 				if (Stolen_item_index == 0)     // If never stolen an item, fire flares less often (bad: Stolen_item_index wraps, but big deal)
@@ -818,8 +812,7 @@ _exit_cheat:
 
 			compute_vis_and_vec(obj, &vis_vec_pos, ailp, &vec_to_player, &player_visibility, robptr, &visibility_and_vec_computed);
 
-			// @mk, 12/27/94, structure here was strange.  Would do both clauses of what are now this if/then/else.  Used to be if/then, if/then.
-			if ((player_visibility < 2) && (previous_visibility == 2)) { // this is redundant: mk, 01/15/95: && (ailp->mode == AIM_CHASE_OBJECT)) {
+			if ((player_visibility < 2) && (previous_visibility == 2)) {
 				if (!ai_multiplayer_awareness(obj, 53)) {
 					if (maybe_ai_do_actual_firing_stuff(obj, aip))
 						ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
@@ -1058,7 +1051,7 @@ _exit_cheat:
 
 				// turn towards vector if visible this time or last time, or rand
 				// new!
-				if ((player_visibility == 2) || (previous_visibility == 2)) { // -- MK, 06/09/95:  || ((d_rand() > 0x4000) && !(Game_mode & GM_MULTI))) {
+				if ((player_visibility == 2) || (previous_visibility == 2)) {
 					if (!ai_multiplayer_awareness(obj, 71)) {
 						if (maybe_ai_do_actual_firing_stuff(obj, aip))
 							ai_do_actual_firing_stuff(obj, aip, ailp, robptr, &vec_to_player, dist_to_player, &gun_point, player_visibility, object_animates, aip->CURRENT_GUN);
@@ -1069,7 +1062,7 @@ _exit_cheat:
 				}
 
 				do_firing_stuff(obj, player_visibility, &vec_to_player);
-				if (player_visibility == 2) {  // Changed @mk, 09/21/95: Require that they be looking to evade.  Change, MK, 01/03/95 for Multiplayer reasons.  If robots can't see you (even with eyes on back of head), then don't do evasion.
+				if (player_visibility == 2) {  // : Require that they be looking to evade. If robots can't see you (even with eyes on back of head), then don't do evasion.
 					if (robptr->attack_type == 1) {
 						aip->behavior = AIB_NORMAL;
 						if (!ai_multiplayer_awareness(obj, 80)) {
@@ -1208,7 +1201,7 @@ _exit_cheat:
 	}
 
 	// - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  - -  -
-	// Hack by mk on 01/04/94, if a guy hasn't animated to the firing state, but his next_fire says ok to fire, bash him there
+	// Hack: if a guy hasn't animated to the firing state, but his next_fire says ok to fire, bash him there
 	if (ready_to_fire(robptr, ailp) && (aip->GOAL_STATE == AIS_FIRE))
 		aip->CURRENT_STATE = AIS_FIRE;
 
@@ -1248,7 +1241,7 @@ _exit_cheat:
 				if (!ai_multiplayer_awareness(obj, 68))
 					return;
 
-				if (player_visibility == 2) {   // @mk, 09/21/95, require that they be looking towards you to turn towards you.
+				if (player_visibility == 2) {   // require that they be looking towards you to turn towards you.
 					ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 					ai_multi_send_robot_position(objnum, -1);
 				}
@@ -1280,7 +1273,7 @@ _exit_cheat:
 						return;
 					ai_turn_towards_vector(&vec_to_player, obj, robptr->turn_time[Difficulty_level]);
 					ai_multi_send_robot_position(objnum, -1);
-				} // -- MK, 06/09/95: else if (!(Game_mode & GM_MULTI)) {
+				}
 			}
 			break;
 		case AIS_FLIN:
@@ -1539,7 +1532,6 @@ int ai_save_state(PHYSFS_file *fp)
 	PHYSFS_write(fp, &Boss_dying, sizeof(int), 1);
 	PHYSFS_write(fp, &Boss_dying_sound_playing, sizeof(int), 1);
 	PHYSFS_write(fp, &Boss_hit_time, sizeof(fix), 1);
-	// -- MK, 10/21/95, unused! -- PHYSFS_write(fp, &Boss_been_hit, sizeof(int), 1);
 
 	PHYSFS_write(fp, &Escort_kill_object, sizeof(Escort_kill_object), 1);
 	PHYSFS_write(fp, &Escort_last_path_created, sizeof(Escort_last_path_created), 1);
@@ -1593,7 +1585,6 @@ int ai_restore_state(PHYSFS_file *fp, int version)
 	PHYSFS_read(fp, &Boss_dying, sizeof(int), 1);
 	PHYSFS_read(fp, &Boss_dying_sound_playing, sizeof(int), 1);
 	PHYSFS_read(fp, &Boss_hit_time, sizeof(fix), 1);
-	// -- MK, 10/21/95, unused! -- PHYSFS_read(fp, &Boss_been_hit, sizeof(int), 1);
 
 	if (version >= 8) {
 		PHYSFS_read(fp, &Escort_kill_object, sizeof(Escort_kill_object), 1);

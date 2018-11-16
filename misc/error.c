@@ -28,9 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MAX_MSG_LEN 256
 
-//edited 05/17/99 Matt Mueller added err_ prefix to prevent conflicts with statically linking SDL
 int err_initialized=0;
-//end edit -MM
 
 static void (*ErrorPrintFunc)(char *);
 

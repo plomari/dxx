@@ -74,7 +74,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "collide.h"
 #include "escort.h"
 
-#define WALL_DAMAGE_SCALE (128) // Was 32 before 8:55 am on Thursday, September 15, changed by MK, walls were hurting me more than robots!
+#define WALL_DAMAGE_SCALE (128)
 #define WALL_DAMAGE_THRESHOLD (F1_0/3)
 #define WALL_LOUDNESS_SCALE (20)
 #define FORCE_DAMAGE_THRESHOLD (F1_0/3)
@@ -103,8 +103,6 @@ void collide_robot_and_wall( object * robot, fix hitspeed, short hitseg, short h
 		if (wall_num != -1) {
 			if ((Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys == KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED)) {
 				wall_open_door(&Segments[hitseg], hitwall);
-			// -- Changed from this, 10/19/95, MK: Don't want buddy getting stranded from player
-			//-- } else if ((Robot_info[robot->id].companion == 1) && (Walls[wall_num].type == WALL_DOOR) && (Walls[wall_num].keys != KEY_NONE) && (Walls[wall_num].state == WALL_DOOR_CLOSED) && !(Walls[wall_num].flags & WALL_DOOR_LOCKED)) {
 			} else if ((Robot_info[robot->id].companion == 1) && (Walls[wall_num].type == WALL_DOOR)) {
 				if ((ailp->mode == AIM_GOTO_PLAYER) || (Escort_special_goal == ESCORT_GOAL_SCRAM)) {
 					if (Walls[wall_num].keys != KEY_NONE) {
@@ -367,18 +365,6 @@ void collide_player_and_wall( object * playerobj, fix hitspeed, short hitseg, sh
 		if (!(Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE))
 			if ( Players[Player_num].shields > f1_0*10 || ForceFieldHit)
 			  	apply_damage_to_player( playerobj, playerobj, damage, 0 );
-
-		// -- No point in doing this unless we compute a reasonable hitpt.  Currently it is just the player's position. --MK, 01/18/96
-		// -- if (!(TmapInfo[Segments[hitseg].sides[hitwall].tmap_num].flags & TMI_FORCE_FIELD)) {
-		// -- 	vms_vector	hitpt1;
-		// -- 	int			hitseg1;
-		// --
-		// -- 		vm_vec_avg(&hitpt1, hitpt, &Objects[Players[Player_num].objnum].pos);
-		// -- 	hitseg1 = find_point_seg(&hitpt1, Objects[Players[Player_num].objnum].segnum);
-		// -- 	if (hitseg1 != -1)
-		// -- 		object_create_explosion( hitseg, hitpt, Weapon_info[0].impact_size, Weapon_info[0].wall_hit_vclip );
-		// -- }
-
 	}
 
 	return;
@@ -700,10 +686,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 	}
 
 	if (blew_up) {		//could be a wall switch
-		//for wall triggers, always say that the player shot it out.  This is
-		//because robots can shoot out wall triggers, and so the trigger better
-		//take effect
-		//	NO -- Changed by MK, 10/18/95.  We don't want robots blowing puzzles.  Only player or buddy can open!
+		// We don't want robots blowing puzzles.  Only player or buddy can open!
 		check_trigger(seg,hitwall,weapon->ctype.laser_info.parent_num,1);
 	}
 
@@ -724,14 +707,14 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 		//for most weapons, use volatile wall hit.  For mega, use its special vclip
 		vclip = (weapon->id == MEGA_ID)?Weapon_info[weapon->id].robot_hit_vclip:VCLIP_VOLATILE_WALL_HIT;
 
-		//	New by MK: If powerful badass, explode as badass, not due to lava, fixes megas being wimpy in lava.
+		//	If powerful badass, explode as badass, not due to lava, fixes megas being wimpy in lava.
 		if (wi->damage_radius >= VOLATILE_WALL_DAMAGE_RADIUS/2) {
 			explode_badass_weapon(weapon,hitpt);
 		} else {
 			object_create_badass_explosion( weapon, hitseg, hitpt,
 				wi->impact_size + VOLATILE_WALL_IMPACT_SIZE,
 				vclip,
-				wi->strength[Difficulty_level]/4+VOLATILE_WALL_EXPL_STRENGTH,	//	diminished by mk on 12/08/94, i was doing 70 damage hitting lava on lvl 1.
+				wi->strength[Difficulty_level]/4+VOLATILE_WALL_EXPL_STRENGTH,
 				wi->damage_radius+VOLATILE_WALL_DAMAGE_RADIUS,
 				wi->strength[Difficulty_level]/2+VOLATILE_WALL_DAMAGE_FORCE,
 				weapon->ctype.laser_info.parent_num );
@@ -745,7 +728,6 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 
 		//we've hit water
 
-		//	MK: 09/13/95: Badass in water is 1/2 normal intensity.
 		if ( Weapon_info[weapon->id].matter ) {
 
 			digi_link_sound_to_pos( SOUND_MISSILE_HIT_WATER,hitseg, 0, hitpt, 0, F1_0 );
@@ -754,7 +736,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 
 				digi_link_sound_to_object(SOUND_BADASS_EXPLOSION, weapon-Objects, 0, F1_0);
 
-				//	MK: 09/13/95: Badass in water is 1/2 normal intensity.
+				//	Badass in water is 1/2 normal intensity.
 				object_create_badass_explosion( weapon, hitseg, hitpt,
 					wi->impact_size/2,
 					wi->robot_hit_vclip,
@@ -975,8 +957,8 @@ void collide_robot_and_player( object * robot, object * playerobj, vms_vector *c
 		int	collision_seg = find_point_seg(collision_point, playerobj->segnum);;
 
 		// added this if to remove the bump sound if it's the thief.
-		// A "steal" sound was added and it was getting obscured by the bump. -AP 10/3/95
-		//	Changed by MK to make this sound unless the robot stole.
+		// A "steal" sound was added and it was getting obscured by the bump.
+		//Make this sound unless the robot stole.
 		if ((!steal_attempt) && !Robot_info[robot->id].energy_drain)
 			digi_link_sound_to_pos( SOUND_ROBOT_HIT_PLAYER, playerobj->segnum, 0, collision_point, 0, F1_0 );
 
@@ -1111,7 +1093,7 @@ void maybe_kill_weapon(object *weapon, object *other_obj)
 		return;
 	}
 
-	//	Changed, 10/12/95, MK: Make weapon-weapon collisions always kill both weapons if not persistent.
+	//	Make weapon-weapon collisions always kill both weapons if not persistent.
 	//	Reason: Otherwise you can't use proxbombs to detonate incoming homing missiles (or mega missiles).
 	if (weapon->mtype.phys_info.flags & PF_PERSISTENT) {
 		//	Weapons do a lot of damage to weapons, other objects do much less.
@@ -1222,8 +1204,6 @@ void collide_weapon_and_clutter( object * weapon, object *clutter, vms_vector *c
 	maybe_kill_weapon(weapon,clutter);
 }
 
-//--mk, 121094 -- extern void spin_robot(object *robot, vms_vector *collision_point);
-
 extern object *explode_badass_object(object *objp, fix damage, fix distance, fix force);
 
 int	Final_boss_is_dead = 0;
@@ -1307,7 +1287,7 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 //	if (robot->control_type == CT_REMOTE)
 //		return 0; // Can't damange a robot controlled by another player
 
-// -- MK, 10/21/95, unused! --	if (Robot_info[robot->id].boss_flag)
+// -- unused! --	if (Robot_info[robot->id].boss_flag)
 //		Boss_been_hit = 1;
 
 	robot->shields -= damage;
@@ -2264,7 +2244,7 @@ void collide_player_and_materialization_center(object *objp)
 	vm_vec_normalize_quick(&exit_dir);
 	bump_one_object(objp, &exit_dir, 64*F1_0);
 
-	apply_damage_to_player( objp, objp, 4*F1_0, 0);	//	Changed, MK, 2/19/96, make killer the player, so if you die in matcen, will say you killed yourself
+	apply_damage_to_player( objp, objp, 4*F1_0, 0);	//	make killer the player, so if you die in matcen, will say you killed yourself
 
 	return;
 
@@ -2381,7 +2361,7 @@ void collide_weapon_and_weapon( object * weapon1, object * weapon2, vms_vector *
 		// shooting Plasma will make bombs explode one drops at the same time since hitboxes overlap. Small HACK to get around this issue. if the player moves away from the bomb at least...
 		if ((GameTime < weapon1->ctype.laser_info.creation_time + (F1_0/5)) && (GameTime < weapon2->ctype.laser_info.creation_time + (F1_0/5)) && (weapon1->ctype.laser_info.parent_num == weapon2->ctype.laser_info.parent_num))
 			return;
-		//	Bug reported by Adam Q. Pletcher on September 9, 1994, smart bomb homing missiles were toasting each other.
+		//	Don't allow smart bomb and homing missiles toasting each other.
 		if ((weapon1->id == weapon2->id) && (weapon1->ctype.laser_info.parent_num == weapon2->ctype.laser_info.parent_num))
 			return;
 

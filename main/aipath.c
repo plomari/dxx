@@ -170,7 +170,7 @@ void move_towards_outside(point_seg *psegs, int *num_points, object *objp, int r
 		vm_vec_sub(&a, &psegs[i].point, &psegs[i-1].point);
 		vm_vec_sub(&b, &psegs[i+1].point, &psegs[i].point);
 		vm_vec_sub(&c, &psegs[i+1].point, &psegs[i-1].point);
-		//	I don't think we can use quick version here and this is _very_ rarely called. --MK, 07/03/95
+		//	I don't think we can use quick version here and this is _very_ rarely called.
 		vm_vec_normalize_quick(&a);
 		vm_vec_normalize_quick(&b);
 		if (abs(vm_vec_dot(&a, &b)) > 3*F1_0/4 ) {
@@ -470,7 +470,7 @@ cpp_done1: ;
 	validate_path(3, original_psegs, l_num_points);
 #endif
 
-// -- MK, 10/30/95 -- This code causes apparent discontinuities in the path, moving a point
+//  This code causes apparent discontinuities in the path, moving a point
 //	into a new segment.  It is not necessarily bad, but it makes it hard to track down actual
 //	discontinuity problems.
 	if (objp->type == OBJ_ROBOT)
@@ -495,8 +495,6 @@ int	Last_buddy_polish_path_tick;
 //	Will not shorten path to fewer than 3 points.
 //	Returns number of points.
 //	Starting position in psegs doesn't change.
-//	Changed, MK, 10/18/95.  I think this was causing robots to get hung up on walls.
-//				Only drop up to the first three points.
 int polish_path(object *objp, point_seg *psegs, int num_points)
 {
 	int	i, first_point=0;
@@ -513,7 +511,8 @@ int polish_path(object *objp, point_seg *psegs, int num_points)
 			Last_buddy_polish_path_tick = d_tick_count;
 	}
 
-	// -- MK: 10/18/95: for (i=0; i<num_points-3; i++) {
+	// Only drop up to the first three points.
+	// I think this was causing robots to get hung up on walls.
 	for (i=0; i<2; i++) {
 		fvi_query	fq;
 		fvi_info		hit_data;

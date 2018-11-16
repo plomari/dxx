@@ -1787,9 +1787,6 @@ multi_do_kill(char *buf)
 	multi_compute_kill(killer, killed);
 }
 
-
-//      Changed by MK on 10/20/94 to send NULL as object to net_destroy_controlcen if it got -1
-// which means not a controlcen object, but contained in another object
 void multi_do_controlcen_destroy(char *buf)
 {
 	sbyte who;

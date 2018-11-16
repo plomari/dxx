@@ -371,7 +371,6 @@ CFILE *copy_pigfile_from_cd(char *filename)
 
 	do {
 //		ret = unarj_specific_file(name,filename,filename);
-// DPH:FIXME
 
 		ret = !EXIT_SUCCESS;
 
@@ -389,6 +388,7 @@ CFILE *copy_pigfile_from_cd(char *filename)
 
 	} while (ret != EXIT_SUCCESS);
 #endif
+
 
 	return cfopen(filename, "rb");
 }

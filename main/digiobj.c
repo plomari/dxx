@@ -541,7 +541,6 @@ void digi_kill_sound_linked_to_object( int objnum )
 	}
 }
 
-//	John's new function, 2/22/96.
 void digi_record_sound_objects()
 {
 	int i;

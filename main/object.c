@@ -1611,29 +1611,22 @@ void dead_player_frame(void)
 
 		set_camera_pos(&Dead_player_camera->pos, ConsoleObject);
 
-		// the following line uncommented by WraithX, 4-12-00
 		if (time_dead < DEATH_SEQUENCE_EXPLODE_TIME + F1_0 * 2)
 		{
 			vm_vec_sub(&fvec, &ConsoleObject->pos, &Dead_player_camera->pos);
 			vm_vector_2_matrix(&Dead_player_camera->orient, &fvec, NULL, NULL);
 			Dead_player_camera->mtype.phys_info = ConsoleObject->mtype.phys_info;
 
-			// the following "if" added by WraithX to get rid of camera "wiggle"
 			if (Dead_player_camera->mtype.phys_info.flags & PF_WIGGLE)
 			{
 				Dead_player_camera->mtype.phys_info.flags = (Dead_player_camera->mtype.phys_info.flags & ~PF_WIGGLE);
-			}// end "if" added by WraithX, 4/13/00
+			}
 
-		// the following line uncommented by WraithX, 4-12-00
 		}
 		else
 		{
-			// the following line uncommented by WraithX, 4-11-00
 			Dead_player_camera->movement_type = MT_PHYSICS;
-			//Dead_player_camera->mtype.phys_info.rotvel.y = F1_0/8;
-		// the following line uncommented by WraithX, 4-12-00
 		}
-		// end addition by WX
 
 		if (time_dead > DEATH_SEQUENCE_EXPLODE_TIME) {
 			if (!Player_exploded) {
@@ -2132,19 +2125,6 @@ void object_move_all()
 
 }
 
-
-//--unused-- // -----------------------------------------------------------
-//--unused-- //	Moved here from eobject.c on 02/09/94 by MK.
-//--unused-- int find_last_obj(int i)
-//--unused-- {
-//--unused-- 	for (i=MAX_OBJECTS;--i>=0;)
-//--unused-- 		if (Objects[i].type != OBJ_NONE) break;
-//--unused--
-//--unused-- 	return i;
-//--unused--
-//--unused-- }
-
-
 //make object array non-sparse
 void compress_objects(void)
 {
@@ -2287,7 +2267,6 @@ fix_object_segs()
 //--unused-- }
 
 //delete objects, such as weapons & explosions, that shouldn't stay between levels
-//	Changed by MK on 10/15/94, don't remove proximity bombs.
 //if clear_all is set, clear even proximity bombs
 void clear_transient_objects(int clear_all)
 {

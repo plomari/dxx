@@ -2135,7 +2135,6 @@ listbox *newmenu_listbox1( char * title, int nitems, char * items[], int allow_a
 	return lb;
 }
 
-//added on 10/14/98 by Victor Rachels to attempt a fixedwidth font messagebox
 newmenu *nm_messagebox_fixedfont( char *title, int nchoices, ... )
 {
 	int i;
@@ -2154,7 +2153,6 @@ newmenu *nm_messagebox_fixedfont( char *title, int nchoices, ... )
 		nm_message_items[i].type = NM_TYPE_MENU; nm_message_items[i].text = s;
 	}
 	format = va_arg( args, char * );
-	//sprintf(	  nm_text, "" ); // adb: ?
 	vsprintf(nm_text,format,args);
 	va_end(args);
 
@@ -2162,4 +2160,3 @@ newmenu *nm_messagebox_fixedfont( char *title, int nchoices, ... )
 
         return newmenu_do_fixedfont( title, nm_text, nchoices, nm_message_items, NULL, NULL, 0, NULL );
 }
-//end this section addition - Victor Rachels

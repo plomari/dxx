@@ -817,7 +817,7 @@ void do_physics_sim(object *obj)
 void phys_apply_force(object *obj,vms_vector *force_vec)
 {
 
-	//	Put in by MK on 2/13/96 for force getting applied to Omega blobs, which have 0 mass,
+	//	Handle force getting applied to Omega blobs, which have 0 mass,
 	//	in collision with crazy reactor robot thing on d2levf-s.
 	if (obj->mtype.phys_info.mass == 0)
 		return;
@@ -927,7 +927,7 @@ void phys_apply_rot(object *obj,vms_vector *force_vec)
 		if (obj->type == OBJ_ROBOT) {
 			if (rate < F1_0/4)
 				rate = F1_0/4;
-			//	Changed by mk, 10/24/95, claw guys should not slow down when attacking!
+			//	Claw guys should not slow down when attacking!
 			if (!Robot_info[obj->id].thief && !Robot_info[obj->id].attack_type) {
 				if (obj->ctype.ai_info.SKIP_AI_COUNT * FrameTime < 3*F1_0/4) {
 					fix	tval = fixdiv(F1_0, 8*FrameTime);

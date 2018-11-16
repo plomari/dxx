@@ -24,9 +24,7 @@
 #include "kconfig.h"
 #include "config.h"
 
-//changed on 980905 by adb to increase number of concurrent sounds
 #define MAX_SOUND_SLOTS 32
-//end changes by adb
 #define SOUND_BUFFER_SIZE 1024
 
 #define MIN_VOLUME 10
@@ -94,9 +92,7 @@ struct sound_slot {
 	int looped;    // Play this sample looped?
 	fix pan;       // 0 = far left, 1 = far right
 	fix volume;    // 0 = nothing, 1 = fully on
-	//changed on 980905 by adb from char * to unsigned char *
 	unsigned char *samples;
-	//end changes by adb
 	unsigned int length; // Length of the sample
 	unsigned int position; // Position we are at at the moment.
 	int soundobj;   // Which soundobject is on this channel
@@ -111,7 +107,6 @@ void digi_stop_sound(int channel);
 int digi_xlat_sound(int soundno);
 
 /* Audio mixing callback */
-//changed on 980905 by adb to cleanup, add pan support and optimize mixer
 static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 {
 	Uint8 *streamend = stream + len;
@@ -161,7 +156,6 @@ static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 
 	SDL_UnlockAudio();
 }
-//end changes by adb
 
 /* Initialise audio devices. */
 int digi_audio_init()
@@ -178,11 +172,8 @@ int digi_audio_init()
 	WaveSpec.callback = audio_mixcallback;
 
 	if (!SDL_OpenAudioDevice(NULL, 0, &WaveSpec, &obtained, 0)) {
-		//edited on 10/05/98 by Matt Mueller - should keep running, just with no sound.
 		Warning("\nError: Couldn't open audio: %s\n", SDL_GetError());
-		//killed  exit(2);
 		return 1;
-		//end edit -MM
 	}
 	SDL_PauseAudio(0);
 
@@ -314,7 +305,6 @@ int digi_audio_find_channel(int soundno)
 }
 
 
-//added on 980905 by adb from original source to make sfx volume work
 void digi_audio_set_digi_volume( int dvolume )
 {
 	dvolume = fixmuldiv( dvolume, SOUND_MAX_VOLUME, 0x7fff);
@@ -329,7 +319,6 @@ void digi_audio_set_digi_volume( int dvolume )
 
 	digi_sync_sounds();
 }
-//end edit by adb
 
 int digi_audio_is_sound_playing(int soundno)
 {
@@ -338,15 +327,12 @@ int digi_audio_is_sound_playing(int soundno)
 	soundno = digi_xlat_sound(soundno);
 
 	for (i = 0; i < MAX_SOUND_SLOTS; i++)
-		  //changed on 980905 by adb: added SoundSlots[i].playing &&
 		  if (SoundSlots[i].playing && SoundSlots[i].soundno == soundno)
-		  //end changes by adb
 			return 1;
 	return 0;
 }
 
 
- //added on 980905 by adb to make sound channel setting work
 void digi_audio_set_max_channels(int n) {
 	digi_max_channels	= n;
 
@@ -363,7 +349,6 @@ void digi_audio_set_max_channels(int n) {
 int digi_audio_get_max_channels() {
 	return digi_max_channels;
 }
-// end edit by adb
 
 int digi_audio_is_channel_playing(int channel)
 {

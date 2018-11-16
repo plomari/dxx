@@ -127,7 +127,6 @@ extern void ai_init_boss_for_ship(void);
 extern int Boss_been_hit;
 extern fix AI_proc_time;
 
-// Stuff moved from ai.c by MK on 05/25/95.
 #define ANIM_RATE       (F1_0/16)
 #define DELTA_ANG_SCALE 16
 

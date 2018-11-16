@@ -390,9 +390,9 @@ void init_player_stats_level(int secret_flag)
 	Player_exploded = 0;
 	Dead_player_camera = NULL;
         Player_eggs_dropped = 0;
-	Player_is_dead = 0; // Added by RH
+	Player_is_dead = 0;
 	Dead_player_camera = NULL;
-	Players[Player_num].homing_object_dist = -F1_0; // Added by RH
+	Players[Player_num].homing_object_dist = -F1_0;
 
 	// properly init these cursed globals
 	Next_flare_fire_time = Last_laser_fired_time = Next_laser_fire_time = Next_missile_fire_time = GameTime;
@@ -461,7 +461,7 @@ void init_player_stats_new_ship()
 
 	Player_is_dead = 0;		//player no longer dead
 
-	Players[Player_num].homing_object_dist = -F1_0; // Added by RH
+	Players[Player_num].homing_object_dist = -F1_0;
 
 	Controls.afterburner_state = 0;
 	Last_afterburner_state = 0;
@@ -1441,7 +1441,7 @@ void DoPlayerDead()
 				else {
 					do_screen_message(TXT_SECRET_ADVANCE);
 					StartNewLevel(Entered_from_level+1, 0);
-					init_player_stats_new_ship();	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
+					init_player_stats_new_ship();	//	fixes bug with dying in secret level, advance to next level, keep powerups!
 				}
 			}
 		} else {
@@ -1468,7 +1468,7 @@ void DoPlayerDead()
 			else {
 				do_screen_message(TXT_SECRET_ADVANCE);
 				StartNewLevel(Entered_from_level+1, 0);
-				init_player_stats_new_ship();	//	New, MK, 05/29/96!, fix bug with dying in secret level, advance to next level, keep powerups!
+				init_player_stats_new_ship();	//	fixes bug with dying in secret level, advance to next level, keep powerups!
 			}
 		}
 	} else {
@@ -1821,7 +1821,7 @@ void copy_defaults_to_robot(object *objp)
 				default:	break;
 			}
 		}
-	} else if (robptr->boss_flag)	//	MK, 01/16/95, make boss shields lower on lower diff levels.
+	} else if (robptr->boss_flag)	//	make boss shields lower on lower diff levels.
 		objp->shields = objp->shields/(NDL+3) * (Difficulty_level+4);
 
 	//	Additional wimpification of bosses at Trainee

@@ -75,7 +75,6 @@ int find_homing_object(vms_vector *curpos, object *tracker);
 void Laser_render(object *obj)
 {
 
-//	Commented out by John (sort of, typed by Mike) on 6/8/94
 #if 0
 	switch( obj->id )	{
 	case WEAPON_TYPE_WEAK_LASER:
@@ -99,7 +98,7 @@ void Laser_render(object *obj)
 	case WEAPON_RENDER_POLYMODEL:
 		break;
 	case WEAPON_RENDER_VCLIP:
-		Int3();	//	Oops, not supported, type added by mk on 09/09/94, but not for lasers...
+		Int3();
 	default:
 		Error( "Invalid weapon render type in Laser_render\n" );
 	}
@@ -144,10 +143,6 @@ void Laser_render(object *obj)
 //
 //}
 
-//	Changed by MK on 09/07/94
-//	I want you to be able to blow up your own bombs.
-//	AND...Your proximity bombs can blow you up if they're 2.0 seconds or more old.
-//	Changed by MK on 06/06/95: Now must be 4.0 seconds old.  Much valid Net-complaining.
 int laser_are_related( int o1, int o2 )
 {
 	if ( (o1<0) || (o2<0) )
@@ -185,9 +180,9 @@ int laser_are_related( int o1, int o2 )
 	if ( Objects[o1].type != OBJ_WEAPON || Objects[o2].type != OBJ_WEAPON )
 		return 0;
 
-	//	Here is the 09/07/94 change -- Siblings must be identical, others can hurt each other
+	//	Siblings must be identical, others can hurt each other
 	// See if they're siblings...
-	//	MK: 06/08/95, Don't allow prox bombs to detonate for 3/4 second.  Else too likely to get toasted by your own bomb if hit by opponent.
+	//	Don't allow prox bombs to detonate for 3/4 second.  Else too likely to get toasted by your own bomb if hit by opponent.
 	if ( Objects[o1].ctype.laser_info.parent_signature==Objects[o2].ctype.laser_info.parent_signature )
 	{
 		if (Objects[o1].id == PROXIMITY_ID  || Objects[o2].id == PROXIMITY_ID || Objects[o1].id == SUPERPROX_ID || Objects[o2].id == SUPERPROX_ID) {
@@ -1025,7 +1020,7 @@ int find_homing_object(vms_vector *curpos, object *tracker)
 //	Find object to home in on.
 //	Scan list of objects rendered last frame, find one that satisfies function of nearness to center and distance.
 //	Can track two kinds of objects.  If you are only interested in one type, set track_obj_type2 to NULL
-//	Always track proximity bombs.  --MK, 06/14/95
+//	Always track proximity bombs.
 //	Make homing objects not track parent's prox bombs.
 int find_homing_object_complete(vms_vector *curpos, object *tracker, int track_obj_type1, int track_obj_type2)
 {
@@ -1286,7 +1281,7 @@ void Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fi
 		Objects[objnum].flags |= OF_HARMLESS;
 
 	//	If the object firing the laser is the player, then indicate the laser object so robots can dodge.
-	//	New by MK on 6/8/95, don't let robots evade proximity bombs, thereby decreasing uselessness of bombs.
+	//	Don't let robots evade proximity bombs, thereby decreasing uselessness of bombs.
 	if ((obj == ConsoleObject) && ((Objects[objnum].id != PROXIMITY_ID) && (Objects[objnum].id != SUPERPROX_ID)))
 		Player_fired_laser_this_frame = objnum;
 
@@ -1331,8 +1326,6 @@ void Flare_create(object *obj)
 	if (Difficulty_level < 2)
 		energy_usage = fixmul(energy_usage, i2f(Difficulty_level+2)/4);
 
-//	MK, 11/04/95: Allowed to fire flare even if no energy.
-// -- 	if (Players[Player_num].energy >= energy_usage) {
 		Players[Player_num].energy -= energy_usage;
 
 		if (Players[Player_num].energy <= 0) {
@@ -1528,7 +1521,7 @@ void Laser_do_weapon_sequence(object *obj)
 
 		weapon_speed = vm_vec_mag_quick(&obj->mtype.phys_info.velocity);
 		if (weapon_speed > Weapon_info[obj->id].speed[Difficulty_level]) {
-			//	Only slow down if not allowed to move.  Makes sense, huh?  Allows proxbombs to get moved by physics force. --MK, 2/13/96
+			//	Only slow down if not allowed to move.  Makes sense, huh?  Allows proxbombs to get moved by physics force.
 			if (Weapon_info[obj->id].speed[Difficulty_level]) {
 				fix	scale_factor;
 
@@ -1567,7 +1560,7 @@ int do_laser_firing_player(void)
 	if (Difficulty_level < 2)
 		energy_used = fixmul(energy_used, i2f(Difficulty_level+2)/4);
 
-	//	MK, 01/26/96, Helix use 2x energy in multiplayer.  bitmaps.tbl parm should have been reduced for single player.
+	//	Helix use 2x energy in multiplayer.  bitmaps.tbl parm should have been reduced for single player.
 	if (weapon_index == HELIX_ID)
 		if (Game_mode & GM_MULTI)
 			energy_used *= 2;
@@ -1977,7 +1970,6 @@ int Proximity_dropped=0,Smartmines_dropped=0;
 extern int which_bomb();
 
 //	-------------------------------------------------------------------------------------------
-//changed on 31/3/10 by kreatordxx to distinguish between drop bomb and secondary fire
 void do_missile_firing(int drop_bomb)
 {
 	int gun_flag=0;

@@ -674,9 +674,7 @@ void do_render_object(int objnum, int window_num)
 		}
 	 }
 
-	//	Added by MK on 09/07/94 (at about 5:28 pm, CDT, on a beautiful, sunny late summer day!) so
-	//	that the guided missile system will know what objects to look at.
-	//	I didn't know we had guided missiles before the release of D1. --MK
+	//	So that the guided missile system will know what objects to look at.
 	if ((Objects[objnum].type == OBJ_ROBOT) || (Objects[objnum].type == OBJ_PLAYER)) {
 		//Assert(Window_rendered_data[window_num].rendered_objects < MAX_RENDERED_OBJECTS);
 		//	This peculiar piece of code makes us keep track of the most recently rendered objects, which

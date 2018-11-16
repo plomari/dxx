@@ -55,7 +55,6 @@ int digi_mixer_init()
 
 	if (Mix_OpenAudio(SAMPLE_RATE_44K, MIX_OUTPUT_FORMAT, MIX_OUTPUT_CHANNELS, SOUND_BUFFER_SIZE))
 	{
-		//edited on 10/05/98 by Matt Mueller - should keep running, just with no sound.
 		con_printf(CON_URGENT,"\nError: Couldn't open audio: %s\n", SDL_GetError());
 		GameArg.SndNoSound = 1;
 		return 1;
@@ -205,10 +204,8 @@ void digi_mixer_stop_all_channels()
 
 extern void digi_end_soundobj(int channel);
 
- //added on 980905 by adb to make sound channel setting work
-void digi_mixer_set_max_channels(int n) { }
+ void digi_mixer_set_max_channels(int n) { }
 int digi_mixer_get_max_channels() { return digi_max_channels; }
-// end edit by adb
 
 #ifndef NDEBUG
 void digi_mixer_debug() {}

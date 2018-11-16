@@ -50,13 +50,11 @@ grs_font *Gamefonts[MAX_FONTS];
 int Gamefont_installed=0;
 float FNTScaleX = 1, FNTScaleY = 1;
 
-//code to allow variable GAME_FONT, added 10/7/99 Matt Mueller - updated 11/18/99 to handle all fonts, not just GFONT_SMALL
-//	take scry into account? how/when?
 typedef struct _a_gamefont_conf{
 	int x;
 	int y;
 	union{
-		char name[64];//hrm.
+		char name[64];
 		grs_font *ptr;
 	} f;
 }a_gamefont_conf;

@@ -100,12 +100,10 @@ void load_text()
 
 		len = cfilelength(ifile);
 
-//edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
 		MALLOC(text,char,len+1);
 
 		cfread(text,1,len,ifile);
 		text[len]=0;
-//end edit -MM
 		cfclose(ifile);
 
 	} else {
@@ -114,7 +112,6 @@ void load_text()
 
 		len = cfilelength(tfile);
 
-//edited 05/17/99 Matt Mueller - malloc an extra byte, and null terminate.
 		MALLOC(text,char,len+1);
 
 		//fread(text,1,len,tfile);
@@ -125,7 +122,6 @@ void load_text()
 				*p++ = c;
 		} while ( c!=EOF );
 		*p=0;
-//end edit -MM
 
 		cfclose(tfile);
 	}

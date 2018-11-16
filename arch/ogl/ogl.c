@@ -1116,7 +1116,7 @@ void gr_flip(void)
 //little hack to find the nearest bigger power of 2 for a given number
 int pow2ize(int x){
 	int i;
-	for (i=2; i<x; i*=2) {}; //corrected by MD2211: was previously limited to 4096
+	for (i=2; i<x; i*=2) {}
 	return i;
 }
 

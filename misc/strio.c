@@ -7,9 +7,7 @@
 
 #include "cfile.h"
 #include "strio.h"
-//added on 9/16/98 by adb to add memory tracking for this module
 #include "u_mem.h"
-//end additions - adb
 
 char *fgets_unlimited(PHYSFS_file *f)
 {

@@ -672,7 +672,7 @@ int do_powerup(object *obj)
 
 	if ((used || special_used) && Powerup_info[id].hit_sound  > -1 ) {
 		#ifdef NETWORK
-		if (Game_mode & GM_MULTI) // Added by Rob, take this out if it turns out to be not good for net games!
+		if (Game_mode & GM_MULTI)
 			multi_send_play_sound(Powerup_info[id].hit_sound, F1_0);
 		#endif
 		digi_play_sample( Powerup_info[id].hit_sound, F1_0 );

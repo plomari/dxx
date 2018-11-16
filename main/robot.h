@@ -92,8 +92,6 @@ typedef struct robot_info {
 	fix     firing_wait[NDL];   //  time in seconds between shots
 	fix     firing_wait2[NDL];  //  time in seconds between shots
 	fix     turn_time[NDL];     // time in seconds to rotate 360 degrees in a dimension
-// -- unused, mk, 05/25/95  fix fire_power[NDL];    //  damage done by a hit from this robot
-// -- unused, mk, 05/25/95  fix shield[NDL];        //  shield strength of this robot
 	fix     max_speed[NDL];         //  maximum speed attainable by this robot
 	fix     circle_distance[NDL];   //  distance at which robot circles player
 

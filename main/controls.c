@@ -195,12 +195,11 @@ void read_flying_controls( object * obj )
 		vm_vec_scale( &obj->mtype.phys_info.rotthrust, fixdiv(Player_ship->max_rotthrust,ft) );
 	}
 
-	// moved here by WraithX
 	if (Player_is_dead)
 	{
-		//vm_vec_zero(&obj->mtype.phys_info.rotthrust); // let dead players rotate, changed by WraithX
-		vm_vec_zero(&obj->mtype.phys_info.thrust);  // don't let dead players move, changed by WraithX
+		//vm_vec_zero(&obj->mtype.phys_info.rotthrust);
+		vm_vec_zero(&obj->mtype.phys_info.thrust);
 		return;
-	}// end if
+	}
 
 }

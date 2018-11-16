@@ -824,8 +824,6 @@ int HandleSystemKey(int key)
 				return 1;
 			}
 
-// fleshed these out because F1 and F2 aren't sequenctial keycodes on mac -- MWA
-
 			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_1:)
 			case KEY_SHIFTED+KEY_F1:
 				select_next_window_function(0);
@@ -1080,46 +1078,7 @@ int HandleGameKey(int key)
 	if (!Player_is_dead)
 		switch (key)
 		{
-#if 0 
-// weapon selection handled in kconfig_read_controls, d1x-style
-				// MWA changed the weapon select cases to have each case call
-				// do_weapon_select the macintosh keycodes aren't consecutive from 1
-				// -- 0 on the keyboard -- boy is that STUPID!!!!
-				//	Select primary or secondary weapon.
-			case KEY_1:
-				do_weapon_select(0 , 0);
-				break;
-			case KEY_2:
-				do_weapon_select(1 , 0);
-				break;
-			case KEY_3:
-				do_weapon_select(2 , 0);
-				break;
-			case KEY_4:
-				do_weapon_select(3 , 0);
-				break;
-			case KEY_5:
-				do_weapon_select(4 , 0);
-				break;
-
-			case KEY_6:
-				do_weapon_select(0 , 1);
-				break;
-			case KEY_7:
-				do_weapon_select(1 , 1);
-				break;
-			case KEY_8:
-				do_weapon_select(2 , 1);
-				break;
-			case KEY_9:
-				do_weapon_select(3 , 1);
-				break;
-			case KEY_0:
-				do_weapon_select(4 , 1);
-				break;
-#endif
-
-				KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_5:)
+			KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_5:)
 			case KEY_F5 + KEY_SHIFTED:
 				DropCurrentWeapon();
 				break;

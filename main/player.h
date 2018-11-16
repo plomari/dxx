@@ -74,7 +74,7 @@ typedef struct player {
 	char    callsign[CALLSIGN_LEN+1];   // The callsign of this player, for net purposes.
 	ubyte   net_address[6];         // The network address of the player.
 	sbyte   connected;              // Is the player connected or not?
-	int     objnum;                 // What object number this player is. (made an int by mk because it's very often referenced)
+	int     objnum;                 // What object number this player is.
 	int     n_packets_got;          // How many packets we got from them
 	int     n_packets_sent;         // How many packets we sent to them
 
@@ -153,7 +153,7 @@ typedef struct player16 {
 	char    callsign[CALLSIGN_LEN+1]; // The callsign of this player, for net purposes.
 	ubyte   net_address[6];         // The network address of the player.
 	sbyte   connected;              // Is the player connected or not?
-	int     objnum;                 // What object number this player is. (made an int by mk because it's very often referenced)
+	int     objnum;                 // What object number this player is.
 	int     n_packets_got;          // How many packets we got from them
 	int     n_packets_sent;         // How many packets we sent to them
 

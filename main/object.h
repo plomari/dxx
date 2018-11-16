@@ -32,7 +32,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  * CONSTANTS
  */
 
-#define MAX_OBJECTS     10000 // increased on 01/24/95 for multiplayer. --MK;  total number of objects in world
+#define MAX_OBJECTS     10000 // total number of objects in world
 // At least savegames depend on this.
 #define OLD_MAX_OBJECTS 350
 #define MAX_USED_OBJECTS	(MAX_OBJECTS-20)
@@ -121,7 +121,7 @@ enum object_type_t
 #define OF_EXPLODING        1   // this object is exploding
 #define OF_SHOULD_BE_DEAD   2   // this object should be dead, so next time we can, we should delete this object.
 #define OF_DESTROYED        4   // this has been killed, and is showing the dead version
-#define OF_SILENT           8   // this makes no sound when it hits a wall.  Added by MK for weapons, if you extend it to other types, do it completely!
+#define OF_SILENT           8   // this makes no sound when it hits a wall.
 #define OF_ATTACHED         16  // this object is a fireball attached to another object
 #define OF_HARMLESS         32  // this object does no damage.  Added to make quad lasers do 1.5 damage as normal lasers.
 #define OF_PLAYER_DROPPED   64  // this object was dropped by the player...

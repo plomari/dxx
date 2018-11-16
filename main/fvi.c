@@ -795,8 +795,6 @@ int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p
 			if (num_faces == 0)
 				num_faces = 1;
 
-			// commented out by mk on 02/13/94:: if ((num_faces=seg->sides[side].num_faces)==0) num_faces=1;
-
 			for (face=0;face<2;face++,bit<<=1) {
 
 				if (endmask & bit) {            //on the back of this face
