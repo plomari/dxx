@@ -73,9 +73,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #include "editor/kdefs.h"
 #endif
-#ifdef OGL
 #include "ogl_init.h"
-#endif
 
 
 // Menu IDs...
@@ -424,9 +422,7 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 
 				if (((d_rand() % (n_demos+1)) == 0) && !GameArg.SysAutoDemo)
 				{
-#ifdef OGL
 					Screen_mode = -1;
-#endif
 					init_subtitles("intro.tex");
 					PlayMovie("intro.mve",0);
 					close_subtitles();
@@ -1148,19 +1144,13 @@ void input_config()
 
 void reticle_config()
 {
-#ifdef OGL
 	newmenu_item m[18];
-#else
-	newmenu_item m[17];
-#endif
 	int nitems = 0, i, opt_ret_type, opt_ret_rgba, opt_ret_size;
 	
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Reticle Type:"; nitems++;
 	opt_ret_type = nitems;
 	nm_set_item_radio(&m[nitems], "Classic", 0, 0); nitems++;
-#ifdef OGL
 	nm_set_item_radio(&m[nitems], "Classic Reboot", 0, 0); nitems++;
-#endif
 	nm_set_item_radio(&m[nitems], "None", 0, 0); nitems++;
 	nm_set_item_radio(&m[nitems], "X", 0, 0); nitems++;
 	nm_set_item_radio(&m[nitems], "Dot", 0, 0); nitems++;
@@ -1180,23 +1170,13 @@ void reticle_config()
 	nm_set_item_slider(&m[nitems], "Reticle Size:", PlayerCfg.ReticleSize, 0, 4); nitems++;
 
 	i = PlayerCfg.ReticleType;
-#ifndef OGL
-	if (i > 1) i--;
-#endif
 	m[opt_ret_type+i].value=1;
 
 	newmenu_do1( NULL, "Reticle Options", nitems, m, NULL, NULL, 1 );
 
-#ifdef OGL
 	for (i = 0; i < 9; i++)
 		if (m[i+opt_ret_type].value)
 			PlayerCfg.ReticleType = i;
-#else
-	for (i = 0; i < 8; i++)
-		if (m[i+opt_ret_type].value)
-			PlayerCfg.ReticleType = i;
-	if (PlayerCfg.ReticleType > 1) PlayerCfg.ReticleType++;
-#endif
 	for (i = 0; i < 4; i++)
 		PlayerCfg.ReticleRGBA[i] = (m[i+opt_ret_rgba].value*2);
 	PlayerCfg.ReticleSize = m[opt_ret_size].value;
@@ -1214,12 +1194,7 @@ int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 	switch (event->type)
 	{
 		case EVENT_NEWMENU_CHANGED:
-			if ( citem == opt_gr_texfilt + 3
-#ifdef OGL
-				&& ogl_maxanisotropy <= 1.0
-#endif
-				)
-			{
+			if (citem == opt_gr_texfilt + 3 && ogl_maxanisotropy <= 1.0) {
 				nm_messagebox( TXT_ERROR, 1, TXT_OK, "Anisotropic Filtering not\nsupported by your hardware/driver.");
 				items[opt_gr_texfilt + 3].value = 0;
 				items[opt_gr_texfilt + 2].value = 1;
@@ -1243,15 +1218,10 @@ int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 
 void graphics_config()
 {
-#ifdef OGL
 	newmenu_item m[14];
 	int i = 0;
-#else
-	newmenu_item m[2];
-#endif
 	int nitems = 0;
 
-#ifdef OGL
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = "Texture Filtering:"; nitems++;
 	opt_gr_texfilt = nitems;
 	nm_set_item_radio(&m[nitems++], "None (Classical)", 0, 0);
@@ -1261,12 +1231,10 @@ void graphics_config()
 	opt_gr_movietexfilt = nitems;
 	nm_set_item_checkbox(&m[nitems++], "Movie Filter", GameCfg.MovieTexFilt);
 	nm_set_item_text(& m[nitems], ""); nitems++;
-#endif
 	opt_gr_brightness = nitems;
 	nm_set_item_slider(&m[nitems], TXT_BRIGHTNESS, gr_palette_get_gamma(), 0, 16); nitems++;
 	opt_gr_reticlemenu = nitems;
 	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "Reticle Options"; nitems++;
-#ifdef OGL
 	opt_gr_alphafx = nitems;
 	nm_set_item_checkbox(&m[nitems], "Transparency Effects", PlayerCfg.AlphaEffects); nitems++;
 	opt_gr_dynlightcolor = nitems;
@@ -1275,16 +1243,12 @@ void graphics_config()
 	nm_set_item_checkbox(&m[nitems],"VSync", GameCfg.VSync); nitems++;
 	opt_gr_multisample = nitems;
 	nm_set_item_checkbox(&m[nitems],"4x multisampling", GameCfg.Multisample); nitems++;
-#endif
 	opt_gr_fpsindi = nitems;
 	nm_set_item_checkbox(&m[nitems],"FPS Counter", GameArg.SysFPSIndicator); nitems++;
-#ifdef OGL
 	m[opt_gr_texfilt+GameCfg.TexFilt].value=1;
-#endif
 
 	newmenu_do1( NULL, "Graphics Options", nitems, m, graphics_config_menuset, NULL, 1 );
 
-#ifdef OGL
 	if (GameCfg.VSync != m[opt_gr_vsync].value || GameCfg.Multisample != m[opt_gr_multisample].value)
 		nm_messagebox( NULL, 1, TXT_OK, "Setting VSync or 4x Multisample\nrequires restart on some systems.");
 
@@ -1296,12 +1260,9 @@ void graphics_config()
 	PlayerCfg.DynLightColor = m[opt_gr_dynlightcolor].value;
 	GameCfg.VSync = m[opt_gr_vsync].value;
 	GameCfg.Multisample = m[opt_gr_multisample].value;
-#endif
 	GameCfg.GammaLevel = m[opt_gr_brightness].value;
-#ifdef OGL
 	gr_set_attributes();
 	gr_set_mode(Game_screen_mode);
-#endif
 }
 
 #if PHYSFS_VER_MAJOR >= 2
@@ -2104,9 +2065,7 @@ int gamebitmaps_viewer_handler(window *wind, d_event *event)
 {
 	static int view_idx = 0;
 	int key = 0;
-#ifdef OGL
 	float scale = 1.0;
-#endif
 	bitmap_index bi;
 	grs_bitmap *bm;
 	extern int Num_bitmap_files;
@@ -2142,12 +2101,8 @@ int gamebitmaps_viewer_handler(window *wind, d_event *event)
 			timer_delay(F1_0/60);
 			PIGGY_PAGE_IN(bi);
 			gr_clear_canvas( BM_XRGB(0,0,0) );
-#ifdef OGL
 			scale = (bm->bm_w > bm->bm_h)?(SHEIGHT/bm->bm_w)*0.8:(SHEIGHT/bm->bm_h)*0.8;
 			ogl_ubitmapm_cs((SWIDTH/2)-(bm->bm_w*scale/2),(SHEIGHT/2)-(bm->bm_h*scale/2),bm->bm_w*scale,bm->bm_h*scale,bm,-1,F1_0);
-#else
-			gr_bitmap((SWIDTH/2)-(bm->bm_w/2), (SHEIGHT/2)-(bm->bm_h/2), bm);
-#endif
 			gr_set_curfont(GAME_FONT);
 			gr_set_fontcolor(BM_XRGB(255,255,255), -1);
 			gr_printf(FSPACX(1), FSPACY(1), "ESC: leave\nSPACE/BACKSP: next/prev bitmap (%i/%i)",view_idx,Num_bitmap_files-1);
