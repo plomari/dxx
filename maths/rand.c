@@ -1,25 +1,4 @@
-/*
- *
- * Descent random number stuff...
- * rand has different ranges on different machines...
- *
- */
-
-#include <stdlib.h>
-
-#ifdef NO_WATCOM_RAND
-
-void d_srand(unsigned int seed)
-{
-	srand(seed);
-}
-
-int d_rand()
-{
-	return rand() & 0x7fff;
-}
-
-#else
+#include "maths.h"
 
 static unsigned int d_rand_seed;
 
@@ -32,5 +11,3 @@ void d_srand(unsigned int seed)
 {
 	d_rand_seed = seed;
 }
-
-#endif
