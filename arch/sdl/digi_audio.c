@@ -10,7 +10,7 @@
 #include <string.h>
 
 #include <SDL.h>
-#include <digi_audio.h>
+#include "digi_audio.h"
 #include "pstypes.h"
 #include "dxxerror.h"
 #include "fix.h"
@@ -103,8 +103,6 @@ struct sound_slot {
 	int persistent; // This can't be pre-empted
 } SoundSlots[MAX_SOUND_SLOTS];
 
-static SDL_AudioSpec WaveSpec;
-
 int digi_max_channels = 16;
 
 static int next_channel = 0;
@@ -172,15 +170,14 @@ int digi_audio_init()
 		Error("SDL audio initialisation failed: %s.",SDL_GetError());
 	}
 
-	WaveSpec.freq = GameArg.SndDigiSampleRate;
-	//added/changed by Sam Lantinga on 12/01/98 for new SDL version
+	SDL_AudioSpec WaveSpec = {0}, obtained = {0};
+	WaveSpec.freq = GameArg.SndDigiSampleRate*2;
 	WaveSpec.format = AUDIO_U8;
 	WaveSpec.channels = 2;
-	//end this section addition/change - SL
 	WaveSpec.samples = SOUND_BUFFER_SIZE;
 	WaveSpec.callback = audio_mixcallback;
 
-	if ( SDL_OpenAudio(&WaveSpec, NULL) < 0 ) {
+	if (!SDL_OpenAudioDevice(NULL, 0, &WaveSpec, &obtained, 0)) {
 		//edited on 10/05/98 by Matt Mueller - should keep running, just with no sound.
 		Warning("\nError: Couldn't open audio: %s\n", SDL_GetError());
 		//killed  exit(2);

@@ -81,7 +81,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "newdemo.h"
 #include "joy.h"
 #include "event.h"
-#include "rbaudio.h"
 #ifndef __LINUX__
 #include "messagebox.h"
 #endif
@@ -237,8 +236,6 @@ int standard_handler(d_event *event)
 
 		case EVENT_WINDOW_DRAW:
 		case EVENT_IDLE:
-			//see if redbook song needs to be restarted
-			RBACheckFinishedHook();
 			return 1;
 
 		default:

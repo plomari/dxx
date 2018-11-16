@@ -27,10 +27,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "cfile.h"
 #include "digi.h"
-#include "rbaudio.h"
 #ifdef USE_SDLMIXER
 #include "digi_mixer_music.h"
-#include "jukebox.h"
 #endif
 #include "config.h"
 #include "timer.h"
@@ -51,11 +49,6 @@ void songs_set_volume(int volume)
 #ifdef _WIN32
 	digi_win32_set_midi_volume(volume);
 #endif
-	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
-	{
-		RBASetVolume(0);
-		RBASetVolume(volume);
-	}
 #ifdef USE_SDLMIXER
 	mix_set_music_volume(volume);
 #endif
@@ -151,16 +144,7 @@ void songs_init()
 		if (GameCfg.MusicType == MUSIC_TYPE_BUILTIN)
 			GameCfg.MusicType = MUSIC_TYPE_NONE;
 #endif
-		if (GameCfg.MusicType == MUSIC_TYPE_CUSTOM)
-			GameCfg.MusicType = MUSIC_TYPE_NONE;
 	}
-
-	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
-		RBAInit();
-#ifdef USE_SDLMIXER
-	else if (GameCfg.MusicType == MUSIC_TYPE_CUSTOM)
-		jukebox_load();
-#endif
 
 	songs_set_volume(GameCfg.MusicVolume);
 }
@@ -168,9 +152,6 @@ void songs_init()
 void songs_uninit()
 {
 	songs_stop_all();
-#ifdef USE_SDLMIXER
-	jukebox_unload();
-#endif
 	if (BIMSongs != NULL)
 		d_free(BIMSongs);
 	Songs_initialized = 0;
@@ -182,7 +163,6 @@ void songs_stop_all(void)
 #ifdef _WIN32
 	digi_win32_stop_midi_song();	// Stop midi song, if playing
 #endif
-	RBAStop();
 #ifdef USE_SDLMIXER
 	mix_stop_music();
 #endif
@@ -195,8 +175,6 @@ void songs_pause(void)
 #ifdef _WIN32
 	digi_win32_pause_midi_song();
 #endif
-	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
-		RBAPause();
 #ifdef USE_SDLMIXER
 	mix_pause_music();
 #endif
@@ -207,8 +185,6 @@ void songs_resume(void)
 #ifdef _WIN32
 	digi_win32_resume_midi_song();
 #endif
-	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
-		RBAResume();
 #ifdef USE_SDLMIXER
 	mix_resume_music();
 #endif
@@ -216,8 +192,6 @@ void songs_resume(void)
 
 void songs_pause_resume(void)
 {
-	if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
-		RBAPauseResume();
 #ifdef USE_SDLMIXER
 	mix_pause_resume_music();
 #endif
@@ -241,39 +215,6 @@ void songs_pause_resume(void)
 
 #define REDBOOK_TITLE_TRACK         2
 #define REDBOOK_CREDITS_TRACK       3
-#define REDBOOK_FIRST_LEVEL_TRACK   (songs_haved2_cd() ? 4 : 1)
-
-// songs_haved2_cd returns 1 if the descent 2 CD is in the drive and
-// 0 otherwise
-int songs_haved2_cd()
-{
-	unsigned long discid;
-
-	if (GameCfg.OrigTrackOrder)
-		return 1;
-
-	if (!(GameCfg.MusicType == MUSIC_TYPE_REDBOOK))
-		return 0;
-
-	discid = RBAGetDiscID();
-
-	switch (discid) {
-	case D2_1_DISCID:
-	case D2_2_DISCID:
-	case D2_3_DISCID:
-	case D2_4_DISCID:
-	case D2_DEF_DISCID:
-	case D2_OEM_DISCID:
-	case D2_OEM2_DISCID:
-	case D2_VERTIGO_DISCID:
-	case D2_VERTIGO2_DISCID:
-	case D2_MAC_DISCID:
-	case D2_IPLAY_DISCID:
-		return 1;
-	default:
-		return 0;
-	}
-}
 
 void play_credits_track()
 {
@@ -303,10 +244,10 @@ int songs_play_file(char *filename, int repeat, void (*hook_finished_track)())
 #endif
 	}
 #if defined(USE_SDLMIXER)
-	else if ( !d_stricmp(fptr, SONG_EXT_MID) ||
-			!d_stricmp(fptr, SONG_EXT_OGG) ||
-			!d_stricmp(fptr, SONG_EXT_FLAC) ||
-			!d_stricmp(fptr, SONG_EXT_MP3) )
+	else if ( !stricmp(fptr, SONG_EXT_MID) ||
+			!stricmp(fptr, SONG_EXT_OGG) ||
+			!stricmp(fptr, SONG_EXT_FLAC) ||
+			!stricmp(fptr, SONG_EXT_MP3) )
 	{
 		return mix_play_file( filename, repeat, hook_finished_track );
 	}
@@ -333,45 +274,7 @@ int songs_play_song( int songnum, int repeat )
 				Song_playing = songnum;
 			break;
 		}
-		case MUSIC_TYPE_REDBOOK:
-		{
-			int num_tracks = RBAGetNumberOfTracks();
 
-			//Song_playing = -1;		// keep playing current music if chosen song is unavailable (e.g. SONG_ENDLEVEL)
-			if ((songnum == SONG_TITLE) && (REDBOOK_TITLE_TRACK <= num_tracks))
-			{
-				if (RBAPlayTracks(REDBOOK_TITLE_TRACK, REDBOOK_TITLE_TRACK, repeat ? play_credits_track : NULL))
-				{
-					Redbook_playing = REDBOOK_TITLE_TRACK;
-					Song_playing = songnum;
-				}
-			}
-			else if ((songnum == SONG_CREDITS) && (REDBOOK_CREDITS_TRACK <= num_tracks))
-			{
-				if (RBAPlayTracks(REDBOOK_CREDITS_TRACK, REDBOOK_CREDITS_TRACK, repeat ? play_credits_track : NULL))
-				{
-					Redbook_playing = REDBOOK_CREDITS_TRACK;
-					Song_playing = songnum;
-				}
-			}
-			break;
-		}
-#ifdef USE_SDLMIXER
-		case MUSIC_TYPE_CUSTOM:
-		{
-			// EXCEPTION: If SONG_ENDLEVEL is undefined, continue playing level song.
-			if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum == SONG_ENDLEVEL && !strlen(GameCfg.CMMiscMusic[songnum]))
-				return Song_playing;
-
-			Song_playing = -1;
-			if (songs_play_file(GameCfg.CMMiscMusic[songnum],
-							  // Play the credits track after the title track and loop the credits track if original CD track order was chosen
-							  (songnum == SONG_TITLE && GameCfg.OrigTrackOrder) ? 0 : repeat,
-							  (songnum == SONG_TITLE && GameCfg.OrigTrackOrder) ? play_credits_track : NULL))
-				Song_playing = songnum;
-			break;
-		}
-#endif
 		default:
 			Song_playing = -1;
 			break;
@@ -417,77 +320,6 @@ int songs_play_level_song( int levelnum, int offset )
 			}
 			break;
 		}
-		case MUSIC_TYPE_REDBOOK:
-		{
-			int n_tracks = RBAGetNumberOfTracks();
-			int tracknum;
-
-			if (!offset)
-			{
-				// we have just been told to play the same as we do already -> ignore
-				if (Song_playing >= SONG_FIRST_LEVEL_SONG && songnum + SONG_FIRST_LEVEL_SONG == Song_playing)
-					return Song_playing;
-
-				tracknum = REDBOOK_FIRST_LEVEL_TRACK + ((n_tracks+1<=REDBOOK_FIRST_LEVEL_TRACK) ? 0 : (songnum % (n_tracks-REDBOOK_FIRST_LEVEL_TRACK+1)));
-			}
-			else
-			{
-				tracknum = Redbook_playing+offset;
-				if (tracknum < REDBOOK_FIRST_LEVEL_TRACK)
-					tracknum = n_tracks - (REDBOOK_FIRST_LEVEL_TRACK - tracknum) + 1;
-				else if (tracknum > n_tracks)
-					tracknum = REDBOOK_FIRST_LEVEL_TRACK + (tracknum - n_tracks) - 1;
-			}
-
-			Song_playing = -1;
-			if (RBAEnabled() && (tracknum <= n_tracks))
-			{
-				if (RBAPlayTracks(tracknum, n_tracks, redbook_first_song_func))
-				{
-					Song_playing = songnum + SONG_FIRST_LEVEL_SONG;
-					Redbook_playing = tracknum;
-				}
-			}
-			break;
-		}
-#ifdef USE_SDLMIXER
-		case MUSIC_TYPE_CUSTOM:
-		{
-			if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND)
-				GameCfg.CMLevelMusicTrack[0] = d_rand() % GameCfg.CMLevelMusicTrack[1]; // simply a random selection - no check if this song has already been played. But that's how I roll!
-			else if (!offset)
-			{
-				if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT)
-				{
-					static int last_songnum = -1;
-
-					if (Song_playing >= SONG_FIRST_LEVEL_SONG)
-						return Song_playing;
-
-					// As soon as we start a new level, go to next track
-					if (last_songnum != -1 && songnum != last_songnum)
-						((GameCfg.CMLevelMusicTrack[0]+1>=GameCfg.CMLevelMusicTrack[1])?GameCfg.CMLevelMusicTrack[0]=0:GameCfg.CMLevelMusicTrack[0]++);
-					last_songnum = songnum;
-				}
-				else if (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL)
-					GameCfg.CMLevelMusicTrack[0] = (songnum % GameCfg.CMLevelMusicTrack[1]);
-			}
-			else
-			{
-				GameCfg.CMLevelMusicTrack[0] += offset;
-				if (GameCfg.CMLevelMusicTrack[0] < 0)
-					GameCfg.CMLevelMusicTrack[0] = GameCfg.CMLevelMusicTrack[1] + GameCfg.CMLevelMusicTrack[0];
-				if (GameCfg.CMLevelMusicTrack[0] + 1 > GameCfg.CMLevelMusicTrack[1])
-					GameCfg.CMLevelMusicTrack[0] = GameCfg.CMLevelMusicTrack[0] - GameCfg.CMLevelMusicTrack[1];
-			}
-
-			Song_playing = -1;
-			if (jukebox_play())
-				Song_playing = songnum + SONG_FIRST_LEVEL_SONG;
-
-			break;
-		}
-#endif
 		default:
 			Song_playing = -1;
 			break;

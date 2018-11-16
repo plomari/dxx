@@ -78,7 +78,6 @@ common_sources = [
 'arch/sdl/joy.c',
 'arch/sdl/key.c',
 'arch/sdl/mouse.c',
-'arch/sdl/rbaudio.c',
 'arch/sdl/timer.c',
 'arch/sdl/window.c',
 'arch/sdl/digi.c',
@@ -236,7 +235,6 @@ editor_sources = [
 arch_sdlmixer = [
 'arch/sdl/digi_mixer.c',
 'arch/sdl/digi_mixer_music.c',
-'arch/sdl/jukebox.c'
 ]       
 
 # for opengl

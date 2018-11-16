@@ -51,7 +51,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseg.h"
 #include "wall.h"
 #include "ai.h"
-#include "rbaudio.h"
 #include "digi.h"
 #include "u_mem.h"
 #include "palette.h"
@@ -88,7 +87,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "multibot.h"
 #include "ai.h"
-#include "rbaudio.h"
 #include "switch.h"
 #include "escort.h"
 #include "window.h"
@@ -986,20 +984,6 @@ int HandleSystemKey(int key)
 		KEY_MAC(case KEY_COMMAND+KEY_SHIFTED+KEY_ALTED+KEY_4:)
 		case KEY_F4 + KEY_SHIFTED + KEY_ALTED:
 			change_guidebot_name();
-			break;
-
-			/*
-			 * Jukebox hotkeys -- MD2211, 2007
-			 * Now for all music
-			 * ==============================================
-			 */
-		case KEY_ALTED + KEY_SHIFTED + KEY_F9:
-		KEY_MAC(case KEY_COMMAND+KEY_E:)
-			if (GameCfg.MusicType == MUSIC_TYPE_REDBOOK)
-			{
-				songs_stop_all();
-				RBAEjectDisk();
-			}
 			break;
 
 		case KEY_ALTED + KEY_SHIFTED + KEY_F10:

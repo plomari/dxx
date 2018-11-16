@@ -65,7 +65,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "config.h"
 #include "playsave.h"
-#include "rbaudio.h"
 #include "window.h"
 #include "playsave.h"
 

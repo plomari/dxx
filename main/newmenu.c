@@ -56,7 +56,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "timer.h"
 #include "playsave.h"
 #include "automap.h"
-#include "rbaudio.h"
 #include "ogl_init.h"
 
 

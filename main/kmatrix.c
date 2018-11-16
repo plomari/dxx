@@ -43,7 +43,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "joy.h"
 #include "timer.h"
 #include "text.h"
-#include "rbaudio.h"
 #include "multi.h"
 #include "kmatrix.h"
 #include "gauges.h"

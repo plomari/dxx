@@ -48,36 +48,14 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 	{
 		hmp2mid(filename, &current_music_hndlbuf, &bufsize);
 		rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
-		current_music = Mix_LoadMUS_RW(rw);
+		current_music = Mix_LoadMUS_RW(rw, 1);
 	}
 
 	// try loading music via given filename
 	if (!current_music)
 		current_music = Mix_LoadMUS(filename);
 
-	// allow the shell convention tilde character to mean the user's home folder
-	// chiefly used for default jukebox level song music referenced in 'descent.m3u' for Mac OS X
-	if (!current_music && *filename == '~')
-	{
-		snprintf(full_path, PATH_MAX, "%s%s", PHYSFS_getUserDir(),
-				 &filename[1 + (!strncmp(&filename[1], PHYSFS_getDirSeparator(), strlen(PHYSFS_getDirSeparator())) ? 
-				 strlen(PHYSFS_getDirSeparator()) : 0)]);
-		current_music = Mix_LoadMUS(full_path);
-		if (current_music)
-			filename = full_path;	// used later for possible error reporting
-	}
-		
-
-	// no luck. so it might be in Searchpath. So try to build absolute path
-	if (!current_music)
-	{
-		PHYSFSX_getRealPath(filename, full_path);
-		current_music = Mix_LoadMUS(full_path);
-		if (current_music)
-			filename = full_path;	// used later for possible error reporting
-	}
-
-	// still nothin'? Let's open via PhysFS in case it's located inside an archive
+	// still nothing? Let's open via PhysFS in case it's located inside an archive
 	if (!current_music)
 	{
 		filehandle = PHYSFS_openRead(filename);
@@ -90,7 +68,7 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 			current_music_hndlbuf = p;
 			bufsize = PHYSFS_read(filehandle, current_music_hndlbuf, sizeof(char), len);
 			rw = SDL_RWFromConstMem(current_music_hndlbuf,bufsize*sizeof(char));
-			current_music = Mix_LoadMUS_RW(rw);
+			current_music = Mix_LoadMUS_RW(rw, 1);
 			}
 			PHYSFS_close(filehandle);
 		}

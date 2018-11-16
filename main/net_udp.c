@@ -54,7 +54,6 @@
 #include "playsave.h"
 #include "cfile.h"
 #include "gamefont.h"
-#include "rbaudio.h"
 #include "config.h"
 
 // Prototypes

@@ -102,8 +102,6 @@ extern void digi_start_sound_queued( short soundnum, fix volume );
 
 #define MUSIC_TYPE_NONE		0
 #define MUSIC_TYPE_BUILTIN	1
-#define MUSIC_TYPE_REDBOOK	2
-#define MUSIC_TYPE_CUSTOM	3
 
 // play-order definitions for custom music
 #define MUSIC_CM_PLAYORDER_CONT 0

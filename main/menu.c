@@ -56,9 +56,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "state.h"
 #include "mission.h"
 #include "songs.h"
-#ifdef USE_SDLMIXER
-#include "jukebox.h" // for jukebox_exts
-#endif
 #include "config.h"
 #include "movie.h"
 #include "gamepal.h"
@@ -896,7 +893,7 @@ int gcd(int a, int b)
 void change_res()
 {
 	u_int32_t modes[50], new_mode = 0;
-	int i = 0, mc = 0, num_presets = 0, citem = -1, opt_cval = -1, opt_cres = -1, opt_fullscr = -1;
+	int i = 0, mc = 0, num_presets = 0, citem = -1, opt_cval = -1, opt_fullscr = -1;
 
 	num_presets = gr_list_modes( modes );
 
@@ -1265,310 +1262,12 @@ void graphics_config()
 	gr_set_mode(Game_screen_mode);
 }
 
-#if PHYSFS_VER_MAJOR >= 2
-typedef struct browser
-{
-	char	*title;			// The title - needed for making another listbox when changing directory
-	int		(*when_selected)(void *userdata, const char *filename);	// What to do when something chosen
-	void	*userdata;		// Whatever you want passed to when_selected
-	char	**list;			// All menu items
-	char	*list_buf;		// Buffer for menu item text: hopefully reduces memory fragmentation this way
-	const char	*const *ext_list;		// List of file extensions we're looking for (if looking for a music file many types are possible)
-	int		select_dir;		// Allow selecting the current directory (e.g. for Jukebox level song directory)
-	int		num_files;		// Number of list items found (including parent directory and current directory if selectable)
-	int		max_files;		// How many entries we can have before having to grow the array
-	int		max_buf;		// How much text we can have before having to grow the buffer
-	char	view_path[PATH_MAX];	// The absolute path we're currently looking at
-	int		new_path;		// Whether the view_path is a new searchpath, if so, remove it when finished
-} browser;
-
-void list_dir_el(browser *b, const char *origdir, const char *fname)
-{
-	char *ext;
-	char **i = NULL;
-#if 0
-	
-	ext = strrchr(fname, '.');
-	if (ext)
-		for (i = b->ext_list; *i != NULL && stricmp(ext, *i); i++) {}	// see if the file is of a type we want
-	
-	if ((!strcmp((PHYSFS_getRealDir(fname)==NULL?"":PHYSFS_getRealDir(fname)), b->view_path)) && (PHYSFS_isDirectory(fname) || (ext && *i))
-#if defined(__MACH__) && defined(__APPLE__)
-		&& stricmp(fname, "Volumes")	// this messes things up, use '..' instead
-#endif
-		)
-		string_array_add(&b->list, &b->list_buf, &b->num_files, &b->max_files, &b->max_buf, fname);
-#endif
-}
-
-int list_directory(browser *b)
-{
-	if (!string_array_new(&b->list, &b->list_buf, &b->num_files, &b->max_files, &b->max_buf))
-		return 0;
-	
-	strcpy(b->list_buf, "..");		// go to parent directory
-	b->list[b->num_files++] = b->list_buf;
-	
-	if (b->select_dir)
-	{
-		b->list[b->num_files] = b->list[b->num_files - 1] + strlen(b->list[b->num_files - 1]) + 1;
-		strcpy(b->list[b->num_files++], "<this directory>");	// choose the directory being viewed
-	}
-	
-	//PHYSFS_enumerateFilesCallback("", (PHYSFS_EnumFilesCallback) list_dir_el, b);
-	string_array_tidy(&b->list, &b->list_buf, &b->num_files, &b->max_files, &b->max_buf, 1 + (b->select_dir ? 1 : 0),
-#ifdef __LINUX__
-					  strcmp
-#elif defined(_WIN32) || defined(macintosh)
-					  stricmp
-#else
-					  strcasecmp
-#endif
-					  );
-					  
-	return 1;
-}
-
-static int select_file_recursive(char *title, const char *orig_path, const char *const *ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata);
-
-int select_file_handler(listbox *menu, d_event *event, browser *b)
-{
-	char newpath[PATH_MAX];
-	char **list = listbox_get_items(menu);
-	int citem = listbox_get_citem(menu);
-	const char *sep = "/";
-
-	memset(newpath, 0, sizeof(char)*PATH_MAX);
-	switch (event->type)
-	{
-#ifdef _WIN32
-		case EVENT_KEY_COMMAND:
-		{
-			if (event_key_get(event) == KEY_CTRLED + KEY_D)
-			{
-				newmenu_item *m;
-				char *text = NULL;
-				int rval = 0;
-
-				MALLOC(text, char, 2);
-				MALLOC(m, newmenu_item, 1);
-				snprintf(text, sizeof(char)*PATH_MAX, "c");
-				nm_set_item_input(m, 3, text);
-				rval = newmenu_do( NULL, "Enter drive letter", 1, m, NULL, NULL );
-				text[1] = '\0'; 
-				snprintf(newpath, sizeof(char)*PATH_MAX, "%s:%s", text, sep);
-				if (!rval && strlen(text))
-				{
-					select_file_recursive(b->title, newpath, b->ext_list, b->select_dir, b->when_selected, b->userdata);
-					// close old box.
-					window_close(listbox_get_window(menu));
-				}
-				d_free(text);
-				d_free(m);
-				return 0;
-			}
-			break;
-		}
-#endif
-		case EVENT_NEWMENU_SELECTED:
-			strcpy(newpath, b->view_path);
-
-			if (citem == 0)		// go to parent dir
-			{
-				char *p;
-				
-				if ((p = strstr(&newpath[strlen(newpath) - strlen(sep)], sep)))
-					if (p != strstr(newpath, sep))	// if this isn't the only separator (i.e. it's not about to look at the root)
-						*p = 0;
-				
-				p = newpath + strlen(newpath) - 1;
-				while ((p > newpath) && strncmp(p, sep, strlen(sep)))	// make sure full separator string is matched (typically is)
-					p--;
-				
-				if (p == strstr(newpath, sep))	// Look at root directory next, if not already
-				{
-#if defined(__MACH__) && defined(__APPLE__)
-					if (!stricmp(p, "/Volumes"))
-						return 1;
-#endif
-					if (p[strlen(sep)] != '\0')
-						p[strlen(sep)] = '\0';
-					else
-					{
-#if defined(__MACH__) && defined(__APPLE__)
-						// For Mac OS X, list all active volumes if we leave the root
-						strcpy(newpath, "/Volumes");
-#else
-						return 1;
-#endif
-					}
-				}
-				else
-					*p = '\0';
-			}
-			else if (citem == 1 && b->select_dir)
-				return !(*b->when_selected)(b->userdata, "");
-			else
-			{
-				if (strncmp(&newpath[strlen(newpath) - strlen(sep)], sep, strlen(sep)))
-				{
-					strncat(newpath, sep, PATH_MAX - 1 - strlen(newpath));
-					newpath[PATH_MAX - 1] = '\0';
-				}
-				strncat(newpath, list[citem], PATH_MAX - 1 - strlen(newpath));
-				newpath[PATH_MAX - 1] = '\0';
-			}
-			
-			if ((citem == 0) || PHYSFS_isDirectory(list[citem]))
-			{
-				// If it fails, stay in this one
-				return !select_file_recursive(b->title, newpath, b->ext_list, b->select_dir, b->when_selected, b->userdata);
-			}
-			
-			return !(*b->when_selected)(b->userdata, list[citem]);
-			break;
-			
-		case EVENT_WINDOW_CLOSE:
-			//if (b->new_path)
-			//	PHYSFS_removeFromSearchPath(b->view_path);
-
-			if (list)
-				d_free(list);
-			if (b->list_buf)
-				d_free(b->list_buf);
-			d_free(b);
-			break;
-			
-		default:
-			break;
-	}
-	
-	return 0;
-}
-
-static int select_file_recursive(char *title, const char *orig_path, const char *const *ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
-{
-#if 0
-	browser *b;
-	const char *sep = PHYSFS_getDirSeparator();
-	char *p;
-	char new_path[PATH_MAX];
-	
-	MALLOC(b, browser, 1);
-	if (!b)
-		return 0;
-	
-	b->title = title;
-	b->when_selected = when_selected;
-	b->userdata = userdata;
-	b->ext_list = ext_list;
-	b->select_dir = select_dir;
-	b->num_files = b->max_files = 0;
-	b->view_path[0] = '\0';
-	b->new_path = 1;
-	
-	// Check for a PhysicsFS path first, saves complication!
-	if (orig_path && strncmp(orig_path, sep, strlen(sep)) && PHYSFS_exists(orig_path))
-	{
-		PHYSFSX_getRealPath(orig_path, new_path);
-		orig_path = new_path;
-	}
-
-	// Set the viewing directory to orig_path, or some parent of it
-	if (orig_path)
-	{
-		// Must make this an absolute path for directory browsing to work properly
-#ifdef _WIN32
-		if (!(isalpha(orig_path[0]) && (orig_path[1] == ':')))	// drive letter prompt (e.g. "C:"
-#elif defined(macintosh)
-		if (orig_path[0] == ':')
-#else
-		if (orig_path[0] != '/')
-#endif
-		{
-			strncpy(b->view_path, PHYSFS_getBaseDir(), PATH_MAX - 1);		// current write directory must be set to base directory
-			b->view_path[PATH_MAX - 1] = '\0';
-#ifdef macintosh
-			orig_path++;	// go past ':'
-#endif
-			strncat(b->view_path, orig_path, PATH_MAX - 1 - strlen(b->view_path));
-			b->view_path[PATH_MAX - 1] = '\0';
-		}
-		else
-		{
-			strncpy(b->view_path, orig_path, PATH_MAX - 1);
-			b->view_path[PATH_MAX - 1] = '\0';
-		}
-
-		p = b->view_path + strlen(b->view_path) - 1;
-		b->new_path = PHYSFSX_isNewPath(b->view_path);
-		
-		while (!PHYSFS_addToSearchPath(b->view_path, 0))
-		{
-			while ((p > b->view_path) && strncmp(p, sep, strlen(sep)))
-				p--;
-			*p = '\0';
-			
-			if (p == b->view_path)
-				break;
-			
-			b->new_path = PHYSFSX_isNewPath(b->view_path);
-		}
-	}
-	
-	// Set to user directory if we couldn't find a searchpath
-	if (!b->view_path[0])
-	{
-		strncpy(b->view_path, PHYSFS_getUserDir(), PATH_MAX - 1);
-		b->view_path[PATH_MAX - 1] = '\0';
-		b->new_path = PHYSFSX_isNewPath(b->view_path);
-		if (!PHYSFS_addToSearchPath(b->view_path, 0))
-		{
-			d_free(b);
-			return 0;
-		}
-	}
-	
-	if (!list_directory(b))
-	{
-		d_free(b);
-		return 0;
-	}
-	
-	return newmenu_listbox1(title, b->num_files, b->list, 1, 0, (int (*)(listbox *, d_event *, void *))select_file_handler, b) >= 0;
-#endif
-	return 0;
-}
-
-#define PATH_HEADER_TYPE NM_TYPE_MENU
-#define BROWSE_TXT " (browse...)"
-
-#else
-
-static int select_file_recursive(char *title, const char *orig_path, const char *const *ext_list, int select_dir, int (*when_selected)(void *userdata, const char *filename), void *userdata)
-{
-	return 0;
-}
-
 #define PATH_HEADER_TYPE NM_TYPE_TEXT
 #define BROWSE_TXT
 
-#endif
-
-int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1, opt_sm_mtype2 = -1, opt_sm_mtype3 = -1, opt_sm_redbook_playorder = -1, opt_sm_mtype3_lmpath = -1, opt_sm_mtype3_lmplayorder1 = -1, opt_sm_mtype3_lmplayorder2 = -1, opt_sm_mtype3_lmplayorder3 = -1, opt_sm_cm_mtype3_file1_b = -1, opt_sm_cm_mtype3_file1 = -1, opt_sm_cm_mtype3_file2_b = -1, opt_sm_cm_mtype3_file2 = -1, opt_sm_cm_mtype3_file3_b = -1, opt_sm_cm_mtype3_file3 = -1, opt_sm_cm_mtype3_file4_b = -1, opt_sm_cm_mtype3_file4 = -1, opt_sm_cm_mtype3_file5_b = -1, opt_sm_cm_mtype3_file5 = -1;
+int opt_sm_digivol = -1, opt_sm_musicvol = -1, opt_sm_revstereo = -1, opt_sm_mtype0 = -1, opt_sm_mtype1 = -1;
 
 void set_extmusic_volume(int volume);
-
-#if 0
-int get_absolute_path(char *full_path, const char *rel_path)
-{
-	PHYSFSX_getRealPath(rel_path, full_path);
-	return 1;
-}
-
-#ifdef USE_SDLMIXER
-#define SELECT_SONG(t, s)	select_file_recursive(t, GameCfg.CMMiscMusic[s], jukebox_exts, 0, (int (*)(void *, const char *))get_absolute_path, GameCfg.CMMiscMusic[s])
-#endif
 
 int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 {
@@ -1606,87 +1305,9 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 				GameCfg.MusicType = MUSIC_TYPE_BUILTIN;
 				replay = 1;
 			}
-			else if (citem == opt_sm_mtype2)
-			{
-				GameCfg.MusicType = MUSIC_TYPE_REDBOOK;
-				replay = 1;
-			}
-#ifdef USE_SDLMIXER
-			else if (citem == opt_sm_mtype3)
-			{
-				GameCfg.MusicType = MUSIC_TYPE_CUSTOM;
-				replay = 1;
-			}
-#endif
-			else if (citem == opt_sm_redbook_playorder)
-			{
-				GameCfg.OrigTrackOrder = items[citem].value;
-				replay = (Game_wind != NULL);
-			}
-#ifdef USE_SDLMIXER
-			else if (citem == opt_sm_mtype3_lmplayorder1)
-			{
-				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_CONT;
-				replay = (Game_wind != NULL);
-			}
-			else if (citem == opt_sm_mtype3_lmplayorder2)
-			{
-				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_LEVEL;
-				replay = (Game_wind != NULL);
-			}
-			else if (citem == opt_sm_mtype3_lmplayorder3)
-			{
-				GameCfg.CMLevelMusicPlayOrder = MUSIC_CM_PLAYORDER_RAND;
-				replay = (Game_wind != NULL);
-			}
-#endif
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
-#ifdef USE_SDLMIXER
-			if (citem == opt_sm_mtype3_lmpath)
-			{
-				static const char *const ext_list[] = { ".m3u", NULL };		// select a directory or M3U playlist
-				select_file_recursive(
-#ifndef _WIN32
-					"Select directory or\nM3U playlist to\n play level music from",
-#else
-					"Select directory or\nM3U playlist to\n play level music from.\n CTRL-D to change drive",
-#endif
-									  GameCfg.CMLevelMusicPath, ext_list, 1,	// look in current music path for ext_list files and allow directory selection
-									  (int (*)(void *, const char *))get_absolute_path, GameCfg.CMLevelMusicPath);	// just copy the absolute path
-			}
-			else if (citem == opt_sm_cm_mtype3_file1_b)
-#ifndef _WIN32
-				SELECT_SONG("Select main menu music", SONG_TITLE);
-#else
-				SELECT_SONG("Select main menu music.\nCTRL-D to change drive", SONG_TITLE);
-#endif
-			else if (citem == opt_sm_cm_mtype3_file2_b)
-#ifndef _WIN32
-				SELECT_SONG("Select briefing music", SONG_BRIEFING);
-#else
-				SELECT_SONG("Select briefing music.\nCTRL-D to change drive", SONG_BRIEFING);
-#endif
-			else if (citem == opt_sm_cm_mtype3_file3_b)
-#ifndef _WIN32
-				SELECT_SONG("Select credits music", SONG_CREDITS);
-#else
-				SELECT_SONG("Select credits music.\nCTRL-D to change drive", SONG_CREDITS);
-#endif
-			else if (citem == opt_sm_cm_mtype3_file4_b)
-#ifndef _WIN32
-				SELECT_SONG("Select escape sequence music", SONG_ENDLEVEL);
-#else
-				SELECT_SONG("Select escape sequence music.\nCTRL-D to change drive", SONG_ENDLEVEL);
-#endif
-			else if (citem == opt_sm_cm_mtype3_file5_b)
-#ifndef _WIN32
-				SELECT_SONG("Select game ending music", SONG_ENDGAME);
-#else
-				SELECT_SONG("Select game ending music.\nCTRL-D to change drive", SONG_ENDGAME);
-#endif
-#endif
 			rval = 1;	// stay in menu
 			break;
 
@@ -1712,17 +1333,8 @@ int sound_menuset(newmenu *menu, d_event *event, void *userdata)
 
 	return rval;
 }
-#endif
 
-#ifdef USE_SDLMIXER
 #define SOUND_MENU_NITEMS 33
-#else
-#ifdef _WIN32
-#define SOUND_MENU_NITEMS 11
-#else
-#define SOUND_MENU_NITEMS 10
-#endif
-#endif
 
 void do_sound_menu()
 {
@@ -1760,87 +1372,9 @@ void do_sound_menu()
 	nm_set_item_radio(&m[nitems], "built-in/addon music", (GameCfg.MusicType == MUSIC_TYPE_BUILTIN), 0); nitems++;
 #endif
 
-	opt_sm_mtype2 = nitems;
-	nm_set_item_radio(&m[nitems], "cd music", (GameCfg.MusicType == MUSIC_TYPE_REDBOOK), 0); nitems++;
+	Assert(nitems <= SOUND_MENU_NITEMS);
 
-#ifdef USE_SDLMIXER
-	opt_sm_mtype3 = nitems;
-	nm_set_item_radio(&m[nitems], "jukebox", (GameCfg.MusicType == MUSIC_TYPE_CUSTOM), 0); nitems++;
-
-#endif
-
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
-#ifdef USE_SDLMIXER
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "cd music / jukebox options:";
-#else
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "cd music options:";
-#endif
-
-	opt_sm_redbook_playorder = nitems;
-#define REDBOOK_PLAYORDER_TEXT	"force descent ][ cd track order"
-	nm_set_item_checkbox(&m[nitems++], REDBOOK_PLAYORDER_TEXT, GameCfg.OrigTrackOrder);
-
-#ifdef USE_SDLMIXER
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
-
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "jukebox options:";
-
-	opt_sm_mtype3_lmpath = nitems;
-	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "path for level music" BROWSE_TXT;
-
-	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMLevelMusicPath);
-
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
-
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "level music play order:";
-
-	opt_sm_mtype3_lmplayorder1 = nitems;
-	nm_set_item_radio(&m[nitems], "continuously", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_CONT), 1); nitems++;
-
-	opt_sm_mtype3_lmplayorder2 = nitems;
-	nm_set_item_radio(&m[nitems], "one track per level", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_LEVEL), 1); nitems++;
-
-	opt_sm_mtype3_lmplayorder3 = nitems;
-	nm_set_item_radio(&m[nitems], "random", (GameCfg.CMLevelMusicPlayOrder == MUSIC_CM_PLAYORDER_RAND), 1); nitems++;
-
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "";
-
-	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "non-level music:";
-
-	opt_sm_cm_mtype3_file1_b = nitems;
-	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "main menu" BROWSE_TXT;
-
-	opt_sm_cm_mtype3_file1 = nitems;
-	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_TITLE]);
-
-	opt_sm_cm_mtype3_file2_b = nitems;
-	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "briefing" BROWSE_TXT;
-
-	opt_sm_cm_mtype3_file2 = nitems;
-	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_BRIEFING]);
-
-	opt_sm_cm_mtype3_file3_b = nitems;
-	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "credits" BROWSE_TXT;
-
-	opt_sm_cm_mtype3_file3 = nitems;
-	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_CREDITS]);
-
-	opt_sm_cm_mtype3_file4_b = nitems;
-	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "escape sequence" BROWSE_TXT;
-
-	opt_sm_cm_mtype3_file4 = nitems;
-	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_ENDLEVEL]);
-
-	opt_sm_cm_mtype3_file5_b = nitems;
-	m[nitems].type = PATH_HEADER_TYPE; m[nitems++].text = "game ending" BROWSE_TXT;
-
-	opt_sm_cm_mtype3_file5 = nitems;
-	nm_set_item_input(&m[nitems++], NM_MAX_TEXT_LEN-1, GameCfg.CMMiscMusic[SONG_ENDGAME]);
-#endif
-
-	Assert(nitems == SOUND_MENU_NITEMS);
-
-	//newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, NULL, 0 );
+	newmenu_do1( NULL, "Sound Effects & Music", nitems, m, sound_menuset, NULL, 0 );
 
 #ifdef USE_SDLMIXER
 	if ( ((Game_wind != NULL) && strcmp(old_CMLevelMusicPath, GameCfg.CMLevelMusicPath)) || ((Game_wind == NULL) && strcmp(old_CMMiscMusic0, GameCfg.CMMiscMusic[SONG_TITLE])) )

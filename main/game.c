@@ -78,7 +78,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "controls.h"
 #include "songs.h"
-#include "rbaudio.h"
 #include "gamepal.h"
 
 #include "multi.h"

@@ -36,7 +36,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "kconfig.h"
 #include "gauges.h"
-#include "rbaudio.h"
 #include "render.h"
 #include "digi.h"
 #include "newmenu.h"
