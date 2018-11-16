@@ -168,7 +168,6 @@ common_sources = [
 'misc/hmp.c',
 'misc/strio.c',
 'misc/strutil.c',
-'arch/linux/messagebox.c',
 ]
 
 # for editor
