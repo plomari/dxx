@@ -160,7 +160,6 @@ common_sources = [
 'main/weapon.c',
 'maths/fixc.c',
 'maths/rand.c',
-'maths/tables.c',
 'maths/vecmat.c',
 'misc/args.c',
 'misc/cfile.c',

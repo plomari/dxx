@@ -23,11 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "dxxerror.h"
 #include "maths.h"
 
-extern ubyte guess_table[];
-extern short sincos_table[];
-extern ushort asin_table[];
-extern ushort acos_table[];
-extern fix isqrt_guess_table[];
+#include "tables.inc"
 
 #define EPSILON (F1_0/100)
 
