@@ -59,28 +59,19 @@ fix fixmuldiv(fix a, fix b, fix c)
 
 fixang fix_atan2(fix cos,fix sin)
 {
-	double d, dsin, dcos;
-	fixang t;
+	uint32_t d = int64_sqrt(sin * (int64_t)sin + cos * (int64_t)cos);
 
-	//Assert(!(cos==0 && sin==0));
-
-	//find smaller of two
-
-	dsin = (double)sin;
-	dcos = (double)cos;
-	d = sqrt((dsin * dsin) + (dcos * dcos));
-
-	if (d==0.0)
+	if (d == 0)
 		return 0;
 
-	if (labs(sin) < labs(cos)) {				//sin is smaller, use arcsin
-		t = fix_asin((fix)((dsin / d) * 65536.0));
+	if (abs(sin) < abs(cos)) {				//sin is smaller, use arcsin
+		fixang t = fix_asin(sin * 65536LL / d);
 		if (cos<0)
 			t = 0x8000 - t;
 		return t;
 	}
 	else {
-		t = fix_acos((fix)((dcos / d) * 65536.0));
+		fixang t = fix_acos(cos * 65536LL / d);
 		if (sin<0)
 			t = -t;
 		return t;
