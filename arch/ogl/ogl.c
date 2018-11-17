@@ -677,58 +677,121 @@ int gr_disk(fix x,fix y,fix r)
 	return 0;
 }
 
-/*
- * Draw flat-shaded Polygon (Lasers, Drone-arms, Driller-ears)
- */
-bool g3_draw_poly(int nv,const g3s_point **pointlist)
-{
-	int c, index3, index4;
-	float color_r, color_g, color_b, color_a;
-	GLfloat vertex_array[MAX_POINTS_PER_POLY * 3];
-	GLfloat color_array[MAX_POINTS_PER_POLY * 4];
-
-	Assert(nv <= MAX_POINTS_PER_POLY);
-
-	r_polyc++;
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	c = grd_curcanv->cv_color;
-	OGL_DISABLE(TEXTURE_2D);
-	color_r = PAL2Tr(c);
-	color_g = PAL2Tg(c);
-	color_b = PAL2Tb(c);
-
-	if (grd_curcanv->cv_fade_level >= GR_FADE_OFF)
-		color_a = 1.0;
-	else
-		color_a = 1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0);
-
-	for (c=0; c<nv; c++){
-		index3 = c * 3;
-		index4 = c * 4;
-		color_array[index4]    = color_r;
-		color_array[index4+1]  = color_g;
-		color_array[index4+2]  = color_b;
-		color_array[index4+3]  = color_a;
-		vertex_array[index3]   = f2glf(pointlist[c]->p3_vec.x);
-		vertex_array[index3+1] = f2glf(pointlist[c]->p3_vec.y);
-		vertex_array[index3+2] = -f2glf(pointlist[c]->p3_vec.z);
-	}
-
-	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
-	glColorPointer(4, GL_FLOAT, 0, color_array);
-	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-
-	return 0;
-}
-
 static bool tmap_flat;
 
 void g3_set_flat_shading(bool enable)
 {
 	tmap_flat = enable;
+}
+
+// pointlist[0..nv]
+// uvl_list[0..nv]: (optional if bm==NULL)
+// light_rgb[0..nv]: optional
+// color4[0..4] (r,g,b,a): optional, _single_ color for all points, ignored if light_rgb given
+// bm is optional; if NULL bm_orient and uvl_list are ignored
+static void draw_poly(int nv, const g3s_point **pointlist, g3s_uvl *uvl_list, g3s_lrgb *light_rgb, const float *color4, grs_bitmap *bm, int bm_orient)
+{
+	GLfloat vertex_array[MAX_POINTS_PER_POLY * 3];
+	GLfloat color_array[MAX_POINTS_PER_POLY * 4];
+	GLfloat texcoord_array[MAX_POINTS_PER_POLY * 2];
+
+	Assert(nv <= MAX_POINTS_PER_POLY);
+
+	static const float white[4] = {1, 1, 1, 1};
+	if (!color4)
+		color4 = white;
+
+	// "flat shading" is a lie. This is for cloaked robots.
+	static const float black[4] = {0, 0, 0, 1};
+	if (bm && tmap_flat) {
+		light_rgb = NULL;
+		color4 = black;
+	}
+
+	float c_a = color4[3];
+	if (grd_curcanv->cv_fade_level < GR_FADE_OFF)
+		c_a *= 1.0 - grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0);
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+
+	if (bm && !tmap_flat) {
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		OGL_ENABLE(TEXTURE_2D);
+		ogl_bindbmtex(bm);
+		ogl_texwrap(bm->gltexture, GL_REPEAT);
+		if (bm->bm_flags & BM_FLAG_NO_LIGHTING)
+			light_rgb = NULL;
+	} else {
+		OGL_DISABLE(TEXTURE_2D);
+	}
+
+	for (int c = 0; c < nv; c++) {
+		if (bm) {
+			float u = f2glf(uvl_list[c].u);
+			float v = f2glf(uvl_list[c].v);
+			float ru, rv;
+
+			switch (bm_orient) {
+			case 0:
+				ru = u;
+				rv = v;
+				break;
+			case 1:
+				ru = 1.0 - v;
+				rv = u;
+				break;
+			case 2:
+				ru = 1.0 - u;
+				rv = 1.0 - v;
+				break;
+			case 3:
+				ru = v;
+				rv = 1.0 - u;
+				break;
+			default:
+				Int3();
+			}
+
+			texcoord_array[c * 2 + 0] = ru;
+			texcoord_array[c * 2 + 1] = rv;
+		}
+
+		color_array[c * 4 + 0] = light_rgb ? f2glf(light_rgb[c].r) : color4[0];
+		color_array[c * 4 + 1] = light_rgb ? f2glf(light_rgb[c].g) : color4[1];
+		color_array[c * 4 + 2] = light_rgb ? f2glf(light_rgb[c].b) : color4[2];
+		color_array[c * 4 + 3] = c_a;
+
+		vertex_array[c * 3 + 0] = f2glf(pointlist[c]->p3_vec.x);
+		vertex_array[c * 3 + 1] = f2glf(pointlist[c]->p3_vec.y);
+		vertex_array[c * 3 + 2] = -f2glf(pointlist[c]->p3_vec.z);
+	}
+
+	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
+	glColorPointer(4, GL_FLOAT, 0, color_array);
+	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);
+
+	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+}
+
+/*
+ * Draw flat-shaded Polygon (Lasers, Drone-arms, Driller-ears)
+ */
+bool g3_draw_poly(int nv,const g3s_point **pointlist)
+{
+	int pc = grd_curcanv->cv_color;
+	float colors[4] = {
+		PAL2Tr(pc),
+		PAL2Tg(pc),
+		PAL2Tb(pc),
+		1.0,
+	};
+	draw_poly(nv, pointlist, NULL, NULL, colors, NULL, 0);
+	return 0;
 }
 
 
@@ -737,66 +800,7 @@ void g3_set_flat_shading(bool enable)
  */ 
 bool g3_draw_tmap(int nv,const g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
 {
-	int c, index2, index3, index4;
-	GLfloat color_alpha = 1.0;
-	GLfloat vertex_array[MAX_POINTS_PER_POLY * 3];
-	GLfloat color_array[MAX_POINTS_PER_POLY * 4];
-	GLfloat texcoord_array[MAX_POINTS_PER_POLY * 2];
-
-	Assert(nv <= MAX_POINTS_PER_POLY);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-
-	if (!tmap_flat) {
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		OGL_ENABLE(TEXTURE_2D);
-		ogl_bindbmtex(bm);
-		ogl_texwrap(bm->gltexture, GL_REPEAT);
-		r_tpolyc++;
-		color_alpha = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
-	} else {
-		OGL_DISABLE(TEXTURE_2D);
-		/* for cloaked state faces */
-		color_alpha = 1.0 - (grd_curcanv->cv_fade_level/(GLfloat)NUM_LIGHTING_LEVELS);
-	}
-
-	for (c=0; c<nv; c++) {
-		index2 = c * 2;
-		index3 = c * 3;
-		index4 = c * 4;
-		
-		vertex_array[index3]     = f2glf(pointlist[c]->p3_vec.x);
-		vertex_array[index3+1]   = f2glf(pointlist[c]->p3_vec.y);
-		vertex_array[index3+2]   = -f2glf(pointlist[c]->p3_vec.z);
-		if (tmap_flat) {
-			color_array[index4]      = 0;
-			color_array[index4+1]    = color_array[index4];
-			color_array[index4+2]    = color_array[index4];
-			color_array[index4+3]    = color_alpha;
-			
-		} else { 
-			color_array[index4]      = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].r);
-			color_array[index4+1]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].g);
-			color_array[index4+2]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].b);
-			color_array[index4+3]    = color_alpha;
-		}
-		texcoord_array[index2]   = f2glf(uvl_list[c].u);
-		texcoord_array[index2+1] = f2glf(uvl_list[c].v);
-	}
-	
-	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
-	glColorPointer(4, GL_FLOAT, 0, color_array);
-	if (!tmap_flat) {
-		glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
-	}
-	
-	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
-	
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
+	draw_poly(nv, pointlist, uvl_list, light_rgb, NULL, bm, 0);
 	return 0;
 }
 
@@ -805,66 +809,8 @@ bool g3_draw_tmap(int nv,const g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb 
  */
 bool g3_draw_tmap_2(int nv, const g3s_point **pointlist, g3s_uvl *uvl_list, g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
-	int c, index2, index3, index4;
-	GLfloat vertex_array[MAX_POINTS_PER_POLY * 3];
-	GLfloat color_array[MAX_POINTS_PER_POLY * 4];
-	GLfloat texcoord_array[MAX_POINTS_PER_POLY * 2];
-
-	Assert(nv <= MAX_POINTS_PER_POLY);
-
-	g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
-	
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	
-	r_tpolyc++;
-	OGL_ENABLE(TEXTURE_2D);
-	ogl_bindbmtex(bm);
-	ogl_texwrap(bm->gltexture,GL_REPEAT);
-	
-	for (c=0; c<nv; c++) {
-		index2 = c * 2;
-		index3 = c * 3;
-		index4 = c * 4;
-		
-		switch(orient){
-			case 1:
-				texcoord_array[index2]   = 1.0-f2glf(uvl_list[c].v);
-				texcoord_array[index2+1] = f2glf(uvl_list[c].u);
-				break;
-			case 2:
-				texcoord_array[index2]   = 1.0-f2glf(uvl_list[c].u);
-				texcoord_array[index2+1] = 1.0-f2glf(uvl_list[c].v);
-				break;
-			case 3:
-				texcoord_array[index2]   = f2glf(uvl_list[c].v);
-				texcoord_array[index2+1] = 1.0-f2glf(uvl_list[c].u);
-				break;
-			default:
-				texcoord_array[index2]   = f2glf(uvl_list[c].u);
-				texcoord_array[index2+1] = f2glf(uvl_list[c].v);
-				break;
-		}
-		
-		color_array[index4]      = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].r);
-		color_array[index4+1]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].g);
-		color_array[index4+2]    = bm->bm_flags & BM_FLAG_NO_LIGHTING ? 1.0 : f2glf(light_rgb[c].b);
-		color_array[index4+3]    = (grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:(1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
-		
-		vertex_array[index3]     = f2glf(pointlist[c]->p3_vec.x);
-		vertex_array[index3+1]   = f2glf(pointlist[c]->p3_vec.y);
-		vertex_array[index3+2]   = -f2glf(pointlist[c]->p3_vec.z);
-	}
-	
-	glVertexPointer(3, GL_FLOAT, 0, vertex_array);
-	glColorPointer(4, GL_FLOAT, 0, color_array);
-	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
-	glDrawArrays(GL_TRIANGLE_FAN, 0, nv);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
+	draw_poly(nv, pointlist, uvl_list, light_rgb, NULL, bmbot, 0);
+	draw_poly(nv, pointlist, uvl_list, light_rgb, NULL, bm, orient);
 	return 0;
 }
 
