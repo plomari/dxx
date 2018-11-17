@@ -26,7 +26,7 @@ extern int GL_TEXTURE_2D_enabled;
 #define OGL_DISABLE(a) OGL_DISABLE2(GL_ ## a,glDisable(GL_ ## a))
 
 extern int last_width,last_height;
-#define OGL_VIEWPORT(x,y,w,h){if (w!=last_width || h!=last_height){glViewport(x,grd_curscreen->sc_canvas.cv_bitmap.bm_h-y-h,w,h);last_width=w;last_height=h;}}
+#define OGL_VIEWPORT(x,y,w,h){if (w!=last_width || h!=last_height){glViewport(x,grd_curscreen->sc_canvas.cv_h-y-h,w,h);last_width=w;last_height=h;}}
 
 void ogl_swap_buffers_internal(void);
 

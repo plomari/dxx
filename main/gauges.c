@@ -670,7 +670,7 @@ void hud_show_score()
 		Color_0_31_0 = BM_XRGB(0,31,0);
 	gr_set_fontcolor(Color_0_31_0, -1);
 
-	gr_printf(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), FSPACY(1), score_str);
+	gr_printf(grd_curcanv->cv_w-w-FSPACX(1), FSPACY(1), score_str);
 }
 
 void hud_show_timer_count()
@@ -700,7 +700,7 @@ void hud_show_timer_count()
 		gr_set_fontcolor(Color_0_31_0, -1);
 
 		if (i>-1 && !Control_center_destroyed)
-			gr_printf(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str);
+			gr_printf(grd_curcanv->cv_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str);
 	}
 #endif
 }
@@ -735,7 +735,7 @@ void hud_show_score_added()
 
 		gr_get_string_size(score_str, &w, &h, &aw );
 		gr_set_fontcolor(BM_XRGB(0, color, 0),-1 );
-		gr_printf(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str);
+		gr_printf(grd_curcanv->cv_w-w-FSPACX(12), LINE_SPACING+FSPACY(1), score_str);
 	} else {
 		score_time = 0;
 		score_display = 0;
@@ -882,7 +882,7 @@ void hud_show_homing_warning(void)
 		if (GameTime & 0x4000) {
 			gr_set_curfont( GAME_FONT );
 			gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
-			gr_printf(0x8000, grd_curcanv->cv_bitmap.bm_h-LINE_SPACING,TXT_LOCK);
+			gr_printf(0x8000, grd_curcanv->cv_h-LINE_SPACING,TXT_LOCK);
 		}
 	}
 }
@@ -980,9 +980,9 @@ void hud_show_energy(void)
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 		if (Game_mode & GM_MULTI)
-		     gr_printf(FSPACX(1), (grd_curcanv->cv_bitmap.bm_h-(LINE_SPACING*5)),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
+		     gr_printf(FSPACX(1), (grd_curcanv->cv_h-(LINE_SPACING*5)),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
 		else
-		     gr_printf(FSPACX(1), (grd_curcanv->cv_bitmap.bm_h-LINE_SPACING),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
+		     gr_printf(FSPACX(1), (grd_curcanv->cv_h-LINE_SPACING),"%s: %i", TXT_ENERGY, f2ir(Players[Player_num].energy));
 	}
 
 	if (Newdemo_state == ND_STATE_RECORDING)
@@ -1001,7 +1001,7 @@ void hud_show_afterburner(void)
 
 	y = (Game_mode & GM_MULTI)?(-7*LINE_SPACING):(-3*LINE_SPACING);
 
-	gr_printf(FSPACX(1), grd_curcanv->cv_bitmap.bm_h+y, "burn: %d%%" , fixmul(Afterburner_charge,100));
+	gr_printf(FSPACX(1), grd_curcanv->cv_h+y, "burn: %d%%" , fixmul(Afterburner_charge,100));
 
 	if (Newdemo_state==ND_STATE_RECORDING )
 		newdemo_record_player_afterburner(Afterburner_charge);
@@ -1225,23 +1225,23 @@ void hud_show_weapons(void)
 	gr_set_curfont( GAME_FONT );
 	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 
-	y = grd_curcanv->cv_bitmap.bm_h;
+	y = grd_curcanv->cv_h;
 
 	if (Game_mode & GM_MULTI)
 		y -= LINE_SPACING*4;
 
 	if (PlayerCfg.HudMode==1){
-		hud_show_weapons_mode(0,0,grd_curcanv->cv_bitmap.bm_w,y-(LINE_SPACING*4));
-		hud_show_weapons_mode(1,0,grd_curcanv->cv_bitmap.bm_w,y-(LINE_SPACING*2));
+		hud_show_weapons_mode(0,0,grd_curcanv->cv_w,y-(LINE_SPACING*4));
+		hud_show_weapons_mode(1,0,grd_curcanv->cv_w,y-(LINE_SPACING*2));
 	}
 	else if (PlayerCfg.HudMode==2){
 		int x1,x2;
 		int w, aw;
 		gr_get_string_size("V1000", &w, &x1, &aw );
 		gr_get_string_size("0 ", &x2, &x1, &aw);
-		y=grd_curcanv->cv_bitmap.bm_h/1.75;
-		x1=grd_curcanv->cv_bitmap.bm_w/2.1-(FSPACX(40)+w);
-		x2=grd_curcanv->cv_bitmap.bm_w/1.9+(FSPACX(42)+x2);
+		y=grd_curcanv->cv_h/1.75;
+		x1=grd_curcanv->cv_w/2.1-(FSPACX(40)+w);
+		x2=grd_curcanv->cv_w/1.9+(FSPACX(42)+x2);
 		hud_show_weapons_mode(0,1,x1,y);
 		hud_show_weapons_mode(1,1,x2,y);
 		gr_set_fontcolor(BM_XRGB(14,14,23),-1 );
@@ -1285,7 +1285,7 @@ void hud_show_weapons(void)
 		}
 
 		gr_get_string_size(weapon_str, &w, &h, &aw );
-		gr_printf(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-(LINE_SPACING*2), weapon_str);
+		gr_printf(grd_curcanv->cv_w-w-FSPACX(1), y-(LINE_SPACING*2), weapon_str);
 
 		if (Primary_weapon == VULCAN_INDEX)
 			if (Newdemo_state == ND_STATE_RECORDING)
@@ -1299,12 +1299,12 @@ void hud_show_weapons(void)
 
 		sprintf(weapon_str, "%s %d",weapon_name,Players[Player_num].secondary_ammo[Secondary_weapon]);
 		gr_get_string_size(weapon_str, &w, &h, &aw );
-		gr_printf(grd_curcanv->cv_bitmap.bm_w-w-FSPACX(1), y-LINE_SPACING, weapon_str);
+		gr_printf(grd_curcanv->cv_w-w-FSPACX(1), y-LINE_SPACING, weapon_str);
 
 		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_secondary_ammo(Players[Player_num].secondary_ammo[Secondary_weapon]);
 
-		show_bomb_count(grd_curcanv->cv_bitmap.bm_w-FSPACX(1), y-(LINE_SPACING*3),-1,1,1);
+		show_bomb_count(grd_curcanv->cv_w-FSPACX(1), y-(LINE_SPACING*3),-1,1,1);
 	}
 }
 
@@ -1313,7 +1313,7 @@ void hud_show_cloak_invuln(void)
 	gr_set_fontcolor(BM_XRGB(0,31,0),-1 );
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-		int	y = grd_curcanv->cv_bitmap.bm_h;
+		int	y = grd_curcanv->cv_h;
 
 		if (Game_mode & GM_MULTI)
 			y -= LINE_SPACING*8;
@@ -1329,7 +1329,7 @@ void hud_show_cloak_invuln(void)
 	}
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
-		int	y = grd_curcanv->cv_bitmap.bm_h;
+		int	y = grd_curcanv->cv_h;
 
 		if (Game_mode & GM_MULTI)
 			y -= LINE_SPACING*9;
@@ -1354,14 +1354,14 @@ void hud_show_shield(void)
 
 		if ( Players[Player_num].shields >= 0 )	{
 			if (Game_mode & GM_MULTI)
-			     gr_printf(FSPACX(1), (grd_curcanv->cv_bitmap.bm_h-(LINE_SPACING*6)),"%s: %i", TXT_SHIELD, f2ir(Players[Player_num].shields));
+			     gr_printf(FSPACX(1), (grd_curcanv->cv_h-(LINE_SPACING*6)),"%s: %i", TXT_SHIELD, f2ir(Players[Player_num].shields));
 			else
-			     gr_printf(FSPACX(1), (grd_curcanv->cv_bitmap.bm_h-(LINE_SPACING*2)),"%s: %i", TXT_SHIELD, f2ir(Players[Player_num].shields));
+			     gr_printf(FSPACX(1), (grd_curcanv->cv_h-(LINE_SPACING*2)),"%s: %i", TXT_SHIELD, f2ir(Players[Player_num].shields));
 		} else {
 			if (Game_mode & GM_MULTI)
-			     gr_printf(FSPACX(1), (grd_curcanv->cv_bitmap.bm_h-(LINE_SPACING*6)),"%s: 0", TXT_SHIELD );
+			     gr_printf(FSPACX(1), (grd_curcanv->cv_h-(LINE_SPACING*6)),"%s: 0", TXT_SHIELD );
 			else
-			     gr_printf(FSPACX(1), (grd_curcanv->cv_bitmap.bm_h-(LINE_SPACING*2)),"%s: 0", TXT_SHIELD );
+			     gr_printf(FSPACX(1), (grd_curcanv->cv_h-(LINE_SPACING*2)),"%s: 0", TXT_SHIELD );
 		}
 	}
 
@@ -2239,9 +2239,9 @@ void show_reticle(int reticle_type, int secondary_display)
 	if (Newdemo_state==ND_STATE_PLAYBACK && Viewer->type != OBJ_PLAYER)
 		 return;
 
-	x = grd_curcanv->cv_bitmap.bm_w/2;
-	y = grd_curcanv->cv_bitmap.bm_h/2;
-	size = (grd_curcanv->cv_bitmap.bm_h / (32-(PlayerCfg.ReticleSize*4)));
+	x = grd_curcanv->cv_w/2;
+	y = grd_curcanv->cv_h/2;
+	size = (grd_curcanv->cv_h / (32-(PlayerCfg.ReticleSize*4)));
 
 	laser_ready = allowed_to_fire_laser();
 	missile_ready = allowed_to_fire_missile();
@@ -2415,7 +2415,7 @@ void hud_show_kill_list()
 	if (Game_mode & GM_MULTI_COOP)
 		x1 = FSPACX(31);
 
-	save_y = y = grd_curcanv->cv_bitmap.bm_h - n_left*(LINE_SPACING);
+	save_y = y = grd_curcanv->cv_h - n_left*(LINE_SPACING);
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 		save_y = y -= FSPACX(6);
@@ -2432,13 +2432,13 @@ void hud_show_kill_list()
 
 		if (i>=n_left) {
 			if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
-				x0 = grd_curcanv->cv_bitmap.bm_w - FSPACX(53);
+				x0 = grd_curcanv->cv_w - FSPACX(53);
 			else
-				x0 = grd_curcanv->cv_bitmap.bm_w - FSPACX(60);
+				x0 = grd_curcanv->cv_w - FSPACX(60);
 			if (Game_mode & GM_MULTI_COOP)
-				x1 = grd_curcanv->cv_bitmap.bm_w - FSPACX(27);
+				x1 = grd_curcanv->cv_w - FSPACX(27);
 			else
-				x1 = grd_curcanv->cv_bitmap.bm_w - FSPACX(15);  // Right edge of name, change this for width problems
+				x1 = grd_curcanv->cv_w - FSPACX(15);  // Right edge of name, change this for width problems
 			if (i==n_left)
 				y = save_y;
 
@@ -2577,7 +2577,7 @@ void show_HUD_names()
 
 					x = player_point.p3_sx;
 					y = player_point.p3_sy;
-					dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_bitmap.bm_h)/2,player_point.p3_z);
+					dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_h)/2,player_point.p3_z);
 					dx = fixmul(dy,grd_curscreen->sc_aspect);
 					color_num = (Game_mode & GM_TEAM)?get_team(pnum):pnum;
 					/* Set the text to show */
@@ -2600,7 +2600,7 @@ void show_HUD_names()
 					{
 						fix dx,dy,w,h;
 
-						dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_bitmap.bm_h)/2,player_point.p3_z);
+						dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_h)/2,player_point.p3_z);
 						dx = fixmul(dy,grd_curscreen->sc_aspect);
 
 						w = dx/4;
@@ -2889,7 +2889,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 
 		{
 			gr_setcolor(BM_XRGB(0,0,32));
-			gr_ubox(0,0,grd_curcanv->cv_bitmap.bm_w,grd_curcanv->cv_bitmap.bm_h);
+			gr_ubox(0,0,grd_curcanv->cv_w,grd_curcanv->cv_h);
 		}
 
 		//if the window only partially overlaps the big 3d window, copy
@@ -2899,7 +2899,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 
 		Assert(window_y <= big_window_bottom);
 
-		small_window_bottom = window_y + window_canv.cv_bitmap.bm_h - 1;
+		small_window_bottom = window_y + window_canv.cv_h - 1;
 		extra_part_h = small_window_bottom - big_window_bottom;
 
 		Assert(extra_part_h <= 0);

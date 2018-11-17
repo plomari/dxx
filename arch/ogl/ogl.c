@@ -504,7 +504,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	primary_lca[1][3] = primary_lca[1][7] = primary_lca[0][11] = primary_lca[0][15] = ret_dark_rgba[3];
 
 	glPushMatrix();
-	glTranslatef((grd_curcanv->cv_bitmap.bm_w/2+grd_curcanv->cv_bitmap.bm_x)/(float)last_width,1.0-(grd_curcanv->cv_bitmap.bm_h/2+grd_curcanv->cv_bitmap.bm_y)/(float)last_height,0);
+	glTranslatef((grd_curcanv->cv_w/2+grd_curcanv->cv_x)/(float)last_width,1.0-(grd_curcanv->cv_h/2+grd_curcanv->cv_y)/(float)last_height,0);
 
 	if (scale >= 1)
 	{
@@ -612,7 +612,7 @@ void gr_enable_depth(int enable)
  */
 int g3_draw_sphere(g3s_point *pnt,fix rad){
 	int c=grd_curcanv->cv_color, i;
-	float scale = ((float)grd_curcanv->cv_bitmap.bm_w/grd_curcanv->cv_bitmap.bm_h);
+	float scale = ((float)grd_curcanv->cv_w/grd_curcanv->cv_h);
 	GLfloat color_array[20*4];
 	
 	for (i = 0; i < 20*4; i += 4)
@@ -655,8 +655,8 @@ int gr_ucircle(fix xc1, fix yc1, fix r1)
 	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
 	glPushMatrix();
 	glTranslatef(
-	             (f2fl(xc1) + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width,
-	             1.0 - (f2fl(yc1) + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height,0);
+	             (f2fl(xc1) + grd_curcanv->cv_x + 0.5) / (float)last_width,
+	             1.0 - (f2fl(yc1) + grd_curcanv->cv_y + 0.5) / (float)last_height,0);
 	glScalef(f2fl(r1) / last_width, f2fl(r1) / last_height, 1.0);
 	nsides = 10 + 2 * (int)(M_PI * f2fl(r1) / 19);
 	if(!circle_va)
@@ -678,8 +678,8 @@ int gr_disk(fix x,fix y,fix r)
 	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
 	glPushMatrix();
 	glTranslatef(
-	             (f2fl(x) + grd_curcanv->cv_bitmap.bm_x + 0.5) / (float)last_width,
-	             1.0 - (f2fl(y) + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height,0);
+	             (f2fl(x) + grd_curcanv->cv_x + 0.5) / (float)last_width,
+	             1.0 - (f2fl(y) + grd_curcanv->cv_y + 0.5) / (float)last_height,0);
 	glScalef(f2fl(r) / last_width, f2fl(r) / last_height, 1.0);
 	nsides = 10 + 2 * (int)(M_PI * f2fl(r) / 19);
 	if(!disk_va)
@@ -966,7 +966,7 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
  * Movies
  * Since this function will create a new texture each call, mipmapping can be very GPU intensive - so it has an optional setting for texture filtering.
  */
-bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, grs_bitmap * src, grs_bitmap * dest, int texfilt)
+bool ogl_ubitblt_i(int dw, int dh, int dx, int dy, int sw, int sh, int sx, int sy, grs_bitmap *src, grs_canvas *dest, int texfilt)
 {
 	GLfloat xo,yo,xs,ys,u1,v1;
 	GLfloat color_array[] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
@@ -985,8 +985,8 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 
 	u1=v1=0;
 	
-	dx+=dest->bm_x;
-	dy+=dest->bm_y;
+	dx+=dest->cv_x;
+	dy+=dest->cv_y;
 	xo=dx/(float)last_width;
 	xs=dw/(float)last_width;
 	yo=1.0-dy/(float)last_height;
@@ -1031,7 +1031,8 @@ bool ogl_ubitblt_i(int dw,int dh,int dx,int dy, int sw, int sh, int sx, int sy, 
 	return 0;
 }
 
-bool ogl_ubitblt(int w,int h,int dx,int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest){
+bool ogl_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_canvas *dest)
+{
 	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest,0);
 }
 
@@ -1071,7 +1072,7 @@ GLubyte *pixels = NULL;
 void ogl_start_frame(void){
 	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitbltc=0;r_upixelc=0;
 
-	OGL_VIEWPORT(grd_curcanv->cv_bitmap.bm_x,grd_curcanv->cv_bitmap.bm_y,Canvas_width,Canvas_height);
+	OGL_VIEWPORT(grd_curcanv->cv_x,grd_curcanv->cv_y,Canvas_width,Canvas_height);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	glLineWidth(linedotscale);
@@ -1384,8 +1385,8 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 	GLfloat texcoord_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	
-	x+=grd_curcanv->cv_bitmap.bm_x;
-	y+=grd_curcanv->cv_bitmap.bm_y;
+	x+=grd_curcanv->cv_x;
+	y+=grd_curcanv->cv_y;
 	xo=x/(float)last_width;
 	xf=(bm->bm_w+x)/(float)last_width;
 	yo=1.0-y/(float)last_height;
@@ -1396,11 +1397,11 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 	if (dw < 0)
-		dw = grd_curcanv->cv_bitmap.bm_w;
+		dw = grd_curcanv->cv_w;
 	else if (dw == 0)
 		dw = bm->bm_w;
 	if (dh < 0)
-		dh = grd_curcanv->cv_bitmap.bm_h;
+		dh = grd_curcanv->cv_h;
 	else if (dh == 0)
 		dh = bm->bm_h;
 

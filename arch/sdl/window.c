@@ -122,7 +122,7 @@ int window_close(window *wind)
 
 	event.type = EVENT_WINDOW_CLOSE;
 	con_printf(CON_DEBUG,	"Sending event EVENT_WINDOW_CLOSE to window of dimensions %dx%d\n",
-			   (wind)->w_canv.cv_bitmap.bm_w, (wind)->w_canv.cv_bitmap.bm_h);
+			   (wind)->w_canv.cv_w, (wind)->w_canv.cv_h);
 	if (window_send_event(wind, &event))
 		printf("Warning: window doesn't want to be closed\n");
 

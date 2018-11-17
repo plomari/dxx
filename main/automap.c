@@ -429,7 +429,7 @@ void name_frame(automap *am)
 	gr_set_fontcolor(am->green_31,-1);
 	gr_printf((SWIDTH/64),(SHEIGHT/48),"%s", name_level_left);
 	gr_get_string_size(name_level_right,&wr,&h,&aw);
-	gr_printf(grd_curcanv->cv_bitmap.bm_w-wr-(SWIDTH/64),(SHEIGHT/48),"%s", name_level_right);
+	gr_printf(grd_curcanv->cv_w-wr-(SWIDTH/64),(SHEIGHT/48),"%s", name_level_right);
 }
 
 void draw_automap(automap *am)

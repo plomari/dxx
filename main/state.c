@@ -165,7 +165,7 @@ int state_callback(newmenu *menu, d_event *event, grs_bitmap *sc_bmp[])
 	if ( (citem > 0) && (event->type == EVENT_NEWMENU_DRAW) )
 	{
 		if ( sc_bmp[citem-1] )	{
-			ogl_ubitmapm_cs((grd_curcanv->cv_bitmap.bm_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-FSPACY(3),THUMBNAIL_W*FSPACX(1),THUMBNAIL_H*FSPACY(1),sc_bmp[citem-1],-1,F1_0);
+			ogl_ubitmapm_cs((grd_curcanv->cv_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-FSPACY(3),THUMBNAIL_W*FSPACX(1),THUMBNAIL_H*FSPACY(1),sc_bmp[citem-1],-1,F1_0);
 		}
 		
 		return 1;

@@ -67,10 +67,10 @@ UI_GADGET * ui_gadget_add( UI_DIALOG * dlg, short kind, short x1, short y1, shor
 		gadget->canvas = NULL;
 	else
 		gadget->canvas = gr_create_sub_canvas( window_get_canvas(ui_dialog_get_window( dlg )), x1, y1, x2-x1+1, y2-y1+1 );
-	gadget->x1 = gadget->canvas->cv_bitmap.bm_x;
-	gadget->y1 = gadget->canvas->cv_bitmap.bm_y;
-	gadget->x2 = gadget->canvas->cv_bitmap.bm_x+x2-x1+1;
-	gadget->y2 = gadget->canvas->cv_bitmap.bm_y+y2-y1+1;
+	gadget->x1 = gadget->canvas->cv_x;
+	gadget->y1 = gadget->canvas->cv_y;
+	gadget->x2 = gadget->canvas->cv_x+x2-x1+1;
+	gadget->y2 = gadget->canvas->cv_y+y2-y1+1;
 	gadget->parent = NULL;
 	gadget->hotkey = -1;
 	return gadget;

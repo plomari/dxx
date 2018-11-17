@@ -165,7 +165,7 @@ int get_centered_x(const char *s)
 		w += s2;
 	}
 
-	return ((grd_curcanv->cv_bitmap.bm_w - w) / 2);
+	return ((grd_curcanv->cv_w - w) / 2);
 }
 
 //hack to allow color codes to be embedded in strings -MPM
@@ -391,8 +391,6 @@ int ogl_internal_string(int x, int y, const char *s )
 
 	yy = y;
 
-	if (grd_curscreen->sc_canvas.cv_bitmap.bm_type != BM_OGL)
-		Error("carp.\n");
 	while (next_row != NULL)
 	{
 		text_ptr1 = next_row;
@@ -448,10 +446,7 @@ int ogl_internal_string(int x, int y, const char *s )
 			if (grd_curcanv->cv_font->ft_flags&FT_COLOR)
 				ogl_ubitmapm_cs(xx,yy,FONTSCALE_X(ft_w),FONTSCALE_Y(grd_curcanv->cv_font->ft_h),&grd_curcanv->cv_font->ft_bitmaps[letter],-1,F1_0);
 			else{
-				if (grd_curcanv->cv_bitmap.bm_type==BM_OGL)
-					ogl_ubitmapm_cs(xx,yy,ft_w*(FONTSCALE_X(grd_curcanv->cv_font->ft_w)/grd_curcanv->cv_font->ft_w),FONTSCALE_Y(grd_curcanv->cv_font->ft_h),&grd_curcanv->cv_font->ft_bitmaps[letter],grd_curcanv->cv_font_fg_color,F1_0);
-				else
-					Error("ogl_internal_string: non-color string to non-ogl dest\n");
+				ogl_ubitmapm_cs(xx,yy,ft_w*(FONTSCALE_X(grd_curcanv->cv_font->ft_w)/grd_curcanv->cv_font->ft_w),FONTSCALE_Y(grd_curcanv->cv_font->ft_h),&grd_curcanv->cv_font->ft_bitmaps[letter],grd_curcanv->cv_font_fg_color,F1_0);
 			}
 
 			xx += spacing;
@@ -474,9 +469,6 @@ int gr_3d_string(vms_vector *at, vms_vector *dir_x, vms_vector *dir_y, char *s )
 	float x = 0, y = 0;
 
 	next_row = s;
-
-	if (grd_curscreen->sc_canvas.cv_bitmap.bm_type != BM_OGL)
-		Error("carp.\n");
 
 	while (next_row != NULL)
 	{
@@ -550,21 +542,21 @@ int gr_string(int x, int y, const char *s )
 		gr_get_string_size(s, &w, &h, &aw );
 		// for x, since this will be centered, only look at
 		// width.
-		if ( w > grd_curcanv->cv_bitmap.bm_w ) clipped |= 1;
-		if ( (y+h) > grd_curcanv->cv_bitmap.bm_h ) clipped |= 1;
+		if ( w > grd_curcanv->cv_w ) clipped |= 1;
+		if ( (y+h) > grd_curcanv->cv_h ) clipped |= 1;
 
 		if ( (y+h) < 0 ) clipped |= 2;
-		if ( y > grd_curcanv->cv_bitmap.bm_h ) clipped |= 2;
+		if ( y > grd_curcanv->cv_h ) clipped |= 2;
 
 	} else {
 		if ( (x<0) || (y<0) ) clipped |= 1;
 		gr_get_string_size(s, &w, &h, &aw );
-		if ( (x+w) > grd_curcanv->cv_bitmap.bm_w ) clipped |= 1;
-		if ( (y+h) > grd_curcanv->cv_bitmap.bm_h ) clipped |= 1;
+		if ( (x+w) > grd_curcanv->cv_w ) clipped |= 1;
+		if ( (y+h) > grd_curcanv->cv_h ) clipped |= 1;
 		if ( (x+w) < 0 ) clipped |= 2;
 		if ( (y+h) < 0 ) clipped |= 2;
-		if ( x > grd_curcanv->cv_bitmap.bm_w ) clipped |= 2;
-		if ( y > grd_curcanv->cv_bitmap.bm_h ) clipped |= 2;
+		if ( x > grd_curcanv->cv_w ) clipped |= 2;
+		if ( y > grd_curcanv->cv_h ) clipped |= 2;
 	}
 
 	if ( !clipped )
@@ -576,21 +568,12 @@ int gr_string(int x, int y, const char *s )
 	}
 
 	// Partially clipped...
-	if (TYPE!=BM_OGL) {
-		Int3();
-		return 0;
-	}
 
 	return ogl_internal_string(x,y,s);
 }
 
 int gr_ustring(int x, int y, const char *s )
 {
-	if (TYPE!=BM_OGL) {
-		Int3();
-		return 0;
-	}
-
 	return ogl_internal_string(x,y,s);
 }
 

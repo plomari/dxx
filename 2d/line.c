@@ -32,13 +32,8 @@ int gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)
 {
 	int a1,b1,a2,b2;
 	a1 = f2i(_a1); b1 = f2i(_b1); a2 = f2i(_a2); b2 = f2i(_b2);
-	switch(TYPE)
-	{
-	case BM_OGL:
-		ogl_ulinec(a1,b1,a2,b2,COLOR);
-		return 0;
-	}
-	return 2;
+	ogl_ulinec(a1,b1,a2,b2,COLOR);
+	return 0;
 }
 
 // Returns 0 if drawn with no clipping, 1 if drawn but clipped, and

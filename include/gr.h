@@ -31,8 +31,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define GR_BLEND_ADDITIVE_A  1              // additive alpha blending
 #define GR_BLEND_ADDITIVE_C  2              // additive color blending
 
-#define GWIDTH  grd_curcanv->cv_bitmap.bm_w
-#define GHEIGHT grd_curcanv->cv_bitmap.bm_h
+#define GWIDTH  grd_curcanv->cv_w
+#define GHEIGHT grd_curcanv->cv_h
 #define SWIDTH  (grd_curscreen->sc_w)
 #define SHEIGHT (grd_curscreen->sc_h)
 
@@ -117,7 +117,8 @@ typedef struct _grs_font {
 #define GRS_FONT_SIZE 28    // how much space it takes up on disk
 
 typedef struct _grs_canvas {
-	grs_bitmap  cv_bitmap;      // the bitmap for this canvas
+	short		cv_x, cv_y;		// offset into the root area (absolute screen pos)
+	short		cv_w, cv_h;		// area size of this canvas
 	short       cv_color;       // current color
 	int         cv_fade_level;  // transparency level
 	ubyte       cv_blend_func;  // blending function to use
@@ -190,9 +191,8 @@ void gr_init_bitmap_data (grs_bitmap *bm);
 void gr_free_sub_bitmap(grs_bitmap *bm);
 
 void gr_bm_pixel( grs_bitmap * bm, int x, int y, unsigned char color );
-void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
-void gr_bm_ubitblt( int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
-void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest);
+void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_canvas *dest);
+void gr_bm_ubitblt( int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_canvas *dest);
 
 void gr_set_bitmap_flags(grs_bitmap *pbm, int flags);
 void gr_set_transparent(grs_bitmap *pbm, int bTransparent);

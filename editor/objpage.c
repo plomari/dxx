@@ -114,7 +114,7 @@ void gr_label_box( int i)
 //	sprintf( s, " %d ", i );
 //	gr_clear_canvas( BM_XRGB(0,15,0) );
 //	gr_set_fontcolor( CWHITE, BM_XRGB(0,15,0) );
-//	ui_string_centered(  grd_curcanv->cv_bitmap.bm_w/2, grd_curcanv->cv_bitmap.bm_h/2, Description[i] );
+//	ui_string_centered(  grd_curcanv->cv_w/2, grd_curcanv->cv_h/2, Description[i] );
 }
 
 int objpage_goto_first()

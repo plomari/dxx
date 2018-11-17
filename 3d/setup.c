@@ -32,8 +32,8 @@ void g3_start_frame(void)
 	fix s;
 
 	//set int w,h & fixed-point w,h/2
-	Canv_w2 = (Canvas_width  = grd_curcanv->cv_bitmap.bm_w)<<15;
-	Canv_h2 = (Canvas_height = grd_curcanv->cv_bitmap.bm_h)<<15;
+	Canv_w2 = (Canvas_width  = grd_curcanv->cv_w)<<15;
+	Canv_h2 = (Canvas_height = grd_curcanv->cv_h)<<15;
 
 	//compute aspect ratio for this canvas
 

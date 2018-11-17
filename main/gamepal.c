@@ -80,9 +80,6 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 
 		gr_use_palette_table(name);
 
-		if (Game_wind && !no_change_screen)
-			gr_remap_bitmap_good( &grd_curscreen->sc_canvas.cv_bitmap, old_pal, -1, -1 );
-
 		if (!no_change_screen)
 			gr_palette_load(gr_palette);
 

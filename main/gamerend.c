@@ -351,7 +351,7 @@ void game_draw_hud_stuff()
 		y = GHEIGHT-(LINE_SPACING*2);
 
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
-			y = grd_curcanv->cv_bitmap.bm_h / 1.2 ;
+			y = grd_curcanv->cv_h / 1.2 ;
 		if (PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 			gr_printf(0x8000, y, message );
 	}
@@ -361,7 +361,7 @@ void game_draw_hud_stuff()
 	// this should be made part of hud code some day
 	if ( Player_num > -1 && Viewer->type==OBJ_PLAYER && Viewer->id==Player_num && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)	{
 		int	x = FSPACX(1);
-		int	y = grd_curcanv->cv_bitmap.bm_h;
+		int	y = grd_curcanv->cv_h;
 
 		gr_set_curfont( GAME_FONT );
 		gr_set_fontcolor( BM_XRGB(0, 31, 0), -1 );

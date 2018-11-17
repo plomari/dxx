@@ -552,8 +552,8 @@ static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 		mouse_get_pos(&mx, &my, &mz);
 		for (int i=0; i<menu->nitems; i++ )	{
 			item_height = get_item_height( &menu->items[i], &menu->mitems[i] );
-			x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(menu->items[i].xinput);
-			y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(menu->items[i].y);
+			x1 = grd_curcanv->cv_x + FSPACX(menu->items[i].xinput);
+			y1 = grd_curcanv->cv_y + FSPACY(menu->items[i].y);
 			if (in_bounds(mx, my, x1, FSPACX(menu->items[i].w2), y1, item_height)) {
 				menu->citem = i;
 				rval = 1;
@@ -567,8 +567,8 @@ static int kconfig_mouse(window *wind, d_event *event, kc_menu *menu)
 		
 		mouse_get_pos(&mx, &my, &mz);
 		item_height = get_item_height( &menu->items[menu->citem], &menu->mitems[menu->citem] );
-		x1 = grd_curcanv->cv_bitmap.bm_x + FSPACX(menu->items[menu->citem].xinput);
-		y1 = grd_curcanv->cv_bitmap.bm_y + FSPACY(menu->items[menu->citem].y);
+		x1 = grd_curcanv->cv_x + FSPACX(menu->items[menu->citem].xinput);
+		y1 = grd_curcanv->cv_y + FSPACY(menu->items[menu->citem].y);
 		if (in_bounds(mx, my, x1, FSPACX(menu->items[menu->citem].w2), y1, item_height)) {
 			kconfig_start_changing(menu);
 			rval = 1;

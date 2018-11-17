@@ -1216,8 +1216,8 @@ void build_segment_list(int start_seg_num, int window_num)
 	N_render_segs++;
 
 	render_windows[0].left=render_windows[0].top=0;
-	render_windows[0].right=grd_curcanv->cv_bitmap.bm_w-1;
-	render_windows[0].bot=grd_curcanv->cv_bitmap.bm_h-1;
+	render_windows[0].right=grd_curcanv->cv_w-1;
+	render_windows[0].bot=grd_curcanv->cv_h-1;
 
 	//breadth-first renderer
 	int reprocess_pos = 0;

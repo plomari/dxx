@@ -182,7 +182,6 @@ void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, 
 	source_bm.bm_flags = 0;
 	source_bm.bm_data = buf;
 
-#ifdef OGL
 	if (dstx == -1 && dsty == -1) // Fullscreen movie so set scale to fit the actual screen size
 	{
 		if (((float)SWIDTH/SHEIGHT) < ((float)sw/bufh))
@@ -208,12 +207,9 @@ void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, 
 	ogl_ubitblt_i(
 		bufw*scale, bufh*scale,
 		dstx, dsty,
-		bufw, bufh, 0, 0, &source_bm,&grd_curcanv->cv_bitmap,GameCfg.MovieTexFilt);
+		bufw, bufh, 0, 0, &source_bm, grd_curcanv, GameCfg.MovieTexFilt);
 
 	glEnable (GL_BLEND);
-#else
-	gr_bm_ubitbltm(bufw,bufh,dstx,dsty,0,0,&source_bm,&grd_curcanv->cv_bitmap);
-#endif
 }
 
 //our routine to set the pallete, called from the movie code
@@ -687,12 +683,12 @@ void draw_subtitles(int frame_num)
 	}
 
 	//find y coordinate for first line of subtitles
-	y = grd_curcanv->cv_bitmap.bm_h-((LINE_SPACING)*(MAX_ACTIVE_SUBTITLES+2));
+	y = grd_curcanv->cv_h-((LINE_SPACING)*(MAX_ACTIVE_SUBTITLES+2));
 
 	//erase old subtitles if necessary
 	if (must_erase) {
 		gr_setcolor(0);
-		gr_rect(0,y,grd_curcanv->cv_bitmap.bm_w-1,grd_curcanv->cv_bitmap.bm_h-1);
+		gr_rect(0,y,grd_curcanv->cv_w-1,grd_curcanv->cv_h-1);
 	}
 
 	//now draw the current subtitles

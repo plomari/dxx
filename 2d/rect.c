@@ -25,26 +25,10 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void gr_urect(int left,int top,int right,int bot)
 {
-	int i;
-
-	if (TYPE == BM_OGL) {
-		ogl_urect(left,top,right,bot);
-		return;
-	}
-
-	for ( i=top; i<=bot; i++ )
-		gr_uscanline( left, right, i );
+	ogl_urect(left,top,right,bot);
 }
 
 void gr_rect(int left,int top,int right,int bot)
 {
-	int i;
-
-	if (TYPE == BM_OGL) {
-		ogl_urect(left,top,right,bot);
-		return;
-	}
-
-	for ( i=top; i<=bot; i++ )
-		gr_scanline( left, right, i );
+	ogl_urect(left,top,right,bot);
 }

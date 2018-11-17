@@ -34,7 +34,10 @@ void gr_init_sub_canvas(grs_canvas *new, grs_canvas *src, int x, int y, int w, i
 	new->cv_font_fg_color = src->cv_font_fg_color;
 	new->cv_font_bg_color = src->cv_font_bg_color;
 
-	gr_init_sub_bitmap (&new->cv_bitmap, &src->cv_bitmap, x, y, w, h);
+	new->cv_x = x + src->cv_x;
+	new->cv_y = y + src->cv_y;
+	new->cv_w = w;
+	new->cv_h = h;
 }
 
 void gr_set_current_canvas( grs_canvas *canv )

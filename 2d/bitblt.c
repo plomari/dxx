@@ -34,52 +34,38 @@ void gr_bitmap( int x, int y, grs_bitmap *bm )
 	int dy1=y, dy2=y+bm->bm_h-1;
 	int sx=0, sy=0;
 
-	if ((dx1 >= grd_curcanv->cv_bitmap.bm_w ) || (dx2 < 0)) return;
-	if ((dy1 >= grd_curcanv->cv_bitmap.bm_h) || (dy2 < 0)) return;
+	if ((dx1 >= grd_curcanv->cv_w ) || (dx2 < 0)) return;
+	if ((dy1 >= grd_curcanv->cv_h) || (dy2 < 0)) return;
 	if ( dx1 < 0 ) { sx = -dx1; dx1 = 0; }
 	if ( dy1 < 0 ) { sy = -dy1; dy1 = 0; }
-	if ( dx2 >= grd_curcanv->cv_bitmap.bm_w ) { dx2 = grd_curcanv->cv_bitmap.bm_w-1; }
-	if ( dy2 >= grd_curcanv->cv_bitmap.bm_h ) { dy2 = grd_curcanv->cv_bitmap.bm_h-1; }
+	if ( dx2 >= grd_curcanv->cv_w ) { dx2 = grd_curcanv->cv_w-1; }
+	if ( dy2 >= grd_curcanv->cv_h ) { dy2 = grd_curcanv->cv_h-1; }
 
 	// Draw bitmap bm[x,y] into (dx1,dy1)-(dx2,dy2)
 
-	gr_bm_ubitblt(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap );
+	gr_bm_ubitblt(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, grd_curcanv);
 
 }
 
-void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
+void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_canvas *dest)
 {
-	register int x1, y1;
-
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_OGL ))
-	{
-		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
-		return;
-	}
-
-	Assert(false);
-
-	for (y1=0; y1 < h; y1++ )    {
-		for (x1=0; x1 < w; x1++ )    {
-			gr_bm_pixel( dest, dx+x1, dy+y1, gr_gpixel(src,sx+x1,sy+y1) );
-		}
-	}
+	ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
 }
 
-void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
+void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_canvas *dest)
 {
-	int dx1=dx, dx2=dx+dest->bm_w-1;
-	int dy1=dy, dy2=dy+dest->bm_h-1;
+	int dx1=dx, dx2=dx+dest->cv_w-1;
+	int dy1=dy, dy2=dy+dest->cv_h-1;
 
 	int sx1=sx, sx2=sx+src->bm_w-1;
 	int sy1=sy, sy2=sy+src->bm_h-1;
 
-	if ((dx1 >= dest->bm_w ) || (dx2 < 0)) return;
-	if ((dy1 >= dest->bm_h ) || (dy2 < 0)) return;
+	if ((dx1 >= dest->cv_w ) || (dx2 < 0)) return;
+	if ((dy1 >= dest->cv_h ) || (dy2 < 0)) return;
 	if ( dx1 < 0 ) { sx1 += -dx1; dx1 = 0; }
 	if ( dy1 < 0 ) { sy1 += -dy1; dy1 = 0; }
-	if ( dx2 >= dest->bm_w ) { dx2 = dest->bm_w-1; }
-	if ( dy2 >= dest->bm_h ) { dy2 = dest->bm_h-1; }
+	if ( dx2 >= dest->cv_w ) { dx2 = dest->cv_w-1; }
+	if ( dy2 >= dest->cv_h ) { dy2 = dest->cv_h-1; }
 
 	if ((sx1 >= src->bm_w ) || (sx2 < 0)) return;
 	if ((sy1 >= src->bm_h ) || (sy2 < 0)) return;
@@ -98,38 +84,18 @@ void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src
 	if ( sy2-sy1+1 < h )
 		h = sy2-sy1+1;
 
-	gr_bm_ubitblt(w,h, dx1, dy1, sx1, sy1, src, dest );
+	gr_bm_ubitblt(w,h, dx1, dy1, sx1, sy1, src, dest);
 }
 
 void gr_ubitmap( int x, int y, grs_bitmap *bm )
 {
-	int source, dest;
-
-	source = bm->bm_type;
-	dest = TYPE;
-
-	if (source == BM_LINEAR && dest == BM_OGL) {
-		ogl_ubitmapm_cs(x,y,-1,-1,bm,255,F1_0);
-		return;
-	}
-
-	Assert(false);
+	ogl_ubitmapm_cs(x,y,-1,-1,bm,255,F1_0);
 }
 
 
 void gr_ubitmapm( int x, int y, grs_bitmap *bm )
 {
-	int source, dest;
-
-	source = bm->bm_type;
-	dest = TYPE;
-
-	if (source == BM_LINEAR && dest == BM_OGL) {
-		ogl_ubitmapm_cs(x,y,-1,-1,bm,255,F1_0);
-		return;
-	}
-
-	Assert(false);
+	ogl_ubitmapm_cs(x,y,-1,-1,bm,255,F1_0);
 }
 
 
@@ -139,40 +105,22 @@ void gr_bitmapm( int x, int y, grs_bitmap *bm )
 	int dy1=y, dy2=y+bm->bm_h-1;
 	int sx=0, sy=0;
 
-	if ((dx1 >= grd_curcanv->cv_bitmap.bm_w ) || (dx2 < 0)) return;
-	if ((dy1 >= grd_curcanv->cv_bitmap.bm_h) || (dy2 < 0)) return;
+	if ((dx1 >= grd_curcanv->cv_w ) || (dx2 < 0)) return;
+	if ((dy1 >= grd_curcanv->cv_h) || (dy2 < 0)) return;
 	if ( dx1 < 0 ) { sx = -dx1; dx1 = 0; }
 	if ( dy1 < 0 ) { sy = -dy1; dy1 = 0; }
-	if ( dx2 >= grd_curcanv->cv_bitmap.bm_w ) { dx2 = grd_curcanv->cv_bitmap.bm_w-1; }
-	if ( dy2 >= grd_curcanv->cv_bitmap.bm_h ) { dy2 = grd_curcanv->cv_bitmap.bm_h-1; }
+	if ( dx2 >= grd_curcanv->cv_w ) { dx2 = grd_curcanv->cv_w-1; }
+	if ( dy2 >= grd_curcanv->cv_h ) { dy2 = grd_curcanv->cv_h-1; }
 
 	// Draw bitmap bm[x,y] into (dx1,dy1)-(dx2,dy2)
 
-	gr_bm_ubitbltm(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, &grd_curcanv->cv_bitmap );
+	gr_bm_ubitblt(dx2-dx1+1,dy2-dy1+1, dx1, dy1, sx, sy, bm, grd_curcanv);
 
-}
-
-void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * src, grs_bitmap * dest)
-{
-	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_OGL ))
-	{
-		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
-		return;
-	}
-
-	Assert(false);
 }
 
 void show_fullscr(grs_bitmap *bm)
 {
-	grs_bitmap * const scr = &grd_curcanv->cv_bitmap;
-
-	if(bm->bm_type == BM_LINEAR && scr->bm_type == BM_OGL) {
-		ogl_ubitmapm_cs(0,0,-1,-1,bm,-1,F1_0);//use opengl to scale, faster and saves ram. -MPM
-		return;
-	}
-
-	Assert(0);
+	ogl_ubitmapm_cs(0, 0, -1, -1, bm, -1, F1_0);
 }
 
 // Find transparent area in bitmap

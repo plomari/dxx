@@ -29,9 +29,6 @@ extern unsigned char * gr_var_bitmap;
 #define MINY    0
 #define MAXX    (GWIDTH-1)
 #define MAXY    (GHEIGHT-1)
-#define TYPE    grd_curcanv->cv_bitmap.bm_type
-#define DATA    grd_curcanv->cv_bitmap.bm_data
-#define XOFFSET grd_curcanv->cv_bitmap.bm_x
-#define YOFFSET grd_curcanv->cv_bitmap.bm_y
-#define ROWSIZE grd_curcanv->cv_bitmap.bm_rowsize
+#define XOFFSET grd_curcanv->cv_x
+#define YOFFSET grd_curcanv->cv_y
 #define COLOR   grd_curcanv->cv_color

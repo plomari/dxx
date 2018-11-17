@@ -643,8 +643,8 @@ int DosShell()
 
 	// Save the current graphics state.
 
-	w = grd_curscreen->sc_canvas.cv_bitmap.bm_w;
-	h = grd_curscreen->sc_canvas.cv_bitmap.bm_h;
+	w = grd_curscreen->sc_canvas.cv_w;
+	h = grd_curscreen->sc_canvas.cv_h;
 
 	save_bitmap = gr_create_bitmap( w, h );
 	gr_bm_ubitblt(w, h, 0, 0, 0, 0, &(grd_curscreen->sc_canvas.cv_bitmap), save_bitmap );

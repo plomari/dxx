@@ -88,19 +88,15 @@ void gr_sdl_ogl_resize_window(int w, int h)
 
 	int screen_mode = SM(w, h);
 
-	char *gr_bm_data = (char *)grd_curscreen->sc_canvas.cv_bitmap.bm_data;//since we use realloc, we want to keep this pointer around.
 	memset( grd_curscreen, 0, sizeof(grs_screen));
 	grd_curscreen->sc_mode = screen_mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
 	grd_curscreen->sc_aspect = F1_0;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_x = 0;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_y = 0;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_w = w;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_h = h;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_rowsize = w;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_type = BM_OGL;
-	grd_curscreen->sc_canvas.cv_bitmap.bm_data = d_realloc(gr_bm_data,w*h);
+	grd_curscreen->sc_canvas.cv_x = 0;
+	grd_curscreen->sc_canvas.cv_y = 0;
+	grd_curscreen->sc_canvas.cv_w = w;
+	grd_curscreen->sc_canvas.cv_h = h;
 	gr_set_current_canvas(NULL);
 
 	/* select clearing (background) color   */
@@ -294,7 +290,6 @@ int gr_init(int mode)
 
 	MALLOC( grd_curscreen,grs_screen,1 );
 	memset( grd_curscreen, 0, sizeof(grs_screen));
-	grd_curscreen->sc_canvas.cv_bitmap.bm_data = NULL;
 
 	grd_curscreen->sc_canvas.cv_color = 0;
 	grd_curscreen->sc_canvas.cv_fade_level = GR_FADE_OFF;
@@ -324,8 +319,6 @@ void gr_close()
 
 	if (grd_curscreen)
 	{
-		if (grd_curscreen->sc_canvas.cv_bitmap.bm_data)
-			d_free(grd_curscreen->sc_canvas.cv_bitmap.bm_data);
 		d_free(grd_curscreen);
 	}
 	ogl_close_pixel_buffers();
@@ -334,7 +327,7 @@ void gr_close()
 extern int r_upixelc;
 void ogl_upixelc(int x, int y, int c)
 {
-	GLfloat vertex_array[] = { (x+grd_curcanv->cv_bitmap.bm_x)/(float)last_width, 1.0-(y+grd_curcanv->cv_bitmap.bm_y)/(float)last_height };
+	GLfloat vertex_array[] = { (x+grd_curcanv->cv_x)/(float)last_width, 1.0-(y+grd_curcanv->cv_y)/(float)last_height };
 	GLfloat color_array[] = { CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0 };
 
 	r_upixelc++;
@@ -374,10 +367,10 @@ void ogl_urect(int left,int top,int right,int bot)
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 
-	xo=(left+grd_curcanv->cv_bitmap.bm_x)/(float)last_width;
-	xf = (right + 1 + grd_curcanv->cv_bitmap.bm_x) / (float)last_width;
-	yo=1.0-(top+grd_curcanv->cv_bitmap.bm_y)/(float)last_height;
-	yf = 1.0 - (bot + 1 + grd_curcanv->cv_bitmap.bm_y) / (float)last_height;
+	xo=(left+grd_curcanv->cv_x)/(float)last_width;
+	xf = (right + 1 + grd_curcanv->cv_x) / (float)last_width;
+	yo=1.0-(top+grd_curcanv->cv_y)/(float)last_height;
+	yf = 1.0 - (bot + 1 + grd_curcanv->cv_y) / (float)last_height;
 
 	OGL_DISABLE(TEXTURE_2D);
 
@@ -419,10 +412,10 @@ void ogl_ulinec(int left,int top,int right,int bot,int c)
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 	
-	xo = (left + grd_curcanv->cv_bitmap.bm_x) / (float)last_width;
-	xf = (right + grd_curcanv->cv_bitmap.bm_x ) / (float)last_width;
-	yo = 1.0 - (top + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height;
-	yf = 1.0 - (bot + grd_curcanv->cv_bitmap.bm_y + 0.5) / (float)last_height;
+	xo = (left + grd_curcanv->cv_x) / (float)last_width;
+	xf = (right + grd_curcanv->cv_x ) / (float)last_width;
+	yo = 1.0 - (top + grd_curcanv->cv_y + 0.5) / (float)last_height;
+	yf = 1.0 - (bot + grd_curcanv->cv_y + 0.5) / (float)last_height;
  
 	OGL_DISABLE(TEXTURE_2D);
 

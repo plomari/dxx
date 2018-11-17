@@ -26,12 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 void gr_upixel( int x, int y )
 {
-	if (TYPE == BM_OGL) {
-		ogl_upixelc(x,y,COLOR);
-		return;
-	}
-
-	Assert(false);
+	ogl_upixelc(x,y,COLOR);
 }
 
 void gr_pixel( int x, int y )
@@ -42,12 +37,7 @@ void gr_pixel( int x, int y )
 
 void gr_bm_upixel( grs_bitmap * bm, int x, int y, unsigned char color )
 {
-	if (TYPE == BM_OGL) {
-		ogl_upixelc(bm->bm_x+x,bm->bm_y+y,color);
-		return;
-	}
-
-	Assert(false);
+	ogl_upixelc(bm->bm_x+x,bm->bm_y+y,color);
 }
 
 void gr_bm_pixel( grs_bitmap * bm, int x, int y, unsigned char color )

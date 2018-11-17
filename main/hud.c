@@ -220,8 +220,8 @@ void player_dead_message(void)
 			gr_get_string_size( TXT_GAME_OVER, &w, &h, &aw );
 			w += 20;
 			h += 8;
-			x = (grd_curcanv->cv_bitmap.bm_w - w ) / 2;
-			y = (grd_curcanv->cv_bitmap.bm_h - h ) / 2;
+			x = (grd_curcanv->cv_w - w ) / 2;
+			y = (grd_curcanv->cv_h - h ) / 2;
 		
 			gr_settransblend(14, GR_BLEND_NORMAL);
 			gr_setcolor( BM_XRGB(0,0,0) );
