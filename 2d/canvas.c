@@ -24,23 +24,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 grs_canvas * grd_curcanv;    //active canvas
 grs_screen * grd_curscreen;  //active screen
 
-grs_canvas *gr_create_sub_canvas(grs_canvas *canv, int x, int y, int w, int h)
-{
-	grs_canvas *new;
-
-	new = (grs_canvas *)d_malloc( sizeof(grs_canvas) );
-	gr_init_sub_bitmap (&new->cv_bitmap, &canv->cv_bitmap, x, y, w, h);
-
-	new->cv_color = canv->cv_color;
-	new->cv_fade_level = canv->cv_fade_level;
-	new->cv_blend_func = canv->cv_blend_func;
-	new->cv_drawmode = canv->cv_drawmode;
-	new->cv_font = canv->cv_font;
-	new->cv_font_fg_color = canv->cv_font_fg_color;
-	new->cv_font_bg_color = canv->cv_font_bg_color;
-	return new;
-}
-
 void gr_init_sub_canvas(grs_canvas *new, grs_canvas *src, int x, int y, int w, int h)
 {
 	new->cv_color = src->cv_color;
@@ -52,11 +35,6 @@ void gr_init_sub_canvas(grs_canvas *new, grs_canvas *src, int x, int y, int w, i
 	new->cv_font_bg_color = src->cv_font_bg_color;
 
 	gr_init_sub_bitmap (&new->cv_bitmap, &src->cv_bitmap, x, y, w, h);
-}
-
-void gr_free_sub_canvas(grs_canvas *canv)
-{
-	d_free(canv);
 }
 
 void gr_set_current_canvas( grs_canvas *canv )

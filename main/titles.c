@@ -417,7 +417,6 @@ typedef struct briefing
 	fix64		start_time;
 	fix64		delay_count;
 	int		robot_num;
-	grs_canvas	*robot_canv;
 	vms_angvec	robot_angles;
 	char	robot_playing;
 	char    bitmap_name[32];
@@ -439,7 +438,6 @@ void briefing_init(briefing *br, short level_num)
 	strncpy(br->background_name, DEFAULT_BRIEFING_BKG, sizeof(br->background_name));
 	br->hum_channel = br->printing_channel = -1;
 	br->robot_num = 0;
-	br->robot_canv = NULL;
 	br->robot_angles.p = br->robot_angles.b = br->robot_angles.h = 0;
 	br->robot_playing = 0;
 	br->bitmap_name[0] = '\0';
@@ -614,7 +612,6 @@ static void put_char_delay(briefing *br, char ch)
 	br->start_time = timer_query();
 }
 
-void init_spinning_robot(briefing *br);
 int load_briefing_screen(briefing *br, char *fname);
 
 // Process a character for the briefing,
@@ -653,18 +650,12 @@ int briefing_process_char(briefing *br)
 			br->tab_stop = get_message_num(&br->message);
 			br->prev_ch = 10;							//	read to eoln
 		} else if (ch == 'R') {
-			if (br->robot_canv != NULL)
-			{
-				d_free(br->robot_canv);
-				br->robot_canv=NULL;
-			}
 			if (br->robot_playing) {
 				DeInitRobotMovie();
 				br->robot_playing=0;
 			}
 
 			if (EMULATING_D1) {
-				init_spinning_robot(br);
 				br->robot_num = get_message_num(&br->message);
 				while (*br->message++ != 10)
 					;
@@ -685,23 +676,11 @@ int briefing_process_char(briefing *br)
 			}
 			br->prev_ch = 10;                           // read to eoln
 		} else if (ch == 'N') {
-			if (br->robot_canv != NULL)
-			{
-				d_free(br->robot_canv);
-				br->robot_canv=NULL;
-			}
-
 			get_message_name(&br->message, br->bitmap_name);
 			strcat(br->bitmap_name, "#0");
 			br->animating_bitmap_type = 0;
 			br->prev_ch = 10;
 		} else if (ch == 'O') {
-			if (br->robot_canv != NULL)
-			{
-				d_free(br->robot_canv);
-				br->robot_canv=NULL;
-			}
-
 			get_message_name(&br->message, br->bitmap_name);
 			strcat(br->bitmap_name, "#0");
 			br->animating_bitmap_type = 1;
@@ -748,12 +727,6 @@ int briefing_process_char(briefing *br)
 			char		bitmap_name[32];
 			ubyte		temp_palette[768];
 			int		iff_error;
-
-			if (br->robot_canv != NULL)
-			{
-				d_free(br->robot_canv);
-				br->robot_canv=NULL;
-			}
 
 			get_message_name(&br->message, bitmap_name);
 			strcat(bitmap_name, ".bbm");
@@ -898,7 +871,7 @@ void flash_cursor(briefing *br, int cursor_flag)
 //-----------------------------------------------------------------------------
 void show_animated_bitmap(briefing *br)
 {
-	grs_canvas  *curcanv_save, *bitmap_canv=0;
+	grs_canvas  *curcanv_save, bitmap_canv;
 	grs_bitmap	*bitmap_ptr;
 	float scale = 1.0;
 
@@ -932,13 +905,13 @@ void show_animated_bitmap(briefing *br)
 		bitmap_index bi;
 
 		switch (br->animating_bitmap_type) {
-			case 0:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 64, 64);	break;
-			case 1:		bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(45), 94, 94);	break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
+			case 0:		gr_init_sub_canvas(&bitmap_canv, grd_curcanv, rescale_x(220), rescale_y(45), 64, 64);	break;
+			case 1:		gr_init_sub_canvas(&bitmap_canv, grd_curcanv, rescale_x(220), rescale_y(45), 94, 94);	break; // Adam: Change here for your new animating bitmap thing. 94, 94 are bitmap size.
 			default:	Int3(); // Impossible, illegal value for br->animating_bitmap_type
 		}
 
 		curcanv_save = grd_curcanv;
-		grd_curcanv = bitmap_canv;
+		grd_curcanv = &bitmap_canv;
 
 		pound_signp = strchr(br->bitmap_name, '#');
 		Assert(pound_signp != NULL);
@@ -987,7 +960,6 @@ void show_animated_bitmap(briefing *br)
 		gr_bitmapm(0, 0, bitmap_ptr);
 #endif
 		grd_curcanv = curcanv_save;
-		d_free(bitmap_canv);
 
 		switch (br->animating_bitmap_type) {
 			case 0:
@@ -1008,12 +980,12 @@ void show_animated_bitmap(briefing *br)
 //-----------------------------------------------------------------------------
 void show_briefing_bitmap(grs_bitmap *bmp)
 {
-	grs_canvas	*curcanv_save, *bitmap_canv;
+	grs_canvas	*curcanv_save, bitmap_canv;
 	float scale = 1.0;
 
-	bitmap_canv = gr_create_sub_canvas(grd_curcanv, rescale_x(220), rescale_y(55), (bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))));
+	gr_init_sub_canvas(&bitmap_canv, grd_curcanv, rescale_x(220), rescale_y(55), (bmp->bm_w*(SWIDTH/(HIRESMODE ? 640 : 320))),(bmp->bm_h*(SHEIGHT/(HIRESMODE ? 480 : 200))));
 	curcanv_save = grd_curcanv;
-	gr_set_current_canvas(bitmap_canv);
+	gr_set_current_canvas(&bitmap_canv);
 
 	if (((float)SWIDTH/(HIRESMODE ? 640 : 320)) < ((float)SHEIGHT/(HIRESMODE ? 480 : 200)))
 		scale = ((float)SWIDTH/(HIRESMODE ? 640 : 320));
@@ -1025,19 +997,6 @@ void show_briefing_bitmap(grs_bitmap *bmp)
 	gr_bitmapm(0, 0, bmp);
 #endif
 	gr_set_current_canvas(curcanv_save);
-
-	d_free(bitmap_canv);
-}
-
-//-----------------------------------------------------------------------------
-void init_spinning_robot(briefing *br) //(int x,int y,int w,int h)
-{
-	int x = rescale_x(138);
-	int y = rescale_y(55);
-	int w = rescale_x(166);
-	int h = rescale_y(138);
-
-	br->robot_canv = gr_create_sub_canvas(grd_curcanv, x, y, w, h);
 }
 
 void show_spinning_robot_frame(briefing *br, int robot_num)
@@ -1048,8 +1007,16 @@ void show_spinning_robot_frame(briefing *br, int robot_num)
 		br->robot_angles.p = br->robot_angles.b = 0;
 		br->robot_angles.h += 150;
 
+		int x = rescale_x(138);
+		int y = rescale_y(55);
+		int w = rescale_x(166);
+		int h = rescale_y(138);
+		grs_canvas robot_canv;
+
+		gr_init_sub_canvas(&robot_canv, grd_curcanv, x, y, w, h);
+
 		curcanv_save = grd_curcanv;
-		grd_curcanv = br->robot_canv;
+		grd_curcanv = &robot_canv;
 		Assert(Robot_info[robot_num].model_num != -1);
 		draw_model_picture(Robot_info[robot_num].model_num, &br->robot_angles);
 		grd_curcanv = curcanv_save;
@@ -1168,8 +1135,6 @@ void free_briefing_screen(briefing *br)
 		DeInitRobotMovie();
 		br->robot_playing=0;
 	}
-	if (br->robot_canv != NULL)
-		d_free(br->robot_canv);
 
 	if (br->printing_channel>-1)
 		digi_stop_sound( br->printing_channel );
