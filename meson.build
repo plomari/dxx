@@ -228,5 +228,5 @@ args = [
 executable(meson.project_name(),
            common_sources, arch_linux_sources, arch_ogl_sources,
            c_args: args,
-           include_directories: include_directories('include', 'main', 'arch/include', 'arch/linux/include'),
+           include_directories: include_directories('include', 'main', 'arch/include'),
            dependencies: [sdl2, libm, gl])
