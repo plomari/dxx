@@ -1107,11 +1107,15 @@ void ogl_end_frame(void){
 	glDisable(GL_DEPTH_TEST);
 }
 
+void gr_prepare_frame(void)
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+}
+
 void gr_flip(void)
 {
 	ogl_do_palfx();
 	ogl_swap_buffers_internal();
-	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 //little hack to find the nearest bigger power of 2 for a given number

@@ -331,6 +331,7 @@ extern int get_selector( void * address, int size, unsigned int * selector );
 int gr_find_closest_color( int r, int g, int b );
 int gr_find_closest_color_15bpp( int rgb );
 
+void gr_prepare_frame(void);
 extern void gr_flip(void);
 extern void gr_set_draw_buffer(int buf);
 

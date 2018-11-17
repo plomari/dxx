@@ -177,6 +177,8 @@ static void event_process(void)
 	if (window_get_front() != wind)
 		return;
 
+	gr_prepare_frame();
+
 	window *last_opaque = NULL;
 	for (window *w = window_get_first(); w; w = window_get_next(w)) {
 		if (!last_opaque || window_get_opaque(w))
