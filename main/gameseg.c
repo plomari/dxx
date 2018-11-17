@@ -592,7 +592,6 @@ static ubyte get_side_dists(const vms_vector *checkp,int segnum,fix *side_dists)
 
 }
 
-#ifndef NDEBUG
 #ifndef COMPACT_SEGS
 //returns true if errors detected
 int check_norms(int segnum,int sidenum,int facenum,int csegnum,int csidenum,int cfacenum)
@@ -696,7 +695,6 @@ int check_segment_connections(void)
 	return errors;
 
 }
-#endif
 #endif
 
 // Used to become a constant based on editor, but I wanted to be able to set

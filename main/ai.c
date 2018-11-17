@@ -66,10 +66,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "string.h"
 
-#ifndef NDEBUG
-#include <time.h>
-#endif
-
 // ---------- John: These variables must be saved as part of gamesave. --------
 int             Ai_initialized = 0;
 int             Overall_agitation;
@@ -106,11 +102,6 @@ int ai_evaded=0;
 int Robot_firing_enabled = 1;
 int Animation_enabled = 1;
 
-#ifndef NDEBUG
-int Ai_info_enabled=0;
-#endif
-
-
 // These globals are set by a call to find_vector_intersection, which is a slow routine,
 // so we don't want to call it again (for this object) unless we have to.
 vms_vector  Hit_pos;
@@ -122,54 +113,6 @@ awareness_event Awareness_events[MAX_AWARENESS_EVENTS];
 
 vms_vector      Believed_player_pos;
 int             Believed_player_seg;
-
-#ifndef NDEBUG
-// Index into this array with ailp->mode
-static const char mode_text[18][16] = {
-	"STILL",
-	"WANDER",
-	"FOL_PATH",
-	"CHASE_OBJ",
-	"RUN_FROM",
-	"BEHIND",
-	"FOL_PATH2",
-	"OPEN_DOOR",
-	"GOTO_PLR",
-	"GOTO_OBJ",
-	"SN_ATT",
-	"SN_FIRE",
-	"SN_RETR",
-	"SN_RTBK",
-	"SN_WAIT",
-	"TH_ATTACK",
-	"TH_RETREAT",
-	"TH_WAIT",
-};
-
-//	Index into this array with aip->behavior
-static const char behavior_text[6][9] = {
-	"STILL   ",
-	"NORMAL  ",
-	"HIDE    ",
-	"RUN_FROM",
-	"FOLPATH ",
-	"STATION "
-};
-
-// Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
-static const char state_text[8][5] = {
-	"NONE",
-	"REST",
-	"SRCH",
-	"LOCK",
-	"FLIN",
-	"FIRE",
-	"RECO",
-	"ERR_",
-};
-
-
-#endif
 
 // Current state indicates where the robot current is, or has just done.
 // Transition table between states for an AI object.
@@ -356,17 +299,8 @@ void do_ai_frame(object *obj)
 		aip->GOAL_STATE = AIS_FIRE;
 	}
 
-#ifndef NDEBUG
 	if ((aip->behavior == AIB_RUN_FROM) && (ailp->mode != AIM_RUN_FROM_OBJECT))
 		Int3(); // This is peculiar.  Behavior is run from, but mode is not.  Contact Mike.
-
-	if (!Do_ai_flag)
-		return;
-
-	if (Break_on_object != -1)
-		if ((obj-Objects) == Break_on_object)
-			Int3(); // Contact Mike: This is a debug break
-#endif
 
 	//Assert((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR));
 	if (!((aip->behavior >= MIN_BEHAVIOR) && (aip->behavior <= MAX_BEHAVIOR))) {
@@ -525,11 +459,9 @@ _exit_cheat:
 				case AIM_OPEN_DOOR:
 					create_n_segment_path_to_door(obj, 5, -1);
 					break;
-				#ifndef NDEBUG
 				case AIM_FOLLOW_PATH_2:
 					Int3(); // Should never happen!
 					break;
-				#endif
 			}
 			ailp->consecutive_retries = 0;
 		}
@@ -666,18 +598,12 @@ _exit_cheat:
 	// Time-slice, don't process all the time, purely an efficiency hack.
 	// Guys whose behavior is station and are not at their hide segment get processed anyway.
 	if (!((aip->behavior == AIB_SNIPE) && (ailp->mode != AIM_SNIPE_WAIT)) && !robptr->companion && !robptr->thief && (ailp->player_awareness_type < PA_WEAPON_ROBOT_COLLISION-1)) { // If robot got hit, he gets to attack player always!
-#ifndef NDEBUG
-		if (Break_on_object != objnum) {    // don't time slice if we're interested in this object.
-#endif
-			if ((aip->behavior == AIB_STATION) && (ailp->mode == AIM_FOLLOW_PATH) && (aip->hide_segment != obj->segnum)) {
-				if (dist_to_player > F1_0*250)  // station guys not at home always processed until 250 units away.
-					return;
-			} else if ((!ailp->previous_visibility) && ((dist_to_player >> 7) > ailp->time_since_processed)) {  // 128 units away (6.4 segments) processed after 1 second.
+		if ((aip->behavior == AIB_STATION) && (ailp->mode == AIM_FOLLOW_PATH) && (aip->hide_segment != obj->segnum)) {
+			if (dist_to_player > F1_0*250)  // station guys not at home always processed until 250 units away.
 				return;
-			}
-#ifndef NDEBUG
+		} else if ((!ailp->previous_visibility) && ((dist_to_player >> 7) > ailp->time_since_processed)) {  // 128 units away (6.4 segments) processed after 1 second.
+			return;
 		}
-#endif
 	}
 
 	// Reset time since processed, but skew objects so not everything
@@ -1420,40 +1346,6 @@ void set_player_awareness_all(void)
 		}
 }
 
-#ifndef NDEBUG
-int Ai_dump_enable = 0;
-
-FILE *Ai_dump_file = NULL;
-
-char Ai_error_message[128] = "";
-
-// ----------------------------------------------------------------------------------
-void force_dump_ai_objects_all(char *msg)
-{
-	int tsave;
-
-	tsave = Ai_dump_enable;
-
-	Ai_dump_enable = 1;
-
-	sprintf(Ai_error_message, "%s\n", msg);
-	//dump_ai_objects_all();
-	Ai_error_message[0] = 0;
-
-	Ai_dump_enable = tsave;
-}
-
-// ----------------------------------------------------------------------------------
-void turn_off_ai_dump(void)
-{
-	if (Ai_dump_file != NULL)
-		fclose(Ai_dump_file);
-
-	Ai_dump_file = NULL;
-}
-
-#endif
-
 extern void do_boss_dying_frame(object *objp);
 
 // ----------------------------------------------------------------------------------
@@ -1462,10 +1354,6 @@ extern void do_boss_dying_frame(object *objp);
 //  Setting player_awareness (a fix, time in seconds which object is aware of player)
 void do_ai_frame_all(void)
 {
-#ifndef NDEBUG
-	//dump_ai_objects_all();
-#endif
-
 	set_player_awareness_all();
 
 	if (Ai_last_missile_camera > -1) {

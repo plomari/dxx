@@ -447,11 +447,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 	Assert(between_levels == 0);	//between levels save ripped out
 
-	#ifndef NDEBUG
-	if (GameArg.SysUsePlayersDir && strncmp(filename, "Players/", 8))
-		Int3();
-	#endif
-
 	fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) {
 		nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
@@ -800,11 +795,6 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	fix	old_gametime = GameTime;
 	short TempTmapNum[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
 	short TempTmapNum2[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
-
-	#ifndef NDEBUG
-	if (GameArg.SysUsePlayersDir && strncmp(filename, "Players/", 8))
-		Int3();
-	#endif
 
 	fp = PHYSFSX_openReadBuffered(filename);
 	if ( !fp ) return 0;

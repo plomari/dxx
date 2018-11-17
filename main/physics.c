@@ -185,20 +185,7 @@ int phys_seglist[MAX_FVI_SEGS],n_phys_segs;
 
 #define MAX_IGNORE_OBJS 100
 
-#ifndef NDEBUG
-#define EXTRA_DEBUG 1		//no extra debug when NDEBUG is on
-#endif
-
-#ifdef EXTRA_DEBUG
-object *debug_obj=NULL;
-#endif
-
 #define XYZ(v) (v)->x,(v)->y,(v)->z
-
-#ifndef NDEBUG
-int	Total_retries=0, Total_sims=0;
-int	Dont_move_ai_objects=0;
-#endif
 
 #define FT (f1_0/64)
 
@@ -342,12 +329,6 @@ void do_physics_sim(object *obj)
 
 	Assert(obj->movement_type == MT_PHYSICS);
 
-#ifndef NDEBUG
-	if (Dont_move_ai_objects)
-		if (obj->control_type == CT_AI)
-			return;
-#endif
-
 	pi = &obj->mtype.phys_info;
 
 	do_physics_sim_rot(obj);
@@ -360,21 +341,6 @@ void do_physics_sim(object *obj)
 	n_phys_segs = 0;
 
 	sim_time = FrameTime;
-
-	//debug_obj = obj;
-
-#ifdef EXTRA_DEBUG
-	//check for correct object segment
-	if(!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
-	{
-		if (!update_object_seg(obj)) {
-			if (!(Game_mode & GM_MULTI))
-				Int3();
-			compute_segment_center(&obj->pos,&Segments[obj->segnum]);
-			obj->pos.x += objnum;
-		}
-	}
-#endif
 
 	start_pos = obj->pos;
 
@@ -471,11 +437,9 @@ void do_physics_sim(object *obj)
 				count--;
 		}
 
-#ifndef NDEBUG
 		if (fate == HIT_BAD_P0) {
 			Int3();
 		}
-#endif
 
 		if (obj->type == OBJ_PLAYER) {
 			int i;
@@ -700,7 +664,6 @@ void do_physics_sim(object *obj)
 			case HIT_NONE:		
 				break;
 
-#ifndef NDEBUG
 			case HIT_BAD_P0:
 				Int3();		// Unexpected collision type: start point not in specified segment.
 				break;
@@ -708,7 +671,6 @@ void do_physics_sim(object *obj)
 				// Unknown collision type returned from find_vector_intersection!!
 				Int3();
 				break;
-#endif
 		}
 	} while ( try_again );
 
@@ -716,10 +678,6 @@ void do_physics_sim(object *obj)
 	if (obj->control_type == CT_AI) {
 		if (count > 0) {
 			Ai_local_info[objnum].retry_count = count-1;
-#ifndef NDEBUG
-			Total_retries += count-1;
-			Total_sims++;
-#endif
 		}
 	}
 

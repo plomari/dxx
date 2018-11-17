@@ -617,7 +617,6 @@ int gamedata_read_tbl(int pc_shareware)
 			 && (Effects[i].vc.num_frames==-1) )
 			Error("EClip %d referenced (by polygon object?), but not defined",i);
 
-	#ifndef NDEBUG
 	{
 		int used;
 		for (i=used=0; i<num_sounds; i++ )
@@ -630,7 +629,6 @@ int gamedata_read_tbl(int pc_shareware)
 			Assert(alt==0 || alt==-1 || Sounds[alt]!=255);
 		}
 	}
-	#endif
 
 	#ifdef EDITOR
 //	piggy_dump_all();	// causes problems - we're not going to bother

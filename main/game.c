@@ -105,10 +105,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 extern char IWasKicked;
 #endif
 
-#ifndef NDEBUG
-int	Mark_count = 0;                 // number of debugging marks set
-#endif
-
 static fix64 last_timer_value=0;
 fix ThisLevelTime=0;
 
@@ -128,6 +124,7 @@ fix	Auto_fire_fusion_cannon_time = 0;
 fix	Fusion_charge = 0;
 int	Game_turbo_mode = 0;
 int	Game_mode = GM_GAME_OVER;
+bool Debug_mode;
 int	Global_laser_firing_count = 0;
 int	Global_missile_firing_count = 0;
 fix	Next_flare_fire_time = 0;
@@ -1668,8 +1665,6 @@ void powerup_grab_cheat_all(void)
 
 int	Last_level_path_created = -1;
 
-#ifdef SHOW_EXIT_PATH
-
 //	------------------------------------------------------------------------------------------------------------------
 //	Create path for player from current segment to goal segment.
 //	Return true if path created, else return false.
@@ -1743,31 +1738,6 @@ int create_special_path(void)
 
 	return 0;
 }
-
-#endif
-
-
-#ifndef RELEASE
-int	Max_obj_count_mike = 0;
-
-//	Shows current number of used objects.
-void show_free_objects(void)
-{
-	if (!(d_tick_count & 8)) {
-		int	i;
-		int	count=0;
-
-		for (i=0; i<=Highest_object_index; i++)
-			if (Objects[i].type != OBJ_NONE)
-				count++;
-
-		if (count > Max_obj_count_mike) {
-			Max_obj_count_mike = count;
-		}
-	}
-}
-
-#endif
 
 /*
  * reads a flickering_light structure from a CFILE

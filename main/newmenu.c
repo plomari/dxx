@@ -1032,13 +1032,6 @@ int newmenu_key_command(window *wind, d_event *event, newmenu *menu)
 			}
 			break;
 
-#ifndef NDEBUG
-		case KEY_BACKSP:
-			if ( (menu->citem>-1) && (item->type!=NM_TYPE_INPUT)&&(item->type!=NM_TYPE_INPUT_MENU))
-				Int3();
-			break;
-#endif
-
 		default:
 			rval = 0;
 			break;

@@ -146,12 +146,6 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 
 	ts->allow_keys = allow_keys;
 
-#ifdef RELEASE
-	if (0 && from_hog_only)
-		strcpy(new_filename,"\x01");	//only read from hog file
-
-#endif
-
 	strcat(new_filename,filename);
 	filename = new_filename;
 

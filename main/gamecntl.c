@@ -99,17 +99,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern void object_goto_prev_viewer(void);
 
-// Global Variables -----------------------------------------------------------
-
-int	Debug_spew;
-
 //	External Variables ---------------------------------------------------------
 
 extern char WaitForRefuseAnswer,RefuseThisPlayer,RefuseTeam;
-
-#ifndef NDEBUG
-extern int	Mark_count;
-#endif
 
 extern int	Global_missile_firing_count;
 
@@ -141,15 +133,11 @@ extern void DropMarker();
 extern void DropSecondaryWeapon();
 extern void DropCurrentWeapon();
 
-#ifndef RELEASE
 void do_cheat_menu(void);
-#endif
 
 int HandleGameKey(int key);
 int HandleSystemKey(int key);
 int HandleTestKey(int key);
-void advance_sound(void);
-void play_test_sound(void);
 
 #define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
 
@@ -618,37 +606,6 @@ int HandleDemoKey(int key)
 			}
 			break;
 		}
-#ifndef NDEBUG
-		case KEY_DEBUGGED + KEY_I:
-			Newdemo_do_interpolate = !Newdemo_do_interpolate;
-			HUD_init_message(HM_DEFAULT, "Demo playback interpolation %s", Newdemo_do_interpolate?"ON":"OFF");
-			break;
-		case KEY_DEBUGGED + KEY_K: {
-			int how_many, c;
-			char filename[FILENAME_LEN], num[16];
-			newmenu_item m[6];
-
-			filename[0] = '\0';
-			nm_set_item_text(& m[ 0], "output file name");
-			nm_set_item_input(&m[ 1], 8, filename);
-			c = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
-			if (c == -2)
-				break;
-			strcat(filename, DEMO_EXT);
-			num[0] = '\0';
-			nm_set_item_text(& m[ 0], "strip how many bytes");
-			nm_set_item_input(&m[ 1], 16, num);
-			c = newmenu_do( NULL, NULL, 2, m, NULL, NULL );
-			if (c == -2)
-				break;
-			how_many = atoi(num);
-			if (how_many <= 0)
-				break;
-			newdemo_strip_frames(filename, how_many);
-
-			break;
-		}
-#endif
 
 		default:
 			return 0;
@@ -1185,8 +1142,6 @@ kasf_done: ;
 
 }
 
-#ifndef RELEASE
-
 void kill_all_snipers(void)
 {
 	int     i, dead_count=0;
@@ -1233,31 +1188,11 @@ int HandleTestKey(int key)
 	switch (key)
 	{
 
-#ifdef SHOW_EXIT_PATH
 		case KEY_DEBUGGED+KEY_1:	create_special_path();	break;
-#endif
 
 		case KEY_DEBUGGED+KEY_Y:
 			do_controlcen_destroyed_stuff(NULL);
 			break;
-
-#ifdef NETWORK
-	case KEY_DEBUGGED+KEY_ALTED+KEY_D:
-			PlayerCfg.NetlifeKills=4000; PlayerCfg.NetlifeKilled=5;
-			multi_add_lifetime_kills();
-			break;
-#endif
-
-		case KEY_BACKSP:
-		case KEY_CTRLED+KEY_BACKSP:
-		case KEY_ALTED+KEY_BACKSP:
-		case KEY_SHIFTED+KEY_BACKSP:
-		case KEY_SHIFTED+KEY_ALTED+KEY_BACKSP:
-		case KEY_CTRLED+KEY_ALTED+KEY_BACKSP:
-		case KEY_SHIFTED+KEY_CTRLED+KEY_BACKSP:
-		case KEY_SHIFTED+KEY_CTRLED+KEY_ALTED+KEY_BACKSP:
-
-			Int3(); break;
 
 		case KEY_DEBUGGED+KEY_S:				digi_reset(); break;
 
@@ -1268,27 +1203,6 @@ int HandleTestKey(int key)
 				Game_suspended |= SUSP_ROBOTS;		//robots don't move
 			break;
 
-
-
-		case KEY_DEBUGGED+KEY_K:	Players[Player_num].shields = 1;	break;							//	a virtual kill
-		case KEY_DEBUGGED+KEY_SHIFTED + KEY_K:  Players[Player_num].shields = -1;	 break;  //	an actual kill
-		case KEY_DEBUGGED+KEY_X: Players[Player_num].lives++; break; // Extra life cheat key.
-		case KEY_DEBUGGED+KEY_H:
-			if (Player_is_dead)
-				return 0;
-
-			Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
-			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-#ifdef NETWORK
-				if (Game_mode & GM_MULTI)
-					multi_send_cloak();
-#endif
-				ai_do_cloak_stuff();
-				Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
-			}
-			break;
-
-
 		case KEY_DEBUGGED+KEY_R:
 			Robot_firing_enabled = !Robot_firing_enabled;
 			break;
@@ -1296,35 +1210,6 @@ int HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_R+KEY_SHIFTED:
 			kill_all_robots();
 			break;
-
-#ifdef EDITOR		//editor-specific functions
-
-		case KEY_E + KEY_DEBUGGED:
-			init_editor();
-			window_close(Game_wind);
-			break;
-	case KEY_Q + KEY_SHIFTED + KEY_DEBUGGED:
-		{
-			char pal_save[768];
-			memcpy(pal_save,gr_palette,768);
-			init_subtitles("end.tex");	//ingore errors
-			PlayMovie ("end.mve",MOVIE_ABORT_ON);
-			close_subtitles();
-			gr_set_current_canvas(NULL);
-			reset_cockpit();
-			memcpy(gr_palette,pal_save,768);
-			gr_palette_load(gr_palette);
-			break;
-		}
-		case KEY_C + KEY_SHIFTED + KEY_DEBUGGED:
-			if (!Player_is_dead && !( Game_mode & GM_MULTI ))
-				move_player_2_segment(Cursegp,Curside);
-			break;   //move eye to curseg
-
-
-		case KEY_DEBUGGED+KEY_W:	draw_world_from_game(); break;
-
-		#endif  //#ifdef EDITOR
 
 		case KEY_DEBUGGED+KEY_LAPOSTRO: Show_view_text_timer = 0x30000; object_goto_next_viewer(); break;
 		case KEY_DEBUGGED+KEY_SHIFTED+KEY_LAPOSTRO: Viewer=ConsoleObject; break;
@@ -1336,23 +1221,8 @@ int HandleTestKey(int key)
 			else
 				GameArg.SysMaxFPS = 30;
 			break;
-		case KEY_DEBUGGED + KEY_SHIFTED + KEY_L:
-			Beam_brightness=0x38000-Beam_brightness; break;
+
 		case KEY_PAD5: slew_stop(); break;
-
-#ifndef NDEBUG
-		case KEY_DEBUGGED + KEY_F11: play_test_sound(); break;
-		case KEY_DEBUGGED + KEY_SHIFTED+KEY_F11: advance_sound(); play_test_sound(); break;
-#endif
-
-		case KEY_DEBUGGED + KEY_M:
-			Debug_spew = !Debug_spew;
-			if (Debug_spew) {
-				HUD_init_message(HM_DEFAULT,  "Debug Spew: ON" );
-			} else {
-				HUD_init_message(HM_DEFAULT,  "Debug Spew: OFF" );
-			}
-			break;
 
 		case KEY_DEBUGGED + KEY_C:
 			do_cheat_menu();
@@ -1365,7 +1235,6 @@ int HandleTestKey(int key)
 				break;
 		}
 		case KEY_DEBUGGED+KEY_F:
-		KEY_MAC(case KEY_COMMAND+KEY_F:)
 			GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator;
 			break;
 
@@ -1384,43 +1253,6 @@ int HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_COMMA: Render_zoom = fixmul(Render_zoom,62259); break;
 		case KEY_DEBUGGED+KEY_PERIOD: Render_zoom = fixmul(Render_zoom,68985); break;
 
-		#ifndef NDEBUG
-		case KEY_DEBUGGED+KEY_D:
-			if ((GameArg.DbgUseDoubleBuffer = !GameArg.DbgUseDoubleBuffer)!=0)
-				init_cockpit();
-			break;
-		#endif
-
-#ifdef EDITOR
-		case KEY_DEBUGGED+KEY_Q:
-			stop_time();
-			dump_used_textures_all();
-			start_time();
-			break;
-#endif
-
-		case KEY_DEBUGGED+KEY_B: {
-			newmenu_item m;
-			char text[FILENAME_LEN]="";
-			int item;
-			nm_set_item_input(&m, FILENAME_LEN, text);
-			item = newmenu_do( NULL, "Briefing to play?", 1, &m, NULL, NULL );
-			if (item != -1) {
-				do_briefing_screens(text,1);
-			}
-			break;
-		}
-
-		case KEY_DEBUGGED+KEY_ALTED+KEY_F5:
-			GameTime = i2f(0x7fff - 840);		//will overflow in 14 minutes
-			break;
-
-		case KEY_DEBUGGED+KEY_SHIFTED+KEY_B:
-			if (Player_is_dead)
-				return 0;
-
-			kill_and_so_forth();
-			break;
 		case KEY_DEBUGGED+KEY_G:
 			GameTime = i2f(0x7fff - 600) - (F1_0*10);
 			HUD_init_message(HM_DEFAULT, "GameTime %i - Reset in 10 seconds!", GameTime);
@@ -1432,7 +1264,6 @@ int HandleTestKey(int key)
 
 	return 1;
 }
-#endif		//#ifndef RELEASE
 
 //	Cheat functions ------------------------------------------------------------
 extern char *jcrypt (char *);
@@ -1854,7 +1685,6 @@ static bool FinalCheats(int key)
 
 
 // Internal Cheat Menu
-#ifndef RELEASE
 void do_cheat_menu()
 {
 	int mmn;
@@ -1907,39 +1737,6 @@ void do_cheat_menu()
 		init_gauges();
 	}
 }
-#endif
-
-
-
-//	Testing functions ----------------------------------------------------------
-
-#ifndef NDEBUG
-//	Sounds for testing
-
-int test_sound_num = 0;
-int sound_nums[] = {10,11,20,21,30,31,32,33,40,41,50,51,60,61,62,70,80,81,82,83,90,91};
-
-#define N_TEST_SOUNDS (sizeof(sound_nums) / sizeof(*sound_nums))
-
-
-void advance_sound()
-{
-	if (++test_sound_num == N_TEST_SOUNDS)
-		test_sound_num=0;
-
-}
-
-
-int     Test_sound = 251;
-
-void play_test_sound()
-{
-
-	// -- digi_play_sample(sound_nums[test_sound_num], F1_0);
-	digi_play_sample(Test_sound, F1_0);
-}
-
-#endif  //ifndef NDEBUG
 
 int ReadControls(d_event *event)
 {
@@ -1979,15 +1776,6 @@ int ReadControls(d_event *event)
 		}
 #endif
 
-#ifndef RELEASE
-#ifdef NETWORK
-		if ((key&KEY_DEBUGGED)&&(Game_mode&GM_MULTI))   {
-			Network_message_reciever = 100;		// Send to everyone...
-			sprintf( Network_message, "%s %s", TXT_I_AM_A, TXT_CHEATER);
-		}
-#endif
-#endif
-
 		if (Endlevel_sequence)
 		{
 			if (HandleEndlevelKey(key))
@@ -2007,10 +1795,8 @@ int ReadControls(d_event *event)
 			if (HandleGameKey(key)) return 1;
 		}
 
-#ifndef RELEASE
-		if (HandleTestKey(key))
+		if (Debug_mode && HandleTestKey(key))
 			return 1;
-#endif
 
 		if (call_default_handler(event))
 			return 1;

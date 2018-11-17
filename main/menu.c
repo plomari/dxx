@@ -84,7 +84,6 @@ enum MENUS
     MENU_LOAD_GAME,
     MENU_SAVE_GAME,
     MENU_DEMO_PLAY,
-    MENU_LOAD_LEVEL,
     MENU_CONFIG,
     MENU_REJOIN_NETGAME,
     MENU_DIFFICULTY,
@@ -102,9 +101,7 @@ enum MENUS
     MENU_JOIN_MANUAL_UDP_NETGAME,
     MENU_JOIN_LIST_UDP_NETGAME,
     #endif
-    #ifndef RELEASE
     MENU_SANDBOX
-    #endif
 };
 
 //ADD_ITEM("Start netgame...", MENU_START_NETGAME, -1 );
@@ -117,9 +114,7 @@ int do_option(int select);
 int do_new_game_menu(void);
 int do_load_level_menu(void);
 void do_multi_player_menu();
-#ifndef RELEASE
 void do_sandbox_menu();
-#endif
 extern void newmenu_free_background();
 extern void ReorderPrimary();
 extern void ReorderSecondary();
@@ -476,20 +471,8 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 		ADD_ITEM(TXT_ORDERING_INFO,MENU_ORDER_INFO,-1);
 	ADD_ITEM(TXT_CREDITS,MENU_SHOW_CREDITS,-1);
 	#endif
+	ADD_ITEM("SANDBOX", MENU_SANDBOX, -1);
 	ADD_ITEM(TXT_QUIT,MENU_QUIT,KEY_Q);
-
-	#ifndef RELEASE
-	if (!(Game_mode & GM_MULTI ))	{
-		//m[num_options].type=NM_TYPE_TEXT;
-		//m[num_options++].text=" Debug options:";
-
-		ADD_ITEM("  Load level...",MENU_LOAD_LEVEL ,KEY_N);
-		#ifdef EDITOR
-		ADD_ITEM("  Editor", MENU_EDITOR, KEY_E);
-		#endif
-	}
-	ADD_ITEM("  SANDBOX", MENU_SANDBOX, -1);
-	#endif
 
 	*callers_num_options = num_options;
 }
@@ -567,14 +550,6 @@ int do_option ( int select)
 			RegisterPlayer(0);
 			break;
 
-#ifndef RELEASE
-		case MENU_LOAD_LEVEL:
-			select_mission(0, "Load Level\n\nSelect mission", do_load_level_menu);
-			break;
-
-#endif //ifndef RELEASE
-
-
 #ifdef USE_UDP
 		case MENU_START_UDP_NETGAME:
 			multi_protocol = MULTI_PROTO_UDP;
@@ -600,11 +575,9 @@ int do_option ( int select)
 		case MENU_SHOW_CREDITS:
 			credits_show(NULL);
 			break;
-#ifndef RELEASE
 		case MENU_SANDBOX:
 			do_sandbox_menu();
 			break;
-#endif
 		default:
 			Error("Unknown option %d in do_option",select);
 			break;
@@ -1289,7 +1262,7 @@ void do_sound_menu()
 
 void do_misc_menu()
 {
-	newmenu_item m[13];
+	newmenu_item m[14];
 	int i = 0;
 
 	do {
@@ -1306,6 +1279,7 @@ void do_misc_menu()
 		ADD_CHECK(10, "No Rankings (Multi)",PlayerCfg.NoRankings);
 		ADD_CHECK(11, "Free Flight controls in Automap",PlayerCfg.AutomapFreeFlight);
 		ADD_CHECK(12, "No Weapon Autoselect when firing",PlayerCfg.NoFireAutoselect);
+		ADD_CHECK(13, "Debug mode", Debug_mode);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
@@ -1322,6 +1296,7 @@ void do_misc_menu()
 		PlayerCfg.NoRankings 			= m[10].value;
 		PlayerCfg.AutomapFreeFlight		= m[11].value;
 		PlayerCfg.NoFireAutoselect		= m[12].value;
+		Debug_mode						= m[13].value;
 
 	} while( i>-1 );
 
@@ -1405,7 +1380,6 @@ void do_options_menu()
 	newmenu_do3( NULL, TXT_OPTIONS, 10, m, options_menuset, NULL, 0, NULL );
 }
 
-#ifndef RELEASE
 int polygon_models_viewer_handler(window *wind, d_event *event)
 {
 	static int view_idx = 0;
@@ -1605,4 +1579,3 @@ void do_sandbox_menu()
 
 	newmenu_do3( NULL, "Coder's sandbox", 2, m, sandbox_menuset, NULL, 0, NULL );
 }
-#endif

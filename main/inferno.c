@@ -220,12 +220,6 @@ int standard_handler(d_event *event)
 					gr_toggle_fullscreen();
 					return 1;
 
-#ifndef NDEBUG
-				case KEY_BACKSP:
-					Int3();
-					return 1;
-#endif
-
 				case KEY_SHIFTED + KEY_ESC:
 					con_showup();
 					return 1;

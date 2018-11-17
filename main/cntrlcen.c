@@ -287,13 +287,8 @@ void do_controlcen_frame(object *obj)
 	if (!Control_center_present)
 		return;
 
-#ifndef NDEBUG
 	if (!Robot_firing_enabled || (Game_suspended & SUSP_ROBOTS))
 		return;
-#else
-	if (!Robot_firing_enabled)
-		return;
-#endif
 
 	if (!(Control_center_been_hit || Control_center_player_been_seen)) {
 		if (!(d_tick_count % 8)) {		//	Do every so often...
@@ -449,13 +444,6 @@ void init_controlcen_for_level(void)
 				boss_objnum = i;
 		}
 	}
-
-#ifndef NDEBUG
-	if (cntrlcen_objnum == -1) {
-		Dead_controlcen_object_num = -1;
-		return;
-	}
-#endif
 
 	if ( (boss_objnum != -1) && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) ) {
 		if (cntrlcen_objnum != -1) {

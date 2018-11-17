@@ -579,21 +579,6 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 				return 1;
 			}
 			return 1;
-			
-#ifndef NDEBUG
-		case KEY_DEBUGGED+KEY_F: 	{
-				int i;
-				
-				for (i=0; i<=Highest_segment_index; i++ )
-					Automap_visited[i] = 1;
-				automap_build_edge_list(am);
-				am->max_segments_away = set_segment_depths(Objects[Players[Player_num].objnum].segnum, Automap_visited);
-				am->segment_limit = am->max_segments_away;
-				adjust_segment_limit(am, am->segment_limit);
-			}
-			return 1;
-#endif
-			
 		case KEY_F9:
 			if (am->segment_limit > 1) 		{
 				am->segment_limit--;
@@ -641,17 +626,6 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 				gr_set_current_canvas(NULL);
 			}
 			return 1;
-			
-#ifndef RELEASE
-		case KEY_F11:	//KEY_COMMA:
-			if (MarkerScale>.5)
-				MarkerScale-=.5;
-			return 1;
-		case KEY_F12:	//KEY_PERIOD:
-			if (MarkerScale<30.0)
-				MarkerScale+=.5;
-			return 1;
-#endif
 	}
 	
 	return 0;

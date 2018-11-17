@@ -339,9 +339,7 @@ void start_endlevel_sequence()
 
 void start_rendered_endlevel_sequence()
 {
-#ifndef NDEBUG
 	int last_segnum;
-#endif
 	int exit_side,tunnel_length;
 
 	{
@@ -365,9 +363,7 @@ void start_rendered_endlevel_sequence()
 			PlayerFinishedLevel(0);		//don't do special sequence
 			return;
 		}
-#ifndef NDEBUG
 		last_segnum = old_segnum;
-#endif
 		//now pick transition segnum 1/3 of the way in
 
 		old_segnum = ConsoleObject->segnum;
@@ -391,9 +387,7 @@ void start_rendered_endlevel_sequence()
 		multi_do_protocol_frame(1, 1);
 	}
 	#endif
-#ifndef NDEBUG
 	Assert(last_segnum == exit_segnum);
-#endif
 	songs_play_song( SONG_ENDLEVEL, 0 );
 
 	Endlevel_sequence = EL_FLYTHROUGH;

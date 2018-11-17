@@ -1714,16 +1714,8 @@ void do_escort_menu(void)
 	}
 
 	if (i > Highest_object_index) {
-
 		HUD_init_message(HM_DEFAULT, "No Guide-Bot present in mine!");
-
-		#if 0	//ndef NDEBUG	// Just use HELPVISHNU!!
-		//	If no buddy bot, create one!
-		HUD_init_message(HM_DEFAULT, "Debug Version: Creating Guide-Bot!");
-		create_buddy_bot();
-		#else
 		return;
-		#endif
 	}
 
 	ok_for_buddy_to_talk();	//	Needed here or we might not know buddy can talk when he can.

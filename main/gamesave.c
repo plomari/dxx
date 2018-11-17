@@ -126,9 +126,6 @@ void read_object(object *obj, CFILE *f, int version);
 void write_object(object *obj, short version, PHYSFS_file *f);
 void do_load_save_levels(int save);
 #endif
-#ifndef NDEBUG
-void dump_mine_info(void);
-#endif
 
 extern char MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern char PowerupsInMine[MAX_POWERUP_TYPES];
@@ -1303,19 +1300,6 @@ int load_game_data(CFILE *LoadFile)
 				}
 	}
 
-	#ifndef NDEBUG
-	{
-		int	sidenum;
-		for (sidenum=0; sidenum<6; sidenum++) {
-			int	wallnum = Segments[Highest_segment_index].sides[sidenum].wall_num;
-			if (wallnum != -1)
-				if ((Walls[wallnum].segnum != Highest_segment_index) || (Walls[wallnum].sidenum != sidenum))
-					Int3();	//	Error.  Bogus walls in this segment.
-								// Consult Yuan or Mike.
-		}
-	}
-	#endif
-
 	//create_local_segment_data();
 
 	fix_object_segs();
@@ -1329,10 +1313,6 @@ int load_game_data(CFILE *LoadFile)
 			}
 		}
 	}
-
-	#ifndef NDEBUG
-	dump_mine_info();
-	#endif
 
 	if (game_top_fileinfo_version < GAME_VERSION
 	    && !(game_top_fileinfo_version == 25 && GAME_VERSION == 26))
@@ -1356,10 +1336,6 @@ extern void	set_ambient_sound_flags(void);
 //5 -> 6  added Secret_return_segment and Secret_return_orient
 //6 -> 7  added flickering lights
 //7 -> 8  made version 8 to be not compatible with D2 1.0 & 1.1
-
-#ifndef RELEASE
-const char *Level_being_loaded=NULL;
-#endif
 
 #ifdef COMPACT_SEGS
 extern void ncache_flush();
@@ -1400,10 +1376,6 @@ int load_level(const char * filename_passed)
 
 	#ifdef COMPACT_SEGS
 	ncache_flush();
-	#endif
-
-	#ifndef RELEASE
-	Level_being_loaded = filename_passed;
 	#endif
 
 	strcpy(filename,filename_passed);
@@ -1565,12 +1537,8 @@ int load_level(const char * filename_passed)
 		editor_status("Loaded NEW mine %s, \"%s\"",filename,Current_level_name);
 	#endif
 
-	#if !defined(NDEBUG) && !defined(COMPACT_SEGS)
-	if (check_segment_connections())
-		nm_messagebox( "ERROR", 1, "Ok", 
-				"Connectivity errors detected in\n"
-				"mine.  See monochrome screen for\n"
-				"details, and contact Matt or Mike." );
+	#if !defined(COMPACT_SEGS)
+	Assert(check_segment_connections());
 	#endif
 
 	// Convoluted way to warn against unsupported D2X-XL .oof replacement models.
@@ -1979,53 +1947,6 @@ int save_level(char * filename)
 }
 
 #endif	//EDITOR
-
-#ifndef NDEBUG
-void dump_mine_info(void)
-{
-	int	segnum, sidenum;
-	fix	min_u, max_u, min_v, max_v, min_l, max_l, max_sl;
-
-	min_u = F1_0*1000;
-	min_v = min_u;
-	min_l = min_u;
-
-	max_u = -min_u;
-	max_v = max_u;
-	max_l = max_u;
-
-	max_sl = 0;
-
-	for (segnum=0; segnum<=Highest_segment_index; segnum++) {
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
-			int	vertnum;
-			side	*sidep = &Segments[segnum].sides[sidenum];
-
-			if (Segment2s[segnum].static_light > max_sl)
-				max_sl = Segment2s[segnum].static_light;
-
-			for (vertnum=0; vertnum<4; vertnum++) {
-				if (sidep->uvls[vertnum].u < min_u)
-					min_u = sidep->uvls[vertnum].u;
-				else if (sidep->uvls[vertnum].u > max_u)
-					max_u = sidep->uvls[vertnum].u;
-
-				if (sidep->uvls[vertnum].v < min_v)
-					min_v = sidep->uvls[vertnum].v;
-				else if (sidep->uvls[vertnum].v > max_v)
-					max_v = sidep->uvls[vertnum].v;
-
-				if (sidep->uvls[vertnum].l < min_l)
-					min_l = sidep->uvls[vertnum].l;
-				else if (sidep->uvls[vertnum].l > max_l)
-					max_l = sidep->uvls[vertnum].l;
-			}
-
-		}
-	}
-}
-
-#endif
 
 #ifdef EDITOR
 

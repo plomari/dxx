@@ -45,18 +45,6 @@ void snprintf(char *out_string, int size, char * format, ... )
 	strncpy(out_string, buf, size);
 }
 
-# if defined(NDEBUG)
-char *strdup(const char *str)
-{
-	char *newstr;
-
-	newstr = malloc(strlen(str) + 1);
-	strcpy(newstr, str);
-
-	return newstr;
-}
-# endif // NDEBUG
-
 // string compare without regard to case
 
 int stricmp( const char *s1, const char *s2 )

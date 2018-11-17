@@ -98,20 +98,6 @@ void fuelcen_reset()
 
 }
 
-#ifndef NDEBUG		//this is sometimes called by people from the debugger
-void reset_all_robot_centers()
-{
-	int i;
-
-	// Remove all materialization centers
-	for (i=0; i<Num_segments; i++)
-		if (Segment2s[i].special == SEGMENT_IS_ROBOTMAKER) {
-			Segment2s[i].special = SEGMENT_IS_NOTHING;
-			Segment2s[i].matcen_num = -1;
-		}
-}
-#endif
-
 //------------------------------------------------------------
 // Turns a segment into a fully charged up fuel center...
 void fuelcen_create( segment *segp)
@@ -735,8 +721,7 @@ void init_all_matcens(void)
 			Station[i].Lives = 3;
 			Station[i].Enabled = 0;
 			Station[i].Disable_time = 0;
-#ifndef NDEBUG
-{
+
 			//	Make sure this fuelcen is pointed at by a matcen.
 			int	j;
 			for (j=0; j<Num_robot_centers; j++) {
@@ -744,12 +729,8 @@ void init_all_matcens(void)
 					break;
 			}
 			Assert(j != Num_robot_centers);
-}
-#endif
-
 		}
 
-#ifndef NDEBUG
 	//	Make sure all matcens point at a fuelcen
 	for (i=0; i<Num_robot_centers; i++) {
 		int	fuelcen_num = RobotCenters[i].fuelcen_num;
@@ -757,8 +738,6 @@ void init_all_matcens(void)
 		Assert(fuelcen_num < Num_fuelcenters);
 		Assert(Station[fuelcen_num].Type == SEGMENT_IS_ROBOTMAKER);
 	}
-#endif
-
 }
 
 #ifdef NETWORK

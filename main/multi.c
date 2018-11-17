@@ -1675,13 +1675,8 @@ multi_do_player_explode(char *buf)
 
 	pnum = buf[1];
 
-#ifdef NDEBUG
 	if ((pnum < 0) || (pnum >= N_players))
 		return;
-#else
-	Assert(pnum >= 0);
-	Assert(pnum < N_players);
-#endif
 
 #ifdef NETWORK
 	// If we are in the process of sending objects to a new player, reset that process

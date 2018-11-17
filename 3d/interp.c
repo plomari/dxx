@@ -536,10 +536,6 @@ bool g3_draw_polygon_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_
 	return 1;
 }
 
-#ifndef NDEBUG
-static int nest_count;
-#endif
-
 //alternate interpreter for morphing object
 bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim_angles,g3s_lrgb model_light,vms_vector *new_points)
 {
@@ -730,10 +726,6 @@ bool g3_draw_morphing_model(ubyte *p,grs_bitmap **model_bitmaps,vms_angvec *anim
 
 void init_model_sub(ubyte *p)
 {
-#ifndef NDEBUG
-	Assert(++nest_count < 1000);
-#endif
-
 	while (w(p) != OP_EOF) {
 
 		switch (w(p)) {
@@ -808,10 +800,6 @@ void init_model_sub(ubyte *p)
 //init code for bitmap models
 void g3_init_polygon_model(void *model_ptr)
 {
-	#ifndef NDEBUG
-	nest_count = 0;
-	#endif
-
 	highest_texture_num = -1;
 
 	init_model_sub((ubyte *) model_ptr);

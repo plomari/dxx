@@ -44,12 +44,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //	Length in segments of avoidance path
 #define	AVOID_SEG_LENGTH	7
 
-#ifdef NDEBUG
-#define	PATH_VALIDATION	0
-#else
-#define	PATH_VALIDATION	1
-#endif
-
 void validate_all_paths(void);
 void ai_path_set_orient_and_vel(object *objp, vms_vector* goal_point, int player_visibility, vms_vector *vec_to_player);
 void maybe_ai_path_garbage_collect(void);
@@ -543,14 +537,15 @@ int polish_path(object *objp, point_seg *psegs, int num_points)
 	return num_points - first_point;
 }
 
-#ifndef NDEBUG
 //	-------------------------------------------------------------------------------------------------------
 //	Make sure that there are connections between all segments on path.
 //	Note that if path has been optimized, connections may not be direct, so this function is useless, or worse.
 //	Return true if valid, else return false.
 int validate_path(int debug_flag, point_seg *psegs, int num_points)
 {
-#if PATH_VALIDATION
+	if (!Debug_mode)
+		return 1;
+
 	int		i, curseg;
 
 	curseg = psegs->segnum;
@@ -584,18 +579,16 @@ if (num_points == 0)
 			curseg = nextseg;
 		}
 	}
-#endif
 	return 1;
 
 }
-#endif
 
-#ifndef NDEBUG
 //	-----------------------------------------------------------------------------------------------------------
 void validate_all_paths(void)
 {
+	if (!Debug_mode)
+		return;
 
-#if PATH_VALIDATION
 	int	i;
 
 	for (i=0; i<=Highest_object_index; i++) {
@@ -615,10 +608,8 @@ void validate_all_paths(void)
 			}
 		}
 	}
-#endif
-
 }
-#endif
+
 
 //	-------------------------------------------------------------------------------------------------------
 //	Creates a path from the objects current segment (objp->segnum) to the specified segment for the object to
@@ -817,18 +808,6 @@ void move_object_to_goal(object *objp, vms_vector *goal_point, int goal_seg)
 		return;
 
 	Assert(objp->segnum != -1);
-
-#ifndef NDEBUG
-	if (objp->segnum != goal_seg)
-		if (find_connect_side(&Segments[objp->segnum], &Segments[goal_seg]) == -1) {
-			fix	dist;
-			dist = find_connected_distance(&objp->pos, objp->segnum, goal_point, goal_seg, 30, WID_FLY_FLAG);
-			if (Connected_segment_distance > 2) {	//	This global is set in find_connected_distance
-				// -- Int3();
-			}
-		}
-#endif
-
 	Assert(aip->path_length >= 2);
 
 	if (aip->cur_path_index <= 0) {
@@ -1290,15 +1269,10 @@ void ai_path_garbage_collect(void)
 	int	objind;
 	obj_path		object_list[MAX_OBJECTS];
 
-#ifndef NDEBUG
-	force_dump_ai_objects_all("***** Start ai_path_garbage_collect *****");
-#endif
-
 	Last_tick_garbage_collected = d_tick_count;
 
-#if PATH_VALIDATION
 	validate_all_paths();
-#endif
+
 	//	Create a list of objects which have paths of length 1 or more.
 	for (objnum=0; objnum <= Highest_object_index; objnum++) {
 		object	*objp = &Objects[objnum];
@@ -1333,25 +1307,6 @@ void ai_path_garbage_collect(void)
 	}
 
 	Point_segs_free_ptr = &Point_segs[free_path_index];
-
-#ifndef NDEBUG
-	{
-	int i;
-
-	force_dump_ai_objects_all("***** Finish ai_path_garbage_collect *****");
-
-	for (i=0; i<=Highest_object_index; i++) {
-		ai_static	*aip = &Objects[i].ctype.ai_info;
-
-		if ((Objects[i].type == OBJ_ROBOT) && (Objects[i].control_type == CT_AI))
-			if ((aip->hide_index + aip->path_length > Point_segs_free_ptr - Point_segs) && (aip->path_length>0))
-				Int3();		//	Contact Mike: Debug trap for nasty, elusive bug.
-	}
-
-	validate_all_paths();
-	}
-#endif
-
 }
 
 //	-----------------------------------------------------------------------------

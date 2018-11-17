@@ -68,12 +68,6 @@ void set_exit_message(char *fmt,...)
 
 }
 
-void _Assert(int expr,char *expr_text,char *filename,int linenum)
-{
-	Int3();
-	if (!(expr)) Error("Assertion failed: %s, file %s, line %d",expr_text,filename,linenum);
-}
-
 void print_exit_message(void)
 {
 	if (*exit_message)

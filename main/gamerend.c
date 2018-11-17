@@ -96,7 +96,19 @@ void game_draw_multi_message()
 }
 #endif
 
-void show_framerate()
+static void show_time(void)
+{
+	int secs = f2i(Players[Player_num].time_level) % 60;
+	int mins = f2i(Players[Player_num].time_level) / 60;
+
+	gr_set_curfont( GAME_FONT );
+
+	gr_set_fontcolor(BM_XRGB(0,31,0), -1 );
+
+	gr_printf(SWIDTH-FSPACX(30),GHEIGHT-(LINE_SPACING*11),"%d:%02d", mins, secs);
+}
+
+static void show_framerate(void)
 {
 	static int fps_count = 0, fps_rate = 0;
 	static fix64 fps_time = 0;
@@ -111,10 +123,8 @@ void show_framerate()
 		fps_count = 0;
 		fps_time = timer_query();
 	}
-	if (GameArg.DbgVerbose)
-                gr_printf(FSPACX(2),LINE_SPACING*16,"%iFPS (%.2fms)",fps_rate, ((float)1000/(F1_0/FrameTime)));
-        else
-                gr_printf(FSPACX(2),LINE_SPACING*16,"%iFPS",fps_rate);
+
+	gr_printf(SWIDTH-FSPACX(30),GHEIGHT-(LINE_SPACING*10),"%iFPS",fps_rate);
 }
 
 #ifdef NETWORK
@@ -243,8 +253,6 @@ void show_netplayerinfo()
 }
 #endif
 
-#ifndef NDEBUG
-
 fix Show_view_text_timer = -1;
 
 void draw_window_label()
@@ -294,7 +302,6 @@ void draw_window_label()
 
 	}
 }
-#endif
 
 void render_countdown_gauge()
 {
@@ -320,9 +327,7 @@ void render_countdown_gauge()
 
 void game_draw_hud_stuff()
 {
-#ifndef NDEBUG
 	draw_window_label();
-#endif
 
 #ifdef NETWORK
 	game_draw_multi_message();
@@ -689,6 +694,9 @@ void game_render_frame_mono(int flip)
 	gr_set_current_canvas(&Screen_3d_window);
 	if (!no_draw_hud)
 		game_draw_hud_stuff();
+
+	if (Debug_mode)
+		show_time();
 
 	gr_set_current_canvas(NULL);
 

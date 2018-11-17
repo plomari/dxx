@@ -157,7 +157,6 @@ void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char 
 
 }
 
-//#ifndef RELEASE
 //	Give the megawow powerup!
 void do_megawow_powerup(int quantity)
 {
@@ -191,7 +190,6 @@ void do_megawow_powerup(int quantity)
 	update_laser_weapon_info();
 
 }
-//#endif
 
 int pick_up_energy(void)
 {
@@ -513,12 +511,10 @@ int do_powerup(object *obj)
 				used = 1;
 				break;
 			}
-	#ifndef RELEASE
 		case	POW_MEGAWOW:
 			do_megawow_powerup(50);
 			used = 1;
 			break;
-	#endif
 
 		case POW_FULL_MAP:
 			if (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) {

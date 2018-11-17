@@ -26,11 +26,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "gr.h"
 
-#ifdef NDEBUG
 #define MAXIMUM_FPS 200
-#else
-#define MAXIMUM_FPS 1000
-#endif
 
 struct object;
 
@@ -92,16 +88,8 @@ extern int Game_mode;
 
 extern int gauge_message_on;
 
-#ifndef NDEBUG      // if debugging, these are variables
-
 extern int Slew_on;                 // in slew or sim mode?
-
-#else               // if not debugging, these are constants
-
-#define Slew_on             0       // no slewing in real game
-#define Game_double_buffer  1       // always double buffer in real game
-
-#endif
+extern bool Debug_mode;
 
 // Suspend flags
 
@@ -110,9 +98,6 @@ extern int Slew_on;                 // in slew or sim mode?
 #define SUSP_WEAPONS    2           // Lasers, etc. don't move
 
 extern int Game_suspended;          // if non-zero, nothing moves but player
-
-#define	SHOW_EXIT_PATH	1
-
 
 // from game.c
 void init_game(void);
@@ -146,7 +131,6 @@ extern void game_flush_inputs();    // clear all inputs
 
 extern int Playing_game;    // True if playing game
 extern int Auto_flythrough; // if set, start flythough automatically
-extern int Mark_count;      // number of debugging marks set
 extern char faded_in;
 extern int last_drawn_cockpit;
 

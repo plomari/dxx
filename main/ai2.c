@@ -62,11 +62,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/kdefs.h"
 #endif
 
-#ifndef NDEBUG
-#include "string.h"
-#include <time.h>
-#endif
-
 void teleport_boss(object *objp);
 int boss_fits_in_seg(object *boss_objp, int segnum);
 
@@ -440,11 +435,6 @@ void set_rotvel_and_saturate(fix *dest, fix delta)
 	}
 }
 
-//--debug-- #ifndef NDEBUG
-//--debug-- int	Total_turns=0;
-//--debug-- int	Prevented_turns=0;
-//--debug-- #endif
-
 #define	AI_TURN_SCALE	1
 #define	BABY_SPIDER_ID	14
 #define	FIRE_AT_NEARBY_PLAYER_THRESHOLD	(F1_0*40)
@@ -777,10 +767,8 @@ void do_ai_robot_hit_attack(object *robot, object *playerobj, vms_vector *collis
 	ai_local		*ailp = &Ai_local_info[robot-Objects];
 	robot_info *robptr = &Robot_info[robot->id];
 
-//#ifndef NDEBUG
 	if (!Robot_firing_enabled)
 		return;
-//#endif
 
 	//	If player is dead, stop firing.
 	if (Objects[Players[Player_num].objnum].type == OBJ_GHOST)
@@ -1401,12 +1389,6 @@ void do_ai_robot_hit(object *objp, int type)
 	}
 
 }
-#ifndef NDEBUG
-int	Do_ai_flag=1;
-int	Cvv_test=0;
-int	Cvv_last_time[MAX_OBJECTS];
-int	Gun_point_hack=0;
-#endif
 
 int		Robot_sound_volume=DEFAULT_ROBOT_SOUND_VOLUME;
 
@@ -2096,10 +2078,6 @@ int ai_multiplayer_awareness(object *objp, int awareness_level)
 
 }
 
-#ifndef NDEBUG
-fix	Prev_boss_shields = -1;
-#endif
-
 // --------------------------------------------------------------------------------------------------------------------
 //	Do special stuff for a boss.
 void do_boss_stuff(object *objp, int player_visibility)
@@ -2111,12 +2089,6 @@ void do_boss_stuff(object *objp, int player_visibility)
 	Assert((boss_id >= BOSS_D2) && (boss_id < BOSS_D2 + NUM_D2_BOSSES));
 
 	boss_index = boss_id - BOSS_D2;
-
-#ifndef NDEBUG
-	if (objp->shields != Prev_boss_shields) {
-		Prev_boss_shields = objp->shields;
-	}
-#endif
 
 	//	New code, fixes stupid bug which meant boss never gated in robots if > 32767 seconds played.
 	if (Last_teleport_time > GameTime)

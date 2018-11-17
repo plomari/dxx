@@ -95,7 +95,6 @@ multi_can_move_robot(int objnum, int agitation)
 	if (Player_exploded)
 		return 0;
 
-#ifndef NDEBUG
 	if ((objnum < 0) || (objnum > Highest_object_index))
 	{	
 		Int3();
@@ -107,7 +106,6 @@ multi_can_move_robot(int objnum, int agitation)
 		Int3();
 		rval = 0;
 	}
-#endif
 
 	else if ((Robot_info[Objects[objnum].id].boss_flag) && (Boss_dying == 1))
 		return 0;

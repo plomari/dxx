@@ -25,7 +25,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define MIN_LIGHT_DIST  (F1_0*4)
 
-extern fix Beam_brightness;
 extern g3s_lrgb Dynamic_light[MAX_VERTICES];
 
 extern void set_dynamic_light(void);

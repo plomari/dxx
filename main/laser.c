@@ -1864,11 +1864,6 @@ void create_smart_children(object *objp, int num_smart_children)
 		parent_num = 0;
 	}
 
-#ifndef NDEBUG
-	if ((objp->type == OBJ_WEAPON) && ((objp->id == SMART_ID) || (objp->id == SUPERPROX_ID) || (objp->id == ROBOT_SUPERPROX_ID) || (objp->id == EARTHSHAKER_ID)))
-		Assert(Weapon_info[objp->id].children != -1);
-#endif
-
 	if (objp->type == OBJ_WEAPON && objp->id == EARTHSHAKER_ID)
 		blast_nearby_glass(objp, Weapon_info[EARTHSHAKER_ID].strength[Difficulty_level]);
 

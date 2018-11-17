@@ -85,9 +85,6 @@ void digi_select_system(int n) {
 }
 
 /* Common digi functions */
-#ifndef NDEBUG
-static int digi_initialised = 0;
-#endif
 extern int digi_max_channels;
 int digi_volume = SOUND_MAX_VOLUME;
 
@@ -120,22 +117,6 @@ int  digi_is_sound_playing(int soundno) { return fptr_is_sound_playing(soundno);
 int  digi_is_channel_playing(int channel) { return fptr_is_channel_playing(channel); }
 void digi_stop_all_channels() { fptr_stop_all_channels(); }
 void digi_set_digi_volume(int dvolume) { fptr_set_digi_volume(dvolume); }
-
-#ifndef NDEBUG
-void digi_debug()
-{
-	int i;
-	int n_voices = 0;
-
-	if (!digi_initialised) return;
-
-	for (i = 0; i < digi_max_channels; i++)
-	{
-		if (digi_is_channel_playing(i))
-			n_voices++;
-        }
-}
-#endif
 
 #ifdef _WIN32
 // Windows native-MIDI stuff.

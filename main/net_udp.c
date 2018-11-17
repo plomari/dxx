@@ -3451,9 +3451,7 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 		Network_status = NETSTAT_MENU;
 		net_udp_close();
 		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_NETLEVEL_NMATCH);
-#ifdef RELEASE
 		return;
-#endif
 	}
 
 	// Discover my player number
@@ -3648,15 +3646,6 @@ menu:
 
 	if (choice == opt-1)
 	{
-#if 0 // no need to wait for other players
-		if ((opt-2-opt_team_b < 2) || (opt_team_b == 1)) 
-		{
-			nm_messagebox(NULL, 1, TXT_OK, TXT_TEAM_MUST_ONE);
-			#ifdef RELEASE
-			goto menu;
-			#endif
-		}
-#endif
 		Netgame.team_vector = team_vector;
 		strcpy(Netgame.team_name[0], team_names[0]);
 		strcpy(Netgame.team_name[1], team_names[1]);

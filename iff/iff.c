@@ -143,9 +143,7 @@ int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 	int nn,wid_cnt,end_cnt,plane;
 	unsigned char *data_end;
 	int end_pos;
-        #ifndef NDEBUG
 	int row_count=0;
-        #endif
 
         width=0;
         depth=0;
@@ -220,12 +218,10 @@ int parse_body(PHYSFS_file *ifile,long len,iff_bitmap_header *bmheader)
 					{memset(p,c,nn); p+=nn;}
 			}
 
-			#ifndef NDEBUG
 			if ((p-bmheader->raw_data) % width == 0)
 					row_count++;
 
 			Assert((p-bmheader->raw_data) - (width*row_count) < width);
-			#endif
 
 		}
 

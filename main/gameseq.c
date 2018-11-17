@@ -602,14 +602,6 @@ void create_player_appearance_effect(object *player_obj)
 	vms_vector pos;
 	object *effect_obj;
 
-#ifndef NDEBUG
-	{
-		int objnum = player_obj-Objects;
-		if ( (objnum < 0) || (objnum > Highest_object_index) )
-			Int3(); // See Rob, trying to track down weird network bug
-	}
-#endif
-
 	if (player_obj == Viewer)
 		vm_vec_scale_add(&pos, &player_obj->pos, &player_obj->orient.fvec, fixmul(player_obj->size,flash_dist));
 	else

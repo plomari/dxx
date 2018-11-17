@@ -206,7 +206,3 @@ extern void digi_end_soundobj(int channel);
 
  void digi_mixer_set_max_channels(int n) { }
 int digi_mixer_get_max_channels() { return digi_max_channels; }
-
-#ifndef NDEBUG
-void digi_mixer_debug() {}
-#endif

@@ -94,11 +94,6 @@ static short free_obj_list[MAX_OBJECTS];
 
 // -- Object stuff
 
-//info on the various types of objects
-#ifndef NDEBUG
-object	Object_minus_one;
-#endif
-
 object Objects[MAX_OBJECTS];
 int num_objects=0;
 int Highest_object_index=0;
@@ -122,7 +117,7 @@ int print_object_info = 0;
 
 window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];
 
-#if defined(EDITOR) || !defined(NDEBUG)
+#if defined(EDITOR)
 char	Object_type_names[MAX_OBJECT_TYPES][9] = {
 	"WALL    ",
 	"FIREBALL",
@@ -148,7 +143,6 @@ char	Object_type_names[MAX_OBJECT_TYPES][9] = {
 };
 #endif
 
-#ifndef RELEASE
 //set viewer object to next object in array
 void object_goto_next_viewer()
 {
@@ -192,7 +186,6 @@ void object_goto_prev_viewer()
 	Error( "Couldn't find a viewer object!" );
 
 }
-#endif
 
 object *obj_find_first_of_type (int type)
 {
@@ -471,16 +464,12 @@ void draw_polygon_object(object *obj)
 	}
 
 	if (obj->rtype.pobj_info.tmap_override != -1) {
-#ifndef NDEBUG
 		polymodel *pm = &Polygon_models[obj->rtype.pobj_info.model_num];
-#endif
 		bitmap_index bm_ptrs[12];
 
 		int i;
 
-#ifndef NDEBUG
 		Assert(pm->n_textures<=12);
-#endif
 
 		for (i=0;i<12;i++)		//fill whole array, in case simple model needs more
 			bm_ptrs[i] = Textures[obj->rtype.pobj_info.tmap_override];
@@ -796,9 +785,7 @@ void render_object(object *obj)
 
 	if ( obj->type==OBJ_NONE )
 	{
-		#ifndef NDEBUG
 		Int3();
-		#endif
 		return;
 	}
 
@@ -989,118 +976,6 @@ void special_reset_objects(void)
 			if (i > Highest_object_index)
 				Highest_object_index = i;
 }
-
-#ifndef NDEBUG
-int is_object_in_seg( int segnum, int objn )
-{
-	int objnum, count = 0;
-
-	for (objnum=Segments[segnum].objects;objnum!=-1;objnum=Objects[objnum].next)	{
-		if ( count > MAX_OBJECTS ) 	{
-			Int3();
-			return count;
-		}
-		if ( objnum==objn ) count++;
-	}
-	 return count;
-}
-
-int search_all_segments_for_object( int objnum )
-{
-	int i;
-	int count = 0;
-
-	for (i=0; i<=Highest_segment_index; i++) {
-		count += is_object_in_seg( i, objnum );
-	}
-	return count;
-}
-
-void johns_obj_unlink(int segnum, int objnum)
-{
-	object  *obj = &Objects[objnum];
-	segment *seg = &Segments[segnum];
-
-	Assert(objnum != -1);
-
-	if (obj->prev == -1)
-		seg->objects = obj->next;
-	else
-		Objects[obj->prev].next = obj->next;
-
-	if (obj->next != -1) Objects[obj->next].prev = obj->prev;
-}
-
-void remove_incorrect_objects()
-{
-	int segnum, objnum, count;
-
-	for (segnum=0; segnum <= Highest_segment_index; segnum++) {
-		count = 0;
-		for (objnum=Segments[segnum].objects;objnum!=-1;objnum=Objects[objnum].next)	{
-			count++;
-			#ifndef NDEBUG
-			if ( count > MAX_OBJECTS )	{
-				Int3();
-			}
-			#endif
-			if (Objects[objnum].segnum != segnum )	{
-				#ifndef NDEBUG
-				Int3();
-				#endif
-				johns_obj_unlink(segnum,objnum);
-			}
-		}
-	}
-}
-
-void remove_all_objects_but( int segnum, int objnum )
-{
-	int i;
-
-	for (i=0; i<=Highest_segment_index; i++) {
-		if (segnum != i )	{
-			if (is_object_in_seg( i, objnum ))	{
-				johns_obj_unlink( i, objnum );
-			}
-		}
-	}
-}
-
-int check_duplicate_objects()
-{
-	int i, count=0;
-	
-	for (i=0;i<=Highest_object_index;i++) {
-		if ( Objects[i].type != OBJ_NONE )	{
-			count = search_all_segments_for_object( i );
-			if ( count > 1 )	{
-				#ifndef NDEBUG
-				Int3();
-				#endif
-				remove_all_objects_but( Objects[i].segnum,  i );
-				return count;
-			}
-		}
-	}
-	return count;
-}
-
-void list_seg_objects( int segnum )
-{
-	int objnum, count = 0;
-
-	for (objnum=Segments[segnum].objects;objnum!=-1;objnum=Objects[objnum].next)	{
-		count++;
-		if ( count > MAX_OBJECTS ) 	{
-			Int3();
-			return;
-		}
-	}
-	return;
-
-}
-#endif
 
 //link the object into the list for its segment
 void obj_link(int objnum,int segnum)
@@ -1928,7 +1803,6 @@ void object_move_one( object * obj )
 		case CT_WEAPON:		Laser_do_weapon_sequence(obj); break;
 		case CT_EXPLOSION:	do_explosion_sequence(obj); break;
 
-		#ifndef RELEASE
 		case CT_SLEW:
 			if ( keyd_pressed[KEY_PAD5] ) slew_stop();
 			if ( keyd_pressed[KEY_NUMLOCK] ) 		{
@@ -1936,7 +1810,6 @@ void object_move_one( object * obj )
 			}
 			slew_frame(0 );		// Does velocity addition for us.
 			break;
-		#endif
 
 
 //		case CT_FLYTHROUGH:

@@ -36,31 +36,9 @@ void set_exit_message(char *fmt,...);	//specify message to print at exit
 void Warning(char *fmt,...);				//print out warning message to user
 void set_warn_func(void (*f)(char *s));//specifies the function to call with warning messages
 void clear_warn_func(void (*f)(char *s));//say this function no longer valid
-void _Assert(int expr,char *expr_text,char *filename,int linenum);	//assert func
 void Error(const char *fmt,...) __noreturn __format;				//exit with error code=1, print message
-void Assert(int expr);
-void Int3();
-#ifndef NDEBUG		//macros for debugging
 
-# if defined(__APPLE__) || defined(macintosh)
-extern void Debugger(void);	// Avoids some name clashes
-#  define Int3 Debugger
-# else
-#  define Int3() ((void)0)
-# endif // Macintosh
-#define Assert(expr) ((expr)?(void)0:(void)_Assert(0,#expr,__FILE__,__LINE__))
-
-#else					//macros for real game
-
-//Changed Assert and Int3 because I couldn't get the macros to compile -KRB
-#define Assert(__ignore) ((void)0)
-#define Int3() ((void)0)
-#endif
-
-#undef Int3
 #define Int3() do { fprintf(stderr, "%s:%d(%s): Int3\n", __FILE__, __LINE__, __func__); } while(0)
-
-#undef Assert
 #define Assert(expr) ((expr)?(void)0:(void)fprintf(stderr,"%s:%d(%s): Assert(%s)\n",__FILE__,__LINE__,__func__,#expr))
 
 #endif /* _ERROR_H */

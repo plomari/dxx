@@ -257,10 +257,6 @@ int digi_audio_start_sound(short soundnum, fix volume, int pan, int looping, int
 			SoundQ_end();
 	}
 
-#ifndef NDEBUG
-	verify_sound_channel_free(next_channel);
-#endif
-
 	SoundSlots[next_channel].soundno = soundnum;
 	SoundSlots[next_channel].samples = GameSounds[soundnum].data;
 	SoundSlots[next_channel].length = GameSounds[soundnum].length;
@@ -398,20 +394,3 @@ void digi_audio_end_sound(int channel)
 	SoundSlots[channel].soundobj = -1;
 	SoundSlots[channel].persistent = 0;
 }
-
-#ifndef NDEBUG
-void digi_audio_debug()
-{
-	int i;
-	int n_voices = 0;
-
-	if (!digi_initialised)
-		return;
-
-	for (i = 0; i < digi_max_channels; i++)
-	{
-		if (digi_is_channel_playing(i))
-			n_voices++;
-	}
-}
-#endif

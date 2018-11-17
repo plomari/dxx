@@ -640,8 +640,7 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 		return;	//bail here. physics code will bounce this object
 	}
 
-	#ifndef NDEBUG
-	if (keyd_pressed[KEY_LAPOSTRO])
+	if (Debug_mode && keyd_pressed[KEY_LAPOSTRO])
 		if (weapon->ctype.laser_info.parent_num == Players[Player_num].objnum) {
 			//	MK: Real pain when you need to know a seg:side and you've got quad lasers.
 			HUD_init_message(HM_DEFAULT, "Hit at segment = %i, side = %i", hitseg, hitwall);
@@ -650,12 +649,6 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 			else if (weapon->id == FLARE_ID)
 				add_light(hitseg, hitwall);
 		}
-
-		//@@#ifdef EDITOR
-		//@@Cursegp = &Segments[hitseg];
-		//@@Curside = hitwall;
-		//@@#endif
-	#endif
 
 	if ((weapon->mtype.phys_info.velocity.x == 0) && (weapon->mtype.phys_info.velocity.y == 0) && (weapon->mtype.phys_info.velocity.z == 0)) {
 		Int3();	//	Contact Matt: This is impossible.  A weapon with 0 velocity hit a wall, which doesn't move.

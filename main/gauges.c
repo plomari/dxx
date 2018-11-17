@@ -1036,9 +1036,7 @@ void show_bomb_count(int x,int y,int bg_color,int always_show,int right_align)
 	bomb = which_bomb();
 	count = Players[Player_num].secondary_ammo[bomb];
 
-//	#ifndef RELEASE
 	count = min(count,99);	//only have room for 2 digits - cheating give 200
-//	#endif
 
 	countx = (bomb==PROXIMITY_INDEX)?count:-count;
 
@@ -1439,26 +1437,6 @@ void sb_show_lives()
 		gr_printf(HUD_SCALE_X(x)+HUD_SCALE_X_AR(bm->bm_w), HUD_SCALE_Y(y), " x %d", Players[Player_num].lives-1);
 	}
 }
-
-#ifndef RELEASE
-
-extern int Piggy_bitmap_cache_next;
-
-void show_time()
-{
-	int secs = f2i(Players[Player_num].time_level) % 60;
-	int mins = f2i(Players[Player_num].time_level) / 60;
-
-	gr_set_curfont( GAME_FONT );
-
-	if (Color_0_31_0 == -1)
-		Color_0_31_0 = BM_XRGB(0,31,0);
-	gr_set_fontcolor(Color_0_31_0, -1 );
-
-	gr_printf(SWIDTH-FSPACX(30),GHEIGHT-(LINE_SPACING*11),"%d:%02d", mins, secs);
-	gr_printf(FSPACX(2),(LINE_SPACING*15),"%d:%02d", mins, secs);
-}
-#endif
 
 #define EXTRA_SHIP_SCORE	50000		//get new ship every this many points
 
@@ -2667,11 +2645,6 @@ void draw_hud()
 			if (Newdemo_state==ND_STATE_RECORDING)
 				newdemo_record_player_flags(Players[Player_num].flags);
 		}
-
-#ifndef RELEASE
-		if (!(Game_mode&GM_MULTI && Show_kill_list))
-			show_time();
-#endif
 
 		if (PlayerCfg.CockpitMode[1] != CM_LETTERBOX && PlayerCfg.CockpitMode[1] != CM_REAR_VIEW)
 		{

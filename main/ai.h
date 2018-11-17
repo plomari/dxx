@@ -116,12 +116,6 @@ extern void do_escort_frame(object *objp, fix dist_to_player, int player_visibil
 extern void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
 extern void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
 
-#ifndef NDEBUG
-extern void force_dump_ai_objects_all(char *msg);
-#else
-#define force_dump_ai_objects_all(msg)
-#endif
-
 extern void start_boss_death_sequence(object *objp);
 extern void ai_init_boss_for_ship(void);
 extern int Boss_been_hit;
@@ -258,7 +252,6 @@ extern int  ai_evaded;
 extern sbyte Super_boss_gate_list[];
 #define MAX_GATE_INDEX  25
 
-extern int  Ai_info_enabled;
 extern int  Robot_firing_enabled;
 
 
@@ -272,17 +265,6 @@ extern int              Num_awareness_events;
 extern awareness_event  Awareness_events[MAX_AWARENESS_EVENTS];
 
 extern vms_vector       Believed_player_pos;
-
-#ifndef NDEBUG
-// Index into this array with ailp->mode
-
-// Index into this array with aip->behavior
-
-// Index into this array with aip->GOAL_STATE or aip->CURRENT_STATE
-
-extern int Do_ai_flag, Break_on_object;
-
-#endif //ifndef NDEBUG
 
 extern int Stolen_item_index;   // Used in ai.c for controlling rate of Thief flare firing.
 
