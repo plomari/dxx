@@ -2808,11 +2808,9 @@ void update_laser_weapon_info(void)
 void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,const char *label)
 {
 	grs_canvas window_canv;
-	static grs_canvas overlap_canv;
 	object *viewer_save = Viewer;
-	static int overlap_dirty[2]={0,0};
 	int boxnum;
-	static int window_x,window_y;
+	int window_x = 0,window_y = 0;
 	gauge_box *box;
 	int rear_view_save = Rear_view;
 	int w,h,dx;
@@ -2830,11 +2828,6 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 			return;		//already set
 
 		weapon_box_user[win] = user;
-
-		if (overlap_dirty[win]) {
-			gr_set_current_canvas(NULL);
-			overlap_dirty[win] = 0;
-		}
 
 		return;
 	}
@@ -2904,34 +2897,12 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 
 		big_window_bottom = SHEIGHT - 1;
 
-		if (window_y > big_window_bottom) {
+		Assert(window_y <= big_window_bottom);
 
-			//the small window is completely outside the big 3d window, so
-			//copy it to the visible screen
+		small_window_bottom = window_y + window_canv.cv_bitmap.bm_h - 1;
+		extra_part_h = small_window_bottom - big_window_bottom;
 
-			gr_set_current_canvas(NULL);
-
-			gr_bitmap(window_x,window_y,&window_canv.cv_bitmap);
-
-			overlap_dirty[win] = 1;
-		}
-		else {
-
-			small_window_bottom = window_y + window_canv.cv_bitmap.bm_h - 1;
-
-			extra_part_h = small_window_bottom - big_window_bottom;
-
-			if (extra_part_h > 0) {
-
-				gr_init_sub_canvas(&overlap_canv,&window_canv,0,window_canv.cv_bitmap.bm_h-extra_part_h,window_canv.cv_bitmap.bm_w,extra_part_h);
-
-				gr_set_current_canvas(NULL);
-
-				gr_bitmap(window_x,big_window_bottom+1,&overlap_canv.cv_bitmap);
-
-				overlap_dirty[win] = 1;
-			}
-		}
+		Assert(extra_part_h <= 0);
 	}
 	else {
 
