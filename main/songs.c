@@ -35,7 +35,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 int Songs_initialized = 0;
 static int Song_playing = -1; // -1 if no song playing, else the Descent song number
-static int Redbook_playing = 0; // Redbook track num differs from Song_playing. We need this for Redbook repeat hooks.
 
 bim_song_info *BIMSongs = NULL;
 int Num_bim_songs;
@@ -213,9 +212,6 @@ void songs_pause_resume(void)
 #define D2_MAC_DISCID       0xb70ee40e // Macintosh
 #define D2_IPLAY_DISCID     0x22115710 // iPlay for Macintosh
 
-#define REDBOOK_TITLE_TRACK         2
-#define REDBOOK_CREDITS_TRACK       3
-
 void play_credits_track()
 {
 	stop_time();
@@ -281,14 +277,6 @@ int songs_play_song( int songnum, int repeat )
 	}
 
 	return Song_playing;
-}
-
-void redbook_first_song_func()
-{
-	stop_time();
-	Song_playing = -1; // Playing Redbook tracks will not modify Song_playing. To repeat we must reset this so songs_play_level_song does not think we want to re-play the same song again.
-	songs_play_level_song(1, 0);
-	start_time();
 }
 
 // play track given by levelnum (depending on the music type and it's playing behaviour) or increment/decrement current track number via offset value

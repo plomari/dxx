@@ -226,7 +226,7 @@ void credits_show(char *credits_filename)
 	}
 	cr->file = cfopen( filename, "rb" );
 	if (cr->file == NULL) {
-		char nfile[32];
+		char nfile[40];
 		
 		if (credits_filename)
 		{
@@ -236,7 +236,7 @@ void credits_show(char *credits_filename)
 
 		tempp = strchr(filename, '.');
 		*tempp = '\0';
-		sprintf(nfile, "%s.txb", filename);
+		snprintf(nfile, sizeof(nfile), "%s.txb", filename);
 		cr->file = cfopen(nfile, "rb");
 		if (cr->file == NULL)
 			Error("Missing CREDITS.TEX and CREDITS.TXB file\n");

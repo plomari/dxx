@@ -171,7 +171,6 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 	grs_bitmap  *bm;
 	grs_bitmap  *bm2 = NULL;
 
-	fix			reflect;
 	g3s_uvl			uvl_copy[8];
 	g3s_lrgb		dyn_light[8];
 	int			i;

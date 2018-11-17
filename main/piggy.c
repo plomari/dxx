@@ -388,7 +388,6 @@ CFILE *copy_pigfile_from_cd(char *filename)
 void piggy_init_pigfile(char *filename)
 {
 	int i;
-	char temp_name[16];
 	char temp_name_read[16];
 	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps, data_size, data_start;
@@ -432,14 +431,15 @@ void piggy_init_pigfile(char *filename)
 	{
 		int width;
 		grs_bitmap *bm = &GameBitmaps[i + 1];
+		char temp_name[30];
 		
 		DiskBitmapHeader_read(&bmh, Piggy_fp);
 		memcpy( temp_name_read, bmh.name, 8 );
 		temp_name_read[8] = 0;
 		if ( bmh.dflags & DBM_FLAG_ABM )        
-			sprintf( temp_name, "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES );
+			snprintf(temp_name, sizeof(temp_name), "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES );
 		else
-			strcpy( temp_name, temp_name_read );
+			snprintf(temp_name, sizeof(temp_name), "%s", temp_name_read);
 		width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
 		gr_init_bitmap(bm, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
 		bm->bm_flags = BM_FLAG_PAGED_OUT;
@@ -475,7 +475,6 @@ ubyte *Bitmap_replacement_data = NULL;
 void piggy_new_pigfile(char *pigname)
 {
 	int i;
-	char temp_name[16];
 	char temp_name_read[16];
 	DiskBitmapHeader bmh;
 	int header_size, N_bitmaps, data_size, data_start;
@@ -532,15 +531,16 @@ void piggy_new_pigfile(char *pigname)
 		{
 			grs_bitmap *bm = &GameBitmaps[i];
 			int width;
+			char temp_name[30];
 			
 			DiskBitmapHeader_read(&bmh, Piggy_fp);
 			memcpy( temp_name_read, bmh.name, 8 );
 			temp_name_read[8] = 0;
 	
 			if ( bmh.dflags & DBM_FLAG_ABM )        
-				sprintf( temp_name, "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES );
+				snprintf(temp_name, sizeof(temp_name), "%s#%d", temp_name_read, bmh.dflags & DBM_NUM_FRAMES);
 			else
-				strcpy( temp_name, temp_name_read );
+				snprintf(temp_name, sizeof(temp_name), "%s", temp_name_read);
 	
 			//Make sure name matches
 			if (strcmp(temp_name,AllBitmaps[i].name)) {
@@ -548,7 +548,7 @@ void piggy_new_pigfile(char *pigname)
 				must_rewrite_pig=1;
 			}
 	
-			strcpy(AllBitmaps[i].name,temp_name);
+			snprintf(AllBitmaps[i].name, sizeof(AllBitmaps[i].name), "%s", temp_name);
 
 			width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
 			gr_set_bitmap_data(bm, NULL);	// free ogl texture
@@ -638,8 +638,6 @@ int read_hamfile()
 	}
 
 	{
-		int i;
-
 		bm_read_all(ham_fp);
 		cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
 	}

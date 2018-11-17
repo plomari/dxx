@@ -714,7 +714,7 @@ CFILE *cfile_open_data_dir_file(const char *filename)
 // If exts is NULL, return all files.
 // Returns NULL on OOM.
 // Does not return "." and ".." entries.
-char **cfile_find_files(char *path, char **exts)
+char **cfile_find_files(char *path, const char *const *exts)
 {
 	size_t count = 0;
 	char **list = malloc(sizeof(char *));

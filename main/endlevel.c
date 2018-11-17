@@ -128,20 +128,6 @@ static const char movie_table[] =	{	'a','b','c',
 					};
 #endif
 
-#define N_MOVIES (sizeof(movie_table) / sizeof(*movie_table))
-
-#ifndef SHAREWARE
-#ifdef D2_OEM
-static const char movie_table_secret[] = {'a','d'};
-#else
-static const char movie_table_secret[] = {'a','d','g','j','m','p'};
-#endif
-#define N_MOVIES_SECRET (sizeof(movie_table_secret) / sizeof(*movie_table_secret))
-#else
-#define N_MOVIES_SECRET 0
-#endif
-
-
 #define FLY_ACCEL i2f(5)
 
 fix cur_fly_speed,desired_fly_speed;
@@ -949,7 +935,7 @@ void draw_exit_model()
 	vm_vec_scale_add(&model_pos,&mine_exit_point,&mine_exit_orient.fvec,i2f(f));
 	vm_vec_scale_add2(&model_pos,&mine_exit_orient.uvec,i2f(u));
 
-	draw_polygon_model(&model_pos,&mine_exit_orient,NULL,(mine_destroyed)?destroyed_exit_modelnum:exit_modelnum,0,lrgb,NULL,NULL, 0);
+	draw_polygon_model(&model_pos,&mine_exit_orient,NULL,(mine_destroyed)?destroyed_exit_modelnum:exit_modelnum,0,lrgb,NULL, 0, 0);
 
 }
 

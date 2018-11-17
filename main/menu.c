@@ -300,7 +300,7 @@ int RegisterPlayer(int at_program_start)
 	}
 
 	if (at_program_start && !(GameCfg.LastPlayer[0]==0)) {
-		snprintf(Players[Player_num].callsign, CALLSIGN_LEN, "%s", GameCfg.LastPlayer);
+		snprintf(Players[Player_num].callsign, sizeof(Players[0].callsign), "%s", GameCfg.LastPlayer);
 		strlwr(Players[Player_num].callsign);
 		if (read_player_file() == EZERO)
 			return 1;
@@ -368,8 +368,6 @@ extern ubyte Version_major,Version_minor;
 // Draw Copyright and Version strings
 void draw_copyright()
 {
-	int w,h,aw;
-
 	gr_set_current_canvas(NULL);
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(6,6,6),-1);

@@ -173,14 +173,14 @@ int HUD_init_message_va(int class_flag, const char * format, va_list args)
 		HUD_nmessages = HUD_MAX_NUM_STOR; // unnecessary but just in case it might be bigger... which is impossible
 		for (i = 0; i < HUD_nmessages-1; i++) 
 		{
-			memcpy(&HUD_messages[i], &HUD_messages[i+1], sizeof(struct hudmsg));
+			HUD_messages[i] = HUD_messages[i + 1];
 		}
 	}
 	else
 	{
 		HUD_nmessages++;
 	}
-	snprintf(HUD_messages[HUD_nmessages-1].message, sizeof(char)*HUD_MESSAGE_LENGTH, "%s", message);
+	snprintf(HUD_messages[HUD_nmessages-1].message, sizeof(HUD_messages[0].message), "%s", message);
 	if (HUD_nmessages-HUD_MAX_NUM_DISP < 0)
 		HUD_messages[HUD_nmessages-1].time = F1_0*3; // one message - display 3 secs
 	else

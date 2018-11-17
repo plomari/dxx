@@ -723,15 +723,15 @@ void init_movies()
 
 void close_extra_robot_movie(void)
 {
-	char filename[FILENAME_LEN];
+	char filename[FILENAME_LEN + 8];
 
 	if (strcmp(movielib_files[EXTRA_ROBOT_LIB],"")) {
-		sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"h":"l");
+		snprintf(filename, sizeof(filename), "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"h":"l");
 
 		if (!cfile_hog_remove(filename))
 		{
 			con_printf(CON_URGENT, "Can't close movielib <%s>\n", filename);
-			sprintf(filename, "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"l":"h");
+			snprintf(filename, sizeof(filename), "%s-%s.mvl", movielib_files[EXTRA_ROBOT_LIB], GameArg.GfxMovieHires?"l":"h");
 
 			if (!cfile_hog_remove(filename))
 				con_printf(CON_URGENT, "Can't close movielib <%s>\n", filename);

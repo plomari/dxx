@@ -226,7 +226,7 @@ static inline int PHYSFSX_writeMatrix(PHYSFS_file *file, vms_matrix *m)
 int cfile_rename(char *oldpath, char *newpath);
 #define PHYSFSX_rename cfile_rename
 
-char **cfile_find_files(char *path, char **exts);
+char **cfile_find_files(char *path, const char *const *exts);
 void cfile_find_files_free(char **files);
 #define PHYSFSX_findFiles cfile_find_files
 #define PHYSFS_enumerateFiles(path) cfile_find_files(path, NULL)

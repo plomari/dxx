@@ -3433,7 +3433,7 @@ void newdemo_stop_recording()
 
 	if (filename[0] != '\0') {
 		int num, i = strlen(filename) - 1;
-		char newfile[PATH_MAX];
+		char newfile[PATH_MAX + 10];
 
 		while (isdigit(filename[i])) {
 			i--;
@@ -3444,7 +3444,7 @@ void newdemo_stop_recording()
 		num = atoi(&(filename[i]));
 		num++;
 		filename[i] = '\0';
-		sprintf (newfile, "%s%d", filename, num);
+		snprintf(newfile, sizeof(newfile), "%s%d", filename, num);
 		strncpy(filename, newfile, PATH_MAX);
 		filename[PATH_MAX - 1] = '\0';
 	}

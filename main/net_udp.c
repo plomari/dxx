@@ -860,7 +860,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 	{
 		int game_status = Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].game_status;
 		int j,x, k,tx,ty,ta,nplayers = 0;
-		char levelname[8],MissName[25],GameName[25],thold[2],status[8];
+		char levelname[8],MissName[25],GameName[25],thold[2],status[64];
 		thold[1]=0;
 
 		if ((i+(NLPage*UDP_NETGAMES_PPAGE)) >= num_active_udp_games)
@@ -5447,7 +5447,7 @@ int net_udp_show_game_info()
 
 	newmenu_item nm_message_items[1];
 	nm_set_item_menu(& nm_message_items[0], "GAME INFO");
-	c=newmenu_do("WELCOME", rinfo, (int (*)(newmenu *, d_event *, void *))show_game_info_handler, netgame, 2, "JOIN GAME");
+	c=newmenu_do2("WELCOME", rinfo, 1, nm_message_items, (int (*)(newmenu *, d_event *, void *))show_game_info_handler,  netgame, 2, "JOIN GAME");
 	if (c==0)
 		return 1;
 	//else if (c==1)

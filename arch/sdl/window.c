@@ -113,7 +113,6 @@ int window_close(window *wind)
 {
 	window *prev;
 	d_event event;
-	int (*w_callback)(window *wind, d_event *event, void *data) = wind->w_callback;
 
 	if (wind == window_get_front()) {
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);	// Deactivate first
