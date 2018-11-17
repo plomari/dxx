@@ -24,23 +24,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 grs_canvas * grd_curcanv;    //active canvas
 grs_screen * grd_curscreen;  //active screen
 
-grs_canvas *gr_create_canvas(int w, int h)
-{
-	grs_canvas *new;
-	
-	new = (grs_canvas *)d_malloc( sizeof(grs_canvas) );
-	gr_init_bitmap_alloc (&new->cv_bitmap, BM_LINEAR, 0, 0, w, h, w);
-
-	new->cv_color = 0;
-	new->cv_fade_level = GR_FADE_OFF;
-	new->cv_blend_func = GR_BLEND_NORMAL;
-	new->cv_drawmode = 0;
-	new->cv_font = NULL;
-	new->cv_font_fg_color = 0;
-	new->cv_font_bg_color = 0;
-	return new;
-}
-
 grs_canvas *gr_create_sub_canvas(grs_canvas *canv, int x, int y, int w, int h)
 {
 	grs_canvas *new;
@@ -58,20 +41,6 @@ grs_canvas *gr_create_sub_canvas(grs_canvas *canv, int x, int y, int w, int h)
 	return new;
 }
 
-void gr_init_canvas(grs_canvas *canv, unsigned char * pixdata, int pixtype, int w, int h)
-{
-	int wreal;
-	canv->cv_color = 0;
-	canv->cv_fade_level = GR_FADE_OFF;
-	canv->cv_blend_func = GR_BLEND_NORMAL;
-	canv->cv_drawmode = 0;
-	canv->cv_font = NULL;
-	canv->cv_font_fg_color = 0;
-	canv->cv_font_bg_color = 0;
-
-	gr_init_bitmap (&canv->cv_bitmap, pixtype, 0, 0, w, h, w, pixdata);
-}
-
 void gr_init_sub_canvas(grs_canvas *new, grs_canvas *src, int x, int y, int w, int h)
 {
 	new->cv_color = src->cv_color;
@@ -83,12 +52,6 @@ void gr_init_sub_canvas(grs_canvas *new, grs_canvas *src, int x, int y, int w, i
 	new->cv_font_bg_color = src->cv_font_bg_color;
 
 	gr_init_sub_bitmap (&new->cv_bitmap, &src->cv_bitmap, x, y, w, h);
-}
-
-void gr_free_canvas(grs_canvas *canv)
-{
-	gr_free_bitmap_data(&canv->cv_bitmap);
-	d_free(canv);
 }
 
 void gr_free_sub_canvas(grs_canvas *canv)

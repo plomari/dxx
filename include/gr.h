@@ -154,29 +154,15 @@ void gr_close(void);
 //=========================================================================
 // Canvas functions:
 
-// Makes a new canvas. allocates memory for the canvas and its bitmap,
-// including the raw pixel buffer.
-
-grs_canvas *gr_create_canvas(int w, int h);
-
 // Creates a canvas that is part of another canvas.  this can be used to make
 // a window on the screen.  the canvas structure is malloc'd; the address of
 // the raw pixel data is inherited from the parent canvas.
 
 grs_canvas *gr_create_sub_canvas(grs_canvas *canv,int x,int y,int w, int h);
 
-// Initialize the specified canvas. the raw pixel data buffer is passed as
-// a parameter. no memory allocation is performed.
-
-void gr_init_canvas(grs_canvas *canv,unsigned char *pixdata,int pixtype, int w,int h);
-
 // Initialize the specified sub canvas. no memory allocation is performed.
 
 void gr_init_sub_canvas(grs_canvas *new,grs_canvas *src,int x,int y,int w, int h);
-
-// Free up the canvas and its pixel data.
-
-void gr_free_canvas(grs_canvas *canv);
 
 // Free up the canvas. do not free the pixel data, which belongs to the
 // parent canvas.
