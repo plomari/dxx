@@ -205,7 +205,6 @@ void ReadCmdArgs(void)
 	GameArg.DbgTexMap 		= get_str_arg("-tmap", NULL);
 	GameArg.DbgShowMemInfo 		= FindArg("-showmeminfo");
 	GameArg.DbgUseDoubleBuffer 	= !FindArg("-nodoublebuffer");
-	GameArg.DbgBigPig 		= !FindArg("-bigpig");
 
 	GameArg.DbgAltTexMerge 		= !FindArg("-gl_oldtexmerge");
 }

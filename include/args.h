@@ -81,7 +81,6 @@ typedef struct Arg
 	char *DbgTexMap;
 	int DbgShowMemInfo;
 	int DbgUseDoubleBuffer;
-	int DbgBigPig;
 	int DbgAltTexMerge;
 } Arg;
 

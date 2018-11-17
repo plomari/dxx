@@ -217,7 +217,6 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 	temp.index = Num_bitmap_files;
 
 	if (!in_file) {
-		if ( !GameArg.DbgBigPig )  gr_bitmap_rle_compress( bmp );
 		Num_bitmap_files_new++;
 	}
 	else if (SoundOffset[Num_sound_files] == 0)
