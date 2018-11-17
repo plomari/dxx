@@ -1337,10 +1337,6 @@ extern void	set_ambient_sound_flags(void);
 //6 -> 7  added flickering lights
 //7 -> 8  made version 8 to be not compatible with D2 1.0 & 1.1
 
-#ifdef COMPACT_SEGS
-extern void ncache_flush();
-#endif
-
 extern int Slide_segs_computed;
 extern int d1_pig_present;
 
@@ -1373,10 +1369,6 @@ int load_level(const char * filename_passed)
 		}
 	 }
 #endif
-
-	#ifdef COMPACT_SEGS
-	ncache_flush();
-	#endif
 
 	strcpy(filename,filename_passed);
 
@@ -1537,9 +1529,7 @@ int load_level(const char * filename_passed)
 		editor_status("Loaded NEW mine %s, \"%s\"",filename,Current_level_name);
 	#endif
 
-	#if !defined(COMPACT_SEGS)
 	Assert(check_segment_connections());
-	#endif
 
 	// Convoluted way to warn against unsupported D2X-XL .oof replacement models.
 	// As an example, we use nonsense models for Anthology, at least in the
