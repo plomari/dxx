@@ -1238,9 +1238,9 @@ void do_sound_menu()
 	int nitems = 0;
 	char old_CMLevelMusicPath[PATH_MAX+1], old_CMMiscMusic0[PATH_MAX+1];
 
-	memset(old_CMLevelMusicPath, 0, sizeof(char)*(PATH_MAX+1));
+	memset(old_CMLevelMusicPath, 0, (PATH_MAX+1));
 	snprintf(old_CMLevelMusicPath, sizeof(old_CMLevelMusicPath), "%s", GameCfg.CMLevelMusicPath);
-	memset(old_CMMiscMusic0, 0, sizeof(char)*(PATH_MAX+1));
+	memset(old_CMMiscMusic0, 0, PATH_MAX+1);
 	snprintf(old_CMMiscMusic0, sizeof(old_CMMiscMusic0), "%s", GameCfg.CMMiscMusic[SONG_TITLE]);
 
 	MALLOC(m, newmenu_item, SOUND_MENU_NITEMS);

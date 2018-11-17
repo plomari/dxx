@@ -221,7 +221,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 		fp = PHYSFSX_openReadBuffered(filename[i]);
 		if ( fp ) {
 			//Read id
-			PHYSFS_read(fp, id, sizeof(char) * 4, 1);
+			PHYSFS_read(fp, id, 4, 1);
 			if ( !memcmp( id, dgss_id, 4 )) {
 				//Read version
 				PHYSFS_read(fp, &version, sizeof(int), 1);
@@ -460,7 +460,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	}
 
 //Save id
-	PHYSFS_write(fp, dgss_id, sizeof(char) * 4, 1);
+	PHYSFS_write(fp, dgss_id, 4, 1);
 
 //Save version
 	i = STATE_VERSION;
@@ -811,7 +811,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 
 //Read id
 	//FIXME: check for swapped file, react accordingly...
-	PHYSFS_read(fp, id, sizeof(char) * 4, 1);
+	PHYSFS_read(fp, id, 4, 1);
 	if ( memcmp( id, dgss_id, 4 )) {
 		PHYSFS_close(fp);
 		return 0;

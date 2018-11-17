@@ -130,17 +130,9 @@ int HUD_init_message_va(int class_flag, const char * format, va_list args)
 		return 0;
 
 	int i, j;
-#ifndef macintosh
 	char message[HUD_MESSAGE_LENGTH+1] = "";
-#else
-	char message[1024] = "";
-#endif
 
-#ifndef macintosh
-	vsnprintf(message, sizeof(char)*HUD_MESSAGE_LENGTH, format, args);
-#else
-	vsprintf(message, format, args);
-#endif
+	vsnprintf(message, sizeof(message), format, args);
 
 
 	// check if message is already in list and bail out if so
@@ -149,7 +141,7 @@ int HUD_init_message_va(int class_flag, const char * format, va_list args)
 		// if "normal" message, only check if it's the same at the most recent one, if marked as "may duplicate" check whole list
 		for (i = ((class_flag & HM_MAYDUPL)?0:HUD_nmessages-1); i < HUD_nmessages; i++)
 		{
-			if (!strnicmp(message, HUD_messages[i].message, sizeof(char)*HUD_MESSAGE_LENGTH))
+			if (!strnicmp(message, HUD_messages[i].message, HUD_MESSAGE_LENGTH))
 			{
 				HUD_messages[i].time = F1_0*2; // keep redundant message in list
 				if (i >= HUD_nmessages-HUD_MAX_NUM_DISP) // if redundant message on display, update them all

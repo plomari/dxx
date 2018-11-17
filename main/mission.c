@@ -862,14 +862,14 @@ int load_mission(mle *mission)
 					snprintf(tmp, FILENAME_LEN, "%s", v);
 					if ((ptr = strrchr(tmp, '.'))) // if there's a filename extension, kill it. No one knows it's the right one.
 						*ptr = '\0';
-					strncat(tmp, ".tex", sizeof(char)*FILENAME_LEN); // apply tex-extenstion
+					strncat(tmp, ".tex", FILENAME_LEN); // apply tex-extenstion
 					if (cfexist(tmp)) // check if this file exists ...
 						snprintf(Briefing_text_filename, FILENAME_LEN, "%s", tmp); // ... and apply ...
 					else // ... otherwise ...
 					{
 						if ((ptr = strrchr(tmp, '.')))
 							*ptr = '\0';
-						strncat(tmp, ".txb", sizeof(char)*FILENAME_LEN); // apply txb extension
+						strncat(tmp, ".txb", FILENAME_LEN); // apply txb extension
 						if (cfexist(tmp)) // check if this file exists ...
 							snprintf(Briefing_text_filename, FILENAME_LEN, "%s", tmp); // ... and apply ...
 					}
@@ -887,14 +887,14 @@ int load_mission(mle *mission)
 					snprintf(tmp, FILENAME_LEN, "%s", v);
 					if ((ptr = strrchr(tmp, '.'))) // if there's a filename extension, kill it. No one knows it's the right one.
 						*ptr = '\0';
-					strncat(tmp, ".tex", sizeof(char)*FILENAME_LEN); // apply tex-extenstion
+					strncat(tmp, ".tex", FILENAME_LEN); // apply tex-extenstion
 					if (cfexist(tmp)) // check if this file exists ...
 						snprintf(Briefing_text_filename, FILENAME_LEN, "%s", tmp); // ... and apply ...
 					else // ... otherwise ...
 					{
 						if ((ptr = strrchr(tmp, '.')))
 							*ptr = '\0';
-						strncat(tmp, ".txb", sizeof(char)*FILENAME_LEN); // apply txb extension
+						strncat(tmp, ".txb", FILENAME_LEN); // apply txb extension
 						if (cfexist(tmp)) // check if this file exists ...
 							snprintf(Ending_text_filename, FILENAME_LEN, "%s", tmp); // ... and apply ...
 					}

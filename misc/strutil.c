@@ -260,7 +260,7 @@ int string_array_add(char ***list, char **list_buf, int *num_str, int *max_str, 
 		int i;
 		char *new_buf;
 		
-		new_buf = d_realloc(*list_buf, *max_buf*sizeof(char)*MEM_K);
+		new_buf = d_realloc(*list_buf, *max_buf*MEM_K);
 		if (new_buf == NULL)
 			return 0;
 

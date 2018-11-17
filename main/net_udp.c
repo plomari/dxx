@@ -276,7 +276,7 @@ int udp_open_socket(int socknum, int port)
 	char cport[6];
 	
 	memset (&hints, '\0', sizeof (struct addrinfo));
-	memset(cport,'\0',sizeof(char)*6);
+	memset(cport,'\0',6);
 	
 	hints.ai_flags = AI_PASSIVE;
 	hints.ai_family = _pf;
@@ -674,7 +674,7 @@ void net_udp_manual_join_game()
 	
 	net_udp_init();
 
-	memset(&dj->addrbuf,'\0', sizeof(char)*128);
+	memset(&dj->addrbuf,'\0', 128);
 	snprintf(dj->addrbuf, sizeof(dj->addrbuf), "%s", GameArg.MplUdpHostAddr);
 
 	if (GameArg.MplUdpHostPort != 0)
@@ -865,7 +865,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 
 		if ((i+(NLPage*UDP_NETGAMES_PPAGE)) >= num_active_udp_games)
 		{
-			snprintf(menus[i+4].text, sizeof(char)*74, "%d.                                                                      ",(i+(NLPage*UDP_NETGAMES_PPAGE))+1);
+			snprintf(menus[i+4].text, 74, "%d.                                                                      ",(i+(NLPage*UDP_NETGAMES_PPAGE))+1);
 			continue;
 		}
 
@@ -928,7 +928,7 @@ int net_udp_list_join_poll( newmenu *menu, d_event *event, direct_join *dj )
 		else
 			snprintf(status, sizeof(status), "BETWEEN ");
 		
-		snprintf (menus[i+4].text,sizeof(char)*74,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",(i+(NLPage*UDP_NETGAMES_PPAGE))+1,GameName,GMNamesShrt[Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].gamemode],nplayers, Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].max_numplayers,MissName,levelname,status);
+		snprintf (menus[i+4].text,74,"%d.\t%s \t%s \t  %d/%d \t%s \t %s \t%s",(i+(NLPage*UDP_NETGAMES_PPAGE))+1,GameName,GMNamesShrt[Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].gamemode],nplayers, Active_udp_games[(i+(NLPage*UDP_NETGAMES_PPAGE))].max_numplayers,MissName,levelname,status);
 			
 		Assert(strlen(menus[i+4].text) < 75);
 	}
@@ -993,21 +993,21 @@ void net_udp_list_join_game()
 
 	m[0].text = ljtext;
 	m[0].type = NM_TYPE_TEXT;
-	snprintf( m[0].text, sizeof(char)*74, "\tF4/F5/F6: (Re)Scan for all/LAN/Tracker Games." );
+	snprintf( m[0].text, 74, "\tF4/F5/F6: (Re)Scan for all/LAN/Tracker Games." );
 	m[1].text = ljtext + 74*1;
 	m[1].type = NM_TYPE_TEXT;
-	snprintf( m[1].text, sizeof(char)*74, "\tPgUp/PgDn: Flip Pages." );
+	snprintf( m[1].text, 74, "\tPgUp/PgDn: Flip Pages." );
 	m[2].text = ljtext + 74*2;
 	m[2].type = NM_TYPE_TEXT;
-	snprintf( m[2].text, sizeof(char)*74, " " );
+	snprintf( m[2].text, 74, " " );
 	m[3].text = ljtext + 74*3;
 	m[3].type = NM_TYPE_TEXT;
-	snprintf (m[3].text, sizeof(char)*74, "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
+	snprintf (m[3].text, 74, "\tGAME \tMODE \t#PLYRS \tMISSION \tLEV \tSTATUS");
 
 	for (i = 0; i < UDP_NETGAMES_PPAGE; i++) {
 		m[i+4].text = ljtext + 74 * (i+4);
 		m[i+4].type = NM_TYPE_MENU;
-		snprintf(m[i+4].text,sizeof(char)*74,"%d.                                                                      ", i+1);
+		snprintf(m[i+4].text,74,"%d.                                                                      ", i+1);
 	}
 
 	num_active_udp_changed = 1;
@@ -3001,7 +3001,7 @@ void net_udp_more_game_options ()
  	newmenu_item m[16];
 #endif
 
-	snprintf(packstring,sizeof(char)*4,"%d",Netgame.PacketsPerSec);
+	snprintf(packstring,4,"%d",Netgame.PacketsPerSec);
 	
 	opt_difficulty = opt;
 	m[opt].type = NM_TYPE_SLIDER; m[opt].value=Netgame.difficulty; m[opt].text=TXT_DIFFICULTY; m[opt].min_value=0; m[opt].max_value=(NDL-1); opt++;
@@ -4424,7 +4424,7 @@ void net_udp_noloss_add_queue_pkt(uint32_t pkt_num, fix64 time, ubyte *data, ush
 	UDP_mdata_queue[found].pkt_num = pkt_num;
 	UDP_mdata_queue[found].Player_num = pnum;
 	memcpy( &UDP_mdata_queue[found].player_ack, player_ack, sizeof(ubyte)*MAX_PLAYERS); 
-	memcpy( &UDP_mdata_queue[found].data, data, sizeof(char)*data_size );
+	memcpy( &UDP_mdata_queue[found].data, data, data_size );
 	UDP_mdata_queue[found].data_size = data_size;
 }
 
@@ -4556,7 +4556,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					buf[len] = UPID_MDATA_PNEEDACK;													len++;
 					buf[len] = UDP_mdata_queue[queuec].Player_num;								len++;
 					PUT_INTEL_INT(buf + len, UDP_mdata_queue[queuec].pkt_num);					len += 4;
-					memcpy(&buf[len], UDP_mdata_queue[queuec].data, sizeof(char)*UDP_mdata_queue[queuec].data_size);
+					memcpy(&buf[len], UDP_mdata_queue[queuec].data, UDP_mdata_queue[queuec].data_size);
 																								len += UDP_mdata_queue[queuec].data_size;
 					dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[plc].protocol.udp.addr, sizeof(struct _sockaddr));
 					total_len += len;
@@ -4635,7 +4635,7 @@ void net_udp_send_mdata_direct(ubyte *data, int data_len, int pnum, int needack)
 			UDP_MData.pkt_num = 0;
 		PUT_INTEL_INT(buf + len, UDP_MData.pkt_num);							len += 4;
 	}
-	memcpy(&buf[len], data, sizeof(char)*data_len);								len += data_len;
+	memcpy(&buf[len], data, data_len);								len += data_len;
 
 	dxx_sendto (UDP_Socket[0], buf, len, 0, (struct sockaddr *)&Netgame.players[pnum].protocol.udp.addr, sizeof(struct _sockaddr));
 
@@ -4672,7 +4672,7 @@ void net_udp_send_mdata(int needack, fix64 time)
 		UDP_MData.pkt_num++;
 		PUT_INTEL_INT(buf + len, UDP_MData.pkt_num);							len += 4;
 	}
-	memcpy(&buf[len], UDP_MData.mbuf, sizeof(char)*UDP_MData.mbuf_size);		len += UDP_MData.mbuf_size;
+	memcpy(&buf[len], UDP_MData.mbuf, UDP_MData.mbuf_size);		len += UDP_MData.mbuf_size;
 
 	if (multi_i_am_master())
 	{
@@ -5431,7 +5431,7 @@ int net_udp_show_game_info()
 	int c;
 	netgame_info *netgame = &Netgame;
 
-	memset(info,0,sizeof(char)*256);
+	memset(info,0,256);
 
 	info+=sprintf(info,"\nConnected to\n\"%s\"\n",netgame->game_name);
 
