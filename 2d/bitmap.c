@@ -45,20 +45,19 @@ grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data )
 	grs_bitmap *new;
 
 	new = (grs_bitmap *)d_malloc( sizeof(grs_bitmap) );
-	gr_init_bitmap (new, 0, 0, 0, w, h, w, raw_data);
+	gr_init_bitmap (new, 0, 0, w, h, w, raw_data);
 
 	return new;
 }
 
 
-void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline, unsigned char * data ) // TODO: virtualize
+void gr_init_bitmap( grs_bitmap *bm, int x, int y, int w, int h, int bytesperline, unsigned char * data ) // TODO: virtualize
 {
 	bm->bm_x = x;
 	bm->bm_y = y;
 	bm->bm_w = w;
 	bm->bm_h = h;
 	bm->bm_flags = 0;
-	bm->bm_type = mode;
 	bm->bm_rowsize = bytesperline;
 	bm->bm_depth = 0;
 
@@ -73,9 +72,9 @@ void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int b
 */
 }
 
-void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline)
+void gr_init_bitmap_alloc( grs_bitmap *bm, int x, int y, int w, int h, int bytesperline)
 {
-	gr_init_bitmap(bm, mode, x, y, w, h, bytesperline, 0);
+	gr_init_bitmap(bm, x, y, w, h, bytesperline, 0);
 	gr_set_bitmap_data(bm, d_malloc( MAX_BMP_SIZE(w, h) ));
 }
 
@@ -126,7 +125,6 @@ void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int
 	bm->bm_w = w;
 	bm->bm_h = h;
 	bm->bm_flags = bmParent->bm_flags;
-	bm->bm_type = bmParent->bm_type;
 	bm->bm_rowsize = bmParent->bm_rowsize;
 
 	bm->gltexture=bmParent->gltexture;
@@ -193,9 +191,6 @@ void gr_remap_bitmap( grs_bitmap * bmp, ubyte * palette, int transparent_color, 
 {
 	ubyte colormap[256];
 	int freq[256];
-
-	if (bmp->bm_type != BM_LINEAR)
-		return;	 //can't do it
 
 	Assert(bmp->bm_depth <= 1);
 

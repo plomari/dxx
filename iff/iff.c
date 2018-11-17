@@ -371,7 +371,7 @@ int iff_parse_ilbm_pbm(PHYSFS_file *ifile,long form_type,iff_bitmap_header *bmhe
 
 						bmheader->w = prev_bm->bm_w;
 						bmheader->h = prev_bm->bm_h;
-						bmheader->type = prev_bm->bm_type;
+						bmheader->type = 0;
 
 						MALLOC( bmheader->raw_data, ubyte, bmheader->w * bmheader->h );
 
@@ -480,7 +480,8 @@ void copy_iff_to_grs(grs_bitmap *bm,iff_bitmap_header *bmheader)
 	bm->bm_x = bm->bm_y = 0;
 	bm->bm_w = bmheader->w;
 	bm->bm_h = bmheader->h;
-	bm->bm_type = bmheader->type;
+	if (bmheader->type != 0)
+		printf("Warning: strange IFF type %d\n", bmheader->type);
 	bm->bm_rowsize = bmheader->w;
 	bm->bm_data = bmheader->raw_data;
 
@@ -490,7 +491,7 @@ void copy_iff_to_grs(grs_bitmap *bm,iff_bitmap_header *bmheader)
 
 //if bm->bm_data is set, use it (making sure w & h are correct), else
 //allocate the memory
-int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type, sbyte *palette, grs_bitmap *prev_bm)
+int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, sbyte *palette, grs_bitmap *prev_bm)
 {
 	int ret;			//return code
 	iff_bitmap_header bmheader;
@@ -541,12 +542,13 @@ int iff_parse_bitmap(PHYSFS_file *ifile, grs_bitmap *bm, int bitmap_type, sbyte 
 
 	if (palette) memcpy(palette,&bmheader.palette,sizeof(bmheader.palette));
 
-	return ret;
+	//Now do post-process if required
 
+	return ret;
 }
 
-//returns error codes - see IFF.H.  see GR.H for bitmap_type
-int iff_read_bitmap(char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palette)
+//returns error codes - see IFF.H.
+int iff_read_bitmap(char *ifilename,grs_bitmap *bm,ubyte *palette)
 {
 	int ret;			//return code
 	PHYSFS_file *ifile;
@@ -556,7 +558,7 @@ int iff_read_bitmap(char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palett
 		return IFF_NO_FILE;
 
 	bm->bm_data = NULL;
-	ret = iff_parse_bitmap(ifile,bm,bitmap_type,(signed char *) palette,NULL);
+	ret = iff_parse_bitmap(ifile,bm,(signed char *) palette,NULL);
 
 	PHYSFS_close(ifile);
 
@@ -576,7 +578,7 @@ int iff_read_into_bitmap(char *ifilename, grs_bitmap *bm, sbyte *palette)
 	if (ifile == NULL)
 		return IFF_NO_FILE;
 
-	ret = iff_parse_bitmap(ifile,bm,bm->bm_type,palette,NULL);
+	ret = iff_parse_bitmap(ifile,bm,palette,NULL);
 
 	PHYSFS_close(ifile);
 
@@ -925,7 +927,7 @@ int iff_read_animbrush(char *ifilename,grs_bitmap **bm_list,int max_bitmaps,int 
 			MALLOC(bm_list[*n_bitmaps] , grs_bitmap, 1 );
 			bm_list[*n_bitmaps]->bm_data = NULL;
 
-			ret = iff_parse_bitmap(ifile,bm_list[*n_bitmaps],form_type,*n_bitmaps>0?NULL:(signed char *)palette,prev_bm);
+			ret = iff_parse_bitmap(ifile,bm_list[*n_bitmaps],*n_bitmaps>0?NULL:(signed char *)palette,prev_bm);
 
 			if (ret != IFF_NO_ERROR)
 				goto done;

@@ -4737,7 +4737,7 @@ void init_hoard_data()
 		Vclip[orb_vclip].light_value = F1_0;
 		for (i=0;i<n_orb_frames;i++) {
 			Vclip[orb_vclip].frames[i].index = bitmap_num;
-			gr_init_bitmap(&GameBitmaps[bitmap_num],BM_LINEAR,0,0,orb_w,orb_h,orb_w,bitmap_data);
+			gr_init_bitmap(&GameBitmaps[bitmap_num],0,0,orb_w,orb_h,orb_w,bitmap_data);
 			gr_set_transparent (&GameBitmaps[bitmap_num], 1);
 			bitmap_data += orb_w*orb_h;
 			bitmap_num++;
@@ -4764,7 +4764,7 @@ void init_hoard_data()
 		Assert(NumTextures < MAX_TEXTURES);
 		for (i=0;i<n_goal_frames;i++) {
 			Effects[Hoard_goal_eclip].vc.frames[i].index = bitmap_num;
-			gr_init_bitmap(&GameBitmaps[bitmap_num],BM_LINEAR,0,0,64,64,64,bitmap_data);
+			gr_init_bitmap(&GameBitmaps[bitmap_num],0,0,64,64,64,bitmap_data);
 			bitmap_data += 64*64;
 			bitmap_num++;
 			Assert(bitmap_num < MAX_BITMAP_FILES);
@@ -4795,7 +4795,7 @@ void init_hoard_data()
 		if (first_time) {
 			ubyte *bitmap_data;
 			MALLOC( bitmap_data, ubyte, icon_w*icon_h );
-			gr_init_bitmap(&Orb_icons[i],BM_LINEAR,0,0,icon_w,icon_h,icon_w,bitmap_data);
+			gr_init_bitmap(&Orb_icons[i],0,0,icon_w,icon_h,icon_w,bitmap_data);
 			gr_set_transparent (&Orb_icons[i], 1);
 		}
 		cfread(palette,3,256,ifile);
@@ -4874,7 +4874,7 @@ void save_hoard_data(void)
 
 	for (i=0;i<2;i++)
 	{
-		iff_error = iff_read_bitmap(i?"orbb.bbm":"orb.bbm",&icon,BM_LINEAR,palette);
+		iff_error = iff_read_bitmap(i?"orbb.bbm":"orb.bbm",&icon,palette);
 		Assert(iff_error == IFF_NO_ERROR);
 		PHYSFS_writeULE16(ofile, icon.bm_w);
 		PHYSFS_writeULE16(ofile, icon.bm_h);

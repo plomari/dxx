@@ -1499,7 +1499,7 @@ try_again:
 
 				Assert(terrain_bm_instance.bm_data == NULL);
 
-				iff_error = iff_read_bitmap(p,&terrain_bm_instance,BM_LINEAR,pal);
+				iff_error = iff_read_bitmap(p,&terrain_bm_instance,pal);
 				if (iff_error != IFF_NO_ERROR) {
 					con_printf(CON_DEBUG, "Can't load exit terrain from file %s: IFF error: %s\n",
                                                 p, iff_errormsg(iff_error));
@@ -1538,7 +1538,7 @@ try_again:
 				if (satellite_bm_instance.bm_data)
 					d_free(satellite_bm_instance.bm_data);
 
-				iff_error = iff_read_bitmap(p,&satellite_bm_instance,BM_LINEAR,pal);
+				iff_error = iff_read_bitmap(p,&satellite_bm_instance,pal);
 				if (iff_error != IFF_NO_ERROR) {
 					con_printf(CON_DEBUG, "Can't load exit satellite from file %s: IFF error: %s\n",
                                                 p, iff_errormsg(iff_error));

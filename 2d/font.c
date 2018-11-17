@@ -288,7 +288,7 @@ void ogl_init_font(grs_font * font)
 	ogl_font_choose_size(font,gap,&tw,&th);
 	data=d_malloc(tw*th);
 	memset(data, TRANSPARENCY_COLOR, tw * th); // map the whole data with transparency so we won't have borders if using gap
-	gr_init_bitmap(&font->ft_parent_bitmap,BM_LINEAR,0,0,tw,th,tw,data);
+	gr_init_bitmap(&font->ft_parent_bitmap,0,0,tw,th,tw,data);
 	gr_set_transparent(&font->ft_parent_bitmap, 1);
 
 	ogl_init_texture(font->ft_parent_bitmap.gltexture = ogl_get_free_texture(), tw, th, oglflags); // have to init the gltexture here so the subbitmaps will find it.

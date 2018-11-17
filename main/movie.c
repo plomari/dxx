@@ -162,7 +162,7 @@ int PlayMovie(const char *filename, int must_have)
 
 void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh)
 {
-	grs_bitmap source_bm;
+	grs_bitmap source_bm = {0};
 	static ubyte old_pal[768];
 	float scale = 1.0;
 
@@ -176,7 +176,6 @@ void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, 
 	source_bm.bm_x = source_bm.bm_y = 0;
 	source_bm.bm_w = source_bm.bm_rowsize = bufw;
 	source_bm.bm_h = bufh;
-	source_bm.bm_type = BM_LINEAR;
 	source_bm.bm_flags = 0;
 	source_bm.bm_data = buf;
 

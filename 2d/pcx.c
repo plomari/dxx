@@ -102,7 +102,7 @@ int pcx_get_dimensions( char *filename, int *width, int *height)
 	return PCX_ERROR_NONE;
 }
 
-int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * palette )
+int pcx_read_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette )
 {
 	PCXHeader header;
 	CFILE * PCXfile;
@@ -129,55 +129,28 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp,int bitmap_type ,ubyte * 
 	xsize = header.Xmax - header.Xmin + 1;
 	ysize = header.Ymax - header.Ymin + 1;
 
-	if ( bitmap_type == BM_LINEAR )	{
-		if ( bmp->bm_data == NULL )	{
-			gr_init_bitmap_alloc (bmp, bitmap_type, 0, 0, xsize, ysize, xsize);
-		}
-	}
+	if ( bmp->bm_data == NULL )
+		gr_init_bitmap_alloc (bmp, 0, 0, xsize, ysize, xsize);
 
-	if ( bmp->bm_type == BM_LINEAR )	{
-		for (row=0; row< ysize ; row++)      {
-			pixdata = &bmp->bm_data[bmp->bm_rowsize*row];
-			for (col=0; col< xsize ; )      {
-				if (cfread( &data, 1, 1, PCXfile )!=1 )	{
-					cfclose( PCXfile );
-					return PCX_ERROR_READING;
-				}
-				if ((data & 0xC0) == 0xC0)     {
-					count =  data & 0x3F;
-					if (cfread( &data, 1, 1, PCXfile )!=1 )	{
-						cfclose( PCXfile );
-						return PCX_ERROR_READING;
-					}
-					memset( pixdata, data, count );
-					pixdata += count;
-					col += count;
-				} else {
-					*pixdata++ = data;
-					col++;
-				}
+	for (row=0; row< ysize ; row++)      {
+		pixdata = &bmp->bm_data[bmp->bm_rowsize*row];
+		for (col=0; col< xsize ; )      {
+			if (cfread( &data, 1, 1, PCXfile )!=1 )	{
+				cfclose( PCXfile );
+				return PCX_ERROR_READING;
 			}
-		}
-	} else {
-		for (row=0; row< ysize ; row++)      {
-			for (col=0; col< xsize ; )      {
+			if ((data & 0xC0) == 0xC0)     {
+				count =  data & 0x3F;
 				if (cfread( &data, 1, 1, PCXfile )!=1 )	{
 					cfclose( PCXfile );
 					return PCX_ERROR_READING;
 				}
-				if ((data & 0xC0) == 0xC0)     {
-					count =  data & 0x3F;
-					if (cfread( &data, 1, 1, PCXfile )!=1 )	{
-						cfclose( PCXfile );
-						return PCX_ERROR_READING;
-					}
-					for (i=0;i<count;i++)
-						gr_bm_pixel( bmp, col+i, row, data );
-					col += count;
-				} else {
-					gr_bm_pixel( bmp, col, row, data );
-					col++;
-				}
+				memset( pixdata, data, count );
+				pixdata += count;
+				col += count;
+			} else {
+				*pixdata++ = data;
+				col++;
 			}
 		}
 	}

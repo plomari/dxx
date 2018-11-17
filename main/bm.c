@@ -442,7 +442,7 @@ bitmap_index read_extra_bitmap_iff( char * filename )
 	bitmap_num.index = 0;
 
 	//MALLOC( new, grs_bitmap, 1 );
-	iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
+	iff_error = iff_read_bitmap(filename,new,newpal);
 	new->bm_handle=0;
 	if (iff_error != IFF_NO_ERROR)		{
 		con_printf(CON_DEBUG, "Error loading exit model bitmap <%s> - IFF error: %s\n", filename, iff_errormsg(iff_error));

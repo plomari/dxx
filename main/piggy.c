@@ -441,7 +441,7 @@ void piggy_init_pigfile(char *filename)
 		else
 			strcpy( temp_name, temp_name_read );
 		width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
-		gr_init_bitmap(bm, 0, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
+		gr_init_bitmap(bm, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
 		bm->bm_flags = BM_FLAG_PAGED_OUT;
 		bm->avg_color = bmh.avg_color;
 
@@ -552,7 +552,7 @@ void piggy_new_pigfile(char *pigname)
 
 			width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
 			gr_set_bitmap_data(bm, NULL);	// free ogl texture
-			gr_init_bitmap(bm, 0, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
+			gr_init_bitmap(bm, 0, 0, width, bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4), width, NULL);
 			bm->bm_flags = BM_FLAG_PAGED_OUT;
 			bm->avg_color = bmh.avg_color;
 
@@ -781,7 +781,7 @@ int properties_init(void)
 			bogus_data[i*64+i] = c;
 			bogus_data[i*64+(63-i)] = c;
 		}
-		gr_init_bitmap(&GameBitmaps[Num_bitmap_files], 0, 0, 0, 64, 64, 64, bogus_data);
+		gr_init_bitmap(&GameBitmaps[Num_bitmap_files], 0, 0, 64, 64, 64, bogus_data);
 		piggy_register_bitmap(&GameBitmaps[Num_bitmap_files], "bogus", 1);
 		bogus_sound.length = 64*64;
 		bogus_sound.data = bogus_data;
@@ -1210,7 +1210,7 @@ void load_bitmap_replacements(char *level_name)
 			int depth = (bmh.flags & BM_FLAG_TGA) ? 4 : 1;
 
 			gr_set_bitmap_data(bm, NULL);	// free ogl texture
-			gr_init_bitmap(bm, 0, 0, 0, width, height, width * depth, NULL);
+			gr_init_bitmap(bm, 0, 0, width, height, width * depth, NULL);
 			bm->avg_color = bmh.avg_color;
 			bm->bm_data = (ubyte *) (size_t)bmh.offset;
 
@@ -1289,7 +1289,7 @@ void bitmap_read_d1( grs_bitmap *bitmap, /* read into this bitmap */
 
 	width = bmh->width + ((short) (bmh->wh_extra & 0x0f) << 8);
 	gr_set_bitmap_data(bitmap, NULL);	// free ogl texture
-	gr_init_bitmap(bitmap, 0, 0, 0, width, bmh->height + ((short) (bmh->wh_extra & 0xf0) << 4), width, NULL);
+	gr_init_bitmap(bitmap, 0, 0, width, bmh->height + ((short) (bmh->wh_extra & 0xf0) << 4), width, NULL);
 	bitmap->avg_color = bmh->avg_color;
 	gr_set_bitmap_flags(bitmap, bmh->flags & BM_FLAGS_TO_COPY);
 

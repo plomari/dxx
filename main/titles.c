@@ -157,7 +157,7 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 
 	gr_init_bitmap_data (&ts->title_bm);
 
-	if ((pcx_error=pcx_read_bitmap( filename, &ts->title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
+	if ((pcx_error=pcx_read_bitmap( filename, &ts->title_bm, gr_palette ))!=PCX_ERROR_NONE)	{
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 	}
 
@@ -731,7 +731,7 @@ int briefing_process_char(briefing *br)
 			get_message_name(&br->message, bitmap_name);
 			strcat(bitmap_name, ".bbm");
 			gr_init_bitmap_data (&br->guy_bitmap);
-			iff_error = iff_read_bitmap(bitmap_name, &br->guy_bitmap, BM_LINEAR, temp_palette);
+			iff_error = iff_read_bitmap(bitmap_name, &br->guy_bitmap, temp_palette);
 			Assert(iff_error == IFF_NO_ERROR);
 
 			br->guy_bitmap_show=1;
@@ -1098,7 +1098,7 @@ int load_briefing_screen(briefing *br, char *fname)
 	if (stricmp(br->background_name, fname))
 		strncpy (br->background_name,fname, sizeof(br->background_name));
 
-	if ((pcx_error = pcx_read_bitmap(fname, &br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
+	if ((pcx_error = pcx_read_bitmap(fname, &br->background, gr_palette))!=PCX_ERROR_NONE)
 		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
 
 	show_fullscr(&br->background);

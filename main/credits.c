@@ -247,7 +247,7 @@ void credits_show(char *credits_filename)
 	gr_use_palette_table( "credits.256" );
 	cr->backdrop.bm_data=NULL;
 
-	pcx_error = pcx_read_bitmap(STARS_BACKGROUND,&cr->backdrop, BM_LINEAR,backdrop_palette);
+	pcx_error = pcx_read_bitmap(STARS_BACKGROUND,&cr->backdrop, backdrop_palette);
 	if (pcx_error != PCX_ERROR_NONE)		{
 		cfclose(cr->file);
 		d_free(cr);

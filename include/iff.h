@@ -25,9 +25,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //Prototypes for IFF library functions
 
-int iff_read_bitmap(char *ifilename,grs_bitmap *bm,int bitmap_type,ubyte *palette);
+int iff_read_bitmap(char *ifilename,grs_bitmap *bm,ubyte *palette);
 	//reads an IFF file into a grs_bitmap structure. fills in palette if not null
-	//returns error codes - see IFF.H.  see GR.H for bitmap_type
+	//returns error codes - see IFF.H.
 	//MEM DETAILS:  This routines assumes that you already have the grs_bitmap
 	//structure allocated, but that you don't have the data for this bitmap
 	//allocated. In other words, do this:

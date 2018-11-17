@@ -390,7 +390,7 @@ void kmatrix_view(int network)
 		return;
 
 	gr_init_bitmap_data(&km->background);
-	if (pcx_read_bitmap(STARS_BACKGROUND, &km->background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+	if (pcx_read_bitmap(STARS_BACKGROUND, &km->background, gr_palette) != PCX_ERROR_NONE)
 	{
 		d_free(km);
 		return;

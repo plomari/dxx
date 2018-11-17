@@ -1579,7 +1579,7 @@ void cockpit_decode_alpha(grs_bitmap *bm)
 		}
 	}
 	ogl_freebmtexture(bm);
-	gr_init_bitmap (&deccpt, 0, 0, 0, bm->bm_w, bm->bm_h, bm->bm_w, cockpitbuf);
+	gr_init_bitmap (&deccpt, 0, 0, bm->bm_w, bm->bm_h, bm->bm_w, cockpitbuf);
 	gr_set_transparent(&deccpt,1);
 	ogl_ubitmapm_cs (0, 0, -1, -1, &deccpt, 255, F1_0); // render one time to init the texture
 	if (WinBoxOverlay[0] != NULL)

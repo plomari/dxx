@@ -1007,7 +1007,7 @@ void do_screen_message(char *fmt, ...)
 		return;
 	
 	gr_init_bitmap_data(&background);
-	if (pcx_read_bitmap(STARS_BACKGROUND, &background, BM_LINEAR, gr_palette) != PCX_ERROR_NONE)
+	if (pcx_read_bitmap(STARS_BACKGROUND, &background, gr_palette) != PCX_ERROR_NONE)
 		return;
 
 	gr_palette_load(gr_palette);

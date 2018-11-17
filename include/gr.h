@@ -57,9 +57,6 @@ typedef struct _grs_point {
 #define CC_LSPACING_S   "\x2"   //next char specifies line spacing
 #define CC_UNDERLINE_S  "\x3"   //next char is underlined
 
-#define BM_LINEAR   0
-#define BM_OGL      5
-
 #define BM_FLAG_TRANSPARENT         1
 #define BM_FLAG_SUPER_TRANSPARENT   2
 #define BM_FLAG_NO_LIGHTING         4
@@ -76,7 +73,6 @@ typedef struct _grs_point {
 typedef struct _grs_bitmap {
 	short   bm_x,bm_y;  // Offset from parent's origin
 	short   bm_w,bm_h;  // width,height
-	sbyte   bm_type;    // 0=Linear, 1=ModeX, 2=SVGA
 	int     bm_flags;   // BM_FLAG_*
 	short   bm_rowsize; // unsigned char offset to next row
 	unsigned char *     bm_data;    // ptr to pixel data...
@@ -160,10 +156,10 @@ void gr_clear_canvas(int color);
 // Bitmap functions:
 
 // these are the two workhorses, the others just use these
-extern void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline, unsigned char * data );
+extern void gr_init_bitmap( grs_bitmap *bm, int x, int y, int w, int h, int bytesperline, unsigned char * data );
 extern void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int w, int h );
 
-extern void gr_init_bitmap_alloc( grs_bitmap *bm, int mode, int x, int y, int w, int h, int bytesperline);
+extern void gr_init_bitmap_alloc( grs_bitmap *bm, int x, int y, int w, int h, int bytesperline);
 
 // Allocate a bitmap and its pixel data buffer.
 grs_bitmap *gr_create_bitmap(int w,int h);
