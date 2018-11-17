@@ -223,10 +223,6 @@ void gr_settransblend(int fade_level, ubyte blend_func);
 void gr_pixel(int x,int y);
 void gr_upixel(int x,int y);
 
-// Gets a pixel;
-unsigned char gr_gpixel( grs_bitmap * bitmap, int x, int y );
-unsigned char gr_ugpixel( grs_bitmap * bitmap, int x, int y );
-
 // Draws a line into the current canvas in the current color and drawmode.
 int gr_line(fix x0,fix y0,fix x1,fix y1);
 int gr_uline(fix x0,fix y0,fix x1,fix y1);
@@ -257,10 +253,6 @@ int gr_ucircle(fix x,fix y,fix r);
 // Draw an unfilled rectangle into the current canvas
 void gr_box(int left,int top,int right,int bot);
 void gr_ubox(int left,int top,int right,int bot);
-
-void gr_scanline( int x1, int x2, int y );
-void gr_uscanline( int x1, int x2, int y );
-
 
 // Reads in a font file... current font set to this one.
 grs_font * gr_init_font( const char * fontfile );

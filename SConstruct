@@ -51,13 +51,11 @@ print '\n===== ' + PROGRAM_NAME + VERSION_STRING + " (svn " + str(D2XSVN) + ') =
 
 # general source files
 common_sources = [
-'2d/2dsline.c',
 '2d/bitblt.c',
 '2d/bitmap.c',
 '2d/box.c',
 '2d/canvas.c',
 '2d/font.c',
-'2d/gpixel.c',
 '2d/line.c',
 '2d/palette.c',
 '2d/pcx.c',
