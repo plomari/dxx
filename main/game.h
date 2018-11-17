@@ -24,6 +24,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "cfile.h"
 #include "vecmat.h"
+#include "gr.h"
 
 #ifdef NDEBUG
 #define MAXIMUM_FPS 200
@@ -85,11 +86,9 @@ extern int ft_preference;
 #define GM_NORMAL       0       // You are in normal play mode, no multiplayer stuff
 #define GM_MULTI        38      // You are in some type of multiplayer game
 
-
 #define NDL 5       // Number of difficulty levels.
 
 extern int Game_mode;
-extern u_int32_t Game_screen_mode;
 
 extern int gauge_message_on;
 
@@ -119,7 +118,7 @@ extern int Game_suspended;          // if non-zero, nothing moves but player
 void init_game(void);
 void game(void);
 void close_game(void);
-void init_cockpit(void);
+void init_game_canvas(grs_canvas *canvas);
 void calc_frame_time(void);
 void calc_d_tick();
 int do_flythrough(struct object *obj,int first_time);
@@ -239,8 +238,6 @@ void flickering_light_write(flickering_light *fl, PHYSFS_file *fp);
 
 
 void game_render_frame_mono(int flip);
-
-void game_init_render_buffers(int render_w, int render_h);
 
 void game_leave_menus(void);
 

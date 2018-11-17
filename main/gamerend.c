@@ -619,7 +619,6 @@ void show_extra_views()
 }
 
 int BigWindowSwitch=0;
-extern int force_cockpit_redraw;
 void update_cockpits();
 
 //render a frame for the game
@@ -627,15 +626,16 @@ void game_render_frame_mono(int flip)
 {
 	int no_draw_hud=0;
 
-	gr_set_current_canvas(&Screen_3d_window);
-	
+	grs_canvas Screen_3d_window = grd_curscreen->sc_canvas; // The rectangle for rendering the mine to
+
+	init_game_canvas(&Screen_3d_window);
+
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow) {
 		object *viewer_save = Viewer;
 
 		if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_REAR_VIEW)
 		{
 			 BigWindowSwitch=1;
-			 force_cockpit_redraw=1;
 			 PlayerCfg.CockpitMode[1]=CM_STATUS_BAR;
 			 return;
 		}
@@ -665,7 +665,6 @@ void game_render_frame_mono(int flip)
 	{
 		if (BigWindowSwitch)
 		{
-			force_cockpit_redraw=1;
 			PlayerCfg.CockpitMode[1]=(Rear_view?CM_REAR_VIEW:CM_FULL_COCKPIT);
 			BigWindowSwitch=0;
 			return;

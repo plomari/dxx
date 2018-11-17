@@ -112,9 +112,6 @@ int	Mark_count = 0;                 // number of debugging marks set
 static fix64 last_timer_value=0;
 fix ThisLevelTime=0;
 
-grs_canvas	Screen_3d_window;							// The rectangle for rendering the mine to
-
-int	force_cockpit_redraw=0;
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
 //	Toggle_var points at a variable which gets !ed on del-T press.
@@ -176,29 +173,25 @@ void reset_palette_add()
 	PaletteBlueAdd		= 0;
 }
 
-
-u_int32_t Game_screen_mode = SM(640,480);
+static void resize_canvas(grs_canvas *canvas, int x, int y, int w, int h)
+{
+	canvas->cv_x += x;
+	canvas->cv_y += y;
+	canvas->cv_w = w;
+	canvas->cv_h = h;
+}
 
 //initialize the various canvases on the game screen
 //called every time the screen mode or cockpit changes
-void init_cockpit()
+void init_game_canvas(grs_canvas *canvas)
 {
 	//Initialize the on-screen canvases
 
-	if (!Game_wind)
-		return;
-
-#ifndef OGL
-	if ( Game_screen_mode != (GameArg.GfxHiresGFXAvailable? SM(640,480) : SM(320,200)) && PlayerCfg.CockpitMode[1] != CM_LETTERBOX) {
-		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
-	}
-#endif
-
-	gr_set_current_canvas(NULL);
+	gr_set_current_canvas(canvas);
 
 	switch( PlayerCfg.CockpitMode[1] ) {
 		case CM_FULL_COCKPIT:
-			game_init_render_sub_buffers(0, 0, SWIDTH, (SHEIGHT*2)/3);
+			resize_canvas(canvas, 0, 0, SWIDTH, (SHEIGHT*2)/3);
 			break;
 
 		case CM_REAR_VIEW:
@@ -208,63 +201,44 @@ void init_cockpit()
 			PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0)]);
 			bm=&GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0)].index];
 			gr_bitblt_find_transparent_area(bm, &x1, &y1, &x2, &y2);
-			game_init_render_sub_buffers(x1*((float)SWIDTH/bm->bm_w), y1*((float)SHEIGHT/bm->bm_h), (x2-x1+1)*((float)SWIDTH/bm->bm_w), (y2-y1+2)*((float)SHEIGHT/bm->bm_h));
+			resize_canvas(canvas, x1*((float)SWIDTH/bm->bm_w), y1*((float)SHEIGHT/bm->bm_h), (x2-x1+1)*((float)SWIDTH/bm->bm_w), (y2-y1+2)*((float)SHEIGHT/bm->bm_h));
 			break;
 		}
 
 		case CM_FULL_SCREEN:
-			game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
+			resize_canvas(canvas, 0, 0, SWIDTH, SHEIGHT);
 			break;
 
 		case CM_STATUS_BAR:
-			game_init_render_sub_buffers( 0, 0, SWIDTH, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72) );
+			resize_canvas(canvas, 0, 0, SWIDTH, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72) );
 			break;
 
 		case CM_LETTERBOX:	{
 			int x,y,w,h;
 
-			x = 0; w = SM_W(Game_screen_mode);
-			h = (SM_H(Game_screen_mode) * 3) / 4; // true letterbox size (16:9)
-			y = (SM_H(Game_screen_mode)-h)/2;
+			x = 0; w = canvas->cv_w;
+			h = (canvas->cv_h * 3) / 4; // true letterbox size (16:9)
+			y = (canvas->cv_h-h)/2;
 
-			gr_rect(x,0,w,SM_H(Game_screen_mode)-h);
-			gr_rect(x,SM_H(Game_screen_mode)-h,w,SM_H(Game_screen_mode));
+			gr_rect(x,0,w,canvas->cv_h-h);
+			gr_rect(x,canvas->cv_h-h,w,canvas->cv_h);
 
-			game_init_render_sub_buffers( x, y, w, h );
+			resize_canvas(canvas, x, y, w, h );
 			break;
 		}
 	}
-
-	gr_set_current_canvas(NULL);
 }
 
 //selects a given cockpit (or lack of one).  See types in game.h
 void select_cockpit(int mode)
 {
-	if (mode != PlayerCfg.CockpitMode[1]) {		//new mode
-		PlayerCfg.CockpitMode[1]=mode;
-		init_cockpit();
-	}
+	PlayerCfg.CockpitMode[1] = mode;
 }
 
 //force cockpit redraw next time. call this if you've trashed the screen
 void reset_cockpit()
 {
-	force_cockpit_redraw=1;
 	last_drawn_cockpit = -1;
-}
-
-void game_init_render_sub_buffers( int x, int y, int w, int h )
-{
-	gr_clear_canvas(0);
-	gr_init_sub_canvas( &Screen_3d_window, &grd_curscreen->sc_canvas, x, y, w, h );
-}
-
-
-// Sets up the canvases we will be rendering to
-void game_init_render_buffers(int render_w, int render_h)
-{
-	game_init_render_sub_buffers( 0, 0, render_w, render_h );
 }
 
 static int time_paused=0;
@@ -981,7 +955,6 @@ window *game_setup(void)
 	window_set_opaque(game_wind, true);
 
 	reset_palette_add();
-	init_cockpit();
 	init_gauges();
 	netplayerinfo_on = 0;
 
@@ -1080,10 +1053,6 @@ int game_handler(window *wind, d_event *event, void *data)
 					do_game_pause();
 			}
 
-			if (force_cockpit_redraw) {			//screen need redrawing?
-				init_cockpit();
-				force_cockpit_redraw=0;
-			}
 			game_render_frame();
 
 			break;

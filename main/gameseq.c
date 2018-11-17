@@ -497,7 +497,6 @@ void editor_reset_stuff_on_level()
 	Control_center_destroyed = 0;
 	if (Newdemo_state != ND_STATE_PLAYBACK)
 		gameseq_remove_unused_players();
-	init_cockpit();
 	init_robots_for_level();
 	init_ai_objects();
 	init_morphs();
@@ -1083,7 +1082,6 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 
 	Control_center_destroyed = 0;
 
-	init_cockpit();
 	reset_palette_add();
 
 	if (First_secret_visit || (Newdemo_state == ND_STATE_PLAYBACK)) {
@@ -1562,7 +1560,6 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 
 	gr_set_current_canvas(NULL);
 
-	init_cockpit();
 	init_robots_for_level();
 	init_ai_objects();
 	init_smega_detonates();

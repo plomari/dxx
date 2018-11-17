@@ -86,10 +86,7 @@ void gr_sdl_ogl_resize_window(int w, int h)
 
 	linedotscale = ((w/640<h/480?w/640:h/480)<1?1:(w/640<h/480?w/640:h/480));
 
-	int screen_mode = SM(w, h);
-
 	memset( grd_curscreen, 0, sizeof(grs_screen));
-	grd_curscreen->sc_mode = screen_mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
 	grd_curscreen->sc_aspect = F1_0;
@@ -120,8 +117,10 @@ void gr_sdl_ogl_resize_window(int w, int h)
 
 	OGL_VIEWPORT(0,0,w,h);
 
-	Game_screen_mode = screen_mode;
-	game_init_render_buffers(SM_W(screen_mode), SM_H(screen_mode));
+	if (!gr_check_fullscreen()) {
+		GameCfg.ResolutionX = w;
+		GameCfg.ResolutionY = h;
+	}
 }
 
 int ogl_init_window(int x, int y)

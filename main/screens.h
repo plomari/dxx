@@ -23,18 +23,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gr.h"
 
-// What graphics modes the game & editor open
-
 //from editor.c
 extern grs_canvas *Canv_editor;		// the full on-scrren editor canvas
 extern grs_canvas *Canv_editor_game;	// the game window on the editor screen
-
-//About the screen
-
-extern grs_canvas		Screen_3d_window;		// The rectangle for rendering the mine to
-
-void game_init_render_buffers(int render_max_w, int render_max_h);
-void set_display_mode(int mode);
-extern int Default_display_mode;
 
 #endif /* _SCREENS_H */

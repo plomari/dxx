@@ -60,11 +60,6 @@ typedef struct _grs_point {
 #define BM_LINEAR   0
 #define BM_OGL      5
 
-#define SM(w,h) ((((u_int32_t)w)<<16)+(((u_int32_t)h)&0xFFFF))
-#define SM_W(m) (m>>16)
-#define SM_H(m) (m&0xFFFF)
-#define SM_ORIGINAL		0
-
 #define BM_FLAG_TRANSPARENT         1
 #define BM_FLAG_SUPER_TRANSPARENT   2
 #define BM_FLAG_NO_LIGHTING         4
@@ -130,7 +125,6 @@ typedef struct _grs_canvas {
 
 typedef struct _grs_screen {    // This is a video screen
 	grs_canvas  sc_canvas;  // Represents the entire screen
-	int     sc_mode;        // Video mode number
 	short   sc_w, sc_h;     // Actual Width and Height
 	fix     sc_aspect;      //aspect ratio (w/h) for this screen
 } grs_screen;

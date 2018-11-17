@@ -1213,7 +1213,6 @@ extern fix StartingShields;
 
 extern int multi_who_is_master();
 extern char NameReturning;
-extern int force_cockpit_redraw;
 
 void multi_send_message_end()
 {

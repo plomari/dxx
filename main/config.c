@@ -228,8 +228,8 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%s\n", LastPlayerStr, Players[Player_num].callsign);
 	PHYSFSX_printf(infile, "%s=%s\n", LastMissionStr, GameCfg.LastMission);
         PHYSFSX_printf(infile, "%s=%i\n", LastLevelStr, GameCfg.LastLevel);
-	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, SM_W(Game_screen_mode));
-	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, SM_H(Game_screen_mode));
+	PHYSFSX_printf(infile, "%s=%i\n", ResolutionXStr, GameCfg.ResolutionX);
+	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, GameCfg.ResolutionY);
 	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, GameCfg.WindowMode);
 	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, GameCfg.TexFilt);
 	PHYSFSX_printf(infile, "%s=%i\n", MovieTexFiltStr, GameCfg.MovieTexFilt);
