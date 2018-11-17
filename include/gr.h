@@ -285,13 +285,6 @@ void gr_get_string_size(const char *s, int *string_width, int *string_height, in
 typedef struct vms_vector vms_vector;
 int gr_3d_string(vms_vector *at, vms_vector *dir_x, vms_vector *dir_y, char *s );
 
-
-//  From roller.c
-void rotate_bitmap(grs_bitmap *bp, grs_point *vertbuf, int light_value);
-
-// From scale.c
-void scale_bitmap(grs_bitmap *bp, grs_point *vertbuf, int orientation );
-
 //===========================================================================
 // Global variables
 extern grs_canvas *grd_curcanv;             //active canvas

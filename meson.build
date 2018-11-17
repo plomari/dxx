@@ -14,7 +14,6 @@ common_sources = [
     '2d/pixel.c',
     '2d/rect.c',
     '2d/rle.c',
-    '2d/scalec.c',
     '3d/draw.c',
     '3d/globvars.c',
     '3d/instance.c',
