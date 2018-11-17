@@ -186,11 +186,6 @@ void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, CFILE *fp)
 
 int piggy_is_substitutable_bitmap( char * name, char * subst_name );
 
-#ifdef EDITOR
-void piggy_write_pigfile(char *filename);
-static void write_int(int i,PHYSFS_file *file);
-#endif
-
 void swap_0_255(grs_bitmap *bmp)
 {
 	int i;
@@ -222,10 +217,6 @@ bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 	temp.index = Num_bitmap_files;
 
 	if (!in_file) {
-#ifdef EDITOR
-		if ( GameArg.EdiMacData )
-			swap_0_255( bmp );
-#endif
 		if ( !GameArg.DbgBigPig )  gr_bitmap_rle_compress( bmp );
 		Num_bitmap_files_new++;
 	}
@@ -423,12 +414,7 @@ void piggy_init_pigfile(char *filename)
 	}
 
 	if (!Piggy_fp) {
-
-		#ifdef EDITOR
-			return;         //if editor, ok to not have pig, because we'll build one
-		#else
-			Error("Cannot load required file <%s>",filename);
-		#endif
+		Error("Cannot load required file <%s>",filename);
 	}
 
 	strncpy(Current_pigfile,filename,sizeof(Current_pigfile));
@@ -467,14 +453,9 @@ void piggy_init_pigfile(char *filename)
 		piggy_register_bitmap(bm, temp_name, 1);
 	}
 
-#ifdef EDITOR
-	Piggy_bitmap_cache_size = data_size + (data_size/10);   //extra mem for new bitmaps
-	Assert( Piggy_bitmap_cache_size > 0 );
-#else
 	Piggy_bitmap_cache_size = PIGGY_BUFFER_SIZE;
 	if (GameArg.SysLowMem)
 		Piggy_bitmap_cache_size = PIGGY_SMALL_BUFFER_SIZE;
-#endif
 	BitmapBits = d_malloc( Piggy_bitmap_cache_size );
 	if ( BitmapBits == NULL )
 		Error( "Not enough memory to load bitmaps\n" );
@@ -535,10 +516,8 @@ void piggy_new_pigfile(char *pigname)
 		}
 	}
 
-#ifndef EDITOR
 	if (!Piggy_fp)
 		Error("Cannot open correct version of <%s>", pigname);
-#endif
 
 	if (Piggy_fp) {
 
@@ -586,149 +565,7 @@ void piggy_new_pigfile(char *pigname)
 	else
 		N_bitmaps = 0;          //no pigfile, so no bitmaps
 
-	#ifndef EDITOR
-
 	Assert(N_bitmaps == Num_bitmap_files-1);
-
-	#else
-
-	if (must_rewrite_pig || (N_bitmaps < Num_bitmap_files-1)) {
-		int size;
-
-		//re-read the bitmaps that aren't in this pig
-
-		for (i=N_bitmaps+1;i<Num_bitmap_files;i++) {
-			char *p;
-
-			p = strchr(AllBitmaps[i].name,'#');
-
-			if (p) {   // this is an ABM == animated bitmap
-				char abmname[FILENAME_LEN];
-				int fnum;
-				grs_bitmap * bm[MAX_BITMAPS_PER_BRUSH];
-				int iff_error;          //reference parm to avoid warning message
-				ubyte newpal[768];
-				char basename[FILENAME_LEN];
-				int nframes;
-			
-				strcpy(basename,AllBitmaps[i].name);
-				basename[p-AllBitmaps[i].name] = 0;  //cut off "#nn" part
-				
-				sprintf( abmname, "%s.abm", basename );
-
-				iff_error = iff_read_animbrush(abmname,bm,MAX_BITMAPS_PER_BRUSH,&nframes,newpal);
-
-				if (iff_error != IFF_NO_ERROR)  {
-					Error("File %s - IFF error: %s",abmname,iff_errormsg(iff_error));
-				}
-			
-				for (fnum=0;fnum<nframes; fnum++)       {
-					char tempname[20];
-					int SuperX;
-
-					sprintf( tempname, "%s#%u", basename, fnum );
-
-					//SuperX = (GameBitmaps[i+fnum].bm_flags&BM_FLAG_SUPER_TRANSPARENT)?254:-1;
-					SuperX = (GameBitmapFlags[i+fnum]&BM_FLAG_SUPER_TRANSPARENT)?254:-1;
-					//above makes assumption that supertransparent color is 254
-
-					if ( iff_has_transparency )
-						gr_remap_bitmap_good( bm[fnum], newpal, iff_transparent_color, SuperX );
-					else
-						gr_remap_bitmap_good( bm[fnum], newpal, -1, SuperX );
-
-					bm[fnum]->avg_color = compute_average_pixel(bm[fnum]);
-
-					if ( GameArg.EdiMacData )
-						swap_0_255( bm[fnum] );
-
-					if ( !GameArg.DbgBigPig ) gr_bitmap_rle_compress( bm[fnum] );
-
-					if (bm[fnum]->bm_flags & BM_FLAG_RLE)
-						size = *((int *) bm[fnum]->bm_data);
-					else
-						size = bm[fnum]->bm_w * bm[fnum]->bm_h;
-
-					memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next],bm[fnum]->bm_data,size);
-					d_free(bm[fnum]->bm_data);
-					bm[fnum]->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
-					Piggy_bitmap_cache_next += size;
-
-					GameBitmaps[i+fnum] = *bm[fnum];
-
-					d_free( bm[fnum] );
-				}
-
-				i += nframes-1;         //filled in multiple bitmaps
-			}
-			else {          //this is a BBM
-
-				grs_bitmap * new;
-				ubyte newpal[256*3];
-				int iff_error;
-				char bbmname[FILENAME_LEN];
-				int SuperX;
-
-				MALLOC( new, grs_bitmap, 1 );
-
-				sprintf( bbmname, "%s.bbm", AllBitmaps[i].name );
-				iff_error = iff_read_bitmap(bbmname,new,BM_LINEAR,newpal);
-
-				new->bm_handle=0;
-				if (iff_error != IFF_NO_ERROR)          {
-					Error("File %s - IFF error: %s",bbmname,iff_errormsg(iff_error));
-				}
-
-				SuperX = (GameBitmapFlags[i]&BM_FLAG_SUPER_TRANSPARENT)?254:-1;
-				//above makes assumption that supertransparent color is 254
-
-				if ( iff_has_transparency )
-					gr_remap_bitmap_good( new, newpal, iff_transparent_color, SuperX );
-				else
-					gr_remap_bitmap_good( new, newpal, -1, SuperX );
-
-				new->avg_color = compute_average_pixel(new);
-
-				if ( GameArg.EdiMacData )
-					swap_0_255( new );
-
-				if ( !GameArg.DbgBigPig )  gr_bitmap_rle_compress( new );
-
-				if (new->bm_flags & BM_FLAG_RLE)
-					size = *((int *) new->bm_data);
-				else
-					size = new->bm_w * new->bm_h;
-
-				memcpy( &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next],new->bm_data,size);
-				d_free(new->bm_data);
-				new->bm_data = &Piggy_bitmap_cache_data[Piggy_bitmap_cache_next];
-				Piggy_bitmap_cache_next += size;
-
-				GameBitmaps[i] = *new;
-	
-				d_free( new );
-			}
-		}
-
-		//@@Dont' do these things which are done when writing
-		//@@for (i=0; i < Num_bitmap_files; i++ )       {
-		//@@    bitmap_index bi;
-		//@@    bi.index = i;
-		//@@    PIGGY_PAGE_IN( bi );
-		//@@}
-		//@@
-		//@@piggy_close_file();
-
-		piggy_write_pigfile(pigname);
-
-		Current_pigfile[0] = 0;                 //say no pig, to force reload
-
-		piggy_new_pigfile(pigname);             //read in just-generated pig
-
-
-	}
-	#endif  //ifdef EDITOR
-
 }
 
 ubyte bogus_data[64*64];
@@ -801,14 +638,12 @@ int read_hamfile()
 		}
 	}
 
-	#if 1 //ndef EDITOR
 	{
 		int i;
 
 		bm_read_all(ham_fp);
 		cfread( GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1, ham_fp );
 	}
-	#endif
 
 	if (Piggy_hamfile_version < 3) {
 		int N_sounds;
@@ -1216,227 +1051,6 @@ void piggy_load_level_data()
 	piggy_bitmap_page_out_all();
 	paging_touch_all();
 }
-
-#ifdef EDITOR
-
-void piggy_write_pigfile(char *filename)
-{
-	PHYSFS_file *pig_fp;
-	int bitmap_data_start, data_offset;
-	DiskBitmapHeader bmh;
-	int org_offset;
-	char subst_name[32];
-	int i;
-	PHYSFS_file *fp1,*fp2;
-	char tname[FILENAME_LEN];
-
-	for (i=0; i < Num_bitmap_files; i++ ) {
-		bitmap_index bi;
-		bi.index = i;
-		PIGGY_PAGE_IN( bi );
-	}
-
-	piggy_close_file();
-
-	pig_fp = PHYSFSX_openWriteBuffered( filename );       //open PIG file
-	Assert( pig_fp!=NULL );
-
-	write_int(PIGFILE_ID,pig_fp);
-	write_int(PIGFILE_VERSION,pig_fp);
-
-	Num_bitmap_files--;
-	PHYSFS_write( pig_fp, &Num_bitmap_files, sizeof(int), 1 );
-	Num_bitmap_files++;
-
-	bitmap_data_start = cftell(pig_fp);
-	bitmap_data_start += (Num_bitmap_files - 1) * sizeof(DiskBitmapHeader);
-	data_offset = bitmap_data_start;
-
-	change_filename_extension(tname,filename,"lst");
-	fp1 = PHYSFSX_openWriteBuffered( tname );
-	change_filename_extension(tname,filename,"all");
-	fp2 = PHYSFSX_openWriteBuffered( tname );
-
-	for (i=1; i < Num_bitmap_files; i++ ) {
-		int *size;
-		grs_bitmap *bmp;
-
-		{
-			char * p, *p1;
-			p = strchr(AllBitmaps[i].name, '#');
-			if (p) {   // this is an ABM == animated bitmap
-				int n;
-				p1 = p; p1++; 
-				n = atoi(p1);
-				*p = 0;
-				if (fp2 && n==0)
-					PHYSFSX_printf( fp2, "%s.abm\n", AllBitmaps[i].name );
-				memcpy( bmh.name, AllBitmaps[i].name, 8 );
-				Assert( n <= DBM_NUM_FRAMES );
-				bmh.dflags = DBM_FLAG_ABM + n;
-				*p = '#';
-			} else {
-				if (fp2)
-					PHYSFSX_printf( fp2, "%s.bbm\n", AllBitmaps[i].name );
-				memcpy( bmh.name, AllBitmaps[i].name, 8 );
-				bmh.dflags = 0;
-			}
-		}
-		bmp = &GameBitmaps[i];
-
-		Assert( !(bmp->bm_flags&BM_FLAG_PAGED_OUT) );
-
-		if (fp1)
-			PHYSFSX_printf( fp1, "BMP: %s, size %d bytes", AllBitmaps[i].name, bmp->bm_rowsize * bmp->bm_h );
-		org_offset = cftell(pig_fp);
-		bmh.offset = data_offset - bitmap_data_start;
-		cfseek( pig_fp, data_offset, SEEK_SET );
-
-		if ( bmp->bm_flags & BM_FLAG_RLE ) {
-			size = (int *)bmp->bm_data;
-			PHYSFS_write( pig_fp, bmp->bm_data, sizeof(ubyte), *size );
-			data_offset += *size;
-			if (fp1)
-				PHYSFSX_printf( fp1, ", and is already compressed to %d bytes.\n", *size );
-		} else {
-			PHYSFS_write( pig_fp, bmp->bm_data, sizeof(ubyte), bmp->bm_rowsize * bmp->bm_h );
-			data_offset += bmp->bm_rowsize * bmp->bm_h;
-			if (fp1)
-				PHYSFSX_printf( fp1, ".\n" );
-		}
-		cfseek( pig_fp, org_offset, SEEK_SET );
-		Assert( GameBitmaps[i].bm_w < 4096 );
-		bmh.width = (GameBitmaps[i].bm_w & 0xff);
-		bmh.wh_extra = ((GameBitmaps[i].bm_w >> 8) & 0x0f);
-		Assert( GameBitmaps[i].bm_h < 4096 );
-		bmh.height = GameBitmaps[i].bm_h;
-		bmh.wh_extra |= ((GameBitmaps[i].bm_h >> 4) & 0xf0);
-		bmh.flags = GameBitmaps[i].bm_flags;
-		if (piggy_is_substitutable_bitmap( AllBitmaps[i].name, subst_name )) {
-			bitmap_index other_bitmap;
-			other_bitmap = piggy_find_bitmap( subst_name );
-			GameBitmapXlat[i] = other_bitmap.index;
-			bmh.flags |= BM_FLAG_PAGED_OUT;
-		} else {
-			bmh.flags &= ~BM_FLAG_PAGED_OUT;
-		}
-		bmh.avg_color=GameBitmaps[i].avg_color;
-		PHYSFS_write(pig_fp, &bmh, sizeof(DiskBitmapHeader), 1);	// Mark as a bitmap
-	}
-
-	PHYSFS_close(pig_fp);
-
-	PHYSFSX_printf( fp1, " Dumped %d assorted bitmaps.\n", Num_bitmap_files );
-
-	PHYSFS_close(fp1);
-	PHYSFS_close(fp2);
-
-}
-
-static void write_int(int i, PHYSFS_file *file)
-{
-	if (PHYSFS_write( file, &i, sizeof(i), 1) != 1)
-		Error( "Error reading int in gamesave.c" );
-
-}
-
-void piggy_dump_all()
-{
-	int i, xlat_offset;
-	PHYSFS_file * ham_fp;
-	int org_offset,data_offset=0;
-	DiskSoundHeader sndh;
-	int sound_data_start=0;
-	PHYSFS_file *fp1,*fp2;
-
-	#ifdef NO_DUMP_SOUNDS
-	Num_sound_files = 0;
-	Num_sound_files_new = 0;
-	#endif
-
-	if (!Must_write_hamfile && (Num_bitmap_files_new == 0) && (Num_sound_files_new == 0) )
-		return;
-
-	fp1 = PHYSFSX_openWriteBuffered( "ham.lst" );
-	fp2 = PHYSFSX_openWriteBuffered( "ham.all" );
-
-	if (Must_write_hamfile || Num_bitmap_files_new) {
-
-		ham_fp = PHYSFSX_openWriteBuffered( DEFAULT_HAMFILE_REGISTERED );                       //open HAM file
-		Assert( ham_fp!=NULL );
-	
-		write_int(HAMFILE_ID,ham_fp);
-		write_int(HAMFILE_VERSION,ham_fp);
-	
-		bm_write_all(ham_fp);
-		xlat_offset = cftell(ham_fp);
-		PHYSFS_write( ham_fp, GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1 );
-		//Dump bitmaps
-	
-		if (Num_bitmap_files_new)
-			piggy_write_pigfile(DEFAULT_PIGFILE_REGISTERED);
-	
-		//free up memeory used by new bitmaps
-		for (i=Num_bitmap_files-Num_bitmap_files_new;i<Num_bitmap_files;i++)
-			d_free(GameBitmaps[i].bm_data);
-	
-		//next thing must be done after pig written
-		cfseek( ham_fp, xlat_offset, SEEK_SET );
-		PHYSFS_write( ham_fp, GameBitmapXlat, sizeof(ushort)*MAX_BITMAP_FILES, 1 );
-	
-		PHYSFS_close(ham_fp);
-	}
-	
-	if (Num_sound_files_new) {
-
-		// Now dump sound file
-		ham_fp = PHYSFSX_openWriteBuffered( DEFAULT_SNDFILE );
-		Assert( ham_fp!=NULL );
-	
-		write_int(SNDFILE_ID,ham_fp);
-		write_int(SNDFILE_VERSION,ham_fp);
-
-		PHYSFS_write( ham_fp, &Num_sound_files, sizeof(int), 1 );
-	
-		sound_data_start = cftell(ham_fp);
-		sound_data_start += Num_sound_files*sizeof(DiskSoundHeader);
-		data_offset = sound_data_start;
-	
-		for (i=0; i < Num_sound_files; i++ )    {
-			digi_sound *snd;
-	
-			snd = &GameSounds[i];
-			strcpy( sndh.name, AllSounds[i].name );
-			sndh.length = GameSounds[i].length;
-			sndh.offset = data_offset - sound_data_start;
-	
-			org_offset = cftell(ham_fp);
-			cfseek( ham_fp, data_offset, SEEK_SET );
-	
-			sndh.data_length = GameSounds[i].length;
-			PHYSFS_write( ham_fp, snd->data, sizeof(ubyte), snd->length );
-			data_offset += snd->length;
-			cfseek( ham_fp, org_offset, SEEK_SET );
-			PHYSFS_write( ham_fp, &sndh, sizeof(DiskSoundHeader), 1 );                    // Mark as a bitmap
-	
-			PHYSFSX_printf( fp1, "SND: %s, size %d bytes\n", AllSounds[i].name, snd->length );
-			PHYSFSX_printf( fp2, "%s.raw\n", AllSounds[i].name );
-		}
-
-		PHYSFS_close(ham_fp);
-	}
-
-	PHYSFSX_printf( fp1, "Total sound size: %d bytes\n", data_offset-sound_data_start);
-	PHYSFSX_printf( fp1, " Dumped %d assorted sounds.\n", Num_sound_files );
-
-	PHYSFS_close(fp1);
-	PHYSFS_close(fp2);
-
-	// Never allow the game to run after building ham.
-	exit(0);
-}
-
-#endif
 
 void piggy_close()
 {

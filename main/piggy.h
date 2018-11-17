@@ -56,7 +56,6 @@ typedef struct bitmap_index {
 
 int properties_init();
 void piggy_close();
-void piggy_dump_all();
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file );
 int piggy_register_sound( digi_sound * snd, char * name, int in_file );
 bitmap_index piggy_find_bitmap( char * name );
