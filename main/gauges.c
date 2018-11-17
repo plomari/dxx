@@ -2573,7 +2573,6 @@ void show_HUD_names()
 				if (!(player_point.p3_flags & PF_OVERFLOW))
 				{
 					fix x,y,dx,dy;
-					char s[CALLSIGN_LEN+10];
 					int w, h, aw, x1, y1, color_num;
 
 					x = player_point.p3_sx;
@@ -2581,12 +2580,12 @@ void show_HUD_names()
 					dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_bitmap.bm_h)/2,player_point.p3_z);
 					dx = fixmul(dy,grd_curscreen->sc_aspect);
 					color_num = (Game_mode & GM_TEAM)?get_team(pnum):pnum;
-					memset(&s, '\0', CALLSIGN_LEN+10);
 					/* Set the text to show */
+					char *s = "";
 					if( Game_mode & GM_BOUNTY && pnum == Bounty_target )
-						strncpy( s, "Target", 6 );
+						s = "Target";
 					else if (show_name)
-						snprintf( s, strlen(Players[pnum].callsign)+1, "%s", Players[pnum].callsign );
+						s = Players[pnum].callsign;
 					if (strlen(s))
 					{
 						gr_get_string_size(s, &w, &h, &aw);
