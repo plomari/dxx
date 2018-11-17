@@ -442,7 +442,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 {
 	int i,j;
 	PHYSFS_file *fp;
-	grs_canvas * cnv;
 	ubyte *pal;
 	GLint gl_draw_buffer;
 
@@ -472,23 +471,26 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	
 // Save the current screen shot...
 
-	cnv = gr_create_canvas( THUMBNAIL_W, THUMBNAIL_H );
-	if ( cnv )
-	{
-		ubyte *buf;
+	if (1) {
+		grs_canvas cnv;
+		gr_init_sub_canvas(&cnv, &grd_curscreen->sc_canvas, 0, 0, THUMBNAIL_W, THUMBNAIL_H);
+
 		grs_canvas * cnv_save;
 		cnv_save = grd_curcanv;
 
-		gr_set_current_canvas( cnv );
+		gr_set_current_canvas(&cnv);
 
 		render_frame(0, 0);
 
-		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 4);
+		gr_set_current_canvas(cnv_save);
+
+		ubyte *buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 4);
+		ubyte *thm = d_malloc(THUMBNAIL_W * THUMBNAIL_H);
 		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
 		glReadBuffer(gl_draw_buffer);
 		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGBA, GL_UNSIGNED_BYTE, buf);
 		for (int y = THUMBNAIL_H - 1; y >= 0; y--) {
-			ubyte *dst = &cnv->cv_bitmap.bm_data[y * THUMBNAIL_W];
+			ubyte *dst = &thm[y * THUMBNAIL_W];
 			ubyte *src = &buf[y * THUMBNAIL_W * 4];
 			for (int x = 0; x < THUMBNAIL_W; x++) {
 				*dst++ = gr_find_closest_color(src[0] / 4, src[1] / 4, src[2] / 4);
@@ -499,10 +501,9 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 		pal = gr_palette;
 
-		PHYSFS_write(fp, cnv->cv_bitmap.bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
+		PHYSFS_write(fp, thm, THUMBNAIL_W * THUMBNAIL_H, 1);
+		d_free(thm);
 
-		gr_set_current_canvas(cnv_save);
-		gr_free_canvas( cnv );
 		PHYSFS_write(fp, pal, 3, 256);
 	}
 	else
