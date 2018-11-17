@@ -419,12 +419,11 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 
 				if (((d_rand() % (n_demos+1)) == 0) && !GameArg.SysAutoDemo)
 				{
-					Screen_mode = -1;
 					init_subtitles("intro.tex");
 					PlayMovie("intro.mve",0);
 					close_subtitles();
 					songs_play_song(SONG_TITLE,1);
-					set_screen_mode(SCREEN_MENU);
+					gr_set_current_canvas(NULL);
 				}
 				else
 				{

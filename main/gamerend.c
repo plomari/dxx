@@ -781,7 +781,7 @@ void update_cockpits()
 
 void game_render_frame()
 {
-	set_screen_mode( SCREEN_GAME );
+	gr_set_current_canvas(NULL);
 	play_homing_warning();
 	game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
 }

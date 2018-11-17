@@ -401,7 +401,7 @@ void kmatrix_view(int network)
 	km->end_time = -1;
 	km->playing = 0;
 	
-	set_screen_mode( SCREEN_MENU );
+	gr_set_current_canvas(NULL);
 	game_flush_inputs();
 
 	for (i=0;i<MAX_NUM_NET_PLAYERS;i++)

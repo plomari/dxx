@@ -483,7 +483,7 @@ int do_game_pause(void)
 		snprintf(msg,1024,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\nTime on level: %s\nTotal time in game: %s",MENU_DIFFICULTY_TEXT(Difficulty_level),Players[Player_num].hostages_on_board,level_time,total_time);
 	else
 	  	snprintf(msg,1024,"PAUSE\n\nSkill level:  %s\nHostages on board:  %d\n",MENU_DIFFICULTY_TEXT(Difficulty_level),Players[Player_num].hostages_on_board);
-	set_screen_mode(SCREEN_MENU);
+	gr_set_current_canvas(NULL);
 
 	if (!window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))pause_handler, msg))
 		d_free(msg);
@@ -1310,8 +1310,7 @@ int HandleTestKey(int key)
 			init_subtitles("end.tex");	//ingore errors
 			PlayMovie ("end.mve",MOVIE_ABORT_ON);
 			close_subtitles();
-			Screen_mode = -1;
-			set_screen_mode(SCREEN_GAME);
+			gr_set_current_canvas(NULL);
 			reset_cockpit();
 			memcpy(gr_palette,pal_save,768);
 			gr_palette_load(gr_palette);

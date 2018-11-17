@@ -25,18 +25,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 // What graphics modes the game & editor open
 
-// for Screen_mode variable
-#define SCREEN_MENU		0	// viewing the menu screen
-#define SCREEN_GAME		1	// viewing the menu screen
-#define SCREEN_EDITOR		2	// viewing the editor screen
-#define SCREEN_MOVIE		3	// viewing a movie
-
 //from editor.c
 extern grs_canvas *Canv_editor;		// the full on-scrren editor canvas
 extern grs_canvas *Canv_editor_game;	// the game window on the editor screen
-
-//from game.c
-extern int set_screen_mode(int sm);	// True = editor screen
 
 //About the screen
 
@@ -45,7 +36,5 @@ extern grs_canvas		Screen_3d_window;		// The rectangle for rendering the mine to
 void game_init_render_buffers(int render_max_w, int render_max_h);
 void set_display_mode(int mode);
 extern int Default_display_mode;
-
-#define MENU_SCREEN_MODE (menu_use_game_res?Game_screen_mode:MENU_HIRES_MODE)
 
 #endif /* _SCREENS_H */

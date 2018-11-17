@@ -940,7 +940,7 @@ static void kc_change_invert( kc_menu *menu, kc_mitem * item )
 
 void kconfig(int n, char * title)
 {
-	set_screen_mode( SCREEN_MENU );
+	gr_set_current_canvas(NULL);
 	kc_set_controls();
 
 	switch(n)

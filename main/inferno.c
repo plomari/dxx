@@ -101,7 +101,6 @@ ubyte Version_major = 1;		//FULL VERSION
 ubyte Version_minor = 2;
 
 char desc_id_exit_num = 0;
-int Screen_mode=-1;					//game screen or editor screen?
 int descent_critical_error = 0;
 unsigned int descent_critical_deverror = 0;
 unsigned int descent_critical_errcode = 0;
@@ -326,7 +325,7 @@ int main(int argc, char *argv[])
 	if (!GameArg.SysNoMovies)
 		show_titles();
 
-	set_screen_mode(SCREEN_MENU);
+	gr_set_current_canvas(NULL);
 
 	con_printf( CON_DEBUG, "\nDoing gamedata_init..." );
 	gamedata_init();

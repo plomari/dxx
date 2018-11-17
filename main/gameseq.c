@@ -1048,7 +1048,7 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 		newdemo_record_start_frame(FrameTime );
 	} else if (Newdemo_state != ND_STATE_PLAYBACK) {
 
-		set_screen_mode(SCREEN_MENU);
+		gr_set_current_canvas(NULL);
 
 		if (First_secret_visit) {
 			do_screen_message(TXT_SECRET_EXIT);
@@ -1222,7 +1222,7 @@ void EnterSecretLevel(void)
 	//               briefings
 	if (EMULATING_D1)
 	{
-		set_screen_mode(SCREEN_MENU);
+		gr_set_current_canvas(NULL);
 		do_screen_message("Alternate Exit Found!\n\nProceeding to Secret Level!");
 		StartNewLevel(Next_level_num, 0);
 	} else {
@@ -1271,8 +1271,6 @@ void DoEndGame(void)
 {
 	if ((Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED))
 		newdemo_stop_recording();
-
-	set_screen_mode( SCREEN_MENU );
 
 	gr_set_current_canvas(NULL);
 
@@ -1562,7 +1560,7 @@ void StartNewLevelSub(int level_num, int page_in_textures, int secret_flag)
 
 	Control_center_destroyed = 0;
 
-	set_screen_mode(SCREEN_GAME);
+	gr_set_current_canvas(NULL);
 
 	init_cockpit();
 	init_robots_for_level();
@@ -1693,7 +1691,6 @@ void ShowLevelIntro(int level_num)
 				{
 					if (intro_movie[i].level_num == level_num)
 					{
-						Screen_mode = -1;
 						PlayMovie(intro_movie[i].movie_name,MOVIE_REQUIRED);
 						movie=1;
 						break;

@@ -58,8 +58,6 @@ typedef char d_fname[FILENAME_LEN];
  **	Global variables
  **/
 
-extern int Screen_mode;			// editor screen or game screen?
-
 // The version number of the game
 extern ubyte Version_major, Version_minor;
 

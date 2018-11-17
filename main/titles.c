@@ -1375,8 +1375,6 @@ void do_briefing_screens(char *filename, int level_num)
 		songs_stop_all();
 
 	// set screen correctly for robot movies
-	set_screen_mode( SCREEN_MOVIE );
-
 	gr_set_current_canvas(NULL);
 
 	if (!new_briefing_screen(br, 1))

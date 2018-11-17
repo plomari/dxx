@@ -638,7 +638,7 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 					MarkerMessage[HighlightMarker][0]=0;
 					HighlightMarker = -1;
 				}
-				set_screen_mode(SCREEN_GAME);
+				gr_set_current_canvas(NULL);
 			}
 			return 1;
 			

@@ -157,8 +157,6 @@ int PlayMovie(const char *filename, int must_have)
 	)
 		digi_init();
 
-	Screen_mode = -1;		//force screen reset
-
 	return ret;
 }
 
@@ -433,7 +431,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_memCallbacks(MPlayAlloc, MPlayFree);
 	MVE_ioCallbacks(FileRead);
 
-	set_screen_mode(SCREEN_MOVIE);
+	gr_set_current_canvas(NULL);
 	gr_copy_palette(pal_save, gr_palette, 768);
 	memset(gr_palette, 0, 768);
 	gr_palette_load(gr_palette);
@@ -461,8 +459,6 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	d_free(m);
 
 	// Restore old graphic state
-
-	Screen_mode=-1;  //force reset of screen mode
 
 	gr_copy_palette(gr_palette, pal_save, 768);
 	gr_palette_load(pal_save);

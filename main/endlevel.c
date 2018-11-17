@@ -228,7 +228,7 @@ int start_endlevel_movie()
 	r=PlayMovie(movie_name,(Game_mode & GM_MULTI)?0:MOVIE_REQUIRED);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
-		set_screen_mode(SCREEN_GAME);
+		gr_set_current_canvas(NULL);
 		memcpy(gr_palette,save_pal,768);
 	}
 

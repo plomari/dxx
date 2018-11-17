@@ -466,7 +466,7 @@ void scores_view(stats_info *last_game, int citem)
 
 	scores_read(&menu->scores);
 
-	set_screen_mode(SCREEN_MENU);
+	gr_set_current_canvas(NULL);
 
 	window_create(&grd_curscreen->sc_canvas, (SWIDTH - FSPACX(320))/2, (SHEIGHT - FSPACY(200))/2, FSPACX(320), FSPACY(200),
 				  (int (*)(window *, d_event *, void *))scores_handler, menu);

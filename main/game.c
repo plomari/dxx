@@ -185,12 +185,8 @@ void init_cockpit()
 {
 	//Initialize the on-screen canvases
 
-	if (Screen_mode != SCREEN_GAME)
+	if (!Game_wind)
 		return;
-
-	if ( Screen_mode == SCREEN_EDITOR )
-		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
-
 
 #ifndef OGL
 	if ( Game_screen_mode != (GameArg.GfxHiresGFXAvailable? SM(640,480) : SM(320,200)) && PlayerCfg.CockpitMode[1] != CM_LETTERBOX) {
@@ -269,56 +265,6 @@ void game_init_render_sub_buffers( int x, int y, int w, int h )
 void game_init_render_buffers(int render_w, int render_h)
 {
 	game_init_render_sub_buffers( 0, 0, render_w, render_h );
-}
-
-//called to change the screen mode. Parameter sm is the new mode, one of
-//SMODE_GAME or SMODE_EDITOR. returns mode acutally set (could be other
-//mode if cannot init requested mode)
-int set_screen_mode(int sm)
-{
-	if ( (Screen_mode == sm) && !((sm==SCREEN_GAME) && (grd_curscreen->sc_mode != Game_screen_mode)) && !(sm==SCREEN_MENU) )
-	{
-		gr_set_current_canvas(NULL);
-		return 1;
-	}
-
-#ifdef EDITOR
-	Canv_editor = NULL;
-#endif
-
-	Screen_mode = sm;
-
-	switch( Screen_mode )
-	{
-		case SCREEN_MENU:
-			break;
-
-		case SCREEN_GAME:
-			break;
-#ifdef EDITOR
-		case SCREEN_EDITOR:
-			/* give control back to the WM */
-			if (GameArg.CtlGrabMouse)
-				grab_mouse(false);
-
-			if (grd_curscreen->sc_mode != SM(800,600))	{
-				int gr_error;
-				if ((gr_error=gr_set_mode(SM(800,600)))!=0) { //force into game scrren
-					Warning("Cannot init editor screen (error=%d)",gr_error);
-					return 0;
-				}
-			}
-			break;
-#endif
-		case SCREEN_MOVIE:
-			break;
-		default:
-			Error("Invalid screen mode %d",sm);
-	}
-
-	gr_set_current_canvas(NULL);
-
-	return 1;
 }
 
 static int time_paused=0;
@@ -1083,7 +1029,7 @@ int game_handler(window *wind, d_event *event, void *data)
 	switch (event->type)
 	{
 		case EVENT_WINDOW_ACTIVATED:
-			set_screen_mode(SCREEN_GAME);
+			gr_set_current_canvas(NULL);
 
 			game_flush_inputs();
 

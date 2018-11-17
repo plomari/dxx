@@ -243,7 +243,7 @@ void credits_show(char *credits_filename)
 		cr->have_bin_file = 1;
 	}
 
-	set_screen_mode(SCREEN_MENU);
+	gr_set_current_canvas(NULL);
 	gr_use_palette_table( "credits.256" );
 	cr->backdrop.bm_data=NULL;
 
