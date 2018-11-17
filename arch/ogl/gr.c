@@ -57,9 +57,6 @@ int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated o
 static SDL_Window *sdl_window;
 static bool user_grab;
 
-extern void ogl_init_pixel_buffers(int w, int h);
-extern void ogl_close_pixel_buffers(void);
-
 static void ogl_get_verinfo(void);
 
 static void gr_update_grab(void)
@@ -108,8 +105,6 @@ void gr_sdl_ogl_resize_window(int w, int h)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	gr_palette_step_up(0,0,0);//in case its left over from in game
-
-	ogl_init_pixel_buffers(grd_curscreen->sc_w, grd_curscreen->sc_h);
 
 	gamefont_update_screen_size(w,h);
 	gr_remap_color_fonts();
@@ -298,8 +293,6 @@ int gr_init(int mode)
 	grd_curscreen->sc_canvas.cv_font_fg_color = 0;
 	grd_curscreen->sc_canvas.cv_font_bg_color = 0;
 	gr_set_current_canvas( &grd_curscreen->sc_canvas );
-	
-	ogl_init_pixel_buffers(256, 128);	// for gamefont_init
 
 	gr_installed = 1;
 
@@ -320,7 +313,6 @@ void gr_close()
 	{
 		d_free(grd_curscreen);
 	}
-	ogl_close_pixel_buffers();
 }
 
 extern int r_upixelc;

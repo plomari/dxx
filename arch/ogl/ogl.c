@@ -83,8 +83,6 @@ int ogl_texture_list_cur;
 
 /* some function prototypes */
 
-extern GLubyte *pixels;
-extern GLubyte *texbuf;
 void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format);
 void ogl_loadbmtexture(grs_bitmap *bm);
 static int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt, grs_bitmap *bm);
@@ -1067,8 +1065,6 @@ void ogl_set_blending()
 	}
 }
 
-GLubyte *pixels = NULL;
-
 void ogl_start_frame(void){
 	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitbltc=0;r_upixelc=0;
 
@@ -1123,32 +1119,6 @@ int pow2ize(int x){
 	int i;
 	for (i=2; i<x; i*=2) {}
 	return i;
-}
-
-GLubyte *texbuf = NULL;
-
-// Allocate the pixel buffers 'pixels' and 'texbuf' based on current screen resolution
-void ogl_init_pixel_buffers(int w, int h)
-{
-	w = pow2ize(w);	// convert to OpenGL texture size
-	h = pow2ize(h);
-
-	if (pixels)
-		d_free(pixels);
-	pixels = d_malloc(w*h*4);
-
-	if (texbuf)
-		d_free(texbuf);
-	texbuf = d_malloc(max(w, 1024)*max(h, 256)*4);	// must also fit big font texture
-
-	if ((pixels == NULL) || (texbuf == NULL))
-		Error("Not enough memory for current resolution");
-}
-
-void ogl_close_pixel_buffers(void)
-{
-	d_free(pixels);
-	d_free(texbuf);
 }
 
 void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format)
@@ -1225,8 +1195,8 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
 static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt, grs_bitmap *bm)
 {
-	uint8_t *tmp = NULL;
-	GLubyte	*bufP = texbuf;
+	uint8_t *texbuf = NULL;
+	GLubyte	*bufP = NULL;
 	tex->tw = pow2ize (tex->w);
 	tex->th = pow2ize (tex->h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
 
@@ -1235,18 +1205,20 @@ static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *
 	tex->v = (float) ((double) tex->h / (double) tex->th);
 
 	if (data) {
+		texbuf = calloc(1, tex->tw * tex->th * 4);
+		if (!texbuf) {
+			printf("Error: texture OOM\n");
+			abort();
+		}
+
+		bufP = texbuf;
+
 		// buttfuck hack against all the buttfuck hacks
 		if (bm && bm->bm_depth == 4) {
 			tex->format = GL_RGBA;
 			tex->internalformat = GL_RGBA8;
-			tmp = calloc(1, tex->tw * tex->th * 4);
-			if (!tmp) {
-				printf("Error: texture OOM\n");
-				abort();
-			}
 			for (int y = 0; y < tex->h; y++)
-				memcpy(tmp + y * tex->w * 4, data + y * tex->w * 4, 4 * tex->w);
-			bufP = tmp;
+				memcpy(texbuf + y * tex->w * 4, data + y * tex->w * 4, 4 * tex->w);
 		} else if (bm_flags >= 0) {
 			if (bm)
 				Assert(bm->bm_depth == 0 || bm->bm_depth == 1);
@@ -1301,7 +1273,7 @@ static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *
 	if (texfilt)
 		glGenerateMipmap(GL_TEXTURE_2D);
 	r_texcount++; 
-	free(tmp);
+	free(texbuf);
 	return 0;
 }
 
