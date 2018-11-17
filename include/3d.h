@@ -25,6 +25,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h" //the vector/matrix library
 #include "gr.h"
 
+// Implied by existing game data.
+#define MAX_POINTS_PER_POLY 64
+
 struct object;
 
 extern int g3d_interp_outline;      //if on, polygon models outlined in white

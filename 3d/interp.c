@@ -38,8 +38,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 //#define N_OPCODES (sizeof(opcode_table) / sizeof(*opcode_table))
 
-#define MAX_POINTS_PER_POLY 25
-
 short highest_texture_num;
 int g3d_interp_outline;
 

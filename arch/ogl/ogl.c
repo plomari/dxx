@@ -694,10 +694,10 @@ bool g3_draw_poly(int nv,const g3s_point **pointlist)
 {
 	int c, index3, index4;
 	float color_r, color_g, color_b, color_a;
-	GLfloat *vertex_array, *color_array;
+	GLfloat vertex_array[MAX_POINTS_PER_POLY * 3];
+	GLfloat color_array[MAX_POINTS_PER_POLY * 4];
 
-	MALLOC(vertex_array, GLfloat, nv*3);
-	MALLOC(color_array, GLfloat, nv*4);
+	Assert(nv <= MAX_POINTS_PER_POLY);
 
 	r_polyc++;
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -731,9 +731,6 @@ bool g3_draw_poly(int nv,const g3s_point **pointlist)
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 
-	d_free(vertex_array);
-	d_free(color_array);
-
 	return 0;
 }
 
@@ -751,11 +748,16 @@ void g3_set_flat_shading(bool enable)
 bool g3_draw_tmap(int nv,const g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb *light_rgb,grs_bitmap *bm)
 {
 	int c, index2, index3, index4;
-	GLfloat *vertex_array, *color_array, *texcoord_array, color_alpha = 1.0;
+	GLfloat color_alpha = 1.0;
+	GLfloat vertex_array[MAX_POINTS_PER_POLY * 3];
+	GLfloat color_array[MAX_POINTS_PER_POLY * 4];
+	GLfloat texcoord_array[MAX_POINTS_PER_POLY * 2];
+
+	Assert(nv <= MAX_POINTS_PER_POLY);
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
-	
+
 	if (!tmap_flat) {
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		OGL_ENABLE(TEXTURE_2D);
@@ -768,10 +770,6 @@ bool g3_draw_tmap(int nv,const g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb 
 		/* for cloaked state faces */
 		color_alpha = 1.0 - (grd_curcanv->cv_fade_level/(GLfloat)NUM_LIGHTING_LEVELS);
 	}
-
-	MALLOC(vertex_array, GLfloat, nv*3);
-	MALLOC(color_array, GLfloat, nv*4);
-	MALLOC(texcoord_array, GLfloat, nv*2);
 
 	for (c=0; c<nv; c++) {
 		index2 = c * 2;
@@ -809,10 +807,6 @@ bool g3_draw_tmap(int nv,const g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb 
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	d_free(vertex_array);
-	d_free(color_array);
-	d_free(texcoord_array);
-
 	return 0;
 }
 
@@ -822,11 +816,11 @@ bool g3_draw_tmap(int nv,const g3s_point **pointlist,g3s_uvl *uvl_list,g3s_lrgb 
 bool g3_draw_tmap_2(int nv, const g3s_point **pointlist, g3s_uvl *uvl_list, g3s_lrgb *light_rgb, grs_bitmap *bmbot, grs_bitmap *bm, int orient)
 {
 	int c, index2, index3, index4;
-	GLfloat *vertex_array, *color_array, *texcoord_array;
+	GLfloat vertex_array[MAX_POINTS_PER_POLY * 3];
+	GLfloat color_array[MAX_POINTS_PER_POLY * 4];
+	GLfloat texcoord_array[MAX_POINTS_PER_POLY * 2];
 
-	MALLOC(vertex_array, GLfloat, nv*3);
-	MALLOC(color_array, GLfloat, nv*4);
-	MALLOC(texcoord_array, GLfloat, nv*2);
+	Assert(nv <= MAX_POINTS_PER_POLY);
 
 	g3_draw_tmap(nv,pointlist,uvl_list,light_rgb,bmbot);//draw the bottom texture first.. could be optimized with multitexturing..
 	
@@ -880,10 +874,6 @@ bool g3_draw_tmap_2(int nv, const g3s_point **pointlist, g3s_uvl *uvl_list, g3s_
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	d_free(vertex_array);
-	d_free(color_array);
-	d_free(texcoord_array);
 
 	return 0;
 }
