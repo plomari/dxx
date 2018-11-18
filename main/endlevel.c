@@ -113,20 +113,14 @@ void generate_starfield();
 void start_endlevel_flythrough(int n,object *obj,fix speed);
 void start_rendered_endlevel_sequence();
 
-#ifdef D2_OEM
-static const char movie_table[] =	{	'a','a','a','a','d','d','d','d' };
-#else
 static const char movie_table[] =	{	'a','b','c',
-						#ifndef SHAREWARE
 							'a',
 							'd','f','d','f',
 							'g','h','i','g',
 							'j','k','l','j',
 							'm','o','m','o',
 							'p','q','p','q'
-						#endif
 					};
-#endif
 
 #define FLY_ACCEL i2f(5)
 
@@ -179,12 +173,6 @@ int matt_find_connect_side(int seg0,int seg1)
 
 extern int Kmatrix_nomovie_message;
 
-#if defined(D2_OEM) || defined(COMPILATION)
-#define MOVIE_REQUIRED 0
-#else
-#define MOVIE_REQUIRED 1
-#endif
-
 //returns movie played status.  see movie.h
 int start_endlevel_movie()
 {
@@ -211,7 +199,7 @@ int start_endlevel_movie()
 
 	memcpy(save_pal,gr_palette,768);
 
-	r=PlayMovie(movie_name,(Game_mode & GM_MULTI)?0:MOVIE_REQUIRED);
+	r=PlayMovie(movie_name,(Game_mode & GM_MULTI)?0:1);
 
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
 		gr_set_current_canvas(NULL);

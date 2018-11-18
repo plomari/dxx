@@ -70,11 +70,7 @@ typedef struct all_scores {
 } all_scores;
 
 
-#ifndef D2_OEM
 #define COOL_SAYING TXT_REGISTER_DESCENT
-#else
-#define COOL_SAYING "Get all 30 levels of D2 from 1-800-INTERPLAY"
-#endif
 
 void scores_read(all_scores *scores)
 {

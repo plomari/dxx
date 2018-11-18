@@ -182,7 +182,7 @@ void show_titles(void)
 	int played=MOVIE_NOT_PLAYED;    //default is not played
 	int song_playing = 0;
 
-#define MOVIE_REQUIRED 1	//(!is_D2_OEM && !is_SHAREWARE && !is_MAC_SHARE)	// causes segfault
+#define MOVIE_REQUIRED 1
 
 	{       //show bundler screens
 		played=MOVIE_NOT_PLAYED;        //default is not played

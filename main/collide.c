@@ -2096,10 +2096,8 @@ void collide_player_and_weapon( object * playerobj, object * weapon, vms_vector 
 		smega_rock_stuff();
 
 	damage = fixmul(damage, weapon->ctype.laser_info.multiplier);
-#ifndef SHAREWARE
 	if (Game_mode & GM_MULTI)
 		damage = fixmul(damage, Weapon_info[weapon->id].multi_damage_scale);
-#endif
 
 #if 1
 	/*
@@ -2277,7 +2275,6 @@ void collide_player_and_powerup( object * playerobj, object * powerup, vms_vecto
 			#endif
 		}
 	}
-#ifndef SHAREWARE
 	else if ((Game_mode & GM_MULTI_COOP) && (playerobj->id != Player_num))
 	{
 		switch (powerup->id) {
@@ -2294,7 +2291,6 @@ void collide_player_and_powerup( object * playerobj, object * powerup, vms_vecto
 				break;
 		}
 	}
-#endif
 	return;
 }
 

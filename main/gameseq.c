@@ -1242,18 +1242,6 @@ void PlayerFinishedLevel(int secret_flag)
 	reset_time();
 }
 
-#if defined(D2_OEM) || defined(COMPILATION)
-#define MOVIE_REQUIRED 0
-#else
-#define MOVIE_REQUIRED 1
-#endif
-
-#ifdef D2_OEM
-#define ENDMOVIE "endo"
-#else
-#define ENDMOVIE "end"
-#endif
-
 void show_order_form();
 
 //called when the player has finished the last level
@@ -1268,8 +1256,8 @@ void DoEndGame(void)
 	{ //only built-in mission, & not multi
 		int played=MOVIE_NOT_PLAYED;	//default is not played
 
-		init_subtitles(ENDMOVIE ".tex");	//ingore errors
-		played = PlayMovie(ENDMOVIE,MOVIE_REQUIRED);
+		init_subtitles("end" ".tex");	//ingore errors
+		played = PlayMovie("end", 1);
 		close_subtitles();
 		if (!played)
 		{
@@ -1680,7 +1668,7 @@ void ShowLevelIntro(int level_num)
 				{
 					if (intro_movie[i].level_num == level_num)
 					{
-						PlayMovie(intro_movie[i].movie_name,MOVIE_REQUIRED);
+						PlayMovie(intro_movie[i].movie_name,1);
 						movie=1;
 						break;
 					}

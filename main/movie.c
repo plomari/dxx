@@ -74,11 +74,7 @@ int Num_subtitles;
 
 // Movielib data
 
-#ifdef D2_OEM
-char movielib_files[5][FILENAME_LEN] = {"intro","other","robots","oem"};
-#else
 char movielib_files[4][FILENAME_LEN] = {"intro","other","robots"};
-#endif
 
 #define N_MOVIE_LIBS (sizeof(movielib_files) / sizeof(*movielib_files))
 #define N_BUILTIN_MOVIE_LIBS (N_MOVIE_LIBS - 1)
