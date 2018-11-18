@@ -1469,3 +1469,11 @@ bool ogl_ubitmapm_3d(vms_vector *p, vms_vector *dx, vms_vector *dy, grs_bitmap *
 
 	return 0;
 }
+
+void gr_ubox(int left,int top,int right,int bot)
+{
+	ogl_ulinec(left, top, right, top, grd_curcanv->cv_color);
+	ogl_ulinec(right, top, right, bot, grd_curcanv->cv_color);
+	ogl_ulinec(right, bot, left, bot, grd_curcanv->cv_color);
+	ogl_ulinec(left, bot, left, top, grd_curcanv->cv_color);
+}

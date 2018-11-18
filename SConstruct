@@ -53,7 +53,6 @@ print '\n===== ' + PROGRAM_NAME + VERSION_STRING + " (svn " + str(D2XSVN) + ') =
 common_sources = [
 '2d/bitblt.c',
 '2d/bitmap.c',
-'2d/box.c',
 '2d/canvas.c',
 '2d/font.c',
 '2d/line.c',
