@@ -83,14 +83,16 @@ void gr_sdl_ogl_resize_window(int w, int h)
 
 	linedotscale = ((w/640<h/480?w/640:h/480)<1?1:(w/640<h/480?w/640:h/480));
 
-	memset( grd_curscreen, 0, sizeof(grs_screen));
-	grd_curscreen->sc_w = w;
-	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = F1_0;
-	grd_curscreen->sc_canvas.cv_x = 0;
-	grd_curscreen->sc_canvas.cv_y = 0;
-	grd_curscreen->sc_canvas.cv_w = w;
-	grd_curscreen->sc_canvas.cv_h = h;
+	*grd_curscreen = (grs_screen){
+		.sc_w = w,
+		.sc_h = h,
+		.sc_aspect = F1_0,
+		.sc_canvas = {
+			.cv_w = w,
+			.cv_h = h,
+		},
+	};
+
 	gr_set_current_canvas(NULL);
 
 	/* select clearing (background) color   */
@@ -283,14 +285,13 @@ int gr_init(int mode)
 	ogl_init_texture_list_internal();
 
 	MALLOC( grd_curscreen,grs_screen,1 );
-	memset( grd_curscreen, 0, sizeof(grs_screen));
 
-	grd_curscreen->sc_canvas.cv_color = 0;
-	grd_curscreen->sc_canvas.cv_fade_level = GR_FADE_OFF;
-	grd_curscreen->sc_canvas.cv_blend_func = GR_BLEND_NORMAL;
-	grd_curscreen->sc_canvas.cv_font = NULL;
-	grd_curscreen->sc_canvas.cv_font_fg_color = 0;
-	grd_curscreen->sc_canvas.cv_font_bg_color = 0;
+	*grd_curscreen = (grs_screen){
+		.sc_canvas = {
+			.cv_fade_level = GR_FADE_OFF,
+			.cv_blend_func = GR_BLEND_NORMAL,
+		},
+	};
 	gr_set_current_canvas( &grd_curscreen->sc_canvas );
 
 	gr_installed = 1;
