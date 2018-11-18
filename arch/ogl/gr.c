@@ -315,24 +315,6 @@ void gr_close()
 	}
 }
 
-extern int r_upixelc;
-void ogl_upixelc(int x, int y, int c)
-{
-	GLfloat vertex_array[] = { (x+grd_curcanv->cv_x)/(float)last_width, 1.0-(y+grd_curcanv->cv_y)/(float)last_height };
-	GLfloat color_array[] = { CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0, CPAL2Tr(c), CPAL2Tg(c), CPAL2Tb(c), 1.0 };
-
-	r_upixelc++;
-	OGL_DISABLE(TEXTURE_2D);
-	glPointSize(linedotscale);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
-	glColorPointer(4, GL_FLOAT, 0, color_array);
-	glDrawArrays(GL_POINTS, 0, 1);
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-}
-
 void ogl_urect(int left,int top,int right,int bot)
 {
 	GLfloat xo, yo, xf, yf, color_r, color_g, color_b, color_a;

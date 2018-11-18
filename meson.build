@@ -8,7 +8,6 @@ common_sources = [
     '2d/line.c',
     '2d/palette.c',
     '2d/pcx.c',
-    '2d/pixel.c',
     '2d/rect.c',
     '2d/rle.c',
     '3d/draw.c',

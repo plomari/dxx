@@ -179,7 +179,6 @@ void gr_init_bitmap_data (grs_bitmap *bm);
 // Free the bitmap, but not the pixel data buffer
 void gr_free_sub_bitmap(grs_bitmap *bm);
 
-void gr_bm_pixel( grs_bitmap * bm, int x, int y, unsigned char color );
 void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_canvas *dest);
 void gr_bm_ubitblt( int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_canvas *dest);
 
@@ -207,10 +206,6 @@ int gr_set_drawmode(int mode);
 void gr_setcolor(int color);
 // Sets transparency and blending function
 void gr_settransblend(int fade_level, ubyte blend_func);
-
-// Draws a point into the current canvas in the current color and drawmode.
-void gr_pixel(int x,int y);
-void gr_upixel(int x,int y);
 
 // Draws a line into the current canvas in the current color and drawmode.
 int gr_line(fix x0,fix y0,fix x1,fix y1);
