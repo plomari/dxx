@@ -26,15 +26,10 @@ grs_screen * grd_curscreen;  //active screen
 
 void gr_init_sub_canvas(grs_canvas *new, grs_canvas *src, int x, int y, int w, int h)
 {
-	new->cv_color = src->cv_color;
-	new->cv_fade_level = src->cv_fade_level;
-	new->cv_blend_func = src->cv_blend_func;
-	new->cv_font = src->cv_font;
-	new->cv_font_fg_color = src->cv_font_fg_color;
-	new->cv_font_bg_color = src->cv_font_bg_color;
+	*new = *src;
 
-	new->cv_x = x + src->cv_x;
-	new->cv_y = y + src->cv_y;
+	new->cv_x += x;
+	new->cv_y += y;
 	new->cv_w = w;
 	new->cv_h = h;
 }
