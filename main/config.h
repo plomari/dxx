@@ -43,7 +43,6 @@ typedef struct Cfg
 	int ResolutionY;
 	int WindowMode;
 	int TexFilt;
-	int MovieTexFilt;
 	int MovieSubtitles;
 	int VSync;
 	int Multisample;

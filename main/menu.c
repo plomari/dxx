@@ -1043,7 +1043,7 @@ void reticle_config()
 	PlayerCfg.ReticleSize = m[opt_ret_size].value;
 }
 
-int opt_gr_texfilt, opt_gr_movietexfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_dynlightcolor, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi;
+int opt_gr_texfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_dynlightcolor, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi;
 
 int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 {
@@ -1090,8 +1090,6 @@ void graphics_config()
 	nm_set_item_radio(&m[nitems++], "Bilinear", 0, 0);
 	nm_set_item_radio(&m[nitems++], "Trilinear", 0, 0);
 	nm_set_item_radio(&m[nitems++], "Anisotropic", 0, 0);
-	opt_gr_movietexfilt = nitems;
-	nm_set_item_checkbox(&m[nitems++], "Movie Filter", GameCfg.MovieTexFilt);
 	nm_set_item_text(& m[nitems], ""); nitems++;
 	opt_gr_brightness = nitems;
 	nm_set_item_slider(&m[nitems], TXT_BRIGHTNESS, gr_palette_get_gamma(), 0, 16); nitems++;
@@ -1122,7 +1120,6 @@ void graphics_config()
 	for (i = 0; i <= 3; i++)
 		if (m[i+opt_gr_texfilt].value)
 			GameCfg.TexFilt = i;
-	GameCfg.MovieTexFilt = m[opt_gr_movietexfilt].value;
 	PlayerCfg.AlphaEffects = m[opt_gr_alphafx].value;
 	PlayerCfg.DynLightColor = m[opt_gr_dynlightcolor].value;
 	GameCfg.VSync = m[opt_gr_vsync].value;

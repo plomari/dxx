@@ -58,7 +58,6 @@ static const char *ResolutionXStr="ResolutionX";
 static const char *ResolutionYStr="ResolutionY";
 static const char *WindowModeStr="WindowMode";
 static const char *TexFiltStr="TexFilt";
-static const char *MovieTexFiltStr="MovieTexFilt";
 static const char *MovieSubtitlesStr="MovieSubtitles";
 static const char *VSyncStr="VSync";
 static const char *MultisampleStr="Multisample";
@@ -177,8 +176,6 @@ int ReadConfigFile()
 				GameCfg.WindowMode = strtol(value, NULL, 10);
 			else if (!strcmp(token, TexFiltStr))
 				GameCfg.TexFilt = strtol(value, NULL, 10);
-			else if (!strcmp(token, MovieTexFiltStr))
-				GameCfg.MovieTexFilt = strtol(value, NULL, 10);
 			else if (!strcmp(token, MovieSubtitlesStr))
 				GameCfg.MovieSubtitles = strtol(value, NULL, 10);
 			else if (!strcmp(token, VSyncStr))
@@ -232,7 +229,6 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", ResolutionYStr, GameCfg.ResolutionY);
 	PHYSFSX_printf(infile, "%s=%i\n", WindowModeStr, GameCfg.WindowMode);
 	PHYSFSX_printf(infile, "%s=%i\n", TexFiltStr, GameCfg.TexFilt);
-	PHYSFSX_printf(infile, "%s=%i\n", MovieTexFiltStr, GameCfg.MovieTexFilt);
 	PHYSFSX_printf(infile, "%s=%i\n", MovieSubtitlesStr, GameCfg.MovieSubtitles);
 	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, GameCfg.VSync);
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
