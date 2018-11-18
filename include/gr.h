@@ -113,7 +113,6 @@ typedef struct _grs_canvas {
 	short       cv_color;       // current color
 	int         cv_fade_level;  // transparency level
 	ubyte       cv_blend_func;  // blending function to use
-	short       cv_drawmode;    // fill,XOR,etc.
 	grs_font *  cv_font;        // the currently selected font
 	short       cv_font_fg_color;   // current font foreground color (-1==Invisible)
 	short       cv_font_bg_color;   // current font background color (-1==Invisible)

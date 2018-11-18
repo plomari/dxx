@@ -29,7 +29,6 @@ void gr_init_sub_canvas(grs_canvas *new, grs_canvas *src, int x, int y, int w, i
 	new->cv_color = src->cv_color;
 	new->cv_fade_level = src->cv_fade_level;
 	new->cv_blend_func = src->cv_blend_func;
-	new->cv_drawmode = src->cv_drawmode;
 	new->cv_font = src->cv_font;
 	new->cv_font_fg_color = src->cv_font_fg_color;
 	new->cv_font_bg_color = src->cv_font_bg_color;
