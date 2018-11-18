@@ -435,7 +435,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	if (MVE_rmPrepMovie((void *)filehndl, dx, dy, track)) {
 		Int3();
-		SDL_FreeRW(filehndl);
+		SDL_RWclose(filehndl);
 		window_close(wind);
 		d_free(m);
 		return MOVIE_NOT_PLAYED;
@@ -448,7 +448,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
     MVE_rmEndMovie();
 
-	SDL_FreeRW(filehndl);                           // Close Movie File
+	SDL_RWclose(filehndl);                           // Close Movie File
 	aborted = m->result != MVE_ERR_EOF;
 	d_free(m);
 
@@ -492,7 +492,7 @@ int RotateRobot()
 void DeInitRobotMovie(void)
 {
 	MVE_rmEndMovie();
-	SDL_FreeRW(RoboFile);                           // Close Movie File
+	SDL_RWclose(RoboFile);                           // Close Movie File
 }
 
 
