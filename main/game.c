@@ -197,7 +197,7 @@ void init_game_canvas(grs_canvas *canvas)
 
 			PIGGY_PAGE_IN(cockpit_bitmap[PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0)]);
 			bm=&GameBitmaps[cockpit_bitmap[PlayerCfg.CockpitMode[1]+(HIRESMODE?(Num_cockpits/2):0)].index];
-			gr_bitblt_find_transparent_area(bm, &x1, &y1, &x2, &y2);
+			gr_bitmap_find_transparent_area(bm, &x1, &y1, &x2, &y2);
 			resize_canvas(canvas, x1*((float)SWIDTH/bm->bm_w), y1*((float)SHEIGHT/bm->bm_h), (x2-x1+1)*((float)SWIDTH/bm->bm_w), (y2-y1+2)*((float)SHEIGHT/bm->bm_h));
 			break;
 		}

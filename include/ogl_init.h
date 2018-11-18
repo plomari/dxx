@@ -70,7 +70,6 @@ void ogl_cache_level_textures(void);
 
 void ogl_urect(int left, int top, int right, int bot);
 bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale);
-bool ogl_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src);
 void ogl_ulinec(int left, int top, int right, int bot, int c);
 
 bool ogl_ubitmapm_3d(vms_vector *p, vms_vector *dx, vms_vector *dy, grs_bitmap *bm,int c);

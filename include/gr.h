@@ -211,17 +211,12 @@ void gr_settransblend(int fade_level, ubyte blend_func);
 int gr_line(fix x0,fix y0,fix x1,fix y1);
 int gr_uline(fix x0,fix y0,fix x1,fix y1);
 
-// Draw the bitmap into the current canvas at the specified location.
-void gr_bitmap(int x,int y,grs_bitmap *bm);
-void gr_ubitmap(int x,int y,grs_bitmap *bm);
 void show_fullscr(grs_bitmap *bm);
 
-// Find transparent area in bitmap
-void gr_bitblt_find_transparent_area(grs_bitmap *bm, int *minx, int *miny, int *maxx, int *maxy);
+void gr_bitmap_find_transparent_area(grs_bitmap *bm, int *minx, int *miny, int *maxx, int *maxy);
 
 // bitmap function with transparency
 void gr_bitmapm( int x, int y, grs_bitmap *bm );
-void gr_ubitmapm( int x, int y, grs_bitmap *bm );
 
 // Draw a rectangle into the current canvas.
 void gr_rect(int left,int top,int right,int bot);

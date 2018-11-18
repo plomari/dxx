@@ -1,7 +1,6 @@
 project('d2x-rebirth', 'c', version: '0.55.1')
 
 common_sources = [
-    '2d/bitblt.c',
     '2d/bitmap.c',
     '2d/canvas.c',
     '2d/font.c',

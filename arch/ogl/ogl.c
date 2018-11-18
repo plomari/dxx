@@ -1305,9 +1305,27 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 	return bitmap_2d(x, y, dw, dh, 0, 0, bm->bm_w, bm->bm_h, bm, c);
 }
 
-bool ogl_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *bm)
+void gr_bitmapm( int x, int y, grs_bitmap *bm )
 {
-	return bitmap_2d(dx, dy, w, h, sx, sy, w, h, bm, -1);
+	int dx1=x, dx2=x+bm->bm_w-1;
+	int dy1=y, dy2=y+bm->bm_h-1;
+	int sx=0, sy=0;
+
+	if ((dx1 >= grd_curcanv->cv_w ) || (dx2 < 0)) return;
+	if ((dy1 >= grd_curcanv->cv_h) || (dy2 < 0)) return;
+	if ( dx1 < 0 ) { sx = -dx1; dx1 = 0; }
+	if ( dy1 < 0 ) { sy = -dy1; dy1 = 0; }
+	if ( dx2 >= grd_curcanv->cv_w ) { dx2 = grd_curcanv->cv_w-1; }
+	if ( dy2 >= grd_curcanv->cv_h ) { dy2 = grd_curcanv->cv_h-1; }
+
+	int w = dx2-dx1+1;
+	int h = dy2-dy1+1;
+	bitmap_2d(dx1, dy1, w, h, sx, sy, w, h, bm, -1);
+}
+
+void show_fullscr(grs_bitmap *bm)
+{
+	ogl_ubitmapm_cs(0, 0, -1, -1, bm, -1, F1_0);
 }
 
 bool ogl_ubitmapm_3d(vms_vector *p, vms_vector *dx, vms_vector *dy, grs_bitmap *bm,int c)
