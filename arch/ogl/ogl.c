@@ -84,8 +84,7 @@ int ogl_texture_list_cur;
 /* some function prototypes */
 
 void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format);
-void ogl_loadbmtexture(grs_bitmap *bm);
-static int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt, grs_bitmap *bm);
+static int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, grs_bitmap *bm);
 void ogl_freetexture(ogl_texture *gltexture);
 void ogl_do_palfx(void);
 
@@ -887,80 +886,6 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
 }
 
 /*
- * Movies
- * Since this function will create a new texture each call, mipmapping can be very GPU intensive - so it has an optional setting for texture filtering.
- */
-bool ogl_ubitblt_i(int dw, int dh, int dx, int dy, int sw, int sh, int sx, int sy, grs_bitmap *src, grs_canvas *dest, int texfilt)
-{
-	GLfloat xo,yo,xs,ys,u1,v1;
-	GLfloat color_array[] = { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
-	GLfloat texcoord_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-	ogl_texture tex;
-	r_ubitbltc++;
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-	ogl_init_texture(&tex, sw, sh, OGL_FLAG_ALPHA);
-	tex.prio = 0.0;
-	tex.lw=src->bm_rowsize;
-
-	u1=v1=0;
-	
-	dx+=dest->cv_x;
-	dy+=dest->cv_y;
-	xo=dx/(float)last_width;
-	xs=dw/(float)last_width;
-	yo=1.0-dy/(float)last_height;
-	ys=dh/(float)last_height;
-	
-	OGL_ENABLE(TEXTURE_2D);
-	
-	ogl_pal=gr_current_pal;
-	ogl_loadtexture(src->bm_data, sx, sy, &tex, src->bm_flags, 0, texfilt, NULL);
-	ogl_pal=gr_palette;
-	OGL_BINDTEXTURE(tex.handle);
-	
-	ogl_texwrap(&tex,GL_CLAMP_TO_EDGE);
-
-	vertex_array[0] = xo;
-	vertex_array[1] = yo;
-	vertex_array[2] = xo+xs;
-	vertex_array[3] = yo;
-	vertex_array[4] = xo+xs;
-	vertex_array[5] = yo-ys;
-	vertex_array[6] = xo;
-	vertex_array[7] = yo-ys;
-
-	texcoord_array[0] = u1;
-	texcoord_array[1] = v1;
-	texcoord_array[2] = tex.u;
-	texcoord_array[3] = v1;
-	texcoord_array[4] = tex.u;
-	texcoord_array[5] = tex.v;
-	texcoord_array[6] = u1;
-	texcoord_array[7] = tex.v;
-
-	glVertexPointer(2, GL_FLOAT, 0, vertex_array);
-	glColorPointer(4, GL_FLOAT, 0, color_array);
-	glTexCoordPointer(2, GL_FLOAT, 0, texcoord_array);  
-	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);//replaced GL_QUADS
-
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	ogl_freetexture(&tex);
-	return 0;
-}
-
-bool ogl_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_canvas *dest)
-{
-	return ogl_ubitblt_i(w,h,dx,dy,w,h,sx,sy,src,dest,0);
-}
-
-/*
  * set depth testing on or off
  */
 void ogl_toggle_depth_test(int enable)
@@ -1119,7 +1044,7 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 //In theory this could be a problem for repeating textures, but all real
 //textures (not sprites, etc) in descent are 64x64, so we are ok.
 //stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, int texfilt, grs_bitmap *bm)
+static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, grs_bitmap *bm)
 {
 	uint8_t *texbuf = NULL;
 	GLubyte	*bufP = NULL;
@@ -1179,24 +1104,35 @@ static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *
 	OGL_BINDTEXTURE(tex->handle);
 	glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-	if (texfilt)
-	{
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (texfilt>=2?GL_LINEAR_MIPMAP_LINEAR:GL_LINEAR_MIPMAP_NEAREST));
-		if (texfilt >= 3 && ogl_maxanisotropy > 1.0)
+	int texfilt = GameCfg.TexFilt;
+
+	if (bm_flags & BM_FLAG_NO_DOWNSCALE)
+		texfilt = min(texfilt, 1);
+
+	switch (texfilt) {
+	case 0:
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		break;
+	case 1:
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		break;
+	case 2:
+	case 3:
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		if (texfilt >= 3 && ogl_maxanisotropy < 1.0)
 			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, ogl_maxanisotropy);
+		break;
 	}
-	else
-	{
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	}
+
 	glTexImage2D (
 		GL_TEXTURE_2D, 0, tex->internalformat,
 		tex->tw, tex->th, 0, tex->format, // RGBA textures.
 		GL_UNSIGNED_BYTE, // imageData is a GLubyte pointer.
 		bufP);
-	if (texfilt)
+	if (texfilt >= 2)
 		glGenerateMipmap(GL_TEXTURE_2D);
 	r_texcount++; 
 	free(texbuf);
@@ -1205,7 +1141,7 @@ static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *
 
 unsigned char decodebuf[1024*1024];
 
-void ogl_loadbmtexture_f(grs_bitmap *bm, int texfilt)
+void ogl_loadbmtexture(grs_bitmap *bm)
 {
 	unsigned char *buf;
 
@@ -1254,12 +1190,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int texfilt)
 		}
 		buf=decodebuf;
 	}
-	ogl_loadtexture(buf, 0, 0, bm->gltexture, bm->bm_flags, 0, texfilt, bm);
-}
-
-void ogl_loadbmtexture(grs_bitmap *bm)
-{
-	ogl_loadbmtexture_f(bm, GameCfg.TexFilt);
+	ogl_loadtexture(buf, 0, 0, bm->gltexture, bm->bm_flags, 0, bm);
 }
 
 void ogl_freetexture(ogl_texture *gltexture)
@@ -1277,12 +1208,11 @@ void ogl_freebmtexture(grs_bitmap *bm){
 	}
 }
 
-/*
- * Menu / gauges 
- */
-bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale) // to scale bitmaps
+// Render bm at (x, y) with destination size (dw, dh), using (sx, sy)-(sw, sh) as
+// source rectangle.
+static bool bitmap_2d(int x, int y, int dw, int dh, int sx, int sy, int sw, int sh, grs_bitmap *bm, int c)
 {
-	GLfloat xo,yo,xf,yf,u1,u2,v1,v2,color_r,color_g,color_b,h;
+	GLfloat xo,yo,xf,yf,u1,u2,v1,v2,color_r,color_g,color_b;
 	GLfloat color_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	GLfloat texcoord_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 	GLfloat vertex_array[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
@@ -1307,37 +1237,23 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 	else if (dh == 0)
 		dh = bm->bm_h;
 
-	h = (double) scale / (double) F1_0;
-
-	xo = x / ((double) last_width * h);
-	xf = (dw + x) / ((double) last_width * h);
-	yo = 1.0 - y / ((double) last_height * h);
-	yf = 1.0 - (dh + y) / ((double) last_height * h);
+	xo = x / (double) last_width;
+	xf = (dw + x) / (double)last_width;
+	yo = 1.0 - y / (double) last_height;
+	yf = 1.0 - (dh + y) / (double) last_height;
 
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm->gltexture,GL_CLAMP_TO_EDGE);
-	
-	if (bm->bm_x==0){
-		u1=0;
-		if (bm->bm_w==bm->gltexture->w)
-			u2=bm->gltexture->u;
-		else
-			u2=(bm->bm_w+bm->bm_x)/(float)bm->gltexture->tw;
-	}else {
-		u1=bm->bm_x/(float)bm->gltexture->tw;
-		u2=(bm->bm_w+bm->bm_x)/(float)bm->gltexture->tw;
-	}
-	if (bm->bm_y==0){
-		v1=0;
-		if (bm->bm_h==bm->gltexture->h)
-			v2=bm->gltexture->v;
-		else
-			v2=(bm->bm_h+bm->bm_y)/(float)bm->gltexture->th;
-	}else{
-		v1=bm->bm_y/(float)bm->gltexture->th;
-		v2=(bm->bm_h+bm->bm_y)/(float)bm->gltexture->th;
-	}
+
+	sx += bm->bm_x;
+	sy += bm->bm_y;
+
+	u1 = sx / (float)bm->gltexture->tw;
+	u2 = (sx + sw) / (float)bm->gltexture->tw;
+
+	v1 = sy / (float)bm->gltexture->th;
+	v2 = (sy + sh) / (float)bm->gltexture->th;
 
 	if (c < 0) {
 		color_r = 1.0;
@@ -1381,6 +1297,17 @@ bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scal
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	
 	return 0;
+}
+
+bool ogl_ubitmapm_cs(int x, int y,int dw, int dh, grs_bitmap *bm,int c, int scale)
+{
+	Assert(scale == F1_0);
+	return bitmap_2d(x, y, dw, dh, 0, 0, bm->bm_w, bm->bm_h, bm, c);
+}
+
+bool ogl_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *bm)
+{
+	return bitmap_2d(dx, dy, w, h, sx, sy, w, h, bm, -1);
 }
 
 bool ogl_ubitmapm_3d(vms_vector *p, vms_vector *dx, vms_vector *dy, grs_bitmap *bm,int c)

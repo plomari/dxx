@@ -68,7 +68,8 @@ typedef struct _grs_point {
 #define BM_FLAG_TGA					128
 #define BM_FLAG_OPAQUE				256
 // This software
-#define BM_FLAG_ALPHA				512
+#define BM_FLAG_ALPHA				512 // contains alpha values other than 0/1.0
+#define BM_FLAG_NO_DOWNSCALE		1024 // no need to generate mipmaps
 
 typedef struct _grs_bitmap {
 	short   bm_x,bm_y;  // Offset from parent's origin
@@ -180,7 +181,6 @@ void gr_init_bitmap_data (grs_bitmap *bm);
 void gr_free_sub_bitmap(grs_bitmap *bm);
 
 void gr_bm_bitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_canvas *dest);
-void gr_bm_ubitblt( int w, int h, int dx, int dy, int sx, int sy, grs_bitmap *src, grs_canvas *dest);
 
 void gr_set_bitmap_flags(grs_bitmap *pbm, int flags);
 void gr_set_transparent(grs_bitmap *pbm, int bTransparent);

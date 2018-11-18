@@ -172,7 +172,7 @@ void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, 
 	source_bm.bm_x = source_bm.bm_y = 0;
 	source_bm.bm_w = source_bm.bm_rowsize = bufw;
 	source_bm.bm_h = bufh;
-	source_bm.bm_flags = 0;
+	source_bm.bm_flags = BM_FLAG_NO_DOWNSCALE;
 	source_bm.bm_data = buf;
 
 	if (dstx == -1 && dsty == -1) // Fullscreen movie so set scale to fit the actual screen size
@@ -197,12 +197,11 @@ void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, 
 
 	glDisable (GL_BLEND);
 
-	ogl_ubitblt_i(
-		bufw*scale, bufh*scale,
-		dstx, dsty,
-		bufw, bufh, 0, 0, &source_bm, grd_curcanv, GameCfg.MovieTexFilt);
+	ogl_ubitmapm_cs(dstx, dsty, bufw * scale, bufh * scale, &source_bm, -1, F1_0);
 
 	glEnable (GL_BLEND);
+
+	ogl_freebmtexture(&source_bm);
 }
 
 //our routine to set the pallete, called from the movie code
