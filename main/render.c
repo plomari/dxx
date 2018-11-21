@@ -1109,8 +1109,7 @@ void build_object_lists(int n_segs)
 			while (lookn!=-1) {
 				int t = render_objs[lookn].objnum;
 				sort_list[n_sort_items].objnum = t;
-				//NOTE: maybe use depth, not dist - quicker computation
-				sort_list[n_sort_items].dist = vm_vec_dist(&Objects[t].pos,&Viewer_eye);
+				sort_list[n_sort_items].dist = g3_calc_point_depth(&Objects[t].pos);
 				n_sort_items++;
 				lookn = render_objs[lookn].next;
 			}
