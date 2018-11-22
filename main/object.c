@@ -715,11 +715,6 @@ void create_vclip_on_object(object *objp, fix size_scale, int vclip_num)
 // -- mk, 02/05/95 -- 	}
 // -- mk, 02/05/95 -- }
 
-#define APPENDF(s, ...)  do { 								\
-	int pos_ = strlen(s);									\
-	snprintf((s) + pos_, sizeof(s) - pos_, __VA_ARGS__);	\
-} while(0)
-
 static void draw_object_debug(object *obj)
 {
 	glDisable(GL_DEPTH_TEST);

@@ -21,6 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _TYPES_H
 #define _TYPES_H
 
+#include <assert.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <limits.h>

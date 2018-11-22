@@ -388,10 +388,6 @@ static void highlight_side_triggers(int segnum, int sidenum)
 
 #define ARRAY_OR_DEF(idx, arr, def) \
 	((idx) >= 0 && (idx) < ARRAY_ELEMS(arr) && (arr)[(idx)] ? (arr)[(idx)] : (def))
-#define APPENDF(s, ...)  do { 								\
-	int pos_ = strlen(s);									\
-	snprintf((s) + pos_, sizeof(s) - pos_, __VA_ARGS__);	\
-} while(0)
 
 	char t[512];
 	t[0] = '\0';

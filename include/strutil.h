@@ -1,6 +1,16 @@
 #ifndef _STRUTILS_H
 #define _STRUTILS_H
 
+#include <stdio.h>
+#include <string.h>
+
+#include "pstypes.h"
+
+#define APPENDF(s, ...)  do { 									\
+	static_assert(sizeof(s) == ARRAY_ELEMS(s), "need char[]");	\
+	int pos_ = strlen(s);										\
+	snprintf((s) + pos_, sizeof(s) - pos_, __VA_ARGS__);		\
+} while(0)
 
 #ifndef _WIN32
 
