@@ -52,7 +52,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gamefont.h"
 #include "switch.h"
 #include "gauges.h"
-#include "internal.h"
 #include "gamemine.h"
 #include "timer.h"
 #include "effects.h"
@@ -1135,7 +1134,6 @@ int Rear_view=0;
 extern ubyte RenderingType;
 
 void start_lighting_frame(object *viewer);
-#include "internal.h"
 
 //renders onto current canvas
 void render_frame(fix eye_offset, int window_num)

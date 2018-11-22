@@ -9,7 +9,7 @@
 #include <windows.h>
 #include <stddef.h>
 #endif
-#include "internal.h"
+#include "ogl_init.h"
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/gl.h>
 #else
@@ -41,7 +41,6 @@
 #include "polyobj.h"
 #include "gamefont.h"
 #include "byteswap.h"
-#include "internal.h"
 #include "gauges.h"
 #include "playsave.h"
 
