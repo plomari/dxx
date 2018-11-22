@@ -152,6 +152,7 @@ static inline int PHYSFSX_putc(PHYSFS_file *file, int c)
 		return (int)c;
 }
 
+PRINTF_FORMAT(2, 3)
 static inline int PHYSFSX_printf(PHYSFS_file *file, char *format, ...)
 {
 	char buffer[1024];

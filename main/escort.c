@@ -409,6 +409,7 @@ void buddy_message(char * format, ... )
 }
 
 //	-----------------------------------------------------------------------------
+PRINTF_FORMAT(1, 2)
 void thief_message(char * format, ... )
 {
 

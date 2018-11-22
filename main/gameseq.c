@@ -987,7 +987,8 @@ int draw_stars_bg(newmenu *menu, d_event *event, grs_bitmap *background)
 	return 0;
 }
 
-void do_screen_message(char *fmt, ...)
+PRINTF_FORMAT(1, 2)
+static void do_screen_message(char *fmt, ...)
 {
 	va_list arglist;
 	grs_bitmap background;

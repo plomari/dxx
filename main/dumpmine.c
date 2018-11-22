@@ -87,7 +87,7 @@ char	*object_ids(int objnum)
 	return	NULL;
 }
 
-void err_printf(PHYSFS_file *my_file, char * format, ... )
+static void err_printf(PHYSFS_file *my_file, char * format, ... ) PRINTF_FORMAT(2, 3)
 {
 	va_list	args;
 	char		message[256];
@@ -101,7 +101,7 @@ void err_printf(PHYSFS_file *my_file, char * format, ... )
 	Errors_in_mine++;
 }
 
-void warning_printf(PHYSFS_file *my_file, char * format, ... )
+static void warning_printf(PHYSFS_file *my_file, char * format, ... ) PRINTF_FORMAT(2, 3)
 {
 	va_list	args;
 	char		message[256];

@@ -38,21 +38,19 @@ typedef uint32_t uint;
 #define max(a,b) (((a)<(b))?(b):(a))
 #endif
 
+#ifndef __GNUC__
+#error get a real compiler, or change the defines below
+#endif
+
 // Exclude pointer types.
 #define REQUIRE_ZERO(x) sizeof(int[(x) ? -1 : 1])
 #define REQUIRE_ARRAY(x) REQUIRE_ZERO(__builtin_types_compatible_p(__typeof__(x), __typeof__(&(x)[0])))
 
 #define ARRAY_ELEMS(x) (sizeof(x) / sizeof((x)[0]) + 0 * REQUIRE_ARRAY(x))
 
-#ifdef __GNUC__
-# define __pack__ __attribute__((packed))
-#else
-# error d2x will not work without packed structures
-#endif
-
-#ifndef PACKAGE_STRING
-# define PACKAGE_STRING "d2x"
-#endif
+#define __pack__ __attribute__((packed))
+#define NORETURN __attribute__ ((noreturn))
+#define PRINTF_FORMAT(a, b) __attribute__ ((format (printf, a, b)))
 
 #endif //_TYPES_H
 

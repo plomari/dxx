@@ -118,7 +118,7 @@ extern void diminish_towards_max(void);
 
 extern void do_megawow_powerup(int quantity);
 
-extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char *format, ...) __attribute__((format(printf, 5, 6)));
+extern void powerup_basic(int redadd, int greenadd, int blueadd, int score, const char *format, ...) PRINTF_FORMAT(5, 6);
 
 /*
  * reads n powerup_type_info structs from a CFILE

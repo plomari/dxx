@@ -3,6 +3,8 @@
 
 #include <stdarg.h>
 
+#include "pstypes.h"
+
 #define HUD_MESSAGE_LENGTH	150
 #define HUD_MAX_NUM_DISP	4
 #define HUD_MAX_NUM_STOR	20
@@ -16,7 +18,7 @@
 extern int HUD_toolong;
 extern void HUD_clear_messages();
 extern void HUD_render_message_frame();
-int HUD_init_message(int class_flag, const char * format, ... );
+int HUD_init_message(int class_flag, const char * format, ... ) PRINTF_FORMAT(2, 3);
 int HUD_init_message_va(int class_flag, const char * format, va_list args);
 
 #endif
