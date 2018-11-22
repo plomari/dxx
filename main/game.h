@@ -111,7 +111,6 @@ int do_flythrough(struct object *obj,int first_time);
 extern int Difficulty_level;    // Difficulty level in 0..NDL-1, 0 = easiest, NDL-1 = hardest
 extern int Global_laser_firing_count;
 extern int Global_missile_firing_count;
-extern int Render_depth;
 extern fix Auto_fire_fusion_cannon_time, Fusion_charge;
 
 extern int PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
@@ -123,15 +122,10 @@ extern void PALETTE_FLASH_ADD(int dr, int dg, int db);
 //sets the rgb values for palette flash
 #define PALETTE_FLASH_SET(_r,_g,_b) PaletteRedAdd=(_r), PaletteGreenAdd=(_g), PaletteBlueAdd=(_b)
 
-extern int draw_gauges_on;
-
 extern void init_game_screen(void);
 
 extern void game_flush_inputs();    // clear all inputs
 
-extern int Playing_game;    // True if playing game
-extern int Auto_flythrough; // if set, start flythough automatically
-extern char faded_in;
 extern int last_drawn_cockpit;
 
 extern void stop_time(void);
@@ -147,9 +141,6 @@ extern void save_screen_shot(int automap_flag);
 #define CM_STATUS_BAR       2   // small status bar, w/ reticle
 #define CM_FULL_SCREEN      3   // full screen, no cockpit (w/ reticle)
 #define CM_LETTERBOX        4   // half-height window (for cutscenes)
-
-extern int Game_window_w,       // width and height of player's game window
-           Game_window_h;
 
 extern int Rear_view;           // if true, looking back.
 
