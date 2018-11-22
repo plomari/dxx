@@ -13,25 +13,7 @@
 #define CON_VERBOSE   1
 #define CON_DEBUG     2
 
-#define CON_LINES_ONSCREEN 18
-#define CON_SCROLL_OFFSET  (CON_LINES_ONSCREEN - 3)
-#define CON_LINES_MAX      128
-#define CON_LINE_LENGTH    512
-
-#define CON_STATE_OPEN 2
-#define CON_STATE_OPENING 1
-#define CON_STATE_CLOSING -1
-#define CON_STATE_CLOSED -2
-
-typedef struct console_buffer
-{
-	char line[CON_LINE_LENGTH];
-	int priority;
-} __pack__ console_buffer;
-
-void con_init(void);
 void con_printf(int level, char *fmt, ...) PRINTF_FORMAT(2, 3);
-void con_showup(void);
 
 #endif /* _CONSOLE_H_ */
 

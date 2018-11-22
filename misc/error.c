@@ -21,78 +21,47 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <string.h>
 
+#include "args.h"
 #include "pstypes.h"
 #include "console.h"
 #include "dxxerror.h"
 #include "inferno.h"
 
-#define MAX_MSG_LEN 256
-
-int err_initialized=0;
-
-static void (*ErrorPrintFunc)(char *);
-
-char exit_message[MAX_MSG_LEN]="";
-char warn_message[MAX_MSG_LEN];
-
-//takes string in register, calls printf with string on stack
-void warn_printf(char *s)
+void con_printf(int level, char *fmt, ...)
 {
-	con_printf(CON_URGENT, "%s\n",s);
-}
+	if (level > GameArg.DbgVerbose)
+		return;
 
-void (*warn_func)(char *s)=warn_printf;
-
-//provides a function to call with warning messages
-void set_warn_func(void (*f)(char *s))
-{
-	warn_func = f;
-}
-
-//uninstall warning function - install default printf
-void clear_warn_func(void (*f)(char *s))
-{
-	warn_func = warn_printf;
-}
-
-void set_exit_message(char *fmt,...)
-{
-	va_list arglist;
-	int len;
-
-	va_start(arglist,fmt);
-	len = vsprintf(exit_message,fmt,arglist);
-	va_end(arglist);
-
-	if (len==-1 || len>MAX_MSG_LEN) Error("Message too long in set_exit_message (len=%d, max=%d)",len,MAX_MSG_LEN);
-
-}
-
-void print_exit_message(void)
-{
-	if (*exit_message)
-	{
-		if (ErrorPrintFunc)
-		{
-			(*ErrorPrintFunc)(exit_message);
-		}
-		con_printf(CON_CRITICAL, "\n%s\n",exit_message);
+	const char *type = "?";
+	switch (level) {
+	case CON_CRITICAL:	type = "CRITICAL"; break;
+	case CON_URGENT:	type = "URGEND"; break;
+	case CON_HUD:		type = "HUD"; break;
+	case CON_NORMAL:	type = NULL; break;
+	case CON_VERBOSE:	type = "V"; break;
+	case CON_DEBUG:		type = "DBG"; break;
 	}
+
+	if (type)
+		fprintf(stderr, "%s: ", type);
+
+	va_list arglist;
+	va_start(arglist,fmt);
+	vfprintf(stderr, fmt, arglist);
+	va_end(arglist);
 }
 
 //terminates with error code 1, printing message
 void Error(const char *fmt,...)
 {
-	va_list arglist;
+	fprintf(stderr, "Error: ");
 
-	strcpy(exit_message,"Error: "); // don't put the new line in for dialog output
+	va_list arglist;
 	va_start(arglist,fmt);
-	vsprintf(exit_message+strlen(exit_message),fmt,arglist);
+	vfprintf(stderr, fmt, arglist);
 	va_end(arglist);
 
-	Int3();
-
-	/*if (!err_initialized)*/ print_exit_message();
+	fprintf(stderr, "\n");
 
 	exit(1);
 }
@@ -100,39 +69,12 @@ void Error(const char *fmt,...)
 //print out warning message to user
 void Warning(char *fmt,...)
 {
+	fprintf(stderr, "Warning: ");
+
 	va_list arglist;
-
-	if (warn_func == NULL)
-		return;
-
-	strcpy(warn_message,"Warning: ");
-
 	va_start(arglist,fmt);
-	vsprintf(warn_message+strlen(warn_message),fmt,arglist);
+	vfprintf(stderr, fmt, arglist);
 	va_end(arglist);
 
-	(*warn_func)(warn_message);
-
-}
-
-//initialize error handling system, and set default message. returns 0=ok
-int error_init(void (*func)(char *), char *fmt, ...)
-{
-	va_list arglist;
-	int len;
-
-	//atexit(print_exit_message);		//last thing at exit is print message CHRIS: Removed to allow newmenu dialog
-
-	ErrorPrintFunc = func;          // Set Error Print Functions
-
-	if (fmt != NULL) {
-		va_start(arglist,fmt);
-		len = vsprintf(exit_message,fmt,arglist);
-		va_end(arglist);
-		if (len==-1 || len>MAX_MSG_LEN) Error("Message too long in error_init (len=%d, max=%d)",len,MAX_MSG_LEN);
-	}
-
-	err_initialized=1;
-
-	return 0;
+	fprintf(stderr, "\n");
 }

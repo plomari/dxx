@@ -318,8 +318,8 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 	if (GameArg.SndDisableSdlMixer)
 #endif
 	{
-		con_printf(CON_CRITICAL, "creating audio buffers:\n");
-		con_printf(CON_CRITICAL, "sample rate = %d, stereo = %d, bitsize = %d, compressed = %d\n",
+		con_printf(CON_DEBUG, "creating audio buffers:\n");
+		con_printf(CON_DEBUG, "sample rate = %d, stereo = %d, bitsize = %d, compressed = %d\n",
 				sample_rate, stereo, bitsize ? 16 : 8, compressed);
 	}
 
@@ -337,11 +337,11 @@ static int create_audiobuf_handler(unsigned char major, unsigned char minor, uns
 #endif
 	{
 		if (SDL_OpenAudio(mve_audio_spec, NULL) >= 0) {
-			con_printf(CON_CRITICAL, "   success\n");
+			con_printf(CON_DEBUG, "   success\n");
 			mve_audio_canplay = 1;
 		}
 		else {
-			con_printf(CON_CRITICAL, "   failure : %s\n", SDL_GetError());
+			con_printf(CON_DEBUG, "   failure : %s\n", SDL_GetError());
 			mve_audio_canplay = 0;
 		}
 	}
@@ -521,9 +521,7 @@ static int create_videobuf_handler(unsigned char major, unsigned char minor, uns
 
 	memset(g_vBackBuf1, 0, g_width * g_height * 4);
 
-#ifdef DEBUG
-	con_printf(CON_CRITICAL, "DEBUG: w,h=%d,%d count=%d, tc=%d\n", w, h, count, truecolor);
-#endif
+	con_printf(CON_DEBUG, "DEBUG: w,h=%d,%d count=%d, tc=%d\n", w, h, count, truecolor);
 
 	g_truecolor = truecolor;
 

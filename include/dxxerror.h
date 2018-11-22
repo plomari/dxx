@@ -23,12 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include "pstypes.h"
 
-void warn_printf(char *s);
-int error_init(void (*func)(char *), char *fmt,...);    //init error system, set default message, returns 0=ok
-void set_exit_message(char *fmt,...);	//specify message to print at exit
 void Warning(char *fmt,...) PRINTF_FORMAT(1, 2);				//print out warning message to user
-void set_warn_func(void (*f)(char *s));//specifies the function to call with warning messages
-void clear_warn_func(void (*f)(char *s));//say this function no longer valid
 void Error(const char *fmt,...) NORETURN PRINTF_FORMAT(1, 2);				//exit with error code=1, print message
 
 #define Int3() do { fprintf(stderr, "%s:%d(%s): Int3\n", __FILE__, __LINE__, __func__); } while(0)

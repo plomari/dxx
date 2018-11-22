@@ -81,9 +81,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "newdemo.h"
 #include "joy.h"
 #include "event.h"
-#ifndef __LINUX__
-#include "messagebox.h"
-#endif
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -216,10 +213,6 @@ int standard_handler(d_event *event)
 				case KEY_ALTED+KEY_PADENTER:
 					gr_toggle_fullscreen();
 					return 1;
-
-				case KEY_SHIFTED + KEY_ESC:
-					con_showup();
-					return 1;
 			}
 			break;
 
@@ -245,14 +238,11 @@ char	Auto_file[128] = "";
 
 int main(int argc, char *argv[])
 {
-	error_init(NULL, NULL);
 	cfile_init_paths(argc, argv);
 	InitArgs(argc, argv);
-	con_init();  // Initialise the console
 
 	if (GameArg.SysShowCmdHelp) {
 		print_commandline_help();
-		set_exit_message("");
 
 		return(0);
 	}

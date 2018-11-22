@@ -40,7 +40,6 @@ common_sources = [
     'main/cntrlcen.c',
     'main/collide.c',
     'main/config.c',
-    'main/console.c',
     'main/controls.c',
     'main/credits.c',
     'main/crypt.c',
