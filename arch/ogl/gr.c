@@ -439,9 +439,6 @@ void gr_palette_step_up(int r, int g, int b)
 	}
 }
 
-#undef min
-static inline int min(int x, int y) { return x < y ? x : y; }
-
 void gr_palette_load( ubyte *pal )
 {
 	int i;
