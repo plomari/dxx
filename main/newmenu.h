@@ -108,9 +108,7 @@ int nm_messagebox(const char *title, int nchoices, ...);
 newmenu_item *newmenu_get_items(newmenu *menu);
 int newmenu_get_nitems(newmenu *menu);
 int newmenu_get_citem(newmenu *menu);
-struct window *newmenu_get_window(newmenu *menu);
 void nm_draw_background(int x1, int y1, int x2, int y2);
-void nm_restore_background(int x, int y, int w, int h);
 
 extern const char *Newmenu_allowed_chars;
 
@@ -138,13 +136,9 @@ extern const char *Newmenu_allowed_chars;
 extern char **listbox_get_items(listbox *lb);
 extern int listbox_get_nitems(listbox *lb);
 extern int listbox_get_citem(listbox *lb);
-struct window *listbox_get_window(listbox *lb);
 extern void listbox_delete_item(listbox *lb, int item);
 
-extern listbox *newmenu_listbox(char *title, int nitems, char *items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata);
 extern listbox *newmenu_listbox1(char *title, int nitems, char *items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata);
-
-newmenu *nm_messagebox_fixedfont(char *title, int nchoices, ...);
 
 //should be called whenever the palette changes
 extern void newmenu_free_background();
@@ -201,20 +195,6 @@ static inline void nm_set_item_slider(newmenu_item *ni, const char *text, unsign
 	ni->max_value = high;
 }
 
-#define NEWMENU_MOUSE
-
-// #define NORMAL_CHECK_BOX    "Å"
-// #define CHECKED_CHECK_BOX   "Ç"
-// 
-// #define NORMAL_RADIO_BOX    ""
-// #define CHECKED_RADIO_BOX   "Ä"
-// #define CURSOR_STRING       "_"
-// #define SLIDER_LEFT         "É"  // 131
-// #define SLIDER_RIGHT        "Ñ"  // 132
-// #define SLIDER_MIDDLE       "Ö"  // 133
-// #define SLIDER_MARKER       "Ü"  // 134
-// #define UP_ARROW_MARKER     "á"  // 135
-// #define DOWN_ARROW_MARKER   "à"  // 136
 #define NORMAL_CHECK_BOX    "\201"
 #define CHECKED_CHECK_BOX   "\202"
 

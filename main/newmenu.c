@@ -91,7 +91,7 @@ struct newmenu
 grs_bitmap nm_background, nm_background1;
 grs_bitmap *nm_background_sub = NULL;
 
-newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int TinyMode, int TabsFlag );
+static newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int TinyMode, int TabsFlag );
 
 void newmenu_free_background()	{
 	if (nm_background.bm_data)
@@ -501,15 +501,6 @@ newmenu *newmenu_do3( char * title, char * subtitle, int nitems, newmenu_item * 
 	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0 );
 }
 
-newmenu *newmenu_do_fixedfont( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename){
-	return newmenu_do4( title, subtitle, nitems, item, subfunction, userdata, citem, filename, 0, 0);
-}
-
-
-#ifdef NEWMENU_MOUSE
-ubyte Hack_DblClick_MenuMode=0;
-#endif
-
 newmenu_item *newmenu_get_items(newmenu *menu)
 {
 	return menu->items;
@@ -523,11 +514,6 @@ int newmenu_get_nitems(newmenu *menu)
 int newmenu_get_citem(newmenu *menu)
 {
 	return menu->citem;
-}
-
-window *newmenu_get_window(newmenu *menu)
-{
-	return menu->wind;
 }
 
 void newmenu_scroll(newmenu *menu, int amount)
@@ -635,10 +621,6 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu, int button)
 					y1 = grd_curcanv->cv_y + menu->items[i].y - (((int)LINE_SPACING)*menu->scroll_offset);
 					y2 = y1 + menu->items[i].h;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
-						if (i != menu->citem) {
-							if(Hack_DblClick_MenuMode) menu->dblclick_flag = 0;
-						}
-
 						menu->citem = i;
 
 						switch( menu->items[menu->citem].type )	{
@@ -713,10 +695,6 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu, int button)
 					y2 = y1 + menu->items[i].h;
 
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2)) && (menu->items[i].type != NM_TYPE_TEXT) ) {
-						if (i != menu->citem) {
-							if(Hack_DblClick_MenuMode) menu->dblclick_flag = 0;
-						}
-
 						menu->citem = i;
 
 						if ( menu->items[menu->citem].type == NM_TYPE_SLIDER ) {
@@ -780,35 +758,16 @@ int newmenu_mouse(window *wind, d_event *event, newmenu *menu, int button)
 					y1 = grd_curcanv->cv_y + menu->items[i].y - (((int)LINE_SPACING)*menu->scroll_offset);
 					y2 = y1 + menu->items[i].h;
 					if (((mx > x1) && (mx < x2)) && ((my > y1) && (my < y2))) {
-						if (Hack_DblClick_MenuMode) {
-							if (menu->dblclick_flag)
-							{
-								// Tell callback, allow staying in menu
-								event->type = EVENT_NEWMENU_SELECTED;
-								if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
-									return 1;
-
-								if (menu->rval)
-									*menu->rval = menu->citem;
-								window_close(menu->wind);
-								gr_set_current_canvas(save_canvas);
-								return 1;
-							}
-							else menu->dblclick_flag = 1;
-						}
-						else
-						{
-							// Tell callback, allow staying in menu
-							event->type = EVENT_NEWMENU_SELECTED;
-							if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
-								return 1;
-
-							if (menu->rval)
-								*menu->rval = menu->citem;
-							window_close(menu->wind);
-							gr_set_current_canvas(save_canvas);
+						// Tell callback, allow staying in menu
+						event->type = EVENT_NEWMENU_SELECTED;
+						if (menu->subfunction && (*menu->subfunction)(menu, event, menu->userdata))
 							return 1;
-						}
+
+						if (menu->rval)
+							*menu->rval = menu->citem;
+						window_close(menu->wind);
+						gr_set_current_canvas(save_canvas);
+						return 1;
 					}
 				}
 			}
@@ -1349,9 +1308,8 @@ void newmenu_create_structure( newmenu *menu )
 		if (menu->citem < 0 ) menu->citem = 0;
 		if (menu->citem > menu->nitems-1 ) menu->citem = menu->nitems-1;
 
-#ifdef NEWMENU_MOUSE
 		menu->dblclick_flag = 1;
-#endif
+
 		i = 0;
 		while ( menu->items[menu->citem].type==NM_TYPE_TEXT )	{
 			menu->citem++;
@@ -1525,7 +1483,7 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 	return 0;
 }
 
-newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int TinyMode, int TabsFlag )
+static newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_item * item, int (*subfunction)(newmenu *menu, d_event *event, void *userdata), void *userdata, int citem, char * filename, int TinyMode, int TabsFlag )
 {
 	window *wind = NULL;
 	newmenu *menu;
@@ -1677,11 +1635,6 @@ int listbox_get_nitems(listbox *lb)
 int listbox_get_citem(listbox *lb)
 {
 	return lb->citem;
-}
-
-window *listbox_get_window(listbox *lb)
-{
-	return lb->wind;
 }
 
 void listbox_delete_item(listbox *lb, int item)
@@ -2083,11 +2036,6 @@ int listbox_handler(window *wind, d_event *event, listbox *lb)
 	return 0;
 }
 
-listbox *newmenu_listbox( char * title, int nitems, char * items[], int allow_abort_flag, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
-{
-	return newmenu_listbox1( title, nitems, items, allow_abort_flag, 0, listbox_callback, userdata );
-}
-
 listbox *newmenu_listbox1( char * title, int nitems, char * items[], int allow_abort_flag, int default_item, int (*listbox_callback)(listbox *lb, d_event *event, void *userdata), void *userdata )
 {
 	listbox *lb;
@@ -2123,30 +2071,4 @@ listbox *newmenu_listbox1( char * title, int nitems, char * items[], int allow_a
 	lb->wind = wind;
 
 	return lb;
-}
-
-newmenu *nm_messagebox_fixedfont( char *title, int nchoices, ... )
-{
-	int i;
-	char * format;
-	va_list args;
-	char *s;
-	char nm_text[MESSAGEBOX_TEXT_SIZE];
-	newmenu_item nm_message_items[5];
-
-	va_start(args, nchoices );
-
-	Assert( nchoices <= 5 );
-
-	for (i=0; i<nchoices; i++ )	{
-		s = va_arg( args, char * );
-		nm_message_items[i].type = NM_TYPE_MENU; nm_message_items[i].text = s;
-	}
-	format = va_arg( args, char * );
-	vsprintf(nm_text,format,args);
-	va_end(args);
-
-	Assert(strlen(nm_text) < MESSAGEBOX_TEXT_SIZE );
-
-        return newmenu_do_fixedfont( title, nm_text, nchoices, nm_message_items, NULL, NULL, 0, NULL );
 }
