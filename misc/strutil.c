@@ -28,63 +28,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "strutil.h"
 #include "inferno.h"
 
-#ifdef macintosh
-void snprintf(char *out_string, int size, char * format, ... )
-{
-	va_list		args;
-	char		buf[1024];
-	
-	va_start(args, format );
-	vsprintf(buf,format,args);
-	va_end(args);
-
-	// Hack! Don't know any other [simple] way to do this, but I doubt it would ever exceed 1024 long.
-	Assert(strlen(buf) < 1024);
-	Assert(size < 1024);
-
-	strncpy(out_string, buf, size);
-}
-
-// string compare without regard to case
-
-int stricmp( const char *s1, const char *s2 )
-{
-	int u1;
-	int u2;
-
-	do {
-		u1 = toupper((int) *s1);
-		u2 = toupper((int) *s2);
-		if (u1 != u2)
-			return (u1 > u2) ? 1 : -1;
-
-		s1++;
-		s2++;
-	} while (u1 && u2);
-
-	return 0;
-}
-
-int strnicmp( const char *s1, const char *s2, int n )
-{
-	int u1;
-	int u2;
-
-	do {
-		u1 = toupper((int) *s1);
-		u2 = toupper((int) *s2);
-		if (u1 != u2)
-			return (u1 > u2) ? 1 : -1;
-
-		s1++;
-		s2++;
-		n--;
-	} while (u1 && u2 && n);
-
-	return 0;
-}
-#endif
-
 #ifndef _WIN32
 
 void strlwr( char *s1 )

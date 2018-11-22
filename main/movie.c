@@ -18,14 +18,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <string.h>
-#ifndef macintosh
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <fcntl.h>
-# ifndef _MSC_VER
 #  include <unistd.h>
-# endif
-#endif // ! macintosh
 #include <ctype.h>
 
 #include <SDL.h>

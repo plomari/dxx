@@ -21,9 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#ifndef macintosh
 #include <fcntl.h>
-#endif
 
 #include "u_mem.h"
 #include "gr.h"

@@ -34,13 +34,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 struct d_event;
 
-#if defined(__APPLE__) || defined(macintosh)
-#define KEY_MAC(x) x
-#else
-// do not use MAC, it will break MSVC compilation somewhere in rpcdce.h
-#define KEY_MAC(x)
-#endif
-
 /**
  **	Constants
  **/

@@ -7,15 +7,10 @@
 # include <errno.h>
 # include <time.h>
 # include <fcntl.h>
-# ifdef macintosh
-#  include <types.h>
-#  include <OSUtils.h>
-# else
 #  include <sys/time.h>
 #  include <sys/types.h>
 #  include <sys/stat.h>
 #  include <unistd.h>
-# endif // macintosh
 #endif // _WIN32
 
 #include <SDL.h>
@@ -117,41 +112,10 @@ static int micro_frame_delay=0;
 static int timer_started=0;
 static struct timeval timer_expire = {0, 0};
 
-#if !defined(HAVE_STRUCT_TIMESPEC) || !HAVE_STRUCT_TIMESPEC
-struct timespec
-{
-	long int tv_sec;            /* Seconds.  */
-	long int tv_nsec;           /* Nanoseconds.  */
-};
-#endif
-
-#if defined(_WIN32) || defined(macintosh)
-int gettimeofday(struct timeval *tv, void *tz)
-{
-	static int counter = 0;
-#ifdef _WIN32
-	DWORD now = GetTickCount();
-#else
-	long now = TickCount();
-#endif
-	counter++;
-
-	tv->tv_sec = now / 1000;
-	tv->tv_usec = (now % 1000) * 1000 + counter;
-
-	return 0;
-}
-#endif //  defined(_WIN32) || defined(macintosh)
-
-
 static int create_timer_handler(unsigned char major, unsigned char minor, unsigned char *data, int len, void *context)
 {
 
-#if !defined(_WIN32) && !defined(macintosh) // FIXME
-	__extension__ long long temp;
-#else
-	long temp;
-#endif
+	long long temp;
 
 	if (timer_created)
 		return 1;
@@ -214,8 +178,6 @@ static void do_timer_wait(void)
 	}
 #ifdef _WIN32
 	Sleep(ts.tv_sec * 1000 + ts.tv_nsec / 1000000);
-#elif defined(macintosh)
-	Delay(ts.tv_sec * 1000 + ts.tv_nsec / 1000000, NULL);
 #else
 	if (nanosleep(&ts, NULL) == -1  &&  errno == EINTR)
 		exit(1);

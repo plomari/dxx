@@ -21,18 +21,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
-#endif
 #include <errno.h>
-# ifdef _MSC_VER
-#  include <windows.h>
-# endif
-#if defined(__APPLE__) && defined(__MACH__)
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
 #include "ogl.h"
 
 #include "pstypes.h"
@@ -668,21 +658,6 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		PHYSFS_delete(filename);
 	} else  {
 		PHYSFS_close(fp);
-
-		#ifdef MACINTOSH		// set the type and creator of the saved game file
-		{
-			FInfo finfo;
-			OSErr err;
-			Str255 pfilename;
-	
-			strcpy(pfilename, filename);
-			c2pstr(pfilename);
-			err = HGetFInfo(0, 0, pfilename, &finfo);
-			finfo.fdType = 'SVGM';
-			finfo.fdCreator = 'DCT2';
-			err = HSetFInfo(0, 0, pfilename, &finfo);
-		}
-		#endif
 	}
 	
 	start_time();

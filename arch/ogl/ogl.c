@@ -10,12 +10,6 @@
 #include <stddef.h>
 #endif
 #include "ogl.h"
-#if defined(__APPLE__) && defined(__MACH__)
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#include <GL/glext.h>
-#endif
 #include <string.h>
 #include <math.h>
 #include <stdio.h>
@@ -49,15 +43,6 @@
 #define glmprintf(0,a) con_printf(CON_DEBUG, a)
 #else
 #define glmprintf(a)
-#endif
-
-#ifndef M_PI
-#define M_PI 3.14159
-#endif
-
-#if defined(_WIN32) || (defined(__APPLE__) && defined(__MACH__)) || defined(__sun__) || defined(macintosh)
-#define cosf(a) cos(a)
-#define sinf(a) sin(a)
 #endif
 
 unsigned char *ogl_pal=gr_palette;

@@ -4,24 +4,15 @@
  *
  */
 
-#define DECLARE_VARS
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
-#ifdef _MSC_VER
-#include <windows.h>
-#endif
 
-#if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
-#endif
-#if !defined(macintosh)
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#endif
 
 #include <errno.h>
 #include <SDL.h>

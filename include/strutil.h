@@ -1,17 +1,11 @@
 #ifndef _STRUTILS_H
 #define _STRUTILS_H
 
-#if defined(macintosh)
-extern void snprintf(char *out_string, int size, char * format, ... );
-extern int stricmp(const char *str1, const char *str2);
-extern int strnicmp(const char *str1, const char *str2, int n);
-#elif !defined(_WIN32)
-# include <string.h>
-# define stricmp(a,b) strcasecmp(a,b)
-# define strnicmp(a,b,c) strncasecmp(a,b,c)
-#endif
 
 #ifndef _WIN32
+
+#define stricmp(a,b) strcasecmp(a,b)
+#define strnicmp(a,b,c) strncasecmp(a,b,c)
 void strupr( char *s1 );
 void strlwr( char *s1 );
 

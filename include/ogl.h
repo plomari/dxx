@@ -1,12 +1,9 @@
 #ifndef OGL_H_
 #define OGL_H_
 
-#ifdef _MSC_VER
-#include <windows.h>
 #include <stddef.h>
-#endif
 
-#if defined(__APPLE__) && defined(__MACH__)
+#if defined(__APPLE__)
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #else

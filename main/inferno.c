@@ -205,9 +205,6 @@ int standard_handler(d_event *event)
 
 			switch (key)
 			{
-#ifdef macintosh
-				case KEY_COMMAND + KEY_SHIFTED + KEY_3:
-#endif
 				case KEY_PRINT_SCREEN:
 				{
 					gr_set_current_canvas(NULL);
@@ -266,12 +263,8 @@ int main(int argc, char *argv[])
 		if (! cfile_hog_add("d2demo.hog", 1))
 		{
 			Error("Could not find a valid hog file (descent2.hog or d2demo.hog)\nPossible locations are:\n"
-#if defined(__unix__) && !defined(__APPLE__)
 			      "\t$HOME/.d2x-rebirth\n"
 			      "\t" SHAREPATH "\n"
-#else
-				  "\tDirectory containing D2X\n"
-#endif
 				  "Or use the -hogdir option to specify an alternate location.");
 		}
 	}

@@ -21,9 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
-#endif
 #include <time.h>
 
 #include "ogl.h"

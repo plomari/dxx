@@ -1,10 +1,8 @@
 #include <string.h> // for mem* functions
-#if !defined(_WIN32) && !defined(macintosh)
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#endif
 
 #include "mvelib.h"
 

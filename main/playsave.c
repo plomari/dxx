@@ -19,9 +19,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <stdio.h>
 #include <string.h>
-#if !defined(_MSC_VER) && !defined(macintosh)
 #include <unistd.h>
-#endif
 #include <errno.h>
 
 #include "dxxerror.h"

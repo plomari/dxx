@@ -45,13 +45,6 @@ typedef uint32_t uint;
 
 #ifdef __GNUC__
 # define __pack__ __attribute__((packed))
-#elif defined(_MSC_VER)
-# pragma pack(push, packing)
-# pragma pack(1)
-# define __pack__
-#elif defined(macintosh)
-# pragma options align=packed
-# define __pack__
 #else
 # error d2x will not work without packed structures
 #endif
