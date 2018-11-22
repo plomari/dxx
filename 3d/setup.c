@@ -32,12 +32,12 @@ void g3_start_frame(void)
 	fix s;
 
 	//set int w,h & fixed-point w,h/2
-	Canv_w2 = (Canvas_width  = grd_curcanv->cv_w)<<15;
-	Canv_h2 = (Canvas_height = grd_curcanv->cv_h)<<15;
+	Canv_w2 = grd_curcanv->cv_w << 15;
+	Canv_h2 = grd_curcanv->cv_h << 15;
 
 	//compute aspect ratio for this canvas
 
-	s = fixmuldiv(grd_curscreen->sc_aspect,Canvas_height,Canvas_width);
+	s = fixmuldiv(grd_curscreen->sc_aspect, grd_curcanv->cv_h, grd_curcanv->cv_w);
 
 	if (s <= f1_0) {	   //scale x
 		Window_scale.x = s;
@@ -50,11 +50,10 @@ void g3_start_frame(void)
 	
 	Window_scale.z = f1_0;		//always 1
 
-	ogl_start_frame();
+	ogl_prepare_state_3d();
 }
 
-//this doesn't do anything, but is here for completeness
 void g3_end_frame(void)
 {
-	ogl_end_frame();
+	ogl_prepare_state_2d();
 }

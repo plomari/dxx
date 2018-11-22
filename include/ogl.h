@@ -43,20 +43,15 @@ void ogl_init_shared_palette(void);
 
 extern int gl_initialized;
 
-extern int active_texture_unit;
 extern GLfloat ogl_maxanisotropy;
-
-void ogl_setActiveTexture(int t);
-
-int ogl_init_window(int x, int y);//create a window/switch modes/etc
 
 #define OGL_FLAG_MIPMAP (1 << 0)
 #define OGL_FLAG_ALPHA (1 << 31) // not required for ogl_loadbmtexture, since it uses the BM_FLAG_TRANSPARENT, but is needed for ogl_init_texture.
 void ogl_loadbmtexture(grs_bitmap *bm);
 void ogl_freebmtexture(grs_bitmap *bm);
 
-void ogl_start_frame(void);
-void ogl_end_frame(void);
+void ogl_prepare_state_3d(void);
+void ogl_prepare_state_2d(void);
 void ogl_swap_buffers_internal(void);
 void ogl_cache_level_textures(void);
 
@@ -92,9 +87,6 @@ extern int GL_TEXTURE_2D_enabled;
 
 #define OGL_ENABLE(a) OGL_ENABLE2(GL_ ## a,glEnable(GL_ ## a))
 #define OGL_DISABLE(a) OGL_DISABLE2(GL_ ## a,glDisable(GL_ ## a))
-
-extern int last_width,last_height;
-#define OGL_VIEWPORT(x,y,w,h){if (w!=last_width || h!=last_height){glViewport(x,grd_curscreen->sc_canvas.cv_h-y-h,w,h);last_width=w;last_height=h;}}
 
 void ogl_swap_buffers_internal(void);
 

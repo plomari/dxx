@@ -47,7 +47,6 @@
 
 unsigned char *ogl_pal=gr_palette;
 
-int last_width=-1,last_height=-1;
 int GL_TEXTURE_2D_enabled=-1;
 int GL_texclamp_enabled=-1;
 GLfloat ogl_maxanisotropy = 0;
@@ -60,7 +59,6 @@ extern int linedotscale;
 #define f2glf(x) (f2fl(x))
 
 #define OGL_BINDTEXTURE(a) glBindTexture(GL_TEXTURE_2D, a);
-
 
 ogl_texture ogl_texture_list[OGL_TEXTURE_LIST_SIZE];
 int ogl_texture_list_cur;
@@ -475,7 +473,7 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	primary_lca[1][3] = primary_lca[1][7] = primary_lca[0][11] = primary_lca[0][15] = ret_dark_rgba[3];
 
 	glPushMatrix();
-	glTranslatef((grd_curcanv->cv_w/2+grd_curcanv->cv_x)/(float)last_width,1.0-(grd_curcanv->cv_h/2+grd_curcanv->cv_y)/(float)last_height,0);
+	glTranslatef((grd_curcanv->cv_w/2+grd_curcanv->cv_x)/(float)grd_curscreen->sc_w,1.0-(grd_curcanv->cv_h/2+grd_curcanv->cv_y)/(float)grd_curscreen->sc_h,0);
 
 	if (scale >= 1)
 	{
@@ -626,9 +624,9 @@ int gr_ucircle(fix xc1, fix yc1, fix r1)
 	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
 	glPushMatrix();
 	glTranslatef(
-	             (f2fl(xc1) + grd_curcanv->cv_x + 0.5) / (float)last_width,
-	             1.0 - (f2fl(yc1) + grd_curcanv->cv_y + 0.5) / (float)last_height,0);
-	glScalef(f2fl(r1) / last_width, f2fl(r1) / last_height, 1.0);
+	             (f2fl(xc1) + grd_curcanv->cv_x + 0.5) / (float)grd_curscreen->sc_w,
+	             1.0 - (f2fl(yc1) + grd_curcanv->cv_y + 0.5) / (float)grd_curscreen->sc_h,0);
+	glScalef(f2fl(r1) / grd_curscreen->sc_w, f2fl(r1) / grd_curscreen->sc_h, 1.0);
 	nsides = 10 + 2 * (int)(M_PI * f2fl(r1) / 19);
 	GLfloat *circle_va = circle_array_init(nsides);
 	ogl_drawcircle(nsides, GL_LINE_LOOP, circle_va);
@@ -649,9 +647,9 @@ int gr_disk(fix x,fix y,fix r)
 	glColor4f(CPAL2Tr(c),CPAL2Tg(c),CPAL2Tb(c),(grd_curcanv->cv_fade_level >= GR_FADE_OFF)?1.0:1.0 - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0));
 	glPushMatrix();
 	glTranslatef(
-	             (f2fl(x) + grd_curcanv->cv_x + 0.5) / (float)last_width,
-	             1.0 - (f2fl(y) + grd_curcanv->cv_y + 0.5) / (float)last_height,0);
-	glScalef(f2fl(r) / last_width, f2fl(r) / last_height, 1.0);
+	             (f2fl(x) + grd_curcanv->cv_x + 0.5) / (float)grd_curscreen->sc_w,
+	             1.0 - (f2fl(y) + grd_curcanv->cv_y + 0.5) / (float)grd_curscreen->sc_h,0);
+	glScalef(f2fl(r) / grd_curscreen->sc_w, f2fl(r) / grd_curscreen->sc_h, 1.0);
 	nsides = 10 + 2 * (int)(M_PI * f2fl(r) / 19);
 	GLfloat *disk_va = circle_array_init(nsides);
 	ogl_drawcircle(nsides, GL_TRIANGLE_FAN, disk_va);
@@ -900,10 +898,15 @@ void ogl_set_blending()
 	}
 }
 
-void ogl_start_frame(void){
+void ogl_prepare_state_3d(void)
+{
 	r_polyc=0;r_tpolyc=0;r_bitmapc=0;r_ubitbltc=0;r_upixelc=0;
 
-	OGL_VIEWPORT(grd_curcanv->cv_x,grd_curcanv->cv_y,Canvas_width,Canvas_height);
+	glViewport(grd_curcanv->cv_x,
+			   grd_curscreen->sc_h - grd_curcanv->cv_y - grd_curcanv->cv_h,
+			   grd_curcanv->cv_w,
+			   grd_curcanv->cv_h);
+
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
 	glLineWidth(linedotscale);
@@ -927,8 +930,9 @@ void ogl_start_frame(void){
 	glLoadIdentity();//clear matrix
 }
 
-void ogl_end_frame(void){
-	OGL_VIEWPORT(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
+void ogl_prepare_state_2d(void)
+{
+	glViewport(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//clear matrix
 	glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
@@ -936,10 +940,14 @@ void ogl_end_frame(void){
 	glLoadIdentity();//clear matrix
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void gr_prepare_frame(void)
 {
+	ogl_prepare_state_2d();
 	glClear(GL_COLOR_BUFFER_BIT);
 }
 
@@ -1203,10 +1211,10 @@ static bool bitmap_2d(int x, int y, int dw, int dh, int sx, int sy, int sw, int 
 	
 	x+=grd_curcanv->cv_x;
 	y+=grd_curcanv->cv_y;
-	xo=x/(float)last_width;
-	xf=(bm->bm_w+x)/(float)last_width;
-	yo=1.0-y/(float)last_height;
-	yf=1.0-(bm->bm_h+y)/(float)last_height;
+	xo=x/(float)grd_curscreen->sc_w;
+	xf=(bm->bm_w+x)/(float)grd_curscreen->sc_w;
+	yo=1.0-y/(float)grd_curscreen->sc_h;
+	yf=1.0-(bm->bm_h+y)/(float)grd_curscreen->sc_h;
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
@@ -1221,10 +1229,10 @@ static bool bitmap_2d(int x, int y, int dw, int dh, int sx, int sy, int sw, int 
 	else if (dh == 0)
 		dh = bm->bm_h;
 
-	xo = x / (double) last_width;
-	xf = (dw + x) / (double)last_width;
-	yo = 1.0 - y / (double) last_height;
-	yf = 1.0 - (dh + y) / (double) last_height;
+	xo = x / (double) grd_curscreen->sc_w;
+	xf = (dw + x) / (double)grd_curscreen->sc_w;
+	yo = 1.0 - y / (double) grd_curscreen->sc_h;
+	yf = 1.0 - (dh + y) / (double) grd_curscreen->sc_h;
 
 	OGL_ENABLE(TEXTURE_2D);
 	ogl_bindbmtex(bm);

@@ -43,7 +43,6 @@ int gr_installed = 0;
 int gl_initialized=0;
 int ogl_fullscreen;
 int gr_focus_lost;
-static int curx=-1,cury=-1,curfull=0;
 int linedotscale=1; // scalar of glLinewidth and glPointSize - only calculated once when resolution changes
 static SDL_Window *sdl_window;
 static bool user_grab;
@@ -64,10 +63,8 @@ void ogl_swap_buffers_internal(void)
 
 void gr_sdl_ogl_resize_window(int w, int h)
 {
-	if (curx == w && cury == h)
+	if (grd_curscreen->sc_w == w && grd_curscreen->sc_h == h)
 		return;
-
-	curx=w;cury=h;
 
 	if (!gl_initialized)
 		return;
@@ -86,24 +83,12 @@ void gr_sdl_ogl_resize_window(int w, int h)
 
 	gr_set_current_canvas(NULL);
 
-	/* select clearing (background) color   */
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-
-	/* initialize viewing values */
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();//clear matrix
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	gr_palette_step_up(0,0,0);//in case its left over from in game
-
 	gamefont_update_screen_size(w,h);
 	gr_remap_color_fonts();
 	gr_remap_mono_fonts();
 
-	OGL_VIEWPORT(0,0,w,h);
+	ogl_prepare_state_2d();
 
 	if (!gr_check_fullscreen()) {
 		GameCfg.ResolutionX = w;
@@ -111,11 +96,8 @@ void gr_sdl_ogl_resize_window(int w, int h)
 	}
 }
 
-int ogl_init_window(int x, int y)
+static int ogl_init_window(int x, int y)
 {
-	if (gl_initialized && x==curx && y==cury && curfull==ogl_fullscreen)
-		return 0;
-
 	int fs_flags = ogl_fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0;
 
 	if (sdl_window) {
@@ -148,7 +130,6 @@ int ogl_init_window(int x, int y)
 
 	gl_initialized = 1;
 
-	curfull = ogl_fullscreen;
 	GameCfg.WindowMode = !ogl_fullscreen;
 
 	SDL_GetWindowSize(sdl_window, &x, &y);
@@ -176,12 +157,12 @@ int gr_check_fullscreen(void)
 	return ogl_fullscreen;
 }
 
-void gr_do_fullscreen(int f)
+static void gr_do_fullscreen(int f)
 {
-	ogl_fullscreen=f;
-	if (gl_initialized)
-	{
-		ogl_init_window(curx,cury);
+	if (ogl_fullscreen != f) {
+		ogl_fullscreen = f;
+		if (gl_initialized)
+			ogl_init_window(grd_curscreen->sc_w, grd_curscreen->sc_h);
 	}
 }
 
@@ -316,10 +297,10 @@ void ogl_urect(int left,int top,int right,int bot)
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 
-	xo=(left+grd_curcanv->cv_x)/(float)last_width;
-	xf = (right + 1 + grd_curcanv->cv_x) / (float)last_width;
-	yo=1.0-(top+grd_curcanv->cv_y)/(float)last_height;
-	yf = 1.0 - (bot + 1 + grd_curcanv->cv_y) / (float)last_height;
+	xo=(left+grd_curcanv->cv_x)/(float)grd_curscreen->sc_w;
+	xf = (right + 1 + grd_curcanv->cv_x) / (float)grd_curscreen->sc_w;
+	yo=1.0-(top+grd_curcanv->cv_y)/(float)grd_curscreen->sc_h;
+	yf = 1.0 - (bot + 1 + grd_curcanv->cv_y) / (float)grd_curscreen->sc_h;
 
 	OGL_DISABLE(TEXTURE_2D);
 
@@ -361,10 +342,10 @@ void ogl_ulinec(int left,int top,int right,int bot,int c)
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 	
-	xo = (left + grd_curcanv->cv_x) / (float)last_width;
-	xf = (right + grd_curcanv->cv_x ) / (float)last_width;
-	yo = 1.0 - (top + grd_curcanv->cv_y + 0.5) / (float)last_height;
-	yf = 1.0 - (bot + grd_curcanv->cv_y + 0.5) / (float)last_height;
+	xo = (left + grd_curcanv->cv_x) / (float)grd_curscreen->sc_w;
+	xf = (right + grd_curcanv->cv_x ) / (float)grd_curscreen->sc_w;
+	yo = 1.0 - (top + grd_curcanv->cv_y + 0.5) / (float)grd_curscreen->sc_h;
+	yf = 1.0 - (bot + grd_curcanv->cv_y + 0.5) / (float)grd_curscreen->sc_h;
  
 	OGL_DISABLE(TEXTURE_2D);
 
