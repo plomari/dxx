@@ -83,7 +83,6 @@ common_sources = [
 'libmve/mvelib.c',
 'libmve/mveplay.c',
 'main/ai.c',
-'main/ai2.c',
 'main/aipath.c',
 'main/automap.c',
 'main/bm.c',
