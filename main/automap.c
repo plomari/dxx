@@ -617,7 +617,7 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 		case KEY_D+KEY_CTRLED:
 			if (HighlightMarker > -1 && MarkerObject[HighlightMarker] != -1) {
 				gr_set_current_canvas(NULL);
-				if (nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "Delete Marker?" ) == 0) {
+				if (nm_messagebox( NULL, "Delete Marker?", TXT_YES, TXT_NO) == 0) {
 					obj_delete(MarkerObject[HighlightMarker]);
 					MarkerObject[HighlightMarker]=-1;
 					MarkerMessage[HighlightMarker][0]=0;

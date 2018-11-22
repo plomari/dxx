@@ -124,7 +124,7 @@ void scores_write(all_scores *scores)
 
 	fp = PHYSFS_openWrite(SCORES_FILENAME);
 	if (fp==NULL) {
-		nm_messagebox( TXT_WARNING, 1, TXT_OK, "%s\n'%s'", TXT_UNABLE_TO_OPEN, SCORES_FILENAME  );
+		nm_messagebox( TXT_WARNING, tprintf(80, "%s\n'%s'", TXT_UNABLE_TO_OPEN, SCORES_FILENAME), TXT_OK );
 		return;
 	}
 
@@ -239,7 +239,7 @@ void scores_maybe_add_player(int abort_flag)
 			if (strlen(scores.cool_saying)<1)
 				sprintf( scores.cool_saying, "No Comment" );
 		} else {
-			nm_messagebox( TXT_HIGH_SCORE, 1, TXT_OK, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position));
+			nm_messagebox( TXT_HIGH_SCORE, tprintf(80, "%s %s!", TXT_YOU_PLACED, get_placement_slot_string(position)), TXT_OK);
 		}
 	
 		// move everyone down...
@@ -355,7 +355,7 @@ int scores_handler(window *wind, d_event *event, scores_menu *menu)
 				case KEY_CTRLED+KEY_R:		
 					if ( menu->citem < 0 )		{
 						// Reset scores...
-						if ( nm_messagebox( NULL, 2,  TXT_NO, TXT_YES, TXT_RESET_HIGH_SCORES )==1 )	{
+						if ( nm_messagebox( NULL, TXT_RESET_HIGH_SCORES, TXT_NO, TXT_YES )==1 )	{
 							PHYSFS_delete(SCORES_FILENAME);
 							scores_view(&menu->last_game, menu->citem);	// create new scores window
 							window_close(wind);			// then remove the old one

@@ -12,6 +12,11 @@
 	snprintf((s) + pos_, sizeof(s) - pos_, __VA_ARGS__);		\
 } while(0)
 
+#define tprintf(SIZE, format, ...) \
+    tprintf_buf((char[SIZE]){0}, (SIZE), (format), __VA_ARGS__)
+char *tprintf_buf(char *buf, size_t buf_size, const char *format, ...)
+    PRINTF_FORMAT(3, 4);
+
 #ifndef _WIN32
 
 #define stricmp(a,b) strcasecmp(a,b)

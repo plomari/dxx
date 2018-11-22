@@ -99,11 +99,15 @@ extern int newmenu_doreorder(char * title, char * subtitle, int nitems, newmenu_
 
 */
 
+int nm_messagebox_arr(const char *title, const char *text,
+					  const char *const *choices);
+
 // This function pops up a messagebox and returns which choice was selected...
 // Example:
-// nm_messagebox( "Title", "Subtitle", 2, "Ok", "Cancel", "There are %d objects", nobjects );
+// nm_messagebox( "Title", "Subtitle", "Ok", "Cancel");
 // Returns 0 through nchoices-1.
-int nm_messagebox(const char *title, int nchoices, ...);
+#define nm_messagebox(title, text, ...) \
+	nm_messagebox_arr(title, text, (const char *const []){__VA_ARGS__, NULL})
 
 newmenu_item *newmenu_get_items(newmenu *menu);
 int newmenu_get_nitems(newmenu *menu);

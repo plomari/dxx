@@ -233,7 +233,7 @@ gameseq_init_network_players()
 	  for (i=0;i<N_players;i++)
 		 if (Players[i].connected && !(Netgame.players[i].version_minor & 0xF0))
 			{
-	       nm_messagebox ("Warning!",1,TXT_OK,"This special version of Descent II\nwill disconnect after this level.\nPlease purchase the full version\nto experience all the levels!");
+	       nm_messagebox ("Warning!","This special version of Descent II\nwill disconnect after this level.\nPlease purchase the full version\nto experience all the levels!", TXT_OK);
 			 return;
 			}
 	 }
@@ -243,7 +243,7 @@ gameseq_init_network_players()
 		for (i = 0; i < N_players; i++)
 			if (Players[i].connected && !(Netgame.players[i].version_minor & 0xF0))
 			{
-				nm_messagebox ("Warning!", 1 ,TXT_OK, "This shareware version of Descent II\nwill disconnect after this level.\nPlease purchase the full version\nto experience all the levels!");
+				nm_messagebox ("Warning!", "This shareware version of Descent II\nwill disconnect after this level.\nPlease purchase the full version\nto experience all the levels!", TXT_OK);
 				return;
 			}
 	}

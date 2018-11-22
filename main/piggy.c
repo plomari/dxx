@@ -865,7 +865,7 @@ void piggy_critical_error()
 	save_canv = grd_curcanv;
 	save_font = grd_curcanv->cv_font;
 	gr_palette_load( gr_palette );
-	i = nm_messagebox( "Disk Error", 2, "Retry", "Exit", "%s\non drive %c:", crit_errors[descent_critical_errcode&0xf], (descent_critical_deverror&0xf)+'A'  );
+	i = nm_messagebox( "Disk Error", tprintf(80, "%s\non drive %c:", crit_errors[descent_critical_errcode&0xf], (descent_critical_deverror&0xf)+'A'  ), "Retry", "Exit");
 	if ( i == 1 )
 		exit(1);
 	gr_set_current_canvas(save_canv);

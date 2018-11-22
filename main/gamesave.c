@@ -1802,7 +1802,7 @@ int save_level_sub(char * filename, int compiled_version)
 			if (is_real_level(filename)) {
 				gr_palette_load(gr_palette);
 	 
-				if (nm_messagebox( NULL, 2, "Cancel Save", "Save", "Warning: %i errors in this mine!\n", Errors_in_mine )!=1)	{
+				if (nm_messagebox( NULL, tprintf(50, "Warning: %i errors in this mine!\n", Errors_in_mine), "Cancel Save", "Save",  )!=1)	{
 					return 1;
 				}
 			}
@@ -1821,7 +1821,7 @@ int save_level_sub(char * filename, int compiled_version)
 	if (!SaveFile)
 	{
 		gr_palette_load(gr_palette);
-		nm_messagebox( NULL, 1, "Ok", "ERROR: Cannot write to '%s'.", temp_filename);
+		nm_messagebox( NULL, tprintf(80, "ERROR: Cannot write to '%s'.", temp_filename), "Ok");
 		return 1;
 	}
 

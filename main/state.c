@@ -247,7 +247,7 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 	}
 
 	if ( dsc == NULL && nsaves < 1 )	{
-		nm_messagebox( NULL, 1, "Ok", "No saved games were found!" );
+		nm_messagebox( NULL, "No saved games were found!", "Ok" );
 		return 0;
 	}
 
@@ -439,7 +439,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 	fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) {
-		nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
+		nm_messagebox(NULL, "Error writing savegame.\nPossibly out of disk\nspace.", TXT_OK);
 		start_time();
 		return 0;
 	}
@@ -653,7 +653,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	magic = END_MAGIC;
 	if (PHYSFS_write(fp, &magic, sizeof(magic), 1) < 1)
 	{
-		nm_messagebox(NULL, 1, TXT_OK, "Error writing savegame.\nPossibly out of disk\nspace.");
+		nm_messagebox(NULL, "Error writing savegame.\nPossibly out of disk\nspace.", TXT_OK);
 		PHYSFS_close(fp);
 		PHYSFS_delete(filename);
 	} else  {
@@ -737,7 +737,7 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 
 	if ( !secret_restore && in_game ) {
 		int choice;
-		choice =  nm_messagebox( NULL, 2, "Yes", "No", "Restore Game?" );
+		choice =  nm_messagebox( NULL, "Restore Game?", "Yes", "No" );
 		if ( choice != 0 )	{
 			start_time();
 			return 0;
@@ -808,7 +808,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	cfile_read_fixed_str(fp, 9, mission);
 
 	if (!load_mission_by_name( mission ))	{
-		nm_messagebox( NULL, 1, "Ok", "Error!\nUnable to load mission\n'%s'\n", mission );
+		nm_messagebox( NULL, tprintf(80, "Error!\nUnable to load mission\n'%s'\n", mission), "Ok");
 		PHYSFS_close(fp);
 		return 0;
 	}

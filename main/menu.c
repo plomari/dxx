@@ -153,7 +153,7 @@ try_again:
 
 	if (PHYSFS_exists(filename))
 	{
-		nm_messagebox(NULL, 1, TXT_OK, "%s '%s' %s", TXT_PLAYER, text, TXT_ALREADY_EXISTS );
+		nm_messagebox(NULL, tprintf(40, "%s '%s' %s", TXT_PLAYER, text, TXT_ALREADY_EXISTS), TXT_OK);
 		goto try_again;
 	}
 
@@ -181,7 +181,7 @@ int player_menu_keycommand( listbox *lb, d_event *event )
 			if (citem > 0)
 			{
 				int x = 1;
-				x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0) );
+				x = nm_messagebox( NULL, tprintf(80, "%s %s?", TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0)), TXT_YES, TXT_NO);
 				if (x==0)	{
 					char * p;
 					char plxfile[PATH_MAX], efffile[PATH_MAX];
@@ -211,7 +211,7 @@ int player_menu_keycommand( listbox *lb, d_event *event )
 					}
 
 					if (ret)
-						nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0) );
+						nm_messagebox( NULL, tprintf(80, "%s %s %s", TXT_COULDNT, TXT_DELETE_PILOT, items[citem]+((items[citem][0]=='$')?1:0)), TXT_OK);
 					else
 						listbox_delete_item(lb, citem);
 				}
@@ -610,7 +610,7 @@ int demo_menu_keycommand( listbox *lb, d_event *event )
 			if (citem >= 0)
 			{
 				int x = 1;
-				x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, "%s %s?", TXT_DELETE_DEMO, items[citem]+((items[citem][0]=='$')?1:0) );
+				x = nm_messagebox( NULL, tprintf(80, "%s %s?", TXT_DELETE_DEMO, items[citem]+((items[citem][0]=='$')?1:0)), TXT_YES, TXT_NO);
 				if (x==0)
 				{
 					int ret;
@@ -622,7 +622,7 @@ int demo_menu_keycommand( listbox *lb, d_event *event )
 					ret = !PHYSFS_delete(name);
 
 					if (ret)
-						nm_messagebox( NULL, 1, TXT_OK, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, items[citem]+((items[citem][0]=='$')?1:0) );
+						nm_messagebox( NULL, tprintf(80, "%s %s %s", TXT_COULDNT, TXT_DELETE_DEMO, items[citem]+((items[citem][0]=='$')?1:0)), TXT_OK);
 					else
 						listbox_delete_item(lb, citem);
 				}
@@ -638,12 +638,13 @@ int demo_menu_keycommand( listbox *lb, d_event *event )
 
 				// Get backup name
 				change_filename_extension(bakname, items[citem]+((items[citem][0]=='$')?1:0), DEMO_BACKUP_EXT);
-				x = nm_messagebox( NULL, 2, TXT_YES, TXT_NO,	"Are you sure you want to\n"
+				x = nm_messagebox( NULL, tprintf(512, "Are you sure you want to\n"
 								  "swap the endianness of\n"
 								  "%s? If the file is\n"
 								  "already endian native, D1X\n"
 								  "will likely crash. A backup\n"
-								  "%s will be created", items[citem]+((items[citem][0]=='$')?1:0), bakname );
+								  "%s will be created", items[citem]+((items[citem][0]=='$')?1:0), bakname),
+								  TXT_YES, TXT_NO);
 				if (!x)
 					newdemo_swap_endian(items[citem]);
 
@@ -697,7 +698,7 @@ int select_demo(void)
 		return 0;	// memory error
 	if ( !*list )
 	{
-		nm_messagebox( NULL, 1, TXT_OK, "%s %s\n%s", TXT_NO_DEMO_FILES, TXT_USE_F5, TXT_TO_CREATE_ONE);
+		nm_messagebox( NULL, tprintf(40, "%s %s\n%s", TXT_NO_DEMO_FILES, TXT_USE_F5, TXT_TO_CREATE_ONE), TXT_OK);
 		PHYSFS_freeList(list);
 		return 0;
 	}
@@ -772,7 +773,7 @@ try_again:
 
 		if (!(new_level_num>0 && new_level_num<=player_highest_level)) {
 			m[0].text = TXT_ENTER_TO_CONT;
-			nm_messagebox( NULL, 1, TXT_OK, TXT_INVALID_LEVEL);
+			nm_messagebox( NULL, TXT_INVALID_LEVEL, TXT_OK);
 			goto try_again;
 		}
 	}
@@ -1056,7 +1057,7 @@ int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)
 	{
 		case EVENT_NEWMENU_CHANGED:
 			if (citem == opt_gr_texfilt + 3 && ogl_maxanisotropy <= 1.0) {
-				nm_messagebox( TXT_ERROR, 1, TXT_OK, "Anisotropic Filtering not\nsupported by your hardware/driver.");
+				nm_messagebox( TXT_ERROR, "Anisotropic Filtering not\nsupported by your hardware/driver.", TXT_OK);
 				items[opt_gr_texfilt + 3].value = 0;
 				items[opt_gr_texfilt + 2].value = 1;
 			}
@@ -1115,7 +1116,7 @@ void graphics_config()
 		gr_toggle_fullscreen();
 
 	if (GameCfg.VSync != m[opt_gr_vsync].value || GameCfg.Multisample != m[opt_gr_multisample].value)
-		nm_messagebox( NULL, 1, TXT_OK, "Setting VSync or 4x Multisample\nrequires restart on some systems.");
+		nm_messagebox( NULL, "Setting VSync or 4x Multisample\nrequires restart on some systems.", TXT_OK);
 
 	for (i = 0; i <= 3; i++)
 		if (m[i+opt_gr_texfilt].value)

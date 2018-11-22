@@ -3133,7 +3133,7 @@ void multi_consistency_error(int reset)
 	if (++count < 10)
 		return;
 
-	nm_messagebox(NULL, 1, TXT_OK, TXT_CONSISTENCY_ERROR);
+	nm_messagebox(NULL, TXT_CONSISTENCY_ERROR, TXT_OK);
 	count = 0;
 	multi_quit_game = 1;
 	game_leave_menus();

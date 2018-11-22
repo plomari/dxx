@@ -525,7 +525,7 @@ int read_player_file()
 	PHYSFS_readSLE32(file, &id);
 
 	if (id!=SAVE_FILE_ID) {
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Invalid player file");
+		nm_messagebox(TXT_ERROR, "Invalid player file", TXT_OK);
 		PHYSFS_close(file);
 		return -1;
 	}
@@ -539,7 +539,7 @@ int read_player_file()
 		player_file_version = SWAPSHORT(player_file_version);
 
 	if (player_file_version<COMPATIBLE_PLAYER_FILE_VERSION) {
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, TXT_ERROR_PLR_VERSION);
+		nm_messagebox(TXT_ERROR, TXT_ERROR_PLR_VERSION, TXT_OK);
 		PHYSFS_close(file);
 		return -1;
 	}
@@ -657,7 +657,7 @@ int read_player_file()
 		if (i!=get_lifetime_checksum (PlayerCfg.NetlifeKills,PlayerCfg.NetlifeKilled))
 		{
 			PlayerCfg.NetlifeKills=0; PlayerCfg.NetlifeKilled=0;
-			nm_messagebox(NULL, 1, "Shame on me", "Trying to cheat eh?");
+			nm_messagebox(NULL, "Trying to cheat eh?", "Shame on me");
 			rewrite_it=1;
 		}
 #endif
@@ -694,7 +694,7 @@ int read_player_file()
 	return EZERO;
 
  read_player_file_failed:
-	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n", "Error reading PLR file");
+	nm_messagebox(TXT_ERROR, "Error reading PLR file", TXT_OK);
 	if (file)
 		PHYSFS_close(file);
 
@@ -878,7 +878,7 @@ int write_player_file()
 	return EZERO;
 
  write_player_file_failed:
-	nm_messagebox(TXT_ERROR, 1, TXT_OK, "%s\n", TXT_ERROR_WRITING_PLR);
+	nm_messagebox(TXT_ERROR, TXT_ERROR_WRITING_PLR, TXT_OK);
 	if (file)
 	{
 		PHYSFS_close(file);

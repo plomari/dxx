@@ -1555,31 +1555,20 @@ static newmenu *newmenu_do4( char * title, char * subtitle, int nitems, newmenu_
 	return menu;
 }
 
-int nm_messagebox( const char *title, int nchoices, ... )
+int nm_messagebox_arr(const char *title, const char *text,
+					  const char *const *choices)
 {
-	int i;
-	char * format;
-	va_list args;
-	char *s;
-	char nm_text[MESSAGEBOX_TEXT_SIZE];
 	newmenu_item nm_message_items[5];
+	int nchoices = 0;
 
-	va_start(args, nchoices );
-
-	Assert( nchoices <= 5 );
-
-	for (i=0; i<nchoices; i++ )	{
-		s = va_arg( args, char * );
-		nm_message_items[i].type = NM_TYPE_MENU; nm_message_items[i].text = s;
+	for (int i = 0; choices[i]; i++) {
+		Assert(nchoices < ARRAY_ELEMS(nm_message_items));
+		nm_message_items[nchoices].type = NM_TYPE_MENU;
+		nm_message_items[nchoices].text = (char *)choices[i];
+		nchoices++;
 	}
-	format = va_arg( args, char * );
-	strcpy( nm_text, "" );
-	vsprintf(nm_text,format,args);
-	va_end(args);
 
-	Assert(strlen(nm_text) < MESSAGEBOX_TEXT_SIZE );
-
-	return newmenu_do( title, nm_text, nchoices, nm_message_items, NULL, NULL );
+	return newmenu_do( (char *)title, (char *)text, nchoices, nm_message_items, NULL, NULL );
 }
 
 // Example listbox callback function...

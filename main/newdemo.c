@@ -1529,7 +1529,7 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 	if (purpose == PURPOSE_REWRITE)
 		nd_write_byte(c);
 	if ((c != ND_EVENT_START_DEMO) || nd_playback_v_bad_read) {
-		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_CORRUPT );
+		nm_messagebox( NULL, tprintf(80, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_CORRUPT), TXT_OK );
 		return 1;
 	}
 	nd_read_byte(&version);
@@ -1539,16 +1539,16 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 	if (purpose == PURPOSE_REWRITE)
 		nd_write_byte(game_type);
 	if (game_type < DEMO_GAME_TYPE) {
-		nm_messagebox( NULL, 1, TXT_OK, "%s %s\n%s", TXT_CANT_PLAYBACK, TXT_RECORDED, "    In Descent: First Strike" );
+		nm_messagebox( NULL, tprintf(80, "%s %s\n%s", TXT_CANT_PLAYBACK, TXT_RECORDED, "    In Descent: First Strike"), TXT_OK );
 		return 1;
 	}
 	if (game_type != DEMO_GAME_TYPE) {
-		nm_messagebox( NULL, 1, TXT_OK, "%s %s\n%s", TXT_CANT_PLAYBACK, TXT_RECORDED, "   In Unknown Descent version" );
+		nm_messagebox( NULL, tprintf(80, "%s %s\n%s", TXT_CANT_PLAYBACK, TXT_RECORDED, "   In Unknown Descent version"), TXT_OK );
 		return 1;
 	}
 	if (version < DEMO_VERSION) {
 		if (purpose == PURPOSE_CHOSE_PLAY) {
-			nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_OLD );
+			nm_messagebox( NULL, tprintf(80, "%s %s", TXT_CANT_PLAYBACK, TXT_DEMO_OLD ), TXT_OK);
 		}
 		return 1;
 	}
@@ -1563,7 +1563,7 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 	Boss_cloak_start_time=Boss_cloak_end_time=GameTime;
 #ifndef NETWORK
 	if (Newdemo_game_mode & GM_MULTI) {
-		nm_messagebox( NULL, 1, "Ok", "can't playback net game\nwith this version of code\n" );
+		nm_messagebox( NULL, "can't playback net game\nwith this version of code\n", "Ok" );
 		return 1;
 	}
 #endif
@@ -1658,7 +1658,7 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 		nd_write_string(current_mission);
 	if (!load_mission_by_name(current_mission)) {
 		if (purpose != PURPOSE_RANDOM_PLAY) {
-			nm_messagebox( NULL, 1, TXT_OK, TXT_NOMISSION4DEMO, current_mission );
+			nm_messagebox( NULL, tprintf(80, TXT_NOMISSION4DEMO, current_mission), TXT_OK );
 		}
 		return 1;
 	}
@@ -2766,7 +2766,7 @@ int newdemo_read_frame_information(int rewrite)
 					}
 				}
 				if ((loaded_level < Last_secret_level) || (loaded_level > Last_level)) {
-					nm_messagebox( NULL, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT );
+					nm_messagebox( NULL, tprintf(80, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT), TXT_OK );
 					free_mission();
 					return -1;
 				}
@@ -2878,7 +2878,7 @@ int newdemo_read_frame_information(int rewrite)
 	}
 
 	if (nd_playback_v_bad_read) {
-		nm_messagebox( NULL, 1, TXT_OK, "%s %s", TXT_DEMO_ERR_READING, TXT_DEMO_OLD_CORRUPT );
+		nm_messagebox( NULL, tprintf(80, "%s %s", TXT_DEMO_ERR_READING, TXT_DEMO_OLD_CORRUPT), TXT_OK);
 		free_mission();
 	}
 
@@ -2914,7 +2914,7 @@ void newdemo_goto_end(int to_rewrite)
 	if (!to_rewrite)
 	{
 		if ((level < Last_secret_level) || (level > Last_level)) {
-			nm_messagebox( NULL, 1, TXT_OK, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT );
+			nm_messagebox( NULL, tprintf(80, "%s\n%s\n%s", TXT_CANT_PLAYBACK, TXT_LEVEL_CANT_LOAD, TXT_DEMO_OLD_CORRUPT), TXT_OK );
 			free_mission();
 			newdemo_stop_playback();
 			return;
@@ -3337,7 +3337,7 @@ void newdemo_start_recording()
 	if (outfile == NULL)
 	{
 		Newdemo_state = ND_STATE_NORMAL;
-		nm_messagebox(NULL, 1, TXT_OK, "Cannot open demo temp file");
+		nm_messagebox(NULL, "Cannot open demo temp file", TXT_OK);
 	}
 	else
 		newdemo_record_start_demo();
@@ -3487,7 +3487,7 @@ try_again:
 	//check to make sure name is ok
 	for (s=filename;*s;s++)
 		if (!isalnum(*s) && *s!='_') {
-			nm_messagebox(NULL, 1,TXT_CONTINUE, TXT_DEMO_USE_LETTERS);
+			nm_messagebox(NULL, TXT_DEMO_USE_LETTERS, TXT_CONTINUE);
 			goto try_again;
 		}
 
@@ -3683,8 +3683,8 @@ int newdemo_swap_endian(char *filename)
 
 read_error:
 	{
-		nm_messagebox( NULL, 1, TXT_OK, complete ? "Demo %s converted%s" : "Error converting demo\n%s\n%s", filename,
-					  complete ? "" : TXT_DEMO_CORRUPT);
+		nm_messagebox( NULL, tprintf(80, complete ? "Demo %s converted%s" : "Error converting demo\n%s\n%s", filename,
+					  complete ? "" : TXT_DEMO_CORRUPT), TXT_OK);
 	}
 
 	return nd_playback_v_at_eof;

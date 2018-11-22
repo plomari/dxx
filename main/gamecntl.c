@@ -386,7 +386,7 @@ extern int netplayerinfo_on;
 
 static void run_quit_menu(void)
 {
-	int choice = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_GAME );
+	int choice = nm_messagebox(NULL, TXT_ABORT_GAME, TXT_YES, TXT_NO);
 	if (choice == 0)
 		window_close(Game_wind);
 
@@ -540,7 +540,7 @@ int HandleDemoKey(int key)
 			if (GameArg.SysAutoDemo)
 			{
 				int choice;
-				choice = nm_messagebox( NULL, 2, TXT_YES, TXT_NO, TXT_ABORT_AUTODEMO );
+				choice = nm_messagebox(NULL, TXT_ABORT_AUTODEMO, TXT_YES, TXT_NO);
 				if (choice == 0)
 					GameArg.SysAutoDemo = 0;
 				else
