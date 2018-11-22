@@ -102,7 +102,7 @@ extern void game_disable_cheats();
 // - merge Segment2s back into Segment
 // - extend D2X-XL fields (especially Segment func/props ones)
 
-#define NUM_SAVES 10
+#define NUM_SAVES 255
 #define THUMBNAIL_W 100
 #define THUMBNAIL_H 50
 #define DESC_LENGTH 20
@@ -140,8 +140,6 @@ int state_restore_all_sub(char *filename, int secret_restore);
 
 extern int First_secret_visit;
 
-int sc_last_item= 0;
-
 char dgss_id[4] = "DGSS";
 
 uint state_game_id;
@@ -152,10 +150,10 @@ int state_callback(newmenu *menu, d_event *event, grs_bitmap *sc_bmp[])
 	newmenu_item *items = newmenu_get_items(menu);
 	int citem = newmenu_get_citem(menu);
 	
-	if ( (citem > 0) && (event->type == EVENT_NEWMENU_DRAW) )
+	if ( (citem >= 0) && (event->type == EVENT_NEWMENU_DRAW) )
 	{
-		if ( sc_bmp[citem-1] )	{
-			ogl_ubitmapm_cs((grd_curcanv->cv_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-FSPACY(3),THUMBNAIL_W*FSPACX(1),THUMBNAIL_H*FSPACY(1),sc_bmp[citem-1],-1,F1_0);
+		if ( sc_bmp[citem] )	{
+			ogl_ubitmapm_cs((grd_curcanv->cv_w/2)-FSPACX(THUMBNAIL_W/2),items[0].y-FSPACY(10)-THUMBNAIL_H*FSPACY(1),THUMBNAIL_W*FSPACX(1),THUMBNAIL_H*FSPACY(1),sc_bmp[citem],-1,F1_0);
 		}
 		
 		return 1;
@@ -164,22 +162,16 @@ int state_callback(newmenu *menu, d_event *event, grs_bitmap *sc_bmp[])
 	return 0;
 }
 
-#if 0
-void rpad_string( char * string, int max_chars )
-{
-	int i, end_found;
+#define SAVEGAME_FNAME_LEN (CALLSIGN_LEN + 20)
 
-	end_found = 0;
-	for( i=0; i<max_chars; i++ )	{
-		if ( *string == 0 )
-			end_found = 1;
-		if ( end_found )
-			*string = ' ';
-		string++;
+static void gen_savegame_fname(char *dst, size_t dst_size, int num, bool secret)
+{
+	if (secret) {
+		snprintf(dst, dst_size, "%dsecret.sgc", num + 1);
+	} else {
+		snprintf(dst, dst_size, "%s.sg%d", Players[Player_num].callsign, num);
 	}
-	*string = 0;		// NULL terminate
 }
-#endif
 
 static int state_default_item = 0;
 //Since state_default_item should ALWAYS point to a valid savegame slot, we use this to check if we once already actually SAVED a game. If yes, state_quick_item will be equal state_default_item, otherwise it should be -1 on every new mission and tell us we need to select a slot for quicksave.
@@ -195,18 +187,20 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 {
 	PHYSFS_file * fp;
 	int i, choice, version, nsaves;
-	newmenu_item m[NUM_SAVES+1];
-	char filename[NUM_SAVES][FILENAME_LEN + 9];
+	newmenu_item m[NUM_SAVES];
+	char filename[NUM_SAVES][SAVEGAME_FNAME_LEN];
 	char desc[NUM_SAVES][DESC_LENGTH + 16];
 	grs_bitmap *sc_bmp[NUM_SAVES];
 	char id[5];
 	int valid;
 
+	// Padding for the thumbnail
+	caption = tprintf(50, "%s\n\n\n\n\n", caption);
+
 	nsaves=0;
-	m[0].type = NM_TYPE_TEXT; m[0].text = "\n\n\n\n";
 	for (i=0;i<NUM_SAVES; i++ )	{
 		sc_bmp[i] = NULL;
-		sprintf( filename[i], GameArg.SysUsePlayersDir? "Players/%s.sg%x" : "%s.sg%x", Players[Player_num].callsign, i );
+		gen_savegame_fname(filename[i], sizeof(filename[i]), i, false);
 		valid = 0;
 		fp = PHYSFSX_openReadBuffered(filename[i]);
 		if ( fp ) {
@@ -218,8 +212,6 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 				if (version >= STATE_COMPATIBLE_VERSION) {
 					// Read description
 					cfile_read_fixed_str(fp, DESC_LENGTH, desc[i]);
-					//rpad_string( desc[i], DESC_LENGTH-1 );
-					if (dsc == NULL) m[i+1].type = NM_TYPE_MENU;
 					// Read thumbnail
 					sc_bmp[i] = gr_create_bitmap(THUMBNAIL_W,THUMBNAIL_H );
 					PHYSFS_read(fp, sc_bmp[i]->bm_data, THUMBNAIL_W * THUMBNAIL_H, 1);
@@ -234,16 +226,14 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 			}
 			PHYSFS_close(fp);
 		} 
+		m[i].type = dsc ? NM_TYPE_INPUT_MENU : NM_TYPE_MENU;
 		if (!valid) {
 			strcpy( desc[i], TXT_EMPTY );
-			//rpad_string( desc[i], DESC_LENGTH-1 );
-			if (dsc == NULL) m[i+1].type = NM_TYPE_TEXT;
+			if (dsc == NULL)
+				m[i].type = NM_TYPE_TEXT;
 		}
-		if (dsc != NULL) {
-			m[i+1].type = NM_TYPE_INPUT_MENU;
-		}
-		m[i+1].text_len = DESC_LENGTH-1;
-		m[i+1].text = desc[i];
+		m[i].text_len = DESC_LENGTH-1;
+		m[i].text = desc[i];
 	}
 
 	if ( dsc == NULL && nsaves < 1 )	{
@@ -251,36 +241,34 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 		return 0;
 	}
 
-	sc_last_item = -1;
-
 	if (blind_save && state_quick_item < 0)
 		blind_save = 0;		// haven't picked a slot yet
 
 	if (blind_save)
-		choice = state_default_item + 1;
+		choice = state_default_item;
 	else
-		choice = newmenu_do2( NULL, caption, NUM_SAVES+1, m, (int (*)(newmenu *, d_event *, void *))state_callback, sc_bmp, state_default_item + 1, NULL );
+		choice = newmenu_do2( NULL, caption, NUM_SAVES, m, (int (*)(newmenu *, d_event *, void *))state_callback, sc_bmp, state_default_item, NULL );
 
 	for (i=0; i<NUM_SAVES; i++ )	{
 		if ( sc_bmp[i] )
 			gr_free_bitmap( sc_bmp[i] );
 	}
 
-	if (choice > 0) {
-		strcpy( fname, filename[choice-1] );
-		if ( dsc != NULL ) strcpy( dsc, desc[choice-1] );
-		state_quick_item = state_default_item = choice - 1;
+	if (choice >= 0) {
+		strcpy( fname, filename[choice] );
+		if ( dsc != NULL ) strcpy( dsc, desc[choice] );
+		state_quick_item = state_default_item = choice;
 		return choice;
 	}
-	return 0;
+	return -1;
 }
 
-int state_get_save_file(char * fname, char * dsc, int blind_save)
+static int state_get_save_file(char * fname, char * dsc, int blind_save)
 {
 	return state_get_savegame_filename(fname, dsc, "Save Game", blind_save);
 }
 
-int state_get_restore_file(char * fname )
+static int state_get_restore_file(char * fname )
 {
 	return state_get_savegame_filename(fname, NULL, "Select Game to Restore", 0);
 }
@@ -379,29 +367,23 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 		filename_override = filename;
 		sprintf(filename_override, SECRETC_FILENAME);
 	} else {
-		if (!(filenum = state_get_save_file(filename, desc, blind_save)))
-		{
+		filenum = state_get_save_file(filename, desc, blind_save);
+		if (filenum < 0) {
 			start_time();
 			return 0;
 		}
 	}
 		
-	//	MK, 1/1/96
 	//	Do special secret level stuff.
-	//	If secret.sgc exists, then copy it to Nsecret.sgc (where N = filenum).
-	//	If it doesn't exist, then delete Nsecret.sgc
+	//	If secret.sgc exists, then copy it to the savegame slot file.
+	//	If it doesn't exist, then delete the savegame slot file.
 	if (!secret_save) {
 		int	rval;
-		char	temp_fname[32], fc;
 
-		if (filenum != -1) {
+		if (filenum >= 0) {
+			char temp_fname[SAVEGAME_FNAME_LEN];
 
-			if (filenum >= 10)
-				fc = (filenum-10) + 'a';
-			else
-				fc = '0' + filenum;
-
-			sprintf(temp_fname, GameArg.SysUsePlayersDir? "Players/%csecret.sgc" : "%csecret.sgc", fc);
+			gen_savegame_fname(temp_fname, sizeof(temp_fname), filenum, true);
 
 			if (PHYSFS_exists(temp_fname))
 			{
@@ -704,27 +686,25 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 
 	if (filename_override) {
 		strcpy(filename, filename_override);
-		filenum = NUM_SAVES+1; // place outside of save slots
-	} else if (!(filenum = state_get_restore_file(filename)))	{
-		start_time();
-		return 0;
+	} else {
+		filenum = state_get_restore_file(filename);
+		if (filenum < 0) {
+			start_time();
+			return 0;
+		}
 	}
 	
 	//	MK, 1/1/96
 	//	Do special secret level stuff.
-	//	If Nsecret.sgc (where N = filenum) exists, then copy it to secret.sgc.
+	//	If savegame slot exists, then copy it to secret.sgc.
 	//	If it doesn't exist, then delete secret.sgc
 	if (!secret_restore) {
 		int	rval;
-		char	temp_fname[32], fc;
 
-		if (filenum != -1) {
-			if (filenum >= 10)
-				fc = (filenum-10) + 'a';
-			else
-				fc = '0' + filenum;
-			
-			sprintf(temp_fname, GameArg.SysUsePlayersDir? "Players/%csecret.sgc" : "%csecret.sgc", fc);
+		if (filenum >= 0) {
+			char temp_fname[SAVEGAME_FNAME_LEN];
+
+			gen_savegame_fname(temp_fname, sizeof(temp_fname), filenum, true);
 
 			if (PHYSFS_exists(temp_fname))
 			{

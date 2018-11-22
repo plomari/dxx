@@ -30,7 +30,4 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override);
 extern uint state_game_id;
 extern int state_quick_item;
 
-int state_get_save_file(char *fname, char * dsc, int blind_save);
-int state_get_restore_file(char *fname);
-
 #endif /* _STATE_H */

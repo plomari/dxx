@@ -1151,6 +1151,8 @@ void newmenu_create_structure( newmenu *menu )
 	menu->h = th;
 	nmenus = nothers = 0;
 
+	int h_pad = BORDERY * 2;
+
 	// Find menu height & width (store in w,h)
 	for (i=0; i<menu->nitems; i++ )	{
 		menu->items[i].y = menu->h;
@@ -1232,7 +1234,12 @@ void newmenu_create_structure( newmenu *menu )
 			menu->w = string_width;		// Save maximum width
 		if ( average_width > aw )
 			aw = average_width;
-		menu->h += string_height+FSPACY(1);		// Find the height of all strings
+		menu->h += string_height;		// Find the height of all strings
+
+		if (menu->h + h_pad > GHEIGHT)
+			menu->max_on_menu = min(menu->max_on_menu, i + 1);
+
+		menu->h += FSPACY(1);
 	}
 
 	if (i > menu->max_on_menu)
@@ -1273,7 +1280,7 @@ void newmenu_create_structure( newmenu *menu )
 
 	// Find min point of menu border
 	menu->w += BORDERX*2;
-	menu->h += BORDERY*2;
+	menu->h += h_pad;
 
 	menu->x = (GWIDTH-menu->w)/2;
 	menu->y = (GHEIGHT-menu->h)/2;
