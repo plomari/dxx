@@ -691,6 +691,8 @@ int read_player_file()
 	read_player_d2x(filename);
 	kc_set_controls();
 
+	gr_set_attributes();
+
 	return EZERO;
 
  read_player_file_failed:
