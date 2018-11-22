@@ -9,7 +9,7 @@
 #include <windows.h>
 #include <stddef.h>
 #endif
-#include "ogl_init.h"
+#include "ogl.h"
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/gl.h>
 #else

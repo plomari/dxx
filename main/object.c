@@ -67,7 +67,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "playsave.h"
 #ifdef OGL
-#include "ogl_init.h"
+#include "ogl.h"
 #endif
 #include "../3d/globvars.h"
 #include "gamefont.h"

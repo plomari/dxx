@@ -40,7 +40,7 @@
 #include "args.h"
 #include "key.h"
 #include "physfsx.h"
-#include "ogl_init.h"
+#include "ogl.h"
 #include "render.h"
 #include "console.h"
 #include "config.h"

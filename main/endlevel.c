@@ -64,7 +64,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "render.h"
 #include "titles.h"
 #ifdef OGL
-#include "ogl_init.h"
+#include "ogl.h"
 #endif
 
 #ifdef EDITOR

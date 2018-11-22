@@ -27,7 +27,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "wall.h"
 #include "timer.h"
-#include "ogl_init.h"
+#include "ogl.h"
 
 #define MAX_NUM_CACHE_BITMAPS 200
 

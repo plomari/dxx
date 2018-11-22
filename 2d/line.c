@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fix.h"
 
 #include "clip.h"
-#include "ogl_init.h"
+#include "ogl.h"
 
 //unclipped version just calls clipping version for now
 int gr_uline(fix _a1, fix _b1, fix _a2, fix _b2)

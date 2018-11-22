@@ -24,7 +24,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "3d.h"
 #include "globvars.h"
 
-#include "ogl_init.h"
+#include "ogl.h"
 
 //start the frame
 void g3_start_frame(void)

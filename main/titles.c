@@ -22,7 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include <string.h>
 
-#include "ogl_init.h"
+#include "ogl.h"
 
 #include "pstypes.h"
 #include "timer.h"

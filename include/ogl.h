@@ -1,10 +1,5 @@
-/* interface to OpenGL functions
- * Added 9/15/99 Matthew Mueller
- * Got rid of OpenGL-internal stuff 2004-5-16 Martin Schaffner
- */
-
-#ifndef _OGL_INIT_H_ 
-#define _OGL_INIT_H_
+#ifndef OGL_H_
+#define OGL_H_
 
 #ifdef _MSC_VER
 #include <windows.h>
@@ -115,4 +110,4 @@ extern unsigned char *ogl_pal;
 #define PAL2Tg(c) ((ogl_pal[c*3+1])/63.0)
 #define PAL2Tb(c) ((ogl_pal[c*3+2])/63.0)
 
-#endif /* _OGL_INIT_H_ */
+#endif

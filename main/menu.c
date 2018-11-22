@@ -70,7 +70,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/editor.h"
 #include "editor/kdefs.h"
 #endif
-#include "ogl_init.h"
+#include "ogl.h"
 
 
 // Menu IDs...
