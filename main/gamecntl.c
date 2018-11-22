@@ -105,8 +105,6 @@ extern char WaitForRefuseAnswer,RefuseThisPlayer,RefuseTeam;
 
 extern int	Global_missile_firing_count;
 
-extern int	*Toggle_var;
-
 extern int	Physics_cheat_flag;
 
 extern fix	Show_view_text_timer;
@@ -1142,8 +1140,7 @@ int HandleTestKey(int key)
 		case KEY_DEBUGGED+KEY_SHIFTED+KEY_LAPOSTRO: Viewer=ConsoleObject; break;
 		case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
 		case KEY_DEBUGGED+KEY_T:
-			*Toggle_var = !*Toggle_var;
-			if (*Toggle_var)
+			if (GameArg.SysMaxFPS == 30)
 				GameArg.SysMaxFPS = 300;
 			else
 				GameArg.SysMaxFPS = 30;

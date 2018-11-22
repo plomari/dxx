@@ -110,10 +110,6 @@ fix ThisLevelTime=0;
 
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
 
-//	Toggle_var points at a variable which gets !ed on del-T press.
-int	Dummy_var;
-int	*Toggle_var = &Dummy_var;
-
 #ifdef EDITOR
 //flag for whether initial fade-in has been done
 char	faded_in;
