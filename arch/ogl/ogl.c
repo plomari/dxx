@@ -89,7 +89,7 @@ void perspective(double fovy, double aspect, double zNear, double zFar)
 	glDepthMask(GL_TRUE);
 }
 
-void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
+void ogl_init_texture(ogl_texture* t, int w, int h)
 {
 	t->handle = 0;
 	t->internalformat = GL_RGBA8;
@@ -101,7 +101,7 @@ void ogl_init_texture(ogl_texture* t, int w, int h, int flags)
 
 void ogl_reset_texture(ogl_texture* t)
 {
-	ogl_init_texture(t, 0, 0, 0);
+	ogl_init_texture(t, 0, 0);
 }
 
 void ogl_init_texture_list_internal(void){
@@ -1147,7 +1147,8 @@ void ogl_loadbmtexture(grs_bitmap *bm)
 	buf=bm->bm_data;
 
 	if (bm->gltexture == NULL){
- 		ogl_init_texture(bm->gltexture = ogl_get_free_texture(), bm->bm_w, bm->bm_h, ((bm->bm_flags & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT))? OGL_FLAG_ALPHA : 0));
+		bm->gltexture = ogl_get_free_texture();
+ 		ogl_init_texture(bm->gltexture, bm->bm_w, bm->bm_h);
 	}
 	else {
 		if (bm->gltexture->handle>0)

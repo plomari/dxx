@@ -34,7 +34,7 @@ typedef struct _ogl_texture {
 } ogl_texture;
 
 extern ogl_texture* ogl_get_free_texture();
-void ogl_init_texture(ogl_texture* t, int w, int h, int flags);
+void ogl_init_texture(ogl_texture* t, int w, int h);
 
 extern int ogl_rgba_internalformat;
 extern int ogl_rgb_internalformat;
@@ -45,8 +45,6 @@ extern int gl_initialized;
 
 extern GLfloat ogl_maxanisotropy;
 
-#define OGL_FLAG_MIPMAP (1 << 0)
-#define OGL_FLAG_ALPHA (1 << 31) // not required for ogl_loadbmtexture, since it uses the BM_FLAG_TRANSPARENT, but is needed for ogl_init_texture.
 void ogl_loadbmtexture(grs_bitmap *bm);
 void ogl_freebmtexture(grs_bitmap *bm);
 
