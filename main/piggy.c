@@ -1173,6 +1173,7 @@ void load_bitmap_replacements(char *level_name)
 		int id,version,n_bitmaps;
 		int bitmap_data_size;
 		ushort *indices;
+		DiskBitmapHeader *bmhs;
 
 		id = cfile_read_int(ifile);
 		version = cfile_read_int(ifile);
@@ -1185,18 +1186,23 @@ void load_bitmap_replacements(char *level_name)
 		n_bitmaps = cfile_read_int(ifile);
 
 		MALLOC( indices, ushort, n_bitmaps );
+		MALLOC(bmhs, DiskBitmapHeader, n_bitmaps);
+
 
 		for (i = 0; i < n_bitmaps; i++)
 			indices[i] = cfile_read_short(ifile);
 
-		bitmap_data_size = cfilelength(ifile) - cftell(ifile) - sizeof(DiskBitmapHeader) * n_bitmaps;
+		for (i = 0; i < n_bitmaps; i++)
+			DiskBitmapHeader_read(&bmhs[i], ifile);
+
+		bitmap_data_size = cfilelength(ifile) - cftell(ifile);
 		MALLOC( Bitmap_replacement_data, ubyte, bitmap_data_size );
 
-		for (i=0;i<n_bitmaps;i++) {
-			DiskBitmapHeader bmh;
-			grs_bitmap *bm = &GameBitmaps[indices[i]];
+		cfread(Bitmap_replacement_data,1,bitmap_data_size,ifile);
 
-			DiskBitmapHeader_read(&bmh, ifile);
+		for (i=0;i<n_bitmaps;i++) {
+			DiskBitmapHeader bmh = bmhs[i];
+			grs_bitmap *bm = &GameBitmaps[indices[i]];
 
 			int width = bmh.width + ((short) (bmh.wh_extra & 0x0f) << 8);
 			int height = bmh.height + ((short) (bmh.wh_extra & 0xf0) << 4);
@@ -1210,25 +1216,22 @@ void load_bitmap_replacements(char *level_name)
 			gr_set_bitmap_data(bm, NULL);	// free ogl texture
 			gr_init_bitmap(bm, 0, 0, width, height, width * depth, NULL);
 			bm->avg_color = bmh.avg_color;
-			bm->bm_data = (ubyte *) (size_t)bmh.offset;
 
 			gr_set_bitmap_flags(bm, bmh.flags & (BM_FLAGS_TO_COPY | BM_FLAG_TGA));
 
 			GameBitmapOffset[indices[i]] = 0; // don't try to read bitmap from current pigfile
-		}
 
-		cfread(Bitmap_replacement_data,1,bitmap_data_size,ifile);
+			// We don't know how large the data is (depends on format and RLE
+			// compression), so this check is complete only for the best case.
+			Assert(bmh.offset >= 0 && bmh.offset < bitmap_data_size);
+			uint8_t *data = Bitmap_replacement_data + bmh.offset;
 
-		for (i = 0; i < n_bitmaps; i++)
-		{
-			grs_bitmap *bm = &GameBitmaps[indices[i]];
-			uint8_t *data = Bitmap_replacement_data + (size_t) bm->bm_data;
+			gr_set_bitmap_data(bm, data);
 
 			// Hint: it's not TGA, just raw RGBA.
 			if (bm->bm_flags & BM_FLAG_TGA) {
 				Assert(!(bm->bm_flags & BM_FLAG_RLE));
 
-				gr_set_bitmap_data(bm, data);
 				bm->bm_depth = 4;
 
 				// The flags are unreliable and we need to recompute them! (WTF?)
@@ -1239,12 +1242,11 @@ void load_bitmap_replacements(char *level_name)
 				int frames = bm->bm_h / bm->bm_w;
 				if (frames > 1)
 					printf("D2X-XL: unsupported D2X-XL animation entry %d\n", i);
-			} else {
-				gr_set_bitmap_data(bm, data);
 			}
 		}
 
 		d_free(indices);
+		d_free(bmhs);
 
 		cfclose(ifile);
 
