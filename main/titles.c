@@ -152,7 +152,8 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 	gr_init_bitmap_data (&ts->title_bm);
 
 	if ((pcx_error=pcx_read_bitmap( filename, &ts->title_bm, gr_palette ))!=PCX_ERROR_NONE)	{
-		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
+		Warning( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
+		goto error;
 	}
 
 	ts->timer = timer_query() + i2f(3);
@@ -162,15 +163,19 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 	wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, (int (*)(window *, d_event *, void *))title_handler, ts);
 	if (!wind)
 	{
-		gr_free_bitmap_data (&ts->title_bm);
-		d_free(ts);
-		return 0;
+		goto error;
 	}
 
 	window_set_opaque(wind, true);
 
 	window_run_event_loop(wind);
 
+	return 0;
+
+error:
+	if (ts)
+		gr_free_bitmap_data (&ts->title_bm);
+	d_free(ts);
 	return 0;
 }
 
@@ -1089,8 +1094,10 @@ int load_briefing_screen(briefing *br, char *fname)
 	if (stricmp(br->background_name, fname))
 		strncpy (br->background_name,fname, sizeof(br->background_name));
 
-	if ((pcx_error = pcx_read_bitmap(fname, &br->background, gr_palette))!=PCX_ERROR_NONE)
-		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
+	if ((pcx_error = pcx_read_bitmap(fname, &br->background, gr_palette))!=PCX_ERROR_NONE) {
+		Warning( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname, pcx_errormsg(pcx_error), pcx_error);
+		return 0;
+	}
 
 	show_fullscr(&br->background);
 
