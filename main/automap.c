@@ -1050,11 +1050,10 @@ void draw_all_edges(automap *am)
 //finds edge, filling in edge_ptr. if found old edge, returns index, else return -1
 static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
 {
-	long vv, evv;
 	uint16_t hash,oldhash;
-	int ret, ev0, ev1;
+	int ret;
 
-	vv = (v1<<16) + v0;
+	uint32_t vv = (v1 << 16) + v0;
 
 	oldhash = hash = ((v0*5+v1) % am->max_edges);
 	Assert(hash >= 0 && hash < am->max_edges);
@@ -1062,9 +1061,9 @@ static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
 	ret = -1;
 
 	while (ret==-1) {
-		ev0 = am->edges[hash].verts[0];
-		ev1 = am->edges[hash].verts[1];
-		evv = (ev1<<16)+ev0;
+		uint32_t ev0 = am->edges[hash].verts[0];
+		uint32_t ev1 = am->edges[hash].verts[1];
+		uint32_t evv = (ev1<<16)+ev0;
 		if (am->edges[hash].num_faces == 0 ) ret=0;
 		else if (evv == vv) ret=1;
 		else {
