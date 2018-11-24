@@ -1257,9 +1257,11 @@ int load_game_data(CFILE *LoadFile)
 			case TT_LIGHT_ON:
 			case TT_TELEPORT:
 			case TT_SET_SPAWN:
+			case TT_SPEEDBOOST:
 				break;
 			default:
 				if (wall_num == -1) {
+ 					printf("Error: no wall for trigger type %d\n", Triggers[t].type);
 					Int3();	//	This is illegal.  This trigger requires a wall
 				} else {
 					Walls[wall_num].flags |= WALL_HAS_TRIGGERS;
