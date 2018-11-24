@@ -452,7 +452,9 @@ void draw_automap(automap *am)
 	gr_set_curfont(GAME_FONT);
 	gr_set_fontcolor(BM_XRGB(20, 20, 20), -1);
 	gr_printf((SWIDTH/10.666), (SHEIGHT/1.126), TXT_TURN_SHIP);
-	gr_printf((SWIDTH/10.666), (SHEIGHT/1.083), "F9/F10 Changes viewing distance");
+	gr_printf((SWIDTH/10.666), (SHEIGHT/1.083),
+			  "F9/F10 Changes viewing distance - F11 to use %s controls",
+		      PlayerCfg.AutomapFreeFlight ? "classic" : "free flight");
 	gr_printf((SWIDTH/10.666), (SHEIGHT/1.043), TXT_AUTOMAP_MARKER);
 
 	gr_set_current_canvas(&am->automap_view);
@@ -590,6 +592,9 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 				am->segment_limit++;
 				adjust_segment_limit(am, am->segment_limit);
 			}
+			return 1;
+		case KEY_F11:
+			PlayerCfg.AutomapFreeFlight = !PlayerCfg.AutomapFreeFlight;
 			return 1;
 		case KEY_1:
 		case KEY_2:
