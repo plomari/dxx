@@ -1056,7 +1056,6 @@ static int ogl_loadtexture(grs_bitmap *bm, unsigned char *data)
 	glGenTextures (1, &tex->handle);
 	// Give our data to OpenGL.
 	OGL_BINDTEXTURE(tex->handle);
-	glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
 	int texfilt = GameCfg.TexFilt;
 
