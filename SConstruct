@@ -24,7 +24,6 @@ DATA_DIR = PREFIX + DATA_SUBDIR
 sharepath = str(ARGUMENTS.get('sharepath', DATA_DIR))
 debug = int(ARGUMENTS.get('debug', 0))
 profiler = int(ARGUMENTS.get('profiler', 0))
-editor = int(ARGUMENTS.get('editor', 0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
 arm = int(ARGUMENTS.get('arm', 0))
 ipv6 = int(ARGUMENTS.get('ipv6', 0))
@@ -93,7 +92,6 @@ common_sources = [
 'main/credits.c',
 'main/crypt.c',
 'main/digiobj.c',
-'main/dumpmine.c',
 'main/effects.c',
 'main/endlevel.c',
 'main/escort.c',
@@ -160,66 +158,6 @@ common_sources = [
 'misc/hmp.c',
 'misc/strio.c',
 'misc/strutil.c',
-]
-
-# for editor
-editor_sources = [
-'editor/centers.c',
-'editor/curves.c',
-'editor/autosave.c',
-'editor/eglobal.c',
-'editor/ehostage.c',
-'editor/elight.c',
-'editor/eobject.c',
-'editor/eswitch.c',
-'editor/fixseg.c',
-'editor/func.c',
-'editor/group.c',
-'editor/info.c',
-'editor/kbuild.c',
-'editor/kcurve.c',
-'editor/kfuncs.c',
-'editor/kgame.c',
-'editor/khelp.c',
-'editor/kmine.c',
-'editor/ksegmove.c',
-'editor/ksegsel.c',
-'editor/ksegsize.c',
-'editor/ktmap.c',
-'editor/kview.c',
-'editor/med.c',
-'editor/meddraw.c',
-'editor/medmisc.c',
-'editor/medrobot.c',
-'editor/medsel.c',
-'editor/medwall.c',
-'editor/mine.c',
-'editor/objpage.c',
-'editor/segment.c',
-'editor/seguvs.c',
-'editor/texpage.c',
-'editor/texture.c',
-'main/bmread.c',
-'ui/button.c',
-'ui/checkbox.c',
-'ui/dialog.c',
-'ui/file.c',
-'ui/gadget.c',
-'ui/icon.c',
-'ui/inputbox.c',
-'ui/keypad.c',
-'ui/keypress.c',
-'ui/keytrap.c',
-'ui/listbox.c',
-'ui/menu.c',
-'ui/menubar.c',
-'ui/message.c',
-'ui/popup.c',
-'ui/radio.c',
-'ui/scroll.c',
-'ui/ui.c',
-'ui/uidraw.c',
-'ui/userbox.c'
 ]
 
 # SDL_mixer sound implementation
@@ -351,12 +289,6 @@ if (profiler == 1):
 	env.Append(CPPFLAGS = ['-pg'])
 	lflags += ' -pg'
 
-#editor build?
-if (editor == 1):
-	env.Append(CPPDEFINES = ['EDITOR'])
-	env.Append(CPPPATH = ['include/editor'])
-	common_sources += editor_sources
-
 # IPv6 compability?
 if (ipv6 == 1):
 	env.Append(CPPDEFINES = ['IPv6'])
@@ -400,7 +332,6 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	'sdlmixer=1'      use SDL_Mixer for sound (includes external music support)
 	'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
 	'profiler=1'      do profiler build
-	'editor=1'        build editor !EXPERIMENTAL!
 	'arm=1'           compile for ARM architecture
 	'ipv6=1'          enables IPv6 copability
 	
