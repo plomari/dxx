@@ -58,8 +58,6 @@ int r_polyc,r_tpolyc,r_bitmapc,r_ubitbltc,r_upixelc;
 extern int linedotscale;
 #define f2glf(x) (f2fl(x))
 
-#define OGL_BINDTEXTURE(a) glBindTexture(GL_TEXTURE_2D, a);
-
 ogl_texture ogl_texture_list[OGL_TEXTURE_LIST_SIZE];
 int ogl_texture_list_cur;
 
@@ -144,7 +142,7 @@ ogl_texture* ogl_get_free_texture(void){
 void ogl_bindbmtex(grs_bitmap *bm){
 	if (bm->gltexture==NULL || bm->gltexture->handle<=0)
 		ogl_loadbmtexture(bm);
-	OGL_BINDTEXTURE(bm->gltexture->handle);
+	glBindTexture(GL_TEXTURE_2D, bm->gltexture->handle);
 }
 
 //gltexture MUST be bound first
@@ -1055,7 +1053,7 @@ static int ogl_loadtexture(grs_bitmap *bm, unsigned char *data)
 	// Generate OpenGL texture IDs.
 	glGenTextures (1, &tex->handle);
 	// Give our data to OpenGL.
-	OGL_BINDTEXTURE(tex->handle);
+	glBindTexture(GL_TEXTURE_2D, tex->handle);
 
 	int texfilt = GameCfg.TexFilt;
 
