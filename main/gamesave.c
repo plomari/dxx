@@ -1052,7 +1052,7 @@ int load_game_data(CFILE *LoadFile)
 			trigger_read(&Triggers[i], LoadFile, false);
 	}
 
-	if (game_top_fileinfo_version >= 33) {
+	if (game_top_fileinfo_version >= 33 && trigger_offset >= 0) {
 		int ntrigger1 = cfile_read_int(LoadFile);
 
 		if (ntrigger1)
