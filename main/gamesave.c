@@ -1467,7 +1467,7 @@ int load_level(const char * filename_passed)
 
 	set_ambient_sound_flags();
 
-	Assert(check_segment_connections());
+	Assert(!check_segment_connections());
 
 	// Convoluted way to warn against unsupported D2X-XL .oof replacement models.
 	// As an example, we use nonsense models for Anthology, at least in the
