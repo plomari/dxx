@@ -65,8 +65,6 @@ int ogl_texture_list_cur;
 
 /* some function prototypes */
 
-void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format);
-static int ogl_loadtexture(unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, grs_bitmap *bm);
 void ogl_freetexture(ogl_texture *gltexture);
 void ogl_do_palfx(void);
 
@@ -92,8 +90,6 @@ void perspective(double fovy, double aspect, double zNear, double zFar)
 void ogl_init_texture(ogl_texture* t, int w, int h)
 {
 	t->handle = 0;
-	t->internalformat = GL_RGBA8;
-	t->format = GL_RGBA;
 	t->wrapstate = -1;
 	t->lw = t->w = w;
 	t->h = h;
@@ -964,132 +960,98 @@ int pow2ize(int x){
 	return i;
 }
 
-void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width, int height, int dxo, int dyo, int twidth, int theight, int type, int bm_flags, int data_format)
+static void expand_pal_data(unsigned char *src_data, GLubyte *texp,
+							int bm_flags, size_t count)
 {
-	int x,y,c,i;
+	for (size_t n = 0; n < count; n++) {
+		uint8_t c = *src_data++;
 
-	if ((width > max(grd_curscreen->sc_w, 1024)) || (height > max(grd_curscreen->sc_h, 256)))
-		Error("Texture is too big: %ix%i", width, height);
-
-	i=0;
-	for (y=0;y<theight;y++)
-	{
-		i=dxo+truewidth*(y+dyo);
-		for (x=0;x<twidth;x++)
-		{
-			if (x<width && y<height)
-			{
-				if (data_format)
-				{
-					int j;
-
-					for (j = 0; j < data_format; ++j)
-						(*(texp++)) = data[i * data_format + j];
-					i++;
-					continue;
-				}
-				else
-				{
-					c = data[i++];
-				}
-			}
-			else if (x == width && y < height) // end of bitmap reached - fill this pixel with last color to make a clean border when filtering this texture
-			{
-				c = data[(width*(y+1))-1];
-			}
-			else if (y == height && x < width) // end of bitmap reached - fill this row with color or last row to make a clean border when filtering this texture
-			{
-				c = data[(width*(height-1))+x];
-			}
-			else
-			{
-				c = 256; // fill the pad space with transparency (or blackness)
-			}
-
-			if (c == 254 && (bm_flags & BM_FLAG_SUPER_TRANSPARENT))
-			{
-				(*(texp++)) = 255;
-				(*(texp++)) = 255;
-				(*(texp++)) = 255;
-				(*(texp++)) = 0; // transparent pixel
-			}
-			else if ((c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) || c == 256)
-			{
-				(*(texp++))=0;
-				(*(texp++))=0;
-				(*(texp++))=0;
-				(*(texp++))=0;//transparent pixel
-			}
-			else
-			{
-				(*(texp++))=ogl_pal[c*3]*4;
-				(*(texp++))=ogl_pal[c*3+1]*4;
-				(*(texp++))=ogl_pal[c*3+2]*4;
-				(*(texp++))=255;//not transparent
-			}
+		if (c == 254 && (bm_flags & BM_FLAG_SUPER_TRANSPARENT)) {
+			(*(texp++)) = 255;
+			(*(texp++)) = 255;
+			(*(texp++)) = 255;
+			(*(texp++)) = 0; // transparent pixel
+		} else if (c == 255 && (bm_flags & BM_FLAG_TRANSPARENT)) {
+			(*(texp++))=0;
+			(*(texp++))=0;
+			(*(texp++))=0;
+			(*(texp++))=0;//transparent pixel
+		} else {
+			(*(texp++))=ogl_pal[c*3+0]*4;
+			(*(texp++))=ogl_pal[c*3+1]*4;
+			(*(texp++))=ogl_pal[c*3+2]*4;
+			(*(texp++))=255;//not transparent
 		}
 	}
 }
 
-//loads a palettized bitmap into a ogl RGBA texture.
-//Sizes and pads dimensions to multiples of 2 if necessary.
-//In theory this could be a problem for repeating textures, but all real
-//textures (not sprites, etc) in descent are 64x64, so we are ok.
-//stores OpenGL textured id in *texid and u/v values required to get only the real data in *u/*v
-static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *tex, int bm_flags, int data_format, grs_bitmap *bm)
+// Assume bitmap data has been written to [0,0,tex->w,tex->h]. Fill up the
+// borders up to tex->tw/tex->th by repeating the border pixels.
+static void pad_texture(ogl_texture *tex, uint8_t *data, ptrdiff_t stride)
 {
-	uint8_t *texbuf = NULL;
-	GLubyte	*bufP = NULL;
+	Assert(tex->format == GL_RGBA); // also assume GL_UNSIGNED_BYTE
+
+	// Repeat last valid pixel in each row in padding area.
+	if (tex->tw > tex->w && tex->w > 0) {
+		for (int y = 0; y < tex->h; y++) {
+			uint8_t *d_pix = &data[y * stride + tex->w * 4];
+			uint8_t *s_pix = d_pix - 4; // last valid pixel
+			for (int x = tex->w * 4; x < tex->tw * 4; x++)
+				*d_pix++ = s_pix[x & 3];
+		}
+	}
+
+	// Repeat last valid line in each row in padding area. (Relies on the above
+	// code to pad the entire last valid line.)
+	if (tex->h > 0) {
+		uint8_t *s_pix = &data[(tex->h - 1) * stride];
+		for (int y = tex->h; y < tex->th; y++) {
+			uint8_t *d_pix = &data[y * stride];
+			memcpy(d_pix, s_pix, tex->tw * 4);
+		}
+	}
+}
+
+// Load decompressed raw data as texture.
+static int ogl_loadtexture(grs_bitmap *bm, unsigned char *data)
+{
+	ogl_texture *tex = bm->gltexture;
+
+	Assert(tex->w == bm->bm_w);
+	Assert(tex->h == bm->bm_h);
+
 	tex->tw = pow2ize (tex->w);
-	tex->th = pow2ize (tex->h);//calculate smallest texture size that can accomodate us (must be multiples of 2)
+	tex->th = pow2ize (tex->h);//calculate smallest texture size that can accommodate us (must be multiples of 2)
 
 	//calculate u/v values that would make the resulting texture correctly sized
 	tex->u = (float) ((double) tex->w / (double) tex->tw);
 	tex->v = (float) ((double) tex->h / (double) tex->th);
 
-	if (data) {
-		texbuf = calloc(1, tex->tw * tex->th * 4);
-		if (!texbuf) {
-			printf("Error: texture OOM\n");
-			abort();
-		}
+	tex->format = GL_RGBA;
+	tex->internalformat = GL_RGBA8;
 
-		bufP = texbuf;
+	ptrdiff_t tex_stride = tex->tw * 4;
 
-		// buttfuck hack against all the buttfuck hacks
-		if (bm && bm->bm_depth == 4) {
-			tex->format = GL_RGBA;
-			tex->internalformat = GL_RGBA8;
-			for (int y = 0; y < tex->h; y++)
-				memcpy(texbuf + y * tex->w * 4, data + y * tex->w * 4, 4 * tex->w);
-		} else if (bm_flags >= 0) {
-			if (bm)
-				Assert(bm->bm_depth == 0 || bm->bm_depth == 1);
-			ogl_filltexbuf (data, texbuf, tex->lw, tex->w, tex->h, dxo, dyo, tex->tw, tex->th, 
-								 tex->format, bm_flags, data_format);
-		} else {
-			if (!dxo && !dyo && (tex->w == tex->tw) && (tex->h == tex->th))
-				bufP = data;
-			else {
-				int h, w, tw;
-				
-				h = tex->lw / tex->w;
-				w = (tex->w - dxo) * h;
-				data += tex->lw * dyo + h * dxo;
-				bufP = texbuf;
-				tw = tex->tw * h;
-				h = tw - w;
-				for (; dyo < tex->h; dyo++, data += tex->lw) {
-					memcpy (bufP, data, w);
-					bufP += w;
-					memset (bufP, 0, h);
-					bufP += h;
-				}
-				memset (bufP, 0, tex->th * tw - (bufP - texbuf));
-				bufP = texbuf;
-			}
-		}
+	uint8_t *texbuf = calloc(1, tex->th * tex_stride);
+	if (!texbuf) {
+		printf("Error: texture OOM\n");
+		abort();
 	}
+
+	if (bm->bm_depth == 4) {
+		for (int y = 0; y < bm->bm_h; y++)
+			memcpy(texbuf + y * tex_stride, data + y * bm->bm_w * 4, 4 * bm->bm_w);
+	} else if (bm->bm_depth == 0 || bm->bm_depth == 1) {
+		for (int y = 0; y < bm->bm_h; y++) {
+			expand_pal_data(data + y * bm->bm_w, texbuf + y * tex_stride,
+							bm->bm_flags, bm->bm_w);
+		}
+	} else {
+		Int3();
+	}
+
+	pad_texture(tex, texbuf, tex_stride);
+
 	// Generate OpenGL texture IDs.
 	glGenTextures (1, &tex->handle);
 	// Give our data to OpenGL.
@@ -1098,7 +1060,7 @@ static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *
 
 	int texfilt = GameCfg.TexFilt;
 
-	if (bm_flags & BM_FLAG_NO_DOWNSCALE)
+	if (bm->bm_flags & BM_FLAG_NO_DOWNSCALE)
 		texfilt = min(texfilt, 1);
 
 	switch (texfilt) {
@@ -1123,7 +1085,7 @@ static int ogl_loadtexture (unsigned char *data, int dxo, int dyo, ogl_texture *
 		GL_TEXTURE_2D, 0, tex->internalformat,
 		tex->tw, tex->th, 0, tex->format, // RGBA textures.
 		GL_UNSIGNED_BYTE, // imageData is a GLubyte pointer.
-		bufP);
+		texbuf);
 	if (texfilt >= 2)
 		glGenerateMipmap(GL_TEXTURE_2D);
 	r_texcount++; 
@@ -1183,7 +1145,7 @@ void ogl_loadbmtexture(grs_bitmap *bm)
 		}
 		buf=decodebuf;
 	}
-	ogl_loadtexture(buf, 0, 0, bm->gltexture, bm->bm_flags, 0, bm);
+	ogl_loadtexture(bm, buf);
 }
 
 void ogl_freetexture(ogl_texture *gltexture)
