@@ -97,10 +97,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "event.h"
 #include "window.h"
 
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
-
 #ifdef NETWORK
 extern char IWasKicked;
 #endif
@@ -109,11 +105,6 @@ static fix64 last_timer_value=0;
 fix ThisLevelTime=0;
 
 int	PaletteRedAdd, PaletteGreenAdd, PaletteBlueAdd;
-
-#ifdef EDITOR
-//flag for whether initial fade-in has been done
-char	faded_in;
-#endif
 
 int	Game_suspended=0; //if non-zero, nothing moves but player
 fix	Auto_fire_fusion_cannon_time = 0;
@@ -360,8 +351,6 @@ void fly_init(object *obj)
 }
 
 void test_anim_states();
-
-extern int been_in_editor;
 
 //	------------------------------------------------------------------------------------
 void do_cloak_stuff(void)
@@ -916,32 +905,11 @@ window *game_setup(void)
 	init_gauges();
 	netplayerinfo_on = 0;
 
-#ifdef EDITOR
-	if (!Cursegp)
-	{
-		Cursegp = &Segments[0];
-		Curside = 0;
-	}
-	
-	if (Segments[ConsoleObject->segnum].segnum == -1)      //segment no longer exists
-		obj_relink( ConsoleObject-Objects, SEG_PTR_2_NUM(Cursegp) );
-
-	if (!check_obj_seg(ConsoleObject))
-		move_player_2_segment(Cursegp,Curside);
-#endif
-
 	Viewer = ConsoleObject;
 	fly_init(ConsoleObject);
 	Game_suspended = 0;
 	reset_time();
 	FrameTime = 0;			//make first frame zero
-
-#ifdef EDITOR
-	if (Current_level_num == 0) {	//not a real level
-		init_player_stats_game();
-		init_ai_objects();
-	}
-#endif
 
 	fix_object_segs();
 
@@ -1056,11 +1024,6 @@ void close_game()
 }
 
 
-#ifdef EDITOR
-extern void player_follow_path(object *objp);
-extern void check_create_player_path(void);
-#endif
-
 extern	int Do_appearance_effect;
 
 object *Missile_viewer=NULL;
@@ -1172,12 +1135,6 @@ void GameProcessFrame(void)
 #endif
 		}
 	}
-
-
-#ifdef EDITOR
-	check_create_player_path();
-	player_follow_path(ConsoleObject);
-#endif
 
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)
@@ -1479,51 +1436,6 @@ void enable_flicker(int segnum,int sidenum)
 		f->timer = 0;
 }
 
-
-#ifdef EDITOR
-
-//returns 1 if ok, 0 if error
-int add_flicker(int segnum, int sidenum, fix delay, unsigned long mask)
-{
-	int l;
-	flickering_light *f;
-
-	//see if there's already an entry for this seg/side
-
-	f = Flickering_lights;
-
-	for (l=0;l<Num_flickering_lights;l++,f++)
-		if (f->segnum == segnum && f->sidenum == sidenum)	//found it!
-			break;
-
-	if (mask==0) {		//clearing entry
-		if (l == Num_flickering_lights)
-			return 0;
-		else {
-			int i;
-			for (i=l;i<Num_flickering_lights-1;i++)
-				Flickering_lights[i] = Flickering_lights[i+1];
-			Num_flickering_lights--;
-			return 1;
-		}
-	}
-
-	if (l == Num_flickering_lights) {
-		if (Num_flickering_lights == MAX_FLICKERING_LIGHTS)
-			return 0;
-		else
-			Num_flickering_lights++;
-	}
-
-	f->segnum = segnum;
-	f->sidenum = sidenum;
-	f->delay = f->timer = delay;
-	f->mask = mask;
-
-	return 1;
-}
-
-#endif
 
 //	-----------------------------------------------------------------------------
 //	Fire Laser:  Registers a laser fire, and performs special stuff for the fusion

@@ -32,9 +32,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fvi.h"
 #include "physics.h"
 #include "wall.h"
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
 #include "player.h"
 #include "fireball.h"
 #include "game.h"
@@ -130,12 +127,6 @@ void insert_center_points(point_seg *psegs, int *num_points)
 
 	*num_points = j;
 }
-
-#ifdef EDITOR
-int	Safety_flag_override = 0;
-int	Random_flag_override = 0;
-int	Ai_path_debug=0;
-#endif
 
 //	-----------------------------------------------------------------------------------------------------------
 //	Move points halfway to outside of segment.
@@ -400,10 +391,6 @@ cpp_done1: ;
 	else
 		qtail = -1;
 
-	#ifdef EDITOR
-	// -- N_selected_segs = 0;
-	#endif
-
 	while (qtail >= 0) {
 		int	parent_seg, this_seg;
 
@@ -414,9 +401,6 @@ cpp_done1: ;
 		compute_segment_center(&psegs->point,&Segments[this_seg]);
 		psegs++;
 		l_num_points++;
-		#ifdef EDITOR
-		// -- Selected_segs[N_selected_segs++] = this_seg;
-		#endif
 
 		if (parent_seg == start_seg)
 			break;
@@ -1384,227 +1368,3 @@ void attempt_to_resume_path(object *objp)
 	}
 
 }
-
-//	----------------------------------------------------------------------------------------------------------
-//					DEBUG FUNCTIONS FOLLOW
-//	----------------------------------------------------------------------------------------------------------
-
-#ifdef EDITOR
-int	Test_size = 1000;
-
-void test_create_path_many(void)
-{
-	point_seg	point_segs[200];
-	short			num_points;
-
-	int			i;
-
-	for (i=0; i<Test_size; i++) {
-		Cursegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
-		Markedsegp = &Segments[(d_rand() * (Highest_segment_index + 1)) / D_RAND_MAX];
-		create_path_points(&Objects[0], Cursegp-Segments, Markedsegp-Segments, point_segs, &num_points, -1, 0, 0, -1);
-	}
-
-}
-
-void test_create_path(void)
-{
-	point_seg	point_segs[200];
-	short			num_points;
-
-	create_path_points(&Objects[0], Cursegp-Segments, Markedsegp-Segments, point_segs, &num_points, -1, 0, 0, -1);
-
-}
-
-//	For all segments in mine, create paths to all segments in mine, print results.
-void test_create_all_paths(void)
-{
-	int	start_seg, end_seg;
-	short	resultant_length;
-
-	Point_segs_free_ptr = Point_segs;
-
-	for (start_seg=0; start_seg<=Highest_segment_index-1; start_seg++) {
-		if (Segments[start_seg].segnum != -1) {
-			for (end_seg=start_seg+1; end_seg<=Highest_segment_index; end_seg++) {
-				if (Segments[end_seg].segnum != -1) {
-					create_path_points(&Objects[0], start_seg, end_seg, Point_segs_free_ptr, &resultant_length, -1, 0, 0, -1);
-				}
-			}
-		}
-	}
-}
-
-short	Player_path_length=0;
-int	Player_hide_index=-1;
-int	Player_cur_path_index=0;
-int	Player_following_path_flag=0;
-
-//	------------------------------------------------------------------------------------------------------------------
-//	Set orientation matrix and velocity for objp based on its desire to get to a point.
-void player_path_set_orient_and_vel(object *objp, vms_vector *goal_point)
-{
-	vms_vector	cur_vel = objp->mtype.phys_info.velocity;
-	vms_vector	norm_cur_vel;
-	vms_vector	norm_vec_to_goal;
-	vms_vector	cur_pos = objp->pos;
-	vms_vector	norm_fvec;
-	fix			speed_scale;
-	fix			dot;
-	fix			max_speed;
-
-	max_speed = Robot_info[objp->id].max_speed[Difficulty_level];
-
-	vm_vec_sub(&norm_vec_to_goal, goal_point, &cur_pos);
-	vm_vec_normalize_quick(&norm_vec_to_goal);
-
-	norm_cur_vel = cur_vel;
-	vm_vec_normalize_quick(&norm_cur_vel);
-
-	norm_fvec = objp->orient.fvec;
-	vm_vec_normalize_quick(&norm_fvec);
-
-	dot = vm_vec_dot(&norm_vec_to_goal, &norm_fvec);
-	if (Ai_local_info[objp-Objects].mode == AIM_SNIPE_RETREAT_BACKWARDS) {
-		dot = -dot;
-	}
-
-	//	If very close to facing opposite desired vector, perturb vector
-	if (dot < -15*F1_0/16) {
-		norm_cur_vel = norm_vec_to_goal;
-	} else {
-		norm_cur_vel.x += norm_vec_to_goal.x/2/((float)(F1_0/30)/FrameTime);
-		norm_cur_vel.y += norm_vec_to_goal.y/2/((float)(F1_0/30)/FrameTime);
-		norm_cur_vel.z += norm_vec_to_goal.z/2/((float)(F1_0/30)/FrameTime);
-	}
-
-	vm_vec_normalize_quick(&norm_cur_vel);
-
-	//	Set speed based on this robot type's maximum allowed speed and how hard it is turning.
-	//	How hard it is turning is based on the dot product of (vector to goal) and (current velocity vector)
-	//	Note that since 3*F1_0/4 is added to dot product, it is possible for the robot to back up.
-
-	//	Set speed and orientation.
-	if (dot < 0)
-		dot /= 4;
-
-	speed_scale = fixmul(max_speed, dot);
-	vm_vec_scale(&norm_cur_vel, speed_scale);
-	objp->mtype.phys_info.velocity = norm_cur_vel;
-	ai_turn_towards_vector(&norm_vec_to_goal, objp, F1_0);
-
-}
-
-//	----------------------------------------------------------------------------------------------------------
-//	Optimization: If current velocity will take robot near goal, don't change velocity
-void player_follow_path(object *objp)
-{
-	vms_vector	goal_point;
-	fix			dist_to_goal;
-	int			count, forced_break, original_index;
-	int			goal_seg;
-	fix			threshold_distance;
-
-	if (!Player_following_path_flag)
-		return;
-
-	if (Player_hide_index == -1)
-		return;
-
-	if (Player_path_length < 2)
-		return;
-
-	goal_point = Point_segs[Player_hide_index + Player_cur_path_index].point;
-	goal_seg = Point_segs[Player_hide_index + Player_cur_path_index].segnum;
-	Assert((goal_seg >= 0) && (goal_seg <= Highest_segment_index));
-	dist_to_goal = vm_vec_dist_quick(&goal_point, &objp->pos);
-
-	if (Player_cur_path_index < 0)
-		Player_cur_path_index = 0;
-	else if (Player_cur_path_index >= Player_path_length)
-		Player_cur_path_index = Player_path_length-1;
-
-	goal_point = Point_segs[Player_hide_index + Player_cur_path_index].point;
-
-	count=0;
-
-	//	If near goal, pick another goal point.
-	forced_break = 0;		//	Gets set for short paths.
-	//original_dir = 1;
-	original_index = Player_cur_path_index;
-	threshold_distance = fixmul(vm_vec_mag_quick(&objp->mtype.phys_info.velocity), FrameTime)*2 + F1_0*2;
-
-	while ((dist_to_goal < threshold_distance) && !forced_break) {
-
-		//	----- Debug stuff -----
-		if (count++ > 20) {
-			break;
-		}
-
-		//	Advance to next point on path.
-		Player_cur_path_index += 1;
-
-		//	See if next point wraps past end of path (in either direction), and if so, deal with it based on mode.
-		if ((Player_cur_path_index >= Player_path_length) || (Player_cur_path_index < 0)) {
-			Player_following_path_flag = 0;
-			forced_break = 1;
-		}
-
-		//	If went all the way around to original point, in same direction, then get out of here!
-		if (Player_cur_path_index == original_index) {
-			Player_following_path_flag = 0;
-			forced_break = 1;
-		}
-
-		goal_point = Point_segs[Player_hide_index + Player_cur_path_index].point;
-		dist_to_goal = vm_vec_dist_quick(&goal_point, &objp->pos);
-
-	}	//	end while
-
-	//	Set velocity (objp->mtype.phys_info.velocity) and orientation (objp->orient) for this object.
-	player_path_set_orient_and_vel(objp, &goal_point);
-
-}
-
-
-//	------------------------------------------------------------------------------------------------------------------
-//	Create path for player from current segment to goal segment.
-void create_player_path_to_segment(int segnum)
-{
-	object		*objp = ConsoleObject;
-
-	Player_path_length=0;
-	Player_hide_index=-1;
-	Player_cur_path_index=0;
-	Player_following_path_flag=0;
-
-	if (create_path_points(objp, objp->segnum, segnum, Point_segs_free_ptr, &Player_path_length, 100, 0, 0, -1) == -1)
-		con_printf(CON_DEBUG,"Unable to form path of length %i for myself\n", 100);
-
-	Player_following_path_flag = 1;
-
-	Player_hide_index = Point_segs_free_ptr - Point_segs;
-	Player_cur_path_index = 0;
-	Point_segs_free_ptr += Player_path_length;
-	if (Point_segs_free_ptr - Point_segs + MAX_PATH_LENGTH*2 > MAX_POINT_SEGS) {
-		//Int3();	//	Contact Mike: This is curious, though not deadly. /eip++;g
-		ai_reset_all_paths();
-	}
-
-}
-int	Player_goal_segment = -1;
-
-void check_create_player_path(void)
-{
-	if (Player_goal_segment != -1)
-		create_player_path_to_segment(Player_goal_segment);
-
-	Player_goal_segment = -1;
-}
-
-#endif
-
-//	----------------------------------------------------------------------------------------------------------
-//					DEBUG FUNCTIONS ENDED
-//	----------------------------------------------------------------------------------------------------------
-

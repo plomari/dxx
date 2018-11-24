@@ -91,10 +91,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "escort.h"
 #include "window.h"
 
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
-
 #include <SDL.h>
 
 extern void object_goto_prev_viewer(void);

@@ -99,9 +99,6 @@ extern void create_player_appearance_effect(object *player_obj);
 // goto whatever secrect level is appropriate given the current level
 extern void goto_secret_level();
 
-// reset stuff so game is semi-normal when playing from editor
-void editor_reset_stuff_on_level();
-
 // Show endlevel bonus scores
 extern void DoEndLevelScoreGlitz(int network);
 

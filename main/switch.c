@@ -44,10 +44,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "kconfig.h"
 
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
-
 trigger Triggers[MAX_TRIGGERS];
 int Num_triggers;
 
@@ -55,28 +51,6 @@ extern int Do_appearance_effect;
 
 //link Links[MAX_WALL_LINKS];
 //int Num_links;
-
-#ifdef EDITOR
-fix trigger_time_count=F1_0;
-
-//-----------------------------------------------------------------
-// Initializes all the switches.
-void trigger_init()
-{
-	int i;
-
-	Num_triggers = 0;
-
-	for (i=0;i<MAX_TRIGGERS;i++)
-		{
-		Triggers[i].type = 0;
-		Triggers[i].flags = 0;
-		Triggers[i].num_links = 0;
-		Triggers[i].value = 0;
-		Triggers[i].time = -1;
-		}
-}
-#endif
 
 //-----------------------------------------------------------------
 // Executes a link, attached to a trigger.
@@ -438,11 +412,7 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 				}
 				return 1;
 			} else {
-				#ifdef EDITOR
-					nm_messagebox( "Yo!", 1, "You have hit the exit trigger!", "" );
-				#else
-					Int3();		//level num == 0, but no editor!
-				#endif
+				Int3();		//level num == 0, but no editor!
 			}
 			return 1;
 			break;

@@ -54,7 +54,6 @@ typedef char d_fname[FILENAME_LEN];
 // The version number of the game
 extern ubyte Version_major, Version_minor;
 
-// Default event handler for everything except the editor
 int standard_handler(struct d_event *event);
 
 #endif

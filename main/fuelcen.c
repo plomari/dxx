@@ -71,18 +71,6 @@ int Num_fuelcenters = 0;
 
 segment * PlayerSegment= NULL;
 
-#ifdef EDITOR
-char	Special_names[MAX_CENTER_TYPES][11] = {
-	"NOTHING   ",
-	"FUELCEN   ",
-	"REPAIRCEN ",
-	"CONTROLCEN",
-	"ROBOTMAKER",
-	"GOAL_RED",
-	"GOAL_BLUE",
-};
-#endif
-
 //------------------------------------------------------------
 // Resets all fuel center info
 void fuelcen_reset()
@@ -271,55 +259,6 @@ void trigger_matcen(int segnum)
 		Int3();
 	}
 }
-
-#ifdef EDITOR
-//------------------------------------------------------------
-// Takes away a segment's fuel center properties.
-//	Deletes the segment point entry in the FuelCenter list.
-void fuelcen_delete( segment * segp )
-{
-	segment2	*seg2p = &Segment2s[segp-Segments];
-	int i, j;
-
-Restart: ;
-
-	seg2p->special = 0;
-
-	for (i=0; i<Num_fuelcenters; i++ )	{
-		if ( Station[i].segnum == segp-Segments )	{
-
-			// If Robot maker is deleted, fix Segments and RobotCenters.
-			if (Station[i].Type == SEGMENT_IS_ROBOTMAKER) {
-				Num_robot_centers--;
-				Assert(Num_robot_centers >= 0);
-
-				for (j=seg2p->matcen_num; j<Num_robot_centers; j++)
-					RobotCenters[j] = RobotCenters[j+1];
-
-				for (j=0; j<Num_fuelcenters; j++) {
-					if ( Station[j].Type == SEGMENT_IS_ROBOTMAKER )
-						if ( Segment2s[Station[j].segnum].matcen_num > seg2p->matcen_num )
-							Segment2s[Station[j].segnum].matcen_num--;
-				}
-			}
-
-			//fix RobotCenters so they point to correct fuelcenter
-			for (j=0; j<Num_robot_centers; j++ )
-				if (RobotCenters[j].fuelcen_num > i)		//this robotcenter's fuelcen is changing
-					RobotCenters[j].fuelcen_num--;
-
-			Num_fuelcenters--;
-			Assert(Num_fuelcenters >= 0);
-			for (j=i; j<Num_fuelcenters; j++ )	{
-				Station[j] = Station[j+1];
-				Segment2s[Station[j].segnum].value = j;
-			}
-			goto Restart;
-		}
-	}
-
-}
-#endif
 
 #define	ROBOT_GEN_TIME (i2f(5))
 

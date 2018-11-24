@@ -57,10 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ubyte Sounds[MAX_SOUNDS];
 ubyte AltSounds[MAX_SOUNDS];
 
-#ifdef EDITOR
-int Num_object_subtypes = 1;
-#endif
-
 //for each model, a model number for dying & dead variants, or -1 if none
 int Dying_modelnums[MAX_POLYGON_MODELS];
 int Dead_modelnums[MAX_POLYGON_MODELS];
@@ -140,11 +136,6 @@ int gamedata_init()
 	init_polygon_models();
 	init_endlevel();
 
-#ifdef EDITOR
-	// The pc_shareware argument is currently unused for Descent 2,
-	// but *may* be useful for loading Descent 1 Shareware texture properties.
-	if (!gamedata_read_tbl(0))
-#endif
 		if (!properties_init())				// This calls properties_read_cmp
 				Error("Cannot open ham file\n");
 

@@ -185,14 +185,6 @@ void ReadCmdArgs(void)
 #endif
 #endif
 
-#ifdef EDITOR
-	// Editor Options
-
-	GameArg.EdiAutoLoad 		= get_str_arg("-autoload", NULL);
-	GameArg.EdiMacData 		= FindArg("-macdata");
-	GameArg.EdiSaveHoardData 	= FindArg("-hoarddata");
-#endif
-
 	// Debug Options
 
 	if (FindArg("-debug"))		GameArg.DbgVerbose = CON_DEBUG;

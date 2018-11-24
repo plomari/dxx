@@ -66,10 +66,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef USE_UDP
 #include "net_udp.h"
 #endif
-#ifdef EDITOR
-#include "editor/editor.h"
-#include "editor/kdefs.h"
-#endif
 #include "ogl.h"
 
 
@@ -78,7 +74,6 @@ enum MENUS
 {
     MENU_NEW_GAME = 0,
     MENU_GAME,
-    MENU_EDITOR,
     MENU_VIEW_SCORES,
     MENU_QUIT,
     MENU_LOAD_GAME,
@@ -521,17 +516,6 @@ int do_option ( int select)
 		case MENU_LOAD_GAME:
 			state_restore_all(0, 0, NULL);
 			break;
-		#ifdef EDITOR
-		case MENU_EDITOR:
-			if (!Current_mission)
-			{
-				create_new_mine();
-				SetPlayerFromCurseg();
-			}
-
-			init_editor();
-			break;
-		#endif
 		case MENU_VIEW_SCORES:
 			scores_view(NULL, -1);
 			break;
@@ -541,9 +525,6 @@ int do_option ( int select)
 			break;
 #endif
 		case MENU_QUIT:
-			#ifdef EDITOR
-			if (! SafetyCheck()) break;
-			#endif
 			return 0;
 
 		case MENU_NEW_PLAYER:

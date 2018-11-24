@@ -1326,26 +1326,17 @@ void automap_build_edge_list(automap *am)
 	if (automap_cheat || (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) )	{
 		// Cheating, add all edges as visited
 		for (s=0; s<=Highest_segment_index; s++)
-#ifdef EDITOR
-			if (Segments[s].segnum != -1)
-#endif
 			{
 				add_segment_edges(am, &Segments[s]);
 			}
 	} else {
 		// Not cheating, add visited edges, and then unvisited edges
 		for (s=0; s<=Highest_segment_index; s++)
-#ifdef EDITOR
-			if (Segments[s].segnum != -1)
-#endif
 				if (Automap_visited[s]) {
 					add_segment_edges(am, &Segments[s]);
 				}
 	
 		for (s=0; s<=Highest_segment_index; s++)
-#ifdef EDITOR
-			if (Segments[s].segnum != -1)
-#endif
 				if (!Automap_visited[s]) {
 					add_unknown_segment_edges(am, &Segments[s]);
 				}

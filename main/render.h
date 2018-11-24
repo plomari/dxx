@@ -64,10 +64,6 @@ extern fix Render_zoom;     // the player's zoom factor
 extern int N_render_segs;
 extern short Render_list[MAX_RENDER_SEGS];
 
-#ifdef EDITOR
-extern int Render_only_bottom;
-#endif
-
 //
 // Routines for conditionally rotating & projecting points
 //

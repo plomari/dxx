@@ -53,13 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #define DEFAULT_LIGHTING        0   // (F1_0/2)
 
-#ifdef EDITOR   //verts for the new segment
-# define NUM_NEW_SEG_VERTICES   8
-# define NEW_SEGMENT_VERTICES   (MAX_SEGMENT_VERTICES)
-# define MAX_VERTICES           (MAX_SEGMENT_VERTICES+NUM_NEW_SEG_VERTICES)
-#else           //No editor
-# define MAX_VERTICES           (MAX_SEGMENT_VERTICES)
-#endif
+#define MAX_VERTICES			(MAX_SEGMENT_VERTICES)
 
 // Returns true if segnum references a child, else returns false.
 // Note that -1 means no connection, -2 means a connection to the outside world.
@@ -82,28 +76,11 @@ typedef struct side {
 } side;
 
 typedef struct segment {
-#ifdef EDITOR
-	short   segnum;     // segment number, not sure what it means
-#endif
 	side    sides[MAX_SIDES_PER_SEGMENT];       // 6 sides
 	short   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
 	int     verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
-#ifdef EDITOR
-	short   group;      // group number to which the segment belongs.
-	short   objects;    // pointer to objects in this segment
-#else
 	int     objects;    // pointer to objects in this segment
-#endif
 	int     degenerated; // true if this segment has gotten turned inside out, or something.
-
-	// -- Moved to segment2 to make this struct 512 bytes long --
-	//ubyte   special;    // what type of center this is
-	//sbyte   matcen_num; // which center segment is associated with.
-	//short   value;
-	//fix     static_light; //average static light in segment
-	//#ifndef EDITOR
-	//short   pad;        //make structure longword aligned
-	//#endif
 } segment;
 
 #define S2F_AMBIENT_WATER   0x01

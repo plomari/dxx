@@ -82,12 +82,6 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "joy.h"
 #include "event.h"
 
-#ifdef EDITOR
-#include "editor/editor.h"
-#include "editor/kdefs.h"
-#include "ui.h"
-#endif
-
 #include <SDL.h>
 
 #include "vers_id.h"
@@ -154,13 +148,6 @@ void print_commandline_help()
 #endif // USE_TRACKER
 #endif // defined(USE_UDP)
 
-#ifdef    EDITOR
-	printf( "\n Editor:\n\n");
-	printf( "  -autoload <s>          %s\n", "Autoload a level in the editor");
-	printf( "  -macdata               %s\n", "Read and write mac data files in editor (swap colors)");
-	printf( "  -hoarddata             %s\n", "Make the hoard ham file from some files, then exit");
-#endif // EDITOR
-
 	printf( "\n Debug (use only if you know what you're doing):\n\n");
 	printf( "  -debug                 %s\n", "Enable very verbose output");
 	printf( "  -verbose               %s\n", "Shows initialization steps for tech support");
@@ -183,7 +170,7 @@ void print_commandline_help()
 	printf( "\n\n");
 }
 
-// Default event handler for everything except the editor
+// Default event handler for everything
 int standard_handler(d_event *event)
 {
 	int key;
@@ -194,7 +181,6 @@ int standard_handler(d_event *event)
 		case EVENT_MOUSE_BUTTON_UP:
 			// No window selecting
 			// We stay with the current one until it's closed/hidden or another one is made
-			// Not the case for the editor
 			break;
 
 		case EVENT_KEY_COMMAND:
@@ -231,10 +217,6 @@ int standard_handler(d_event *event)
 
 //	DESCENT II by Parallax Software
 //		Descent Main
-
-#ifdef	EDITOR
-char	Auto_file[128] = "";
-#endif
 
 int main(int argc, char *argv[])
 {
@@ -306,13 +288,6 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "\nDoing gamedata_init..." );
 	gamedata_init();
 
-	#ifdef EDITOR
-	if (GameArg.EdiSaveHoardData) {
-		save_hoard_data();
-		exit(1);
-	}
-	#endif
-
 	if (GameArg.DbgNoRun)
 		return(0);
 
@@ -326,14 +301,6 @@ int main(int argc, char *argv[])
 
 	Players[Player_num].callsign[0] = '\0';
 
-	//	If built with editor, option to auto-load a level and quit game
-	//	to write certain data.
-	#ifdef	EDITOR
-	if (GameArg.EdiAutoLoad) {
-		strcpy(Auto_file, GameArg.EdiAutoLoad);
-		strcpy(Players[0].callsign, "dummy");
-	} else
-	#endif
 	{
 		if(GameArg.SysPilot)
 		{
@@ -362,13 +329,6 @@ int main(int argc, char *argv[])
 		}
 	}
 
-#ifdef EDITOR
-	if (GameArg.EdiAutoLoad) {
-		strcpy((char *)&Level_names[0], Auto_file);
-		LoadLevel(1, 1);
-	}
-	else
-#endif
 	{
 		Game_mode = GM_GAME_OVER;
 		DoMenu();

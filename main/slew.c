@@ -29,11 +29,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "kconfig.h"
 
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
-
-
 //variables for slew system
 
 object *slew_obj=NULL;	//what object is slewing, or NULL if none
@@ -91,26 +86,6 @@ int do_slew_movement(object *obj, int check_keys )
 	if (!slew_obj || slew_obj->control_type!=CT_SLEW) return 0;
 
 	if (check_keys) {
-#if 0	//def EDITOR	// might be useful for people with playing keys set to modifiers or such, 
-		if (EditorWindow)	// or just use a separate player file for the editor
-		{
-			obj->mtype.phys_info.velocity.x += SLIDE_SPEED * keyd_pressed[KEY_PAD9] * FrameTime;
-			obj->mtype.phys_info.velocity.x -= SLIDE_SPEED * keyd_pressed[KEY_PAD7] * FrameTime;
-			obj->mtype.phys_info.velocity.y += SLIDE_SPEED * keyd_pressed[KEY_PADMINUS] * FrameTime;
-			obj->mtype.phys_info.velocity.y -= SLIDE_SPEED * keyd_pressed[KEY_PADPLUS] * FrameTime;
-			obj->mtype.phys_info.velocity.z += ZOOM_SPEED_FACTOR * keyd_pressed[KEY_PAD8] * FrameTime;
-			obj->mtype.phys_info.velocity.z -= ZOOM_SPEED_FACTOR * keyd_pressed[KEY_PAD2] * FrameTime;
-
-			rotang.p = rotang.b  = rotang.h  = 0;
-			rotang.p += keyd_pressed[KEY_LBRACKET] * FrameTime / ROT_SPEED;
-			rotang.p -= keyd_pressed[KEY_RBRACKET] * FrameTime / ROT_SPEED;
-			rotang.b  += keyd_pressed[KEY_PAD1] * FrameTime / ROT_SPEED;
-			rotang.b  -= keyd_pressed[KEY_PAD3] * FrameTime / ROT_SPEED;
-			rotang.h  += keyd_pressed[KEY_PAD6] * FrameTime / ROT_SPEED;
-			rotang.h  -= keyd_pressed[KEY_PAD4] * FrameTime / ROT_SPEED;
-		}
-		else
-#endif
 		{
 			obj->mtype.phys_info.velocity.x = SLIDE_SPEED * Controls.sideways_thrust_time;
 			obj->mtype.phys_info.velocity.y = SLIDE_SPEED * Controls.vertical_thrust_time;

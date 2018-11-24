@@ -275,7 +275,6 @@ void show_titles(void)
 
 void show_order_form()
 {
-#ifndef EDITOR
 	char    exit_screen[PATH_MAX];
 
 	strcpy(exit_screen, HIRESMODE?"ordrd2ob.pcx":"ordrd2o.pcx"); // OEM
@@ -289,8 +288,6 @@ void show_order_form()
 		return; // D2 registered
 
 	show_title_screen(exit_screen,1,0);
-
-#endif
 }
 
 

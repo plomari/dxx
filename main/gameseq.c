@@ -94,9 +94,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "controls.h"
 #include "credits.h"
 #include "gamemine.h"
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
 #include "strutil.h"
 #include "rle.h"
 #include "byteswap.h"
@@ -473,43 +470,6 @@ void init_player_stats_new_ship()
 }
 
 extern void init_stuck_objects(void);
-
-#ifdef EDITOR
-
-extern int Slide_segs_computed;
-
-extern int game_handler(window *wind, d_event *event, void *data);
-
-//reset stuff so game is semi-normal when playing from editor
-void editor_reset_stuff_on_level()
-{
-	gameseq_init_network_players();
-	init_player_stats_level(0);
-	Viewer = ConsoleObject;
-	ConsoleObject = Viewer = &Objects[Players[Player_num].objnum];
-	ConsoleObject->id=Player_num;
-	ConsoleObject->control_type = CT_FLYING;
-	ConsoleObject->movement_type = MT_PHYSICS;
-	Game_suspended = 0;
-	verify_console_object();
-	Control_center_destroyed = 0;
-	if (Newdemo_state != ND_STATE_PLAYBACK)
-		gameseq_remove_unused_players();
-	init_robots_for_level();
-	init_ai_objects();
-	init_morphs();
-	init_all_matcens();
-	init_player_stats_new_ship();
-	init_controlcen_for_level();
-	automap_clear_visited();
-	init_stuck_objects();
-	init_thief_for_level();
-
-	Slide_segs_computed = 0;
-	if (!Game_wind)
-		Game_wind = window_create(&grd_curscreen->sc_canvas, 0, 0, SWIDTH, SHEIGHT, game_handler, NULL);
-}
-#endif
 
 //do whatever needs to be done when a player dies in multiplayer
 
@@ -1316,13 +1276,6 @@ void AdvanceLevel(int secret_flag)
 
 	Control_center_destroyed = 0;
 
-	#ifdef EDITOR
-	if (Current_level_num == 0)
-	{
-		window_close(Game_wind);		//not a real level
-	}
-	#endif
-
 #ifdef NETWORK
 	if (Game_mode & GM_MULTI)	{
 		result = multi_endlevel(&secret_flag); // Wait for other players to reach this point
@@ -1364,18 +1317,6 @@ void DoPlayerDead()
 	gr_palette_load (gr_palette);
 
 	dead_player_end();		//terminate death sequence (if playing)
-
-	#ifdef EDITOR
-	if (Game_mode == GM_EDITOR) {			//test mine, not real level
-		object * playerobj = &Objects[Players[Player_num].objnum];
-		//nm_messagebox( "You're Dead!", 1, "Continue", "Not a real game, though." );
-		load_level("gamesave.lvl");
-		init_player_stats_new_ship();
-		playerobj->flags &= ~OF_SHOULD_BE_DEAD;
-		StartLevel(0);
-		return;
-	}
-	#endif
 
 #ifdef NETWORK
 	if ( Game_mode&GM_MULTI )

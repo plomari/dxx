@@ -57,10 +57,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 #include "escort.h"
 
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
-
 extern void multi_send_stolen_items();
 void say_escort_goal(int goal_num);
 void show_escort_menu(char *msg);

@@ -68,9 +68,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "switch.h"
 #include "palette.h"
 #include "gameseq.h"
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
 #include "collide.h"
 #include "escort.h"
 

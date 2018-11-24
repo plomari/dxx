@@ -60,10 +60,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "controls.h"
 #include "kconfig.h"
 
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
-
 #include "string.h"
 
 #define	AI_TURN_SCALE	1
@@ -1800,9 +1796,6 @@ static void init_boss_segments(int boss_objnum, short segptr[], int *num_segs, i
 	object		*boss_objp = &Objects[boss_objnum];
 
 	*num_segs = 0;
-#ifdef EDITOR
-	N_selected_segs = 0;
-#endif
 
 	Assert(boss_objp->type == OBJ_ROBOT && Robot_info[boss_objp->id].boss_flag);
 
@@ -1825,9 +1818,6 @@ static void init_boss_segments(int boss_objnum, short segptr[], int *num_segs, i
 
 		if ((!size_check) || boss_fits_in_seg(boss_objp, original_boss_seg)) {
 			segptr[(*num_segs)++] = original_boss_seg;
-			#ifdef EDITOR
-			Selected_segs[N_selected_segs++] = original_boss_seg;
-			#endif
 		}
 
 		struct segment_bit_array visited = {{0}};
@@ -1862,9 +1852,6 @@ static void init_boss_segments(int boss_objnum, short segptr[], int *num_segs, i
 
 						if ((!size_check) || boss_fits_in_seg(boss_objp, segp->children[sidenum])) {
 							segptr[(*num_segs)++] = segp->children[sidenum];
-							#ifdef EDITOR
-							Selected_segs[N_selected_segs++] = segp->children[sidenum];
-							#endif
 							if (*num_segs >= MAX_BOSS_TELEPORT_SEGS) {
 								tail = head;
 								sidenum=MAX_SIDES_PER_SEGMENT;

@@ -67,7 +67,6 @@ extern int Marker_viewer_num[2];    // left & right
 extern int ft_preference;
 
 // The following bits define the game modes.
-#define GM_EDITOR       1       // You came into the game from the editor
 // #define GM_SERIAL       2       // You are in serial mode // OBSOLETE
 #define GM_NETWORK      4       // You are in network mode
 #define GM_MULTI_ROBOTS 8       // You are in a multiplayer mode with robots.

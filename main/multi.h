@@ -475,9 +475,6 @@ extern void multi_send_powcap_update();
 #define FLARE_ADJUST    127
 
 int HoardEquipped();
-#ifdef EDITOR
-void save_hoard_data(void);
-#endif
 
 /*
  * The Network Players structure

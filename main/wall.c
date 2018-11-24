@@ -47,10 +47,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "collide.h"
 #include "effects.h"
 
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
-
 //	Special door on boss level which is locked if not in multiplayer...sorry for this awful solution --MK.
 #define	BOSS_LOCKED_DOOR_LEVEL	7
 #define	BOSS_LOCKED_DOOR_SEG		595
@@ -74,12 +70,6 @@ int Num_open_doors;						// Number of open doors
 cloaking_wall CloakingWalls[MAX_CLOAKING_WALLS];
 int Num_cloaking_walls;
 
-//--unused-- grs_bitmap *wall_title_bms[MAX_WALL_ANIMS];
-
-//#define BM_FLAG_TRANSPARENT			1
-//#define BM_FLAG_SUPER_TRANSPARENT	2
-
-//#ifdef EDITOR
 char	Wall_names[7][10] = {
 	"NORMAL   ",
 	"BLASTABLE",
@@ -89,7 +79,6 @@ char	Wall_names[7][10] = {
 	"CLOSED   ",
 	"EXTERNAL "
 };
-//#endif
 
 // Function prototypes
 void kill_stuck_objects(int wallnum);
@@ -169,51 +158,6 @@ int wall_is_doorway_rest(segment * seg, int side)
 
 	return res;
 }
-
-#ifdef EDITOR
-//-----------------------------------------------------------------
-// Initializes all the walls (in other words, no special walls)
-void wall_init()
-{
-	int i;
-	
-	Num_walls = 0;
-	for (i=0;i<MAX_WALLS;i++) {
-		Walls[i].segnum = Walls[i].sidenum = -1;
-		Walls[i].type = WALL_NORMAL;
-		Walls[i].flags = 0;
-		Walls[i].hps = 0;
-		Walls[i].trigger = -1;
-		Walls[i].clip_num = -1;
-		Walls[i].linked_wall = -1;
-		}
-	Num_open_doors = 0;
-	Num_cloaking_walls = 0;
-
-}
-
-//-----------------------------------------------------------------
-// Initializes one wall.
-void wall_reset(segment *seg, int side)
-{
-	int i;
-	
-	i = seg->sides[side].wall_num;
-
-	if (i==-1) {
-		return;
-	}
-
-	Walls[i].segnum = seg-Segments;
-	Walls[i].sidenum = side;
-	Walls[i].type = WALL_NORMAL;
-	Walls[i].flags = 0;
-	Walls[i].hps = 0;
-	Walls[i].trigger = -1;
-	Walls[i].clip_num = -1;
-	Walls[i].linked_wall = -1;
-}
-#endif
 
 //set the tmap_num or tmap_num2 field for a wall/door
 void wall_set_tmap_num(segment *seg,int side,segment *csegp,int cside,int anim_num,int frame_num)

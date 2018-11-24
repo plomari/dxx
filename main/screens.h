@@ -23,8 +23,4 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "gr.h"
 
-//from editor.c
-extern grs_canvas *Canv_editor;		// the full on-scrren editor canvas
-extern grs_canvas *Canv_editor_game;	// the game window on the editor screen
-
 #endif /* _SCREENS_H */

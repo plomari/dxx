@@ -82,10 +82,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "controls.h"
 #include "playsave.h"
 
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
-
 extern int init_hoard_data();
 extern void init_seismic_disturbances(void);
 
@@ -650,20 +646,7 @@ void nd_read_object(object *obj)
 
 		nd_read_int(&tmo);
 
-#ifndef EDITOR
 		obj->rtype.pobj_info.tmap_override = tmo;
-#else
-		if (tmo==-1)
-			obj->rtype.pobj_info.tmap_override = -1;
-		else {
-			int xlated_tmo = tmap_xlate_table[tmo];
-			if (xlated_tmo < 0) {
-				Int3();
-				xlated_tmo = 0;
-			}
-			obj->rtype.pobj_info.tmap_override = xlated_tmo;
-		}
-#endif
 
 		break;
 	}

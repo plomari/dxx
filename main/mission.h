@@ -77,16 +77,6 @@ typedef struct {
 	d_fname	*level_names;
 	d_fname	*secret_level_names;
 	d_fname *alternate_ham_file;
-#if 0 //def EDITOR	Support for multiple levels, briefings etc open at once
-	Window	window;
-	Window	attributes;// Window for changing them
-	void	*briefing;
-	void	*ending;
-	Level	*level[MAX_LEVELS_PER_MISSION];
-	Level	*secLevel[MAX_SECRET_LEVELS_PER_MISSION];
-	void	*others[MAX_HOGFILES];
-	char	Other_file_names[MAX_HOGFILES][FILENAME_LEN];
-#endif
 } Mission;
 
 extern Mission *Current_mission; // current mission
@@ -134,9 +124,5 @@ int load_mission_by_name (char *mission_name);
 int select_mission (int anarchy_mode, char *message, int (*when_selected)(void));
 
 void free_mission(void);
-
-#ifdef EDITOR
-void create_new_mission(void);
-#endif
 
 #endif

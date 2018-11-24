@@ -1127,34 +1127,3 @@ int select_mission(int anarchy_mode, char *message, int (*when_selected)(void))
 
     return 1;	// presume success
 }
-
-#ifdef EDITOR
-void create_new_mission(void)
-{
-	if (Current_mission)
-		free_mission();
-	
-	Current_mission = d_malloc(sizeof(Mission));
-	if (!Current_mission)
-		return;
-	memset(Current_mission, 0, sizeof(Mission));
-	
-	Current_mission->path = d_strdup("new_mission");
-	if (!Current_mission->path)
-	{
-		free_mission();
-		return;
-	}
-
-	Current_mission->filename = Current_mission->path;
-	
-	MALLOC(Level_names, d_fname, 1);
-	if (!Level_names)
-	{
-		free_mission();
-		return;
-	}
-
-	strcpy(Level_names[0], "GAMESAVE.LVL");
-}
-#endif

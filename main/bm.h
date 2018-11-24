@@ -41,10 +41,6 @@ typedef struct {
 	short   eclip_num; //the eclip that changes this, or -1
 	short   destroyed; //bitmap to show when destroyed, or -1
 	short   slide_u,slide_v;    //slide rates of texture, stored in 8:8 fix
-	#ifdef EDITOR
-	char    filename[13];       //used by editor to remap textures
-	char    pad2[3];
-	#endif
 } __pack__ tmap_info;
 
 #define TMAP_INFO_SIZE 20   // how much space it takes up on disk
@@ -56,9 +52,6 @@ extern int Num_cockpits;
 extern bitmap_index cockpit_bitmap[N_COCKPIT_BITMAPS];
 
 extern int Num_tmaps;
-#ifdef EDITOR
-extern int TmapList[MAX_TEXTURES];
-#endif
 
 extern tmap_info TmapInfo[MAX_TEXTURES];
 

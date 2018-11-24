@@ -1300,10 +1300,6 @@ int check_for_degenerate_segment(segment *sp)
 	for (i=0; i<MAX_SIDES_PER_SEGMENT; i++)
 		degeneracy_flag |= check_for_degenerate_side(sp, i);
 
-#ifdef EDITOR
-	Degenerate_segment_found |= degeneracy_flag;
-#endif
-
 	return degeneracy_flag;
 
 }
@@ -1577,19 +1573,7 @@ void validate_segment_all(void)
 	int	s;
 
 	for (s=0; s<=Highest_segment_index; s++)
-		#ifdef EDITOR
-		if (Segments[s].segnum != -1)
-		#endif
 			validate_segment(&Segments[s]);
-
-	#ifdef EDITOR
-	{
-		for (s=Highest_segment_index+1; s<MAX_SEGMENTS; s++)
-			if (Segments[s].segnum != -1) {
-				Segments[s].segnum = -1;
-			}
-	}
-	#endif
 }
 
 

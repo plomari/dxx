@@ -72,9 +72,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "../3d/globvars.h"
 #include "gamefont.h"
 #include "timer.h"
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
 
 void obj_detach_all(object *parent);
 void obj_detach_one(object *sub);
@@ -116,32 +113,6 @@ int print_object_info = 0;
 //--unused-- int Player_controller_type = 0;
 
 window_rendered_data Window_rendered_data[MAX_RENDERED_WINDOWS];
-
-#if defined(EDITOR)
-char	Object_type_names[MAX_OBJECT_TYPES][9] = {
-	"WALL    ",
-	"FIREBALL",
-	"ROBOT   ",
-	"HOSTAGE ",
-	"PLAYER  ",
-	"WEAPON  ",
-	"CAMERA  ",
-	"POWERUP ",
-	"DEBRIS  ",
-	"CNTRLCEN",
-	"FLARE   ",
-	"CLUTTER ",
-	"GHOST   ",
-	"LIGHT   ",
-	"COOP    ",
-	"MARKER  ",
-	"CAMBOT  ",
-	"MONSBALL",
-	"SMOKE   ",
-	"EXPLOSIN",
-	"EFFECT  ",
-};
-#endif
 
 //set viewer object to next object in array
 void object_goto_next_viewer()
@@ -1273,38 +1244,6 @@ int obj_create(enum object_type_t type,ubyte id,int segnum,const vms_vector *pos
 	return objnum;
 }
 
-#ifdef EDITOR
-//create a copy of an object. returns new object number
-int obj_create_copy(int objnum, vms_vector *new_pos, int newsegnum)
-{
-	int newobjnum;
-	object *obj;
-
-	// Find next free object
-	newobjnum = obj_allocate();
-
-	if (newobjnum == -1)
-		return -1;
-
-	obj = &Objects[newobjnum];
-
-	*obj = Objects[objnum];
-
-	obj->pos = obj->last_pos = *new_pos;
-
-	obj->next = obj->prev = obj->segnum = -1;
-
-	obj_link(newobjnum,newsegnum);
-
-	obj->signature				= obj_get_signature();
-
-	//we probably should initialize sub-structures here
-
-	return newobjnum;
-
-}
-#endif
-
 extern void newdemo_record_guided_end();
 
 //remove object from the world
@@ -2013,11 +1952,6 @@ void compress_objects(void)
 			obj_unlink(Highest_object_index);
 
 			Objects[start_i] = Objects[Highest_object_index];
-
-			#ifdef EDITOR
-			if (Cur_object_index == Highest_object_index)
-				Cur_object_index = start_i;
-			#endif
 
 			Objects[Highest_object_index].type = OBJ_NONE;
 
