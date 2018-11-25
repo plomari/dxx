@@ -280,7 +280,6 @@ if (debug == 1):
 	print "including: DEBUG"
 	env.Append(CPPFLAGS = ['-g'])
 else:
-	env.Append(CPPDEFINES = ['NDEBUG', 'RELEASE'])
 	env.Append(CPPFLAGS = ['-O0', '-g', '-ggdb3'])
 
 # profiler?

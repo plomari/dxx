@@ -143,9 +143,6 @@ args = [
     '-DNETWORK',
     '-D_REENTRANT',
 
-	'-DRELEASE',
-	'-DNDEBUG',
-
     '-D__LINUX__',
     '-DHAVE_STRUCT_TIMESPEC',
     '-DHAVE_STRUCT_TIMEVAL',
