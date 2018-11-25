@@ -24,6 +24,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define d_free(ptr)	do { free(ptr); (ptr) = NULL; } while(0)
 #define d_strdup	strdup
 
-#define MALLOC( var, type, count )   (var=(type *)malloc((count)*sizeof(type)))
+#define MALLOC( var, type, count )   (var=(type *)calloc(count, sizeof(type)))
 
 #endif // _U_MEM_H
