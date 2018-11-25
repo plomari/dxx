@@ -145,18 +145,6 @@ typedef struct segment2 {
 
 #define SS_REPAIR_CENTER    0x01    // Bitmask for this segment being part of repair center.
 
-//--repair-- typedef struct {
-//--repair-- 	int     special_type;
-//--repair-- 	short   special_segment; // if special_type indicates repair center, this is the base of the repair center
-//--repair-- } lsegment;
-
-typedef struct {
-	int     num_segments;
-	int     num_vertices;
-	short   segments[MAX_SEGMENTS];
-	int     vertices[MAX_VERTICES];
-} group;
-
 // Globals from mglobal.c
 extern vms_vector   Vertices[];
 extern segment      Segments[];
