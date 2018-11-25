@@ -1965,7 +1965,18 @@ int listbox_draw(window *wind, listbox *lb)
 			}
 			else
 			{
-				gr_string( lb->box_x+FSPACX(5), y, lb->item[i]  );
+				int pad_x = FSPACX(5);
+				int x = lb->box_x + pad_x;
+				char *item = lb->item[i];
+				char *r_pos = strchr(item, CC_RIGHT_JUST_S[0]);
+				if (r_pos) {
+					int s_w = 0, s_h = 0, avg_w = 0;
+					gr_get_string_size(r_pos + 1, &s_w, &s_h, &avg_w);
+					gr_printf(x, y, "%.*s", (int)(r_pos - item), item);
+					gr_string(lb->box_x + lb->box_w - s_w - pad_x, y, r_pos + 1);
+				} else {
+					gr_string(x, y, item);
+				}
 			}
 		}
 	}

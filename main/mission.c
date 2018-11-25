@@ -50,8 +50,12 @@ typedef struct mle {
 	char    *filename;          // filename without extension
 	int     builtin_hogsize;    // if it's the built-in mission, used for determining the version
 	char    mission_name[MISSION_NAME_LEN+1];
+	char    mission_disp[MISSION_NAME_LEN+21];
 	ubyte   descent_version;    // descent 1 or descent 2?
+	ubyte   d2x_xl_mission;
 	ubyte   anarchy_only_flag;  // if true, mission is anarchy only
+	int	    num_levels;
+	int     num_secret_levels;
 	char	*path;				// relative file path
 	enum mle_loc	location;           // where the mission is
 } mle;
@@ -328,13 +332,15 @@ char *get_parm_value(char *parm,CFILE *f)
 {
 	static char buf[80];
 
-	if (!cfgets(buf,sizeof(buf),f))
-		return NULL;
+	cfseek(f,0,SEEK_SET);
 
-	if (istok(buf,parm))
-		return get_value(buf);
-	else
-		return NULL;
+	while (cfgets(buf,sizeof(buf),f)) {
+
+		if (istok(buf,parm))
+			return get_value(buf);
+	}
+
+	return NULL;
 }
 
 int ml_sort_func(mle *e0,mle *e1)
@@ -348,6 +354,8 @@ int read_mission_file(mle *mission, char *filename, int location)
 {
 	char filename2[100];
 	CFILE *mfile;
+
+	*mission = (mle){0};
 
 	switch (location) {
 		case ML_MISSIONDIR:
@@ -406,6 +414,8 @@ int read_mission_file(mle *mission, char *filename, int location)
 		if (!p) {       //d2x-xl I guess?
 			cfseek(mfile,0,SEEK_SET);
 			p = get_parm_value("d2x-name",mfile);
+			if (p)
+				mission->d2x_xl_mission = 1;
 		}
 
 		if (p) {
@@ -428,8 +438,18 @@ int read_mission_file(mle *mission, char *filename, int location)
 		p = get_parm_value("type",mfile);
 
 		//get mission type
-		if (p)
+		if (p) {
 			mission->anarchy_only_flag = istok(p,"anarchy");
+			mission->d2x_xl_mission |= istok(p, "d2x-xl");
+		}
+
+
+		p = get_parm_value("num_levels", mfile);
+		if (p)
+			mission->num_levels = atoi(p);
+		p = get_parm_value("num_secrets", mfile);
+		if (p)
+			mission->num_secret_levels = atoi(p);
 
 		cfclose(mfile);
 
@@ -1053,10 +1073,12 @@ int mission_menu_handler(listbox *lb, d_event *event, mission_menu *mm)
 		case EVENT_NEWMENU_SELECTED:
 			if (citem >= 0)
 			{
+				mle *e = &mm->mission_list[citem];
+
 				// Chose a mission
-				strcpy(GameCfg.LastMission, list[citem]);
+				strcpy(GameCfg.LastMission, e->mission_name);
 				
-				if (!load_mission(mm->mission_list + citem))
+				if (!load_mission(e))
 				{
 					nm_messagebox( NULL, TXT_MISSION_ERROR, TXT_OK);
 					return 1;	// stay in listbox so user can select another one
@@ -1117,9 +1139,26 @@ int select_mission(int anarchy_mode, char *message, int (*when_selected)(void))
 		
         default_mission = 0;
         for (i = 0; i < num_missions; i++) {
-            m[i] = mission_list[i].mission_name;
-            if ( !stricmp( m[i], GameCfg.LastMission ) )
+			mle *e = &mission_list[i];
+
+			e->mission_disp[0] = '\0';
+			APPENDF(e->mission_disp, "%s" CC_RIGHT_JUST_S, e->mission_name);
+			APPENDF(e->mission_disp, "%d", e->num_levels);
+			if (e->num_secret_levels)
+				APPENDF(e->mission_disp, "+%d", e->num_secret_levels);
+
+			const char *type = "D2";
+			if (e->descent_version == 1) {
+				type = "D1";
+			} else if (e->d2x_xl_mission) {
+				type = "XL";
+			}
+			APPENDF(e->mission_disp, " (%s)", type);
+
+            if (!stricmp(e->mission_name, GameCfg.LastMission))
                 default_mission = i;
+
+			m[i] = e->mission_disp;
         }
 
         newmenu_listbox1( message, num_missions, m, 1, default_mission, (int (*)(listbox *, d_event *, void *))mission_menu_handler, mm );

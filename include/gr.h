@@ -56,6 +56,7 @@ typedef struct _grs_point {
 #define CC_COLOR_S      "\x1"   //next char is new foreground color
 #define CC_LSPACING_S   "\x2"   //next char specifies line spacing
 #define CC_UNDERLINE_S  "\x3"   //next char is underlined
+#define CC_RIGHT_JUST_S "\x4"	// right justify rest of text (listbox entries only)
 
 #define BM_FLAG_TRANSPARENT         1
 #define BM_FLAG_SUPER_TRANSPARENT   2
