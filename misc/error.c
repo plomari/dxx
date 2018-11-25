@@ -35,7 +35,7 @@ void con_printf(int level, char *fmt, ...)
 	const char *type = "?";
 	switch (level) {
 	case CON_CRITICAL:	type = "CRITICAL"; break;
-	case CON_URGENT:	type = "URGEND"; break;
+	case CON_URGENT:	type = "URGENT"; break;
 	case CON_HUD:		type = "HUD"; break;
 	case CON_NORMAL:	type = NULL; break;
 	case CON_VERBOSE:	type = "V"; break;
