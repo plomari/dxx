@@ -104,7 +104,6 @@ common_sources = [
     'maths/vecmat.c',
     'misc/args.c',
 	'misc/cfile.c',
-    'misc/dl_list.c',
     'misc/error.c',
     'misc/hash.c',
     'misc/strio.c',
