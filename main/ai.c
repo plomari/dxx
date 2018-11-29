@@ -2087,7 +2087,8 @@ void do_boss_stuff(object *objp, int player_visibility)
 
 	boss_id = Robot_info[objp->id].boss_flag;
 
-	Assert((boss_id >= BOSS_D2) && (boss_id < BOSS_D2 + NUM_D2_BOSSES));
+	if (!WARN_IF_FALSE((boss_id >= BOSS_D2) && (boss_id < BOSS_D2 + NUM_D2_BOSSES)))
+		return;
 
 	boss_index = boss_id - BOSS_D2;
 
