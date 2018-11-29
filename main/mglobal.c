@@ -37,10 +37,7 @@ fix GameTime = 0;			//	Time in game, in seconds
 int d_tick_count = 0; // increments every 50ms
 int d_tick_step = 0;  // true once every 50ms
 
-//	This is the global mine which create_new_mine returns.
 segment	Segments[MAX_SEGMENTS];
-segment2	Segment2s[MAX_SEGMENTS];
-//lsegment	Lsegments[MAX_SEGMENTS];
 
 // Number of vertices in current mine (ie, Vertices, pointed to by Vp)
 int		Num_vertices = 0;

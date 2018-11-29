@@ -1170,7 +1170,7 @@ void add_segment_edges(automap *am, segment *seg)
 	int	hidden_flag;
 	int ttype,trigger_num;
 
-	if (Segment2s[segnum].special == SEGMENT_IS_SKYBOX)
+	if (seg->special == SEGMENT_IS_SKYBOX)
 		return;
 	
 	for (sn=0;sn<MAX_SIDES_PER_SEGMENT;sn++) {
@@ -1186,7 +1186,7 @@ void add_segment_edges(automap *am, segment *seg)
 			color = am->wall_normal_color;
 		}
 
-		switch( Segment2s[segnum].special )	{
+		switch( seg->special )	{
 		case SEGMENT_IS_FUELCEN:
 			color = BM_XRGB( 29, 27, 13 );
 			break;

@@ -589,7 +589,7 @@ int exists_in_mine(int start_seg, int objtype, int objid, int special)
 	if (objtype == FUELCEN_CHECK) {
 		for (segindex=0; segindex<length; segindex++) {
 			segnum = bfs_list[segindex];
-			if (Segment2s[segnum].special == SEGMENT_IS_FUELCEN)
+			if (Segments[segnum].special == SEGMENT_IS_FUELCEN)
 				return segnum;
 		}
 	} else {
@@ -610,7 +610,7 @@ int exists_in_mine(int start_seg, int objtype, int objid, int special)
 	//	which the buddybot doesn't understand.
 	if (objtype == FUELCEN_CHECK) {
 		for (segnum=0; segnum<=Highest_segment_index; segnum++)
-			if (Segment2s[segnum].special == SEGMENT_IS_FUELCEN)
+			if (Segments[segnum].special == SEGMENT_IS_FUELCEN)
 				return -2;
 	} else {
 		for (segnum=0; segnum<=Highest_segment_index; segnum++) {
@@ -1172,7 +1172,7 @@ int choose_thief_recreation_segment(void)
 
 	while ((segnum == -1) && (cur_drop_depth > THIEF_DEPTH/2)) {
 		segnum = pick_connected_segment(&Objects[Players[Player_num].objnum], cur_drop_depth);
-		if (Segment2s[segnum].special == SEGMENT_IS_CONTROLCEN)
+		if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN)
 			segnum = -1;
 		cur_drop_depth--;
 	}

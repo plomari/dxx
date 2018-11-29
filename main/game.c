@@ -1055,8 +1055,8 @@ void do_ambient_sounds()
 	int has_water,has_lava;
 	int sound;
 
-	has_lava = (Segment2s[ConsoleObject->segnum].s2_flags & S2F_AMBIENT_LAVA);
-	has_water = (Segment2s[ConsoleObject->segnum].s2_flags & S2F_AMBIENT_WATER);
+	has_lava = (Segments[ConsoleObject->segnum].s2_flags & S2F_AMBIENT_LAVA);
+	has_water = (Segments[ConsoleObject->segnum].s2_flags & S2F_AMBIENT_WATER);
 
 	if (has_lava) {							//has lava
 		sound = SOUND_AMBIENT_LAVA;
@@ -1294,7 +1294,7 @@ void GameProcessFrame(void)
 //!!
 //!!		light = abs(frame - 5) * f1_0 / 5;
 //!!
-//!!		Segment2s[Goal_red_segnum].static_light = Segment2s[Goal_blue_segnum].static_light = light;
+//!!		Segments[Goal_red_segnum].static_light = Segments[Goal_blue_segnum].static_light = light;
 //!!	}
 //!!}
 

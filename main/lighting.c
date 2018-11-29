@@ -640,7 +640,7 @@ g3s_lrgb compute_object_light(object *obj,vms_vector *rotated_pnt)
 	}
 
 	//First, get static (mono) light for this segment
-	light.r = light.g = light.b = Segment2s[obj->segnum].static_light;
+	light.r = light.g = light.b = Segments[obj->segnum].static_light;
 
 	//Now, maybe return different value to smooth transitions
 	if (!reset_lighting_hack && object_sig[objnum] == obj->signature)

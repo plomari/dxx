@@ -661,7 +661,7 @@ static int trace_segs(const vms_vector *p0, int oldsegnum, int recursion_count, 
 
 	centermask = get_side_dists(p0,oldsegnum,side_dists);		//check old segment
 	if (centermask == 0) { // we are in the old segment
-		if (Segment2s[oldsegnum].special != SEGMENT_IS_SKYBOX)
+		if (Segments[oldsegnum].special != SEGMENT_IS_SKYBOX)
 			return oldsegnum; //..say so
 	}
 
@@ -719,7 +719,7 @@ int find_point_seg(const vms_vector *p,int segnum)
 	//	Matt: This really should be fixed, though.  We're probably screwing up our lighting in a few places.
 	if (!Doing_lighting_hack_flag) {
 		for (newseg=0;newseg <= Highest_segment_index;newseg++) {
-			if (Segment2s[newseg].special == SEGMENT_IS_SKYBOX)
+			if (Segments[newseg].special == SEGMENT_IS_SKYBOX)
 				continue;
 			if (get_seg_masks(p, newseg, 0, __FILE__, __LINE__).centermask == 0)
 				return newseg;
@@ -1588,7 +1588,7 @@ static void apply_light_to_segment(struct segment_bit_array *visited, segment *s
 				light_at_point = Magical_light_constant;
 	
 			if (light_at_point >= 0) {
-				segment2	*seg2p	= &Segment2s[segnum];
+				segment	*segp	= &Segments[segnum];
 				light_at_point = fixmul(light_at_point, light_intensity);
 #if 0   // don't see the point, static_light can be greater than F1_0
 				if (light_at_point >= F1_0)
@@ -1596,9 +1596,9 @@ static void apply_light_to_segment(struct segment_bit_array *visited, segment *s
 				if (light_at_point <= -F1_0)
 					light_at_point = -(F1_0-1);
 #endif
-				seg2p->static_light += light_at_point;
-				if (seg2p->static_light < 0)	// if it went negative, saturate
-					seg2p->static_light = 0;
+				segp->static_light += light_at_point;
+				if (segp->static_light < 0)	// if it went negative, saturate
+					segp->static_light = 0;
 			}	//	end if (light_at_point...
 		}	//	end if (dist_to_rseg...
 	}
@@ -1807,20 +1807,19 @@ void set_ambient_sound_flags_common(int tmi_bit, int s2f_bit)
 	//	Additionally flag all segments which are within range of them.
 	for (i=0; i<=Highest_segment_index; i++) {
 		marked_segs[i] = 0;
-		Segment2s[i].s2_flags &= ~s2f_bit;
+		Segments[i].s2_flags &= ~s2f_bit;
 	}
 
 	//	Mark all segments which are sources of the sound.
 	for (i=0; i<=Highest_segment_index; i++) {
 		segment	*segp = &Segments[i];
-		segment2	*seg2p = &Segment2s[i];
 
 		for (j=0; j<MAX_SIDES_PER_SEGMENT; j++) {
 			side	*sidep = &segp->sides[j];
 
 			if ((TmapInfo[sidep->tmap_num].flags & tmi_bit) || (TmapInfo[sidep->tmap_num2 & 0x3fff].flags & tmi_bit)) {
 				if (!IS_CHILD(segp->children[j]) || (sidep->wall_num != -1)) {
-					seg2p->s2_flags |= s2f_bit;
+					segp->s2_flags |= s2f_bit;
 					marked_segs[i] = 1;		//	Say it's itself that it is close enough to to hear something.
 				}
 			}
@@ -1831,16 +1830,16 @@ void set_ambient_sound_flags_common(int tmi_bit, int s2f_bit)
 
 	//	Next mark all segments within N segments of a source.
 	for (i=0; i<=Highest_segment_index; i++) {
-		segment2	*seg2p = &Segment2s[i];
+		segment	*segp = &Segments[i];
 
-		if (seg2p->s2_flags & s2f_bit)
+		if (segp->s2_flags & s2f_bit)
 			ambient_mark_bfs(i, marked_segs, AMBIENT_SEGMENT_DEPTH);
 	}
 
 	//	Now, flip bits in all segments which can hear the ambient sound.
 	for (i=0; i<=Highest_segment_index; i++)
 		if (marked_segs[i])
-			Segment2s[i].s2_flags |= s2f_bit;
+			Segments[i].s2_flags |= s2f_bit;
 
 }
 
@@ -1848,7 +1847,7 @@ void set_ambient_sound_flags_common(int tmi_bit, int s2f_bit)
 //	-----------------------------------------------------------------------------
 //	Indicate all segments which are within audible range of falling water or lava,
 //	and so should hear ambient gurgles.
-//	Bashes values in Segment2s array.
+//	Bashes values in Segments array.
 void set_ambient_sound_flags(void)
 {
 	set_ambient_sound_flags_common(TMI_VOLATILE, S2F_AMBIENT_LAVA);

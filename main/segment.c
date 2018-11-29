@@ -34,7 +34,7 @@ static int map_new_d2x_xl_seg_function(int val)
 /*
  * reads a segment2 structure from a CFILE
  */
-void segment2_read(segment2 *s2, CFILE *fp)
+void segment2_read(segment *s2, CFILE *fp)
 {
 	s2->special = cfile_read_byte(fp);
 	if (Gamesave_current_version < 24) {
@@ -112,7 +112,7 @@ void dl_index_read(dl_index *di, CFILE *fp)
 	di->index = cfile_read_short(fp);
 }
 
-void segment2_write(segment2 *s2, PHYSFS_file *fp)
+void segment2_write(segment *s2, PHYSFS_file *fp)
 {
 	PHYSFSX_writeU8(fp, s2->special);
 	PHYSFSX_writeU8(fp, s2->matcen_num);

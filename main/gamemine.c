@@ -438,16 +438,16 @@ void read_verts(int segnum,CFILE *LoadFile)
 void read_special(int segnum,ubyte bit_mask,CFILE *LoadFile)
 {
 	if (bit_mask & (1 << MAX_SIDES_PER_SEGMENT)) {
-		// Read ubyte	Segment2s[segnum].special
-		Segment2s[segnum].special = cfile_read_byte(LoadFile);
-		// Read byte	Segment2s[segnum].matcen_num
-		Segment2s[segnum].matcen_num = cfile_read_byte(LoadFile);
-		// Read short	Segment2s[segnum].value
-		Segment2s[segnum].value = cfile_read_short(LoadFile);
+		// Read ubyte	Segments[segnum].special
+		Segments[segnum].special = cfile_read_byte(LoadFile);
+		// Read byte	Segments[segnum].matcen_num
+		Segments[segnum].matcen_num = cfile_read_byte(LoadFile);
+		// Read short	Segments[segnum].value
+		Segments[segnum].value = cfile_read_short(LoadFile);
 	} else {
-		Segment2s[segnum].special = 0;
-		Segment2s[segnum].matcen_num = -1;
-		Segment2s[segnum].value = 0;
+		Segments[segnum].special = 0;
+		Segments[segnum].matcen_num = -1;
+		Segments[segnum].value = 0;
 	}
 }
 
@@ -531,7 +531,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		if (Gamesave_current_version <= 5) { // descent 1 thru d2 SHAREWARE level
 			// Read fix	seg->static_light (shift down 5 bits, write as short)
 			temp_ushort = cfile_read_short(LoadFile);
-			Segment2s[segnum].static_light	= ((fix)temp_ushort) << 4;
+			seg->static_light	= ((fix)temp_ushort) << 4;
 			//cfread( &seg->static_light, sizeof(fix), 1, LoadFile );
 		}
 
@@ -697,8 +697,8 @@ int load_mine_data_compiled(CFILE *LoadFile)
 
 	for (i=0; i<Num_segments; i++) {
 		if (Gamesave_current_version > 5)
-			segment2_read(&Segment2s[i], LoadFile);
-		fuelcen_activate( &Segments[i], Segment2s[i].special );
+			segment2_read(&Segments[i], LoadFile);
+		fuelcen_activate( &Segments[i], Segments[i].special );
 	}
 
 	reset_objects(1);		//one object, the player

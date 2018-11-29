@@ -3388,14 +3388,12 @@ void multi_apply_goal_textures()
 {
 	int		i,j,tex;
 	segment	*seg;
-	segment2	*seg2;
 
 	for (i=0; i <= Highest_segment_index; i++)
 	{
 		seg = &Segments[i];
-		seg2 = &Segment2s[i];
 
-		if (seg2->special==SEGMENT_IS_GOAL_BLUE)
+		if (seg->special==SEGMENT_IS_GOAL_BLUE)
 		{
 
 			Goal_blue_segnum = i;
@@ -3413,11 +3411,11 @@ void multi_apply_goal_textures()
 						seg->sides[j].uvls[v].l = i2f(100);		//max out
 				}
 
-			seg2->static_light = i2f(100);	//make static light bright
+			seg->static_light = i2f(100);	//make static light bright
 
 		}
 
-		if (seg2->special==SEGMENT_IS_GOAL_RED)
+		if (seg->special==SEGMENT_IS_GOAL_RED)
 		{
 			Goal_red_segnum = i;
 
@@ -3436,7 +3434,7 @@ void multi_apply_goal_textures()
 						seg->sides[j].uvls[v].l = i2f(1000);		//max out
 				}
 
-			seg2->static_light = i2f(100);	//make static light bright
+			seg->static_light = i2f(100);	//make static light bright
 		}
 	}
 }

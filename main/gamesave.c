@@ -1117,9 +1117,9 @@ int load_game_data(CFILE *LoadFile)
 			matcen_info_read(&RobotCenters[i], LoadFile);
 			//	Set links in RobotCenters to Station array
 			for (j = 0; j <= Highest_segment_index; j++)
-			if (Segment2s[j].special == SEGMENT_IS_ROBOTMAKER)
-				if (Segment2s[j].matcen_num == i)
-					RobotCenters[i].fuelcen_num = Segment2s[j].value;
+			if (Segments[j].special == SEGMENT_IS_ROBOTMAKER)
+				if (Segments[j].matcen_num == i)
+					RobotCenters[i].fuelcen_num = Segments[j].value;
 	}
 
 	//================ READ DL_INDICES INFO ===============
@@ -1246,7 +1246,7 @@ int load_game_data(CFILE *LoadFile)
 
 			switch (Triggers[t].type) {
 			case TT_MATCEN:
-				if (Segment2s[seg_num].special != SEGMENT_IS_ROBOTMAKER)
+				if (Segments[seg_num].special != SEGMENT_IS_ROBOTMAKER)
 					Int3();		//matcen trigger doesn't point to matcen
 				break;
 			case TT_MASTER:
@@ -1302,7 +1302,7 @@ int load_game_data(CFILE *LoadFile)
 	Sky_box_segment = -1;
 	if (Gamesave_current_version >= GAMESAVE_D2X_XL_VERSION) {
 		for (int segnum = 0; segnum <= Highest_segment_index; segnum++) {
-			if (Segment2s[segnum].special == SEGMENT_IS_SKYBOX) {
+			if (Segments[segnum].special == SEGMENT_IS_SKYBOX) {
 				Sky_box_segment = segnum;
 				break;
 			}

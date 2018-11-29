@@ -99,7 +99,6 @@ extern void game_disable_cheats();
 
 // Things to change on next incompatible savegame change:
 // - add a way to save/restore objects in a backward/forward compatible way
-// - merge Segment2s back into Segment
 // - extend D2X-XL fields (especially Segment func/props ones)
 
 #define NUM_SAVES 255

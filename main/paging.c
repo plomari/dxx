@@ -267,9 +267,7 @@ void paging_touch_side( segment * segp, int sidenum )
 
 void paging_touch_robot_maker( segment * segp )
 {
-	segment2	*seg2p = &Segment2s[segp-Segments];
-
-	if ( seg2p->special == SEGMENT_IS_ROBOTMAKER )	{
+	if ( segp->special == SEGMENT_IS_ROBOTMAKER )	{
 		paging_touch_vclip(&Vclip[VCLIP_MORPHING_ROBOT]);
 			int	i;
 			uint	flags;
@@ -277,7 +275,7 @@ void paging_touch_robot_maker( segment * segp )
 
 			for (i=0;i<2;i++) {
 				robot_index = i*32;
-				flags = RobotCenters[seg2p->matcen_num].robot_flags[i];
+				flags = RobotCenters[segp->matcen_num].robot_flags[i];
 				while (flags) {
 					if (flags & 1)	{
 						// Page in robot_index
@@ -295,9 +293,8 @@ void paging_touch_segment(segment * segp)
 {
 	int sn;
 	int objnum;
-	segment2	*seg2p = &Segment2s[segp-Segments];
 
-	if ( seg2p->special == SEGMENT_IS_ROBOTMAKER )	
+	if ( segp->special == SEGMENT_IS_ROBOTMAKER )
 		paging_touch_robot_maker(segp);
 
 //	paging_draw_orb();

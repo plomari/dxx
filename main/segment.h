@@ -79,18 +79,15 @@ typedef struct segment {
 	short   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
 	int     verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
 	int     objects;    // pointer to objects in this segment
-} segment;
-
-#define S2F_AMBIENT_WATER   0x01
-#define S2F_AMBIENT_LAVA    0x02
-
-typedef struct segment2 {
 	ubyte   special;
 	sbyte   matcen_num;
 	sbyte   value;
 	ubyte   s2_flags;
 	fix     static_light;
-} segment2;
+} segment;
+
+#define S2F_AMBIENT_WATER   0x01
+#define S2F_AMBIENT_LAVA    0x02
 
 //values for special field
 #define SEGMENT_IS_NOTHING      0
@@ -146,12 +143,8 @@ typedef struct segment2 {
 // Globals from mglobal.c
 extern vms_vector   Vertices[];
 extern segment      Segments[];
-extern segment2     Segment2s[];
 extern int          Num_segments;
 extern int          Num_vertices;
-
-// Get pointer to the segment2 for the given segment pointer
-#define s2s2(segp) (&Segment2s[(segp) - Segments])
 
 extern const sbyte Side_to_verts[MAX_SIDES_PER_SEGMENT][4];       // Side_to_verts[my_side] is list of vertices forming side my_side.
 extern const int  Side_to_verts_int[MAX_SIDES_PER_SEGMENT][4];    // Side_to_verts[my_side] is list of vertices forming side my_side.
@@ -228,7 +221,7 @@ extern void med_check_all_vertices();
 /*
  * reads a segment2 structure from a CFILE
  */
-void segment2_read(segment2 *s2, CFILE *fp);
+void segment2_read(segment *s2, CFILE *fp);
 
 /*
  * reads a delta_light structure from a CFILE
@@ -240,7 +233,7 @@ void delta_light_read(delta_light *dl, CFILE *fp);
  */
 void dl_index_read(dl_index *di, CFILE *fp);
 
-void segment2_write(segment2 *s2, PHYSFS_file *fp);
+void segment2_write(segment *s2, PHYSFS_file *fp);
 void delta_light_write(delta_light *dl, PHYSFS_file *fp);
 void dl_index_write(dl_index *di, PHYSFS_file *fp);
 
