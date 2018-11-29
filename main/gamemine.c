@@ -504,6 +504,8 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	for (segnum=0; segnum<Num_segments; segnum++ )	{
 		segment *seg = &Segments[segnum];
 
+		*seg = (segment){.objects = -1};
+
 		if (Gamesave_current_version >= GAMESAVE_D2X_XL_VERSION) {
 			cfile_read_byte(LoadFile); // m_owner
 			cfile_read_byte(LoadFile); // m_group
@@ -525,8 +527,6 @@ int load_mine_data_compiled(CFILE *LoadFile)
 				read_special(segnum,bit_mask,LoadFile);
 			}
 		}
-
-		seg->objects = -1;
 
 		if (Gamesave_current_version <= 5) { // descent 1 thru d2 SHAREWARE level
 			// Read fix	seg->static_light (shift down 5 bits, write as short)
@@ -612,14 +612,6 @@ int load_mine_data_compiled(CFILE *LoadFile)
 					temp_ushort = cfile_read_short(LoadFile);
 					sidep->uvls[i].l = ((fix)temp_ushort) * (1 << 1);
 					//cfread( &sidep->uvls[i].l, sizeof(fix), 1, LoadFile );
-				}
-			} else {
-				sidep->tmap_num = 0;
-				sidep->tmap_num2 = 0;
-				for (i=0; i<4; i++ )	{
-					sidep->uvls[i].u = 0;
-					sidep->uvls[i].v = 0;
-					sidep->uvls[i].l = 0;
 				}
 			}
 		}
