@@ -23,10 +23,19 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 #include "pstypes.h"
 
-void Warning(char *fmt,...) PRINTF_FORMAT(1, 2);				//print out warning message to user
-void Error(const char *fmt,...) NORETURN PRINTF_FORMAT(1, 2);				//exit with error code=1, print message
+// print out warning message to user
+void Warning(char *fmt,...) PRINTF_FORMAT(1, 2);
 
+// print message, call exit(1)
+void Error(const char *fmt,...) NORETURN PRINTF_FORMAT(1, 2);
+
+// Log unexpected situation. Non-fatal (used to act as break point in debuggers).
 #define Int3() do { fprintf(stderr, "%s:%d(%s): Int3\n", __FILE__, __LINE__, __func__); } while(0)
+
+// Log unexpected situation if !expr. Non-fatal. Use standard assert() for real asserts.
 #define Assert(expr) ((expr)?(void)0:(void)fprintf(stderr,"%s:%d(%s): Assert(%s)\n",__FILE__,__LINE__,__func__,#expr))
+
+// Log unexpected situation if !expr. Returns expr.
+#define WARN_IF_FALSE(expr) (((expr)?(void)0:(void)fprintf(stderr,"%s:%d(%s): expected (%s)\n",__FILE__,__LINE__,__func__,#expr)), (expr))
 
 #endif /* _ERROR_H */
