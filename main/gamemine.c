@@ -542,8 +542,8 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
 			side *sidep = &seg->sides[sidenum];
 
+			int wallnum = -1;
 			if (bit_mask & (1 << sidenum)) {
-				int wallnum;
 				if (Gamesave_current_version >= 13) {
 					wallnum = (uint16_t)cfile_read_short(LoadFile);
 					if (wallnum > SHRT_MAX)
@@ -556,9 +556,8 @@ int load_mine_data_compiled(CFILE *LoadFile)
 					if (wallnum == 255)
 						wallnum = -1;
 				}
-				sidep->wall_num = wallnum;
-			} else
-					sidep->wall_num = -1;
+			}
+			sidep->wall_num = wallnum;
 		}
 
 		bool vert_used[MAX_VERTICES_PER_SEGMENT] = {0};
