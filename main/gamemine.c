@@ -502,6 +502,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		cfile_read_vector( &(Vertices[i]), LoadFile);
 
 	for (segnum=0; segnum<Num_segments; segnum++ )	{
+		segment *seg = &Segments[segnum];
 
 		if (Gamesave_current_version >= GAMESAVE_D2X_XL_VERSION) {
 			cfile_read_byte(LoadFile); // m_owner
@@ -564,10 +565,24 @@ int load_mine_data_compiled(CFILE *LoadFile)
 					Segments[segnum].sides[sidenum].wall_num = -1;
 		}
 
+		bool vert_used[MAX_VERTICES_PER_SEGMENT] = {0};
+		bool has_corners = Gamesave_current_version > 24;
+
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
-			if (Gamesave_current_version > 24) {
-				for (int n = 0; n < 4; n++)
-					cfile_read_byte(LoadFile); // m_corners
+			if (has_corners) {
+				int num_corners = 0;
+				for (int n = 0; n < 4; n++) {
+					ubyte corner = cfile_read_byte(LoadFile);
+					if (corner != 0xFF) {
+						if (WARN_IF_FALSE(corner < MAX_VERTICES_PER_SEGMENT))
+							vert_used[corner] = true;
+						num_corners++;
+					}
+				}
+				if (num_corners != 4) {
+					printf("D2X-XL: unsupported reduced shape at segment %d side %d, "
+					       "attempting ugly looking workaround\n", segnum, sidenum);
+				}
 			}
 
 			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
@@ -610,6 +625,50 @@ int load_mine_data_compiled(CFILE *LoadFile)
 				}
 			}
 		}
+
+		for (int n = 0; n < MAX_VERTICES_PER_SEGMENT; n++) {
+			if (vert_used[n] || !has_corners)
+				continue;
+			// D2X-XL per side vertex lists (reduced shapes) lead to unused
+			// segment vertexes. These are either set to dummy values (vertexes
+			// not even close to the segment), or invalid values (out of range).
+			// (Worth noting that these are functionally different, as plain
+			// invalid values are used by D2X-XL to determine the "shape" of
+			// segments.)
+			// We don't want to change the rest of the game to deal with this
+			// obscure corner case. Instead, try to achieve roughly the same
+			// by adding the missing vertexes, resulting in degenerate sides.
+
+			int neigh = -1;
+			for (int i = 0; i < MAX_SIDES_PER_SEGMENT; i++) {
+				for (int x = 0; x < 4; x++) {
+					if (Side_to_verts[i][x] == n) {
+						// The vertex n should have been used by side i. Find a
+						// defined neighboring vertex (neigh).
+						for (int d = 1; d < 4; d++) {
+							int t = Side_to_verts[i][(x + d) % 4];
+							if (vert_used[t]) {
+								neigh = t;
+								goto found;
+							}
+						}
+					}
+				}
+			}
+
+		found:
+
+			if (neigh >= 0 && WARN_IF_FALSE(Num_vertices < MAX_VERTICES)) {
+				Vertices[Num_vertices] = Vertices[seg->verts[neigh]];
+				seg->verts[n] = Num_vertices;
+				Num_vertices++;
+			} else {
+				seg->verts[n] = 0; // better than crashing
+			}
+		}
+
+		for (int n = 0; n < MAX_VERTICES_PER_SEGMENT; n++)
+			Assert(seg->verts[n] >= 0 && seg->verts[n] < Num_vertices);
 	}
 
 #if 0
