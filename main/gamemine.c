@@ -432,7 +432,7 @@ void read_verts(int segnum,CFILE *LoadFile)
 	int i;
 	// Read short Segments[segnum].verts[MAX_VERTICES_PER_SEGMENT]
 	for (i = 0; i < MAX_VERTICES_PER_SEGMENT; i++)
-		Segments[segnum].verts[i] = cfile_read_short(LoadFile);
+		Segments[segnum].verts[i] = (uint16_t)cfile_read_short(LoadFile);
 }
 
 void read_special(int segnum,ubyte bit_mask,CFILE *LoadFile)
