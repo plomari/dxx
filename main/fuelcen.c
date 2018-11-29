@@ -105,26 +105,15 @@ void fuelcen_create( segment *segp)
 	case SEGMENT_IS_ROBOTMAKER:
 		break;
 	// D2X-XL
-	case SEGMENT_IS_WATER:
-	case SEGMENT_IS_LAVA:
 	case SEGMENT_IS_TEAM_BLUE:
 	case SEGMENT_IS_TEAM_RED:
+	case SEGMENT_IS_SKYBOX:
 		return;
 	case SEGMENT_IS_SPEEDBOOST:
 		printf("D2X-XL: ignoring speedboost segment\n");
 		return;
-	case SEGMENT_IS_BLOCKED:
-		printf("D2X-XL: ignoring blocked segment\n");
-		return;
-	case SEGMENT_IS_NODAMAGE:
-		printf("D2X-XL: ignoring nodamage segment\n");
-		return;
-	case SEGMENT_IS_SKYBOX:
-		return;
 	case SEGMENT_IS_EQUIPMAKER:
 		printf("D2X-XL: ignoring equipmaker segment\n");
-		return;
-	case SEGMENT_IS_LIGHT_SELF:
 		return;
 	default:
 		Error( "Invalid station type %d in fuelcen.c\n", station_type );

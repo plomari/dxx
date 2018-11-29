@@ -81,8 +81,6 @@ void fuelcen_damage(segment *segp, fix AmountOfDamage );
 
 #define MAX_NUM_FUELCENS    500
 
-extern char Special_names[MAX_CENTER_TYPES][11];
-
 //--repair-- //do the repair center for this frame
 //--repair-- void do_repair_sequence(object *obj);
 //--repair--

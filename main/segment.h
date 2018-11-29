@@ -79,15 +79,21 @@ typedef struct segment {
 	short   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
 	int     verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
 	int     objects;    // pointer to objects in this segment
-	ubyte   special;
+	ubyte   special;	// one of SEGMENT_IS_* values (D2X-XL: m_function)
 	sbyte   matcen_num;
 	sbyte   value;
-	ubyte   s2_flags;
+	ubyte   s2_flags;	// S2F_* flags (D2X-XL: m_prop)
 	fix     static_light;
 } segment;
 
+// Note: overlaps with SEGMENT_PROP_*, must not conflict
 #define S2F_AMBIENT_WATER   0x01
 #define S2F_AMBIENT_LAVA    0x02
+#define S2F_BLOCKED			4
+#define S2F_NODAMAGE		8
+#define S2F_OUTDOORS		16
+#define S2F_LIGHT_FOG		32
+#define S2F_DENSE_FOG		64
 
 //values for special field
 #define SEGMENT_IS_NOTHING      0
@@ -97,18 +103,16 @@ typedef struct segment {
 #define SEGMENT_IS_ROBOTMAKER   4
 #define SEGMENT_IS_GOAL_BLUE    5
 #define SEGMENT_IS_GOAL_RED     6
-// D2X-XL
-#define SEGMENT_IS_WATER		7
-#define SEGMENT_IS_LAVA			8
-#define SEGMENT_IS_TEAM_BLUE	9
-#define SEGMENT_IS_TEAM_RED		10
-#define SEGMENT_IS_SPEEDBOOST	11
-#define SEGMENT_IS_BLOCKED		12
-#define SEGMENT_IS_NODAMAGE		13
-#define SEGMENT_IS_SKYBOX		14
-#define SEGMENT_IS_EQUIPMAKER	15
-#define SEGMENT_IS_LIGHT_SELF	16
-#define MAX_CENTER_TYPES        17
+// D2X-XL (the d2x-xl source code calls them SEGMENT_FUNC_*)
+// D2X-XL rl2 level versions 20 and lower: the source code uses SEGMENT_IS_*
+//    values, which are _not_ the same as here.
+// D2X-XL rl2 level versions 21 and higher: essentially renamed to
+//    SEGMENT_FUNC_*, and these values must match with the SEGMENT_FUNC_* ones.
+#define SEGMENT_IS_TEAM_BLUE	7
+#define SEGMENT_IS_TEAM_RED		8
+#define SEGMENT_IS_SPEEDBOOST	9
+#define SEGMENT_IS_SKYBOX		10
+#define SEGMENT_IS_EQUIPMAKER	11
 
 // D2X-XL (rl2 level versions 21 and higher)
 #define SEGMENT_FUNC_NONE			0
@@ -123,7 +127,6 @@ typedef struct segment {
 #define SEGMENT_FUNC_SPEEDBOOST		9
 #define SEGMENT_FUNC_SKYBOX			10
 #define SEGMENT_FUNC_EQUIPMAKER		11
-#define MAX_SEGMENT_FUNCTIONS		12
 #define SEGMENT_PROP_NONE			0
 #define SEGMENT_PROP_WATER			1
 #define SEGMENT_PROP_LAVA			2
@@ -132,13 +135,6 @@ typedef struct segment {
 #define SEGMENT_PROP_OUTDOORS		16
 #define SEGMENT_PROP_LIGHT_FOG		32
 #define SEGMENT_PROP_DENSE_FOG		64
-
-// Local segment data.
-// This is stuff specific to a segment that does not need to get
-// written to disk.  This is a handy separation because we can add to
-// this structure without obsoleting existing data on disk.
-
-#define SS_REPAIR_CENTER    0x01    // Bitmask for this segment being part of repair center.
 
 // Globals from mglobal.c
 extern vms_vector   Vertices[];

@@ -10,25 +10,37 @@
 #include "cfile.h"
 #include "gamesave.h"
 
-static int map_new_d2x_xl_seg_function(int val)
+// Map back v20 or earlier D2X-XL extended segment types.
+static const int old_d2x_xl_conv[][2] = {
+	[7  - 7] = {0, 						S2F_AMBIENT_WATER},	// old SEGMENT_IS_WATER
+	[8  - 7] = {0, 						S2F_AMBIENT_LAVA}, 	// old SEGMENT_IS_LAVA
+	[9  - 7] = {SEGMENT_IS_TEAM_BLUE, 	0}, 				// old SEGMENT_IS_TEAM_BLUE
+	[10 - 7] = {SEGMENT_IS_TEAM_RED, 	0}, 				// old SEGMENT_IS_TEAM_RED
+	[11 - 7] = {SEGMENT_IS_SPEEDBOOST, 	0}, 				// old SEGMENT_IS_SPEEDBOOST
+	[12 - 7] = {0, 						S2F_BLOCKED}, 		// old SEGMENT_IS_BLOCKED
+	[13 - 7] = {0, 						S2F_NODAMAGE}, 		// old SEGMENT_IS_NODAMAGE
+	[14 - 7] = {SEGMENT_IS_SKYBOX, 		S2F_BLOCKED}, 		// old SEGMENT_IS_SKYBOX
+	[15 - 7] = {SEGMENT_IS_EQUIPMAKER, 	0}, 				// old SEGMENT_IS_EQUIPMAKER
+	[16 - 7] = {0, 						S2F_OUTDOORS}, 		// old SEGMENT_IS_LIGHT_SELF
+};
+
+// Similar to d2x-xl source code CSegment::Upgrade().
+static void fix_old_d2x_xl_segment_special(segment *s)
 {
-	switch (val) {
-	case SEGMENT_FUNC_NONE:				return SEGMENT_IS_NOTHING;
-	case SEGMENT_FUNC_FUELCENTER:		return SEGMENT_IS_FUELCEN;
-	case SEGMENT_FUNC_REPAIRCENTER:		return SEGMENT_IS_REPAIRCEN;
-	case SEGMENT_FUNC_REACTOR:			return SEGMENT_IS_CONTROLCEN;
-	case SEGMENT_FUNC_ROBOTMAKER:		return SEGMENT_IS_ROBOTMAKER;
-	case SEGMENT_FUNC_GOAL_BLUE:		return SEGMENT_IS_GOAL_BLUE;
-	case SEGMENT_FUNC_GOAL_RED:			return SEGMENT_IS_GOAL_RED;
-	case SEGMENT_FUNC_TEAM_BLUE:		return SEGMENT_IS_TEAM_BLUE;
-	case SEGMENT_FUNC_TEAM_RED:			return SEGMENT_IS_TEAM_RED;
-	case SEGMENT_FUNC_SPEEDBOOST:		return SEGMENT_IS_SPEEDBOOST;
-	case SEGMENT_FUNC_SKYBOX:			return SEGMENT_IS_SKYBOX;
-	case SEGMENT_FUNC_EQUIPMAKER:		return SEGMENT_IS_EQUIPMAKER;
-	default:
-		printf("D2X-XL: warning: unknown m_function==%d\n", val);
-		return 0;
-	}
+	if (s->special < 7)
+		return;
+
+	(void)WARN_IF_FALSE(Gamesave_current_version >= GAMESAVE_D2X_XL_VERSION);
+	Assert(Gamesave_current_version <= 20);
+
+	ubyte val = s->special - 7;
+	s->special = 0;
+
+	if (!WARN_IF_FALSE(val < ARRAY_ELEMS(old_d2x_xl_conv)))
+		return;
+
+	s->special = old_d2x_xl_conv[val][0];
+	s->s2_flags |= old_d2x_xl_conv[val][1];
 }
 
 /*
@@ -55,33 +67,16 @@ void segment2_read(segment *s2, CFILE *fp)
 		}
 		s2->value = v;
 	}
-	s2->s2_flags = cfile_read_byte(fp);
+	// (D2X-XL levels, e.g. Anthology, have extra bits with unknown purpose)
+	s2->s2_flags = (ubyte)cfile_read_byte(fp) & 3u;
 	if (Gamesave_current_version > 20) {
 		// D2X stuff
-		int props = cfile_read_byte(fp);
+		// We reuse s2_flags for what D2X-XL calls m_prop
+		s2->s2_flags |= (ubyte)cfile_read_byte(fp);
 		cfile_read_short(fp); // m_xDamage [0]
 		cfile_read_short(fp); // m_xDamage [1]
-		// See d2x-xl source code CSegment::Upgrade(). Internally, D2X-XL just
-		// stores m_props and m_function, which are derived from s2->special.
-		// For older file formats, it maps them from s2->special. We don't have
-		// separate m_props/m_function, so we do the _reverse_. We essentially
-		// ignore m_props anyway, so the main thing we need to do is to map
-		// back D2X-XL's "new" m_function to the old values.
-		s2->special = map_new_d2x_xl_seg_function(s2->special);
-		if (props & SEGMENT_PROP_NODAMAGE) {
-			if (s2->special) {
-				printf("D2X-XL: discarding NODAMAGE (function already used)\n");
-			} else {
-				s2->special = SEGMENT_IS_NODAMAGE;
-			}
-		}
-		if (props & SEGMENT_PROP_BLOCKED) {
-			if (s2->special) {
-				printf("D2X-XL: discarding BLOCKED (function already used)\n");
-			} else {
-				s2->special = SEGMENT_IS_BLOCKED;
-			}
-		}
+	} else {
+		fix_old_d2x_xl_segment_special(s2);
 	}
 	s2->static_light = cfile_read_fix(fp);
 }

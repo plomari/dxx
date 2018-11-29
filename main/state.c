@@ -99,7 +99,6 @@ extern void game_disable_cheats();
 
 // Things to change on next incompatible savegame change:
 // - add a way to save/restore objects in a backward/forward compatible way
-// - extend D2X-XL fields (especially Segment func/props ones)
 
 #define NUM_SAVES 255
 #define THUMBNAIL_W 100
