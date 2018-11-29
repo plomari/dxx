@@ -535,11 +535,6 @@ int load_mine_data_compiled(CFILE *LoadFile)
 			//cfread( &seg->static_light, sizeof(fix), 1, LoadFile );
 		}
 
-		// Read the walls as a 6 byte array
-		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
-			Segments[segnum].sides[sidenum].pad = 0;
-		}
-
 		if (New_file_format_load)
 			bit_mask = cfile_read_byte(LoadFile);
 		else

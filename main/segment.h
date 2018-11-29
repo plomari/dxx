@@ -67,7 +67,6 @@ typedef struct uvl {
 
 typedef struct side {
 	sbyte   type;           // replaces num_faces and tri_edge, 1 = quad, 2 = 0:2 triangulation, 3 = 1:3 triangulation
-	ubyte   pad;            //keep us longword alligned
 	short   wall_num;
 	short   tmap_num;
 	short   tmap_num2;
