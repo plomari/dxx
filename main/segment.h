@@ -80,7 +80,6 @@ typedef struct segment {
 	short   children[MAX_SIDES_PER_SEGMENT];    // indices of 6 children segments, front, left, top, right, bottom, back
 	int     verts[MAX_VERTICES_PER_SEGMENT];    // vertex ids of 4 front and 4 back vertices
 	int     objects;    // pointer to objects in this segment
-	int     degenerated; // true if this segment has gotten turned inside out, or something.
 } segment;
 
 #define S2F_AMBIENT_WATER   0x01
