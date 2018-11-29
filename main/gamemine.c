@@ -526,13 +526,13 @@ int load_mine_data_compiled(CFILE *LoadFile)
 			}
 		}
 
-		Segments[segnum].objects = -1;
+		seg->objects = -1;
 
 		if (Gamesave_current_version <= 5) { // descent 1 thru d2 SHAREWARE level
-			// Read fix	Segments[segnum].static_light (shift down 5 bits, write as short)
+			// Read fix	seg->static_light (shift down 5 bits, write as short)
 			temp_ushort = cfile_read_short(LoadFile);
 			Segment2s[segnum].static_light	= ((fix)temp_ushort) << 4;
-			//cfread( &Segments[segnum].static_light, sizeof(fix), 1, LoadFile );
+			//cfread( &seg->static_light, sizeof(fix), 1, LoadFile );
 		}
 
 		// Read the walls as a 6 byte array
@@ -545,6 +545,7 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		else
 			bit_mask = 0x3f; // read all six sides
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++) {
+			side *sidep = &seg->sides[sidenum];
 
 			if (bit_mask & (1 << sidenum)) {
 				int wallnum;
@@ -560,15 +561,17 @@ int load_mine_data_compiled(CFILE *LoadFile)
 					if (wallnum == 255)
 						wallnum = -1;
 				}
-				Segments[segnum].sides[sidenum].wall_num = wallnum;
+				sidep->wall_num = wallnum;
 			} else
-					Segments[segnum].sides[sidenum].wall_num = -1;
+					sidep->wall_num = -1;
 		}
 
 		bool vert_used[MAX_VERTICES_PER_SEGMENT] = {0};
 		bool has_corners = Gamesave_current_version > 24;
 
 		for (sidenum=0; sidenum<MAX_SIDES_PER_SEGMENT; sidenum++ )	{
+			side *sidep = &seg->sides[sidenum];
+
 			if (has_corners) {
 				int num_corners = 0;
 				for (int n = 0; n < 4; n++) {
@@ -585,43 +588,43 @@ int load_mine_data_compiled(CFILE *LoadFile)
 				}
 			}
 
-			if ( (Segments[segnum].children[sidenum]==-1) || (Segments[segnum].sides[sidenum].wall_num!=-1) )	{
-				// Read short Segments[segnum].sides[sidenum].tmap_num;
+			if ( (seg->children[sidenum]==-1) || (sidep->wall_num!=-1) )	{
+				// Read short sidep->tmap_num;
 				if (New_file_format_load) {
 					temp_ushort = cfile_read_short(LoadFile);
-					Segments[segnum].sides[sidenum].tmap_num = temp_ushort & 0x7fff;
+					sidep->tmap_num = temp_ushort & 0x7fff;
 				} else
-					Segments[segnum].sides[sidenum].tmap_num = cfile_read_short(LoadFile);
+					sidep->tmap_num = cfile_read_short(LoadFile);
 
 				if (Gamesave_current_version <= 1)
-					Segments[segnum].sides[sidenum].tmap_num = convert_d1_tmap_num(Segments[segnum].sides[sidenum].tmap_num);
+					sidep->tmap_num = convert_d1_tmap_num(sidep->tmap_num);
 
 				if (New_file_format_load && !(temp_ushort & 0x8000))
-					Segments[segnum].sides[sidenum].tmap_num2 = 0;
+					sidep->tmap_num2 = 0;
 				else {
-					// Read short Segments[segnum].sides[sidenum].tmap_num2;
-					Segments[segnum].sides[sidenum].tmap_num2 = cfile_read_short(LoadFile);
-					if (Gamesave_current_version <= 1 && Segments[segnum].sides[sidenum].tmap_num2 != 0)
-						Segments[segnum].sides[sidenum].tmap_num2 = convert_d1_tmap_num(Segments[segnum].sides[sidenum].tmap_num2);
+					// Read short sidep->tmap_num2;
+					sidep->tmap_num2 = cfile_read_short(LoadFile);
+					if (Gamesave_current_version <= 1 && sidep->tmap_num2 != 0)
+						sidep->tmap_num2 = convert_d1_tmap_num(sidep->tmap_num2);
 				}
 
-				// Read uvl Segments[segnum].sides[sidenum].uvls[4] (u,v>>5, write as short, l>>1 write as short)
+				// Read uvl sidep->uvls[4] (u,v>>5, write as short, l>>1 write as short)
 				for (i=0; i<4; i++ )	{
 					temp_short = cfile_read_short(LoadFile);
-					Segments[segnum].sides[sidenum].uvls[i].u = ((fix)temp_short) * (1 << 5);
+					sidep->uvls[i].u = ((fix)temp_short) * (1 << 5);
 					temp_short = cfile_read_short(LoadFile);
-					Segments[segnum].sides[sidenum].uvls[i].v = ((fix)temp_short) * (1 << 5);
+					sidep->uvls[i].v = ((fix)temp_short) * (1 << 5);
 					temp_ushort = cfile_read_short(LoadFile);
-					Segments[segnum].sides[sidenum].uvls[i].l = ((fix)temp_ushort) * (1 << 1);
-					//cfread( &Segments[segnum].sides[sidenum].uvls[i].l, sizeof(fix), 1, LoadFile );
+					sidep->uvls[i].l = ((fix)temp_ushort) * (1 << 1);
+					//cfread( &sidep->uvls[i].l, sizeof(fix), 1, LoadFile );
 				}
 			} else {
-				Segments[segnum].sides[sidenum].tmap_num = 0;
-				Segments[segnum].sides[sidenum].tmap_num2 = 0;
+				sidep->tmap_num = 0;
+				sidep->tmap_num2 = 0;
 				for (i=0; i<4; i++ )	{
-					Segments[segnum].sides[sidenum].uvls[i].u = 0;
-					Segments[segnum].sides[sidenum].uvls[i].v = 0;
-					Segments[segnum].sides[sidenum].uvls[i].l = 0;
+					sidep->uvls[i].u = 0;
+					sidep->uvls[i].v = 0;
+					sidep->uvls[i].l = 0;
 				}
 			}
 		}
