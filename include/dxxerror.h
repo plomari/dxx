@@ -37,5 +37,6 @@ void Error(const char *fmt,...) NORETURN PRINTF_FORMAT(1, 2);
 
 // Log unexpected situation if !expr. Returns expr.
 #define WARN_IF_FALSE(expr) (((expr)?(void)0:(void)fprintf(stderr,"%s:%d(%s): expected (%s)\n",__FILE__,__LINE__,__func__,#expr)), (expr))
+#define WARN_ON(expr) (((!(expr))?(void)0:(void)fprintf(stderr,"%s:%d(%s): unexpected (%s)\n",__FILE__,__LINE__,__func__,#expr)), (expr))
 
 #endif /* _ERROR_H */

@@ -36,7 +36,7 @@ static void fix_old_d2x_xl_segment_special(segment *s)
 	ubyte val = s->special - 7;
 	s->special = 0;
 
-	if (!WARN_IF_FALSE(val < ARRAY_ELEMS(old_d2x_xl_conv)))
+	if (WARN_ON(val >= ARRAY_ELEMS(old_d2x_xl_conv)))
 		return;
 
 	s->special = old_d2x_xl_conv[val][0];
