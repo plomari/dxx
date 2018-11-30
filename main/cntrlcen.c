@@ -240,6 +240,19 @@ void do_controlcen_destroyed_stuff(object *objp)
    if ((Game_mode & GM_MULTI_ROBOTS) && Control_center_destroyed)
     return; // Don't allow resetting if control center and boss on same level
 
+    if (objp)
+		Assert(Robot_info[objp->id].boss_flag);
+    // In D2X-XL mode, the boss dies only if all bosses have been destroyed.
+    if (objp && Robot_info[objp->id].boss_flag && is_d2x_xl_level()) {
+		for (int i = 0; i <= Highest_object_index; i++) {
+			object *other = &Objects[i];
+ 			if (other != objp && other->type == OBJ_ROBOT &&
+				Robot_info[other->id].boss_flag &&
+				!(other->flags & (OF_EXPLODING | OF_DESTROYED | OF_SHOULD_BE_DEAD)))
+				return;
+		}
+	}
+
 	// Must toggle walls whether it is a boss or control center.
 	for (i=0;i<ControlCenterTriggers.num_links;i++)
 		wall_toggle(ControlCenterTriggers.seg[i], ControlCenterTriggers.side[i]);
@@ -262,14 +275,8 @@ void do_controlcen_destroyed_stuff(object *objp)
 
 	Countdown_timer = i2f(Total_countdown_time);
 
-	if (!Control_center_present || objp==NULL) {
-		//Assert(objp == NULL);
-		return;
-	}
-
-	//Assert(objp != NULL);
-
-	Dead_controlcen_object_num = objp-Objects;
+	if (Control_center_present && objp && objp->type == OBJ_CNTRLCEN)
+		Dead_controlcen_object_num = objp-Objects;
 }
 
 int	Last_time_cc_vis_check = 0;

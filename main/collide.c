@@ -1341,9 +1341,7 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 		Players[Player_num].num_kills_level++;
 		Players[Player_num].num_kills_total++;
 
-		if (Robot_info[robot->id].boss_flag) {
-			start_boss_death_sequence(robot);	//do_controlcen_destroyed_stuff(NULL);
-		} else if (Robot_info[robot->id].death_roll) {
+		if (Robot_info[robot->id].death_roll || Robot_info[robot->id].boss_flag) {
 			start_robot_death_sequence(robot);	//do_controlcen_destroyed_stuff(NULL);
 		} else {
 			if (robot->id == SPECIAL_REACTOR_ROBOT)

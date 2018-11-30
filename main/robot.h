@@ -106,6 +106,7 @@ typedef struct robot_info {
 	ubyte   taunt_sound;    //  sound robot makes after you die
 
 	sbyte   boss_flag;      //  0 = not boss, 1 = boss.  Is that surprising?
+	bool 	ends_level;		//  if true, destroying this starts endlevel countdown
 	sbyte   companion;      //  Companion robot, leads you to things.
 	sbyte   smart_blobs;    //  how many smart blobs are emitted when this guy dies!
 	sbyte   energy_blobs;   //  how many smart blobs are emitted when this guy gets hit by energy weapon!
@@ -129,7 +130,7 @@ typedef struct robot_info {
 
 	int     always_0xabcd;      // debugging
 
-} __pack__ robot_info;
+} robot_info;
 
 
 #define MAX_ROBOT_TYPES 85      // maximum number of robot types

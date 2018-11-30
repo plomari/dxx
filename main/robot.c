@@ -291,6 +291,10 @@ int robot_info_read_n(robot_info *ri, int n, CFILE *fp)
 		ri[i].taunt_sound = cfile_read_byte(fp);
 
 		ri[i].boss_flag = cfile_read_byte(fp);
+		ri[i].ends_level = ri[i].boss_flag > 0;
+		if (ri[i].boss_flag < 0)
+			ri[i].boss_flag = -ri[i].boss_flag;
+
 		ri[i].companion = cfile_read_byte(fp);
 		ri[i].smart_blobs = cfile_read_byte(fp);
 		ri[i].energy_blobs = cfile_read_byte(fp);

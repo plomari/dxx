@@ -33,6 +33,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "inferno.h"
 #include "game.h"
+#include "gamesave.h"
 #include "key.h"
 #include "object.h"
 #include "physics.h"
@@ -1631,4 +1632,9 @@ void flickering_light_write(flickering_light *fl, PHYSFS_file *fp)
 	PHYSFS_writeULE32(fp, fl->mask);
 	PHYSFSX_writeFix(fp, fl->timer);
 	PHYSFSX_writeFix(fp, fl->delay);
+}
+
+bool is_d2x_xl_level(void)
+{
+	return Gamesave_current_version >= GAMESAVE_D2X_XL_VERSION;
 }

@@ -122,9 +122,7 @@ fix             Boss_cloak_interval = F1_0*10;                    //    Time bet
 fix             Boss_cloak_duration = BOSS_CLOAK_DURATION;
 fix             Last_gate_time = 0;
 fix             Gate_interval = F1_0*6;
-fix             Boss_dying_start_time;
 fix             Boss_hit_time;
-sbyte           Boss_dying, Boss_dying_sound_playing, unused123, unused234;
 
 // -- ubyte Boss_cloaks[NUM_D2_BOSSES]              = {1,1,1,1,1,1};      // Set byte if this boss can cloak
 
@@ -367,8 +365,6 @@ void init_ai_objects(void)
 			init_ai_object(i, objp->ctype.ai_info.behavior, objp->ctype.ai_info.hide_segment);
 	}
 
-	Boss_dying_sound_playing = 0;
-	Boss_dying = 0;
 	// -- unused! MK, 10/21/95 -- Boss_been_hit = 0;
 	Gate_interval = F1_0*4 - Difficulty_level*i2f(2)/3;
 
@@ -907,11 +903,6 @@ void ai_fire_laser_at_player(object *obj, vms_vector *fire_point, int gun_num, v
 
 	if (obj->ctype.ai_info.dying_start_time)
 		return;		//	No firing while in death roll.
-
-	//	Don't let the boss fire while in death roll.  Sorry, this is the easiest way to do this.
-	//	If you try to key the boss off obj->ctype.ai_info.dying_start_time, it will hose the endlevel stuff.
-	if (Boss_dying_start_time & Robot_info[obj->id].boss_flag)
-		return;
 
 	//	If player is cloaked, maybe don't fire based on how long cloaked and randomness.
 	if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
@@ -1910,16 +1901,6 @@ void teleport_boss(object *objp)
 	boss_link_see_sound(objp);
 }
 
-//	----------------------------------------------------------------------
-void start_boss_death_sequence(object *objp)
-{
-	if (Robot_info[objp->id].boss_flag) {
-		Boss_dying = 1;
-		Boss_dying_start_time = GameTime;
-	}
-
-}
-
 //	----------------------------------------------------------------------------------------------------------
 //	objp points at a boss.  He was presumably just hit and he's supposed to create a bot at the hit location *pos.
 int boss_spew_robot(object *objp, vms_vector *pos)
@@ -1975,6 +1956,26 @@ void init_ai_for_ship(void)
 	}
 }
 
+// Killing a single boss starts dying sequence for _all_ bosses. Also, death
+// rolls in progress are restarted. (The original code shares dying_start_time
+// across all bosses.)
+static void restart_multiboss_dying(fix time)
+{
+	// Except in D2X-XL: multiple bosses are always independent, so don't
+	// emulate D2 glitches.
+	if (is_d2x_xl_level())
+		return;
+
+	for (int i = 0; i <= Highest_object_index; i++) {
+		object *objp = &Objects[i];
+		if (objp->type == OBJ_ROBOT && Robot_info[objp->id].boss_flag) {
+			objp->ctype.ai_info.dying_start_time = time;
+			objp->ctype.ai_info.dying_sound_playing = 0;
+			objp->ctype.ai_info.SKIP_AI_COUNT = 0;
+		}
+	}
+}
+
 //	----------------------------------------------------------------------
 void start_robot_death_sequence(object *objp)
 {
@@ -1982,6 +1983,8 @@ void start_robot_death_sequence(object *objp)
 	objp->ctype.ai_info.dying_sound_playing = 0;
 	objp->ctype.ai_info.SKIP_AI_COUNT = 0;
 
+	if (Robot_info[objp->id].boss_flag)
+		restart_multiboss_dying(objp->ctype.ai_info.dying_start_time);
 }
 
 //	----------------------------------------------------------------------
@@ -2016,34 +2019,32 @@ int do_robot_dying_frame(object *objp, fix start_time, fix roll_duration, sbyte 
 }
 
 //	----------------------------------------------------------------------
-void do_boss_dying_frame(object *objp)
-{
-	int	rval;
-
-	rval = do_robot_dying_frame(objp, Boss_dying_start_time, BOSS_DEATH_DURATION, &Boss_dying_sound_playing, Robot_info[objp->id].deathroll_sound, F1_0*4, F1_0*4);
-
-	if (rval) {
-		Boss_dying_start_time=GameTime; // make sure following only happens one time!
-		do_controlcen_destroyed_stuff(NULL);
-		explode_object(objp, F1_0/4);
-		digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp-Objects, 0, F2_0, F1_0*512);
-	}
-}
-
-//	----------------------------------------------------------------------
 int do_any_robot_dying_frame(object *objp)
 {
 	if (objp->ctype.ai_info.dying_start_time) {
-		int	rval, death_roll;
+		robot_info *ri = &Robot_info[objp->id];
 
-		death_roll = Robot_info[objp->id].death_roll;
-		rval = do_robot_dying_frame(objp, objp->ctype.ai_info.dying_start_time, min(death_roll/2+1,6)*F1_0, &objp->ctype.ai_info.dying_sound_playing, Robot_info[objp->id].deathroll_sound, death_roll*F1_0/8, death_roll*F1_0/2);
+		int death_roll = ri->death_roll;
+		fix roll_duration = min(death_roll/2+1,6)*F1_0;
+		fix expl_scale = death_roll*F1_0/8;
+		fix sound_scale = death_roll*F1_0/2;
+
+		if (ri->boss_flag) {
+			roll_duration = BOSS_DEATH_DURATION;
+			sound_scale = expl_scale = F1_0 * 4;
+		}
+
+		int rval = do_robot_dying_frame(objp, objp->ctype.ai_info.dying_start_time, roll_duration, &objp->ctype.ai_info.dying_sound_playing, ri->deathroll_sound, expl_scale, sound_scale);
 
 		if (rval) {
 			objp->ctype.ai_info.dying_start_time = GameTime; // make sure following only happens one time!
 			explode_object(objp, F1_0/4);
+			if (ri->ends_level)
+				do_controlcen_destroyed_stuff(objp);
+			if (ri->boss_flag)
+				restart_multiboss_dying(objp->ctype.ai_info.dying_start_time);
 			digi_link_sound_to_object2(SOUND_BADASS_EXPLOSION, objp-Objects, 0, F2_0, F1_0*512);
-			if ((Current_level_num < 0) && (Robot_info[objp->id].thief))
+			if (Current_level_num < 0 && ri->thief && !ri->boss_flag)
 				recreate_thief(objp);
 		}
 
@@ -2081,14 +2082,13 @@ int ai_multiplayer_awareness(object *objp, int awareness_level)
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Do special stuff for a boss.
-void do_boss_stuff(object *objp, int player_visibility)
+static void do_boss_stuff(object *objp, int player_visibility)
 {
 	int	boss_id, boss_index;
 
 	boss_id = Robot_info[objp->id].boss_flag;
 
-	if (!WARN_IF_FALSE((boss_id >= BOSS_D2) && (boss_id < BOSS_D2 + NUM_D2_BOSSES)))
-		return;
+	Assert((boss_id >= BOSS_D2) && (boss_id < BOSS_D2 + NUM_D2_BOSSES));
 
 	boss_index = boss_id - BOSS_D2;
 
@@ -2105,7 +2105,7 @@ void do_boss_stuff(object *objp, int player_visibility)
 	if (!player_visibility && (GameTime - Boss_hit_time > F1_0*2))
 		return;
 
-	if (!Boss_dying && Boss_teleports[boss_index]) {
+	if (!objp->ctype.ai_info.dying_start_time && Boss_teleports[boss_index]) {
 		if (objp->ctype.ai_info.CLOAKED == 1) {
 			Boss_hit_time = GameTime;	//	Keep the cloak:teleport process going.
 			if ((GameTime - Boss_cloak_start_time > BOSS_CLOAK_DURATION/3) && (Boss_cloak_end_time - GameTime > BOSS_CLOAK_DURATION/3) && (GameTime - Last_teleport_time > Boss_teleport_interval)) {
@@ -3509,8 +3509,6 @@ void set_player_awareness_all(void)
 		}
 }
 
-extern void do_boss_dying_frame(object *objp);
-
 // ----------------------------------------------------------------------------------
 // Do things which need to get done for all AI objects each frame.
 // This includes:
@@ -3530,16 +3528,6 @@ void do_ai_frame_all(void)
 					Objects[i].ctype.ai_info.SUB_FLAGS &= ~SUB_FLAGS_CAMERA_AWAKE;
 		}
 	}
-
-	// (Moved here from do_boss_stuff() because that only gets called if robot aware of player.)
-	if (Boss_dying) {
-		int i;
-
-		for (i=0; i<=Highest_object_index; i++)
-			if (Objects[i].type == OBJ_ROBOT)
-				if (Robot_info[Objects[i].id].boss_flag)
-					do_boss_dying_frame(&Objects[i]);
-	}
 }
 
 
@@ -3553,8 +3541,6 @@ void init_robots_for_level(void)
 
 	Buddy_objnum = 0;
 	Buddy_allowed_to_talk = 0;
-
-	Boss_dying_start_time = 0;
 	
 	Ai_last_missile_camera = -1;
 }
@@ -3577,9 +3563,9 @@ int ai_save_state(PHYSFS_file *fp)
 	PHYSFS_write(fp, &Boss_cloak_duration, sizeof(fix), 1);
 	PHYSFS_write(fp, &Last_gate_time, sizeof(fix), 1);
 	PHYSFS_write(fp, &Gate_interval, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_dying_start_time, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_dying, sizeof(int), 1);
-	PHYSFS_write(fp, &Boss_dying_sound_playing, sizeof(int), 1);
+	PHYSFS_write(fp, &(fix){0}, sizeof(fix), 1);
+	PHYSFS_write(fp, &(int){0}, sizeof(int), 1);
+	PHYSFS_write(fp, &(int){0}, sizeof(int), 1);
 	PHYSFS_write(fp, &Boss_hit_time, sizeof(fix), 1);
 
 	PHYSFS_write(fp, &Escort_kill_object, sizeof(Escort_kill_object), 1);
@@ -3630,9 +3616,10 @@ int ai_restore_state(PHYSFS_file *fp, int version)
 	PHYSFS_read(fp, &Boss_cloak_duration, sizeof(fix), 1);
 	PHYSFS_read(fp, &Last_gate_time, sizeof(fix), 1);
 	PHYSFS_read(fp, &Gate_interval, sizeof(fix), 1);
+	fix Boss_dying_start_time = 0;
 	PHYSFS_read(fp, &Boss_dying_start_time, sizeof(fix), 1);
-	PHYSFS_read(fp, &Boss_dying, sizeof(int), 1);
-	PHYSFS_read(fp, &Boss_dying_sound_playing, sizeof(int), 1);
+	PHYSFS_read(fp, &(int){0}, sizeof(int), 1);
+	PHYSFS_read(fp, &(int){0}, sizeof(int), 1);
 	PHYSFS_read(fp, &Boss_hit_time, sizeof(fix), 1);
 
 	if (version >= 8) {
@@ -3690,6 +3677,10 @@ int ai_restore_state(PHYSFS_file *fp, int version)
 			}
 		}
 	}
+
+	// For old savegames. May handle sound restorinmg incorrectly.
+	if (Boss_dying_start_time)
+		restart_multiboss_dying(Boss_dying_start_time);
 
 	return 1;
 }

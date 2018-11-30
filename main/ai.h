@@ -117,7 +117,6 @@ extern void do_escort_frame(object *objp, fix dist_to_player, int player_visibil
 extern void do_snipe_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
 extern void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
 
-extern void start_boss_death_sequence(object *objp);
 extern void ai_init_boss_for_ship(void);
 extern void boss_init_all_segments(int boss_objnum);
 extern int Boss_been_hit;
@@ -243,8 +242,6 @@ extern fix              Boss_cloak_interval;        // Time between cloaks
 extern fix              Boss_cloak_duration;
 extern fix              Last_gate_time;
 extern fix              Gate_interval;
-extern fix              Boss_dying_start_time;
-extern sbyte            Boss_dying, Boss_dying_sound_playing;
 extern fix              Boss_hit_time;
 // -- extern int              Boss_been_hit;
 // ------ John: End of variables which must be saved as part of gamesave. -----
@@ -278,7 +275,6 @@ extern void do_firing_stuff(object *obj, int player_visibility, vms_vector *vec_
 extern int maybe_ai_do_actual_firing_stuff(object *obj, ai_static *aip);
 extern void ai_do_actual_firing_stuff(object *obj, ai_static *aip, ai_local *ailp, robot_info *robptr, vms_vector *vec_to_player, fix dist_to_player, vms_vector *gun_point, int player_visibility, int object_animates, int gun_num);
 extern void do_super_boss_stuff(object *objp, fix dist_to_player, int player_visibility);
-extern void do_boss_stuff(object *objp, int player_visibility);
 // -- unused, 08/07/95 -- extern void ai_turn_randomly(vms_vector *vec_to_player, object *obj, fix rate, int previous_visibility);
 extern void ai_move_relative_to_player(object *objp, ai_local *ailp, fix dist_to_player, vms_vector *vec_to_player, fix circle_distance, int evade_only, int player_visibility);
 extern void move_away_from_player(object *objp, vms_vector *vec_to_player, int attack_type);

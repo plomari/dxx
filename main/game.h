@@ -219,4 +219,6 @@ int do_game_pause(void);
 
 void ProcessControls(void);
 
+bool is_d2x_xl_level(void);
+
 #endif /* _GAME_H */

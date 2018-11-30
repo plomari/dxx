@@ -107,7 +107,8 @@ multi_can_move_robot(int objnum, int agitation)
 		rval = 0;
 	}
 
-	else if ((Robot_info[Objects[objnum].id].boss_flag) && (Boss_dying == 1))
+	else if (Robot_info[Objects[objnum].id].boss_flag &&
+		     Objects[objnum].ctype.ai_info.dying_start_time)
 		return 0;
 
 	else if (Objects[objnum].ctype.ai_info.REMOTE_OWNER == Player_num) // Already my robot!
@@ -845,12 +846,7 @@ multi_explode_robot_sub(int botnum, int killer,char isthief)
    if (isthief || Robot_info[robot->id].thief)
 	 drop_stolen_items(robot);
 
-	if (Robot_info[robot->id].boss_flag) {
-		if (!Boss_dying)
-			start_boss_death_sequence(robot);	
-		else
-			return (0);
-	} else if (Robot_info[robot->id].death_roll) {
+	if (Robot_info[robot->id].death_roll || Robot_info[robot->id].boss_flag) {
 		start_robot_death_sequence(robot);
 	} else {
 		if (robot->id == SPECIAL_REACTOR_ROBOT)
