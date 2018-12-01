@@ -165,6 +165,9 @@ extern void gr_init_bitmap_alloc( grs_bitmap *bm, int x, int y, int w, int h, in
 // Allocate a bitmap and its pixel data buffer.
 grs_bitmap *gr_create_bitmap(int w,int h);
 
+// As gr_create_bitmap(), but with a specific bm_depth.
+grs_bitmap *gr_new_bitmap(int w, int h, int depth);
+
 // Allocated a bitmap and makes its data be raw_data that is already somewhere.
 grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data );
 

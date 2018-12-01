@@ -1240,8 +1240,10 @@ void load_bitmap_replacements(char *level_name)
 				// d2x-xl seems to use a really weird and messy way to handle
 				// RGBA animations. It's too much pain for something cosmetic.
 				int frames = bm->bm_h / bm->bm_w;
-				if (frames > 1)
+				if (frames > 1) {
 					printf("D2X-XL: unsupported D2X-XL animation entry %d\n", i);
+					bm->bm_h = bm->bm_w;
+				}
 			}
 		}
 

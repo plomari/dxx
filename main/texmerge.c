@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "wall.h"
 #include "timer.h"
 #include "ogl.h"
+#include "texmerge.h"
 
 #define MAX_NUM_CACHE_BITMAPS 200
 
@@ -35,45 +36,29 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 typedef struct	{
 	grs_bitmap * bitmap;
-	grs_bitmap * bottom_bmp;
-	grs_bitmap * top_bmp;
+	int 		top_idx, bot_idx;
 	int 		orient;
-	fix		last_time_used;
+	fix			last_time_used;
 } TEXTURE_CACHE;
 
 static TEXTURE_CACHE Cache[MAX_NUM_CACHE_BITMAPS];
 
 static int num_cache_entries = 0;
 
-static int cache_hits = 0;
-static int cache_misses = 0;
-
 void texmerge_close();
-static void do_merge_textures(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_bmp, grs_bitmap *dest_bmp);
+static bool do_merge_textures(int orient, grs_bitmap *bot, grs_bitmap *top,
+							  grs_bitmap **dst);
 
 //----------------------------------------------------------------------
 
 int texmerge_init(int num_cached_textures)
 {
-	int i;
-
 	if ( num_cached_textures <= MAX_NUM_CACHE_BITMAPS )
 		num_cache_entries = num_cached_textures;
 	else
 		num_cache_entries = MAX_NUM_CACHE_BITMAPS;
 	
-	for (i=0; i<num_cache_entries; i++ )	{
-			// Make temp tmap for use when combining
-		Cache[i].bitmap = gr_create_bitmap( 64, 64 );
-
-		//if (get_selector( Cache[i].bitmap->bm_data, 64*64,  &Cache[i].bitmap->bm_selector))
-		//	Error( "ERROR ALLOCATING CACHE BITMAP'S SELECTORS!!!!" );
-
-		Cache[i].last_time_used = -1;
-		Cache[i].top_bmp = NULL;
-		Cache[i].bottom_bmp = NULL;
-		Cache[i].orient = -1;
-	}
+	texmerge_flush();
 
 	return 1;
 }
@@ -82,27 +67,21 @@ void texmerge_flush()
 {
 	int i;
 
-	for (i=0; i<num_cache_entries; i++ )	{
+	for (i=0; i<num_cache_entries; i++ )
 		Cache[i].last_time_used = -1;
-		Cache[i].top_bmp = NULL;
-		Cache[i].bottom_bmp = NULL;
-		Cache[i].orient = -1;
-	}
 }
 
 
 //-------------------------------------------------------------------------
 void texmerge_close()
 {
-	int i;
+	texmerge_flush();
 
-	for (i=0; i<num_cache_entries; i++ )	{
+	for (int i=0; i<num_cache_entries; i++ )	{
 		gr_free_bitmap( Cache[i].bitmap );
 		Cache[i].bitmap = NULL;
 	}
 }
-
-//--unused-- int info_printed = 0;
 
 static void piggy_page_in_two(int tmap_bottom, int tmap_top)
 {
@@ -122,132 +101,54 @@ static void piggy_page_in_two(int tmap_bottom, int tmap_top)
 
 grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 {
-	grs_bitmap *bitmap_top, *bitmap_bottom;
-	int i, orient;
-	int lowest_time_used;
-	int least_recently_used;
+	int top_idx = Textures[tmap_top & 0x3FFF].index;
+	int bot_idx = Textures[tmap_bottom].index;
 
-	bitmap_top = &GameBitmaps[Textures[tmap_top&0x3FFF].index];
-	bitmap_bottom = &GameBitmaps[Textures[tmap_bottom].index];
-	
-	orient = ((tmap_top&0xC000)>>14) & 3;
+	int orient = ((tmap_top&0xC000)>>14) & 3;
 
-	least_recently_used = 0;
-	lowest_time_used = Cache[0].last_time_used;
+	int least_recently_used = 0;
+	fix lowest_time_used = Cache[0].last_time_used;
 	
-	for (i=0; i<num_cache_entries; i++ )	{
-		if ( (Cache[i].last_time_used > -1) && (Cache[i].top_bmp==bitmap_top) && (Cache[i].bottom_bmp==bitmap_bottom) && (Cache[i].orient==orient ))	{
-			cache_hits++;
-			Cache[i].last_time_used = timer_query();
-			return Cache[i].bitmap;
-		}	
-		if ( Cache[i].last_time_used < lowest_time_used )	{
-			lowest_time_used = Cache[i].last_time_used;
+	for (int i = 0; i < num_cache_entries; i++) {
+		TEXTURE_CACHE *e = &Cache[i];
+
+		if (e->last_time_used > -1 &&
+			e->top_idx == top_idx &&
+			e->bot_idx == bot_idx &&
+			e->orient == orient &&
+			e->bitmap)
+		{
+			e->last_time_used = timer_query();
+			return e->bitmap;
+		}
+
+		if (e->last_time_used < lowest_time_used) {
+			lowest_time_used = e->last_time_used;
 			least_recently_used = i;
 		}
 	}
 
 	//---- Page out the LRU bitmap;
-	cache_misses++;
 
 	piggy_page_in_two(tmap_bottom, tmap_top);
 
-	ogl_freebmtexture(Cache[least_recently_used].bitmap);
+	if (!tmap_top)
+		return &GameBitmaps[bot_idx];
 
-	// TODO: missing, this just does some broken bullshit
-	// See door to the outside in 3rd part of Anthology.
-	if ((bitmap_top->bm_flags & BM_FLAG_TGA) ||
-		(bitmap_bottom->bm_flags & BM_FLAG_TGA))
-		printf("merging TGAs! will produce corrupted texture\n");
-	do_merge_textures(orient, bitmap_bottom, bitmap_top, Cache[least_recently_used].bitmap);
+	TEXTURE_CACHE *e = &Cache[least_recently_used];
 
-	Cache[least_recently_used].top_bmp = bitmap_top;
-	Cache[least_recently_used].bottom_bmp = bitmap_bottom;
-	Cache[least_recently_used].last_time_used = timer_query();
-	Cache[least_recently_used].orient = orient;
+	ogl_freebmtexture(e->bitmap);
 
-	return Cache[least_recently_used].bitmap;
-}
+	e->top_idx = top_idx;
+	e->bot_idx = bot_idx;
+	e->orient = orient;
+	e->last_time_used = timer_query();
 
-static void do_merge_textures(int type, grs_bitmap *bottom_bmp, grs_bitmap *top_bmp, grs_bitmap *dest_bmp)
-{
-	ubyte c;
-	int x,y;
+	if (!do_merge_textures(orient, &GameBitmaps[bot_idx], &GameBitmaps[top_idx],
+						   &e->bitmap))
+		return NULL;
 
-	ubyte * top_data, *bottom_data;
-
-	if ( top_bmp->bm_flags & BM_FLAG_RLE )
-		top_bmp = rle_expand_texture(top_bmp);
-
-	if ( bottom_bmp->bm_flags & BM_FLAG_RLE )
-		bottom_bmp = rle_expand_texture(bottom_bmp);
-
-	top_data = top_bmp->bm_data;
-	bottom_data = bottom_bmp->bm_data;
-	ubyte *dest_data = dest_bmp->bm_data;
-
-	int super_color = -1;
-	if (top_bmp->bm_flags & BM_FLAG_SUPER_TRANSPARENT)
-		super_color = 254;
-
-	switch( type )	{
-		case 0:
-			// Normal
-			for (y=0; y<64; y++ )
-				for (x=0; x<64; x++ )	{
-					c = top_data[ 64*y+x ];		
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ 64*y+x ];
-					else if (c==super_color)
-						c = TRANSPARENCY_COLOR;
-					*dest_data++ = c;
-				}
-			break;
-		case 1:
-			// 
-			for (y=0; y<64; y++ )
-				for (x=0; x<64; x++ )	{
-					c = top_data[ 64*x+(63-y) ];		
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ 64*y+x ];
-					else if (c==super_color)
-						c = TRANSPARENCY_COLOR;
-					*dest_data++ = c;
-				}
-			break;
-		case 2:
-			// Normal
-			for (y=0; y<64; y++ )
-				for (x=0; x<64; x++ )	{
-					c = top_data[ 64*(63-y)+(63-x) ];
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ 64*y+x ];
-					else if (c==super_color)
-						c = TRANSPARENCY_COLOR;
-					*dest_data++ = c;
-				}
-			break;
-		case 3:
-			// Normal
-			for (y=0; y<64; y++ )
-				for (x=0; x<64; x++ )	{
-					c = top_data[ 64*(63-x)+y  ];
-					if (c==TRANSPARENCY_COLOR)
-						c = bottom_data[ 64*y+x ];
-					else if (c==super_color)
-						c = TRANSPARENCY_COLOR;
-					*dest_data++ = c;
-				}
-			break;
-	}
-
-	if (top_bmp->bm_flags & BM_FLAG_SUPER_TRANSPARENT)	{
-		dest_bmp->bm_flags = BM_FLAG_TRANSPARENT;
-		dest_bmp->avg_color = top_bmp->avg_color;
-	} else	{
-		dest_bmp->bm_flags = bottom_bmp->bm_flags & (~BM_FLAG_RLE);
-		dest_bmp->avg_color = bottom_bmp->avg_color;
-	}
+	return e->bitmap;
 }
 
 static int check_pixel_type(uint8_t *p, int bm_flags, int bm_depth)
@@ -275,6 +176,118 @@ static int check_pixel_type(uint8_t *p, int bm_flags, int bm_depth)
 	return 0;
 }
 
+// For x and y in range [0, src_s), return scaled *out_x and _y so that they're
+// in the range [0, dst_s). (Accomplishes nearest scaling.)
+static void scale_pixel(int src_s, int dst_s, int x, int y,
+						int *out_x, int *out_y)
+{
+	*out_x = x  * dst_s / src_s;
+	*out_y = y  * dst_s / src_s;
+}
+
+static void orient_transform(int orient, int s, int x, int y,
+							 int *out_x, int *out_y)
+{
+	switch (orient & 3) {
+	case 0:
+		*out_x = x;
+		*out_y = y;
+		break;
+	case 1:
+		*out_x = s - y - 1;
+		*out_y = x;
+		break;
+	case 2:
+		*out_x = s - x - 1;
+		*out_y = s - y - 1;
+		break;
+	case 3:
+		*out_x = y;
+		*out_y = s - x - 1;
+		break;
+	}
+}
+
+static void convert_pixel(uint8_t *dst_p, size_t dst_depth,
+						  uint8_t *src_p, size_t src_depth,
+						  int src_flags)
+{
+	if (dst_depth == src_depth) {
+		memcpy(dst_p, src_p, dst_depth);
+	} else if (dst_depth == 4 && src_depth == 1) {
+		ogl_pal_to_rgba8(src_p, dst_p, src_flags, 1);
+	} else {
+		assert(0);
+	}
+}
+
+static bool do_merge_textures(int orient, grs_bitmap *bot, grs_bitmap *top,
+							  grs_bitmap **p_dst)
+{
+	if (top->bm_flags & BM_FLAG_RLE)
+		top = rle_expand_texture(top);
+
+	if (bot->bm_flags & BM_FLAG_RLE)
+		bot = rle_expand_texture(bot);
+
+	// Can merge square bitmaps only.
+	if (WARN_ON(bot->bm_w != bot->bm_h || top->bm_w != top->bm_h))
+		return false;
+
+	int w = max(top->bm_w, bot->bm_w);
+	int h = max(top->bm_h, bot->bm_h);
+
+	size_t d_top = max(top->bm_depth, 1);
+	size_t d_bot = max(bot->bm_depth, 1);
+
+	Assert(d_top == 1 || d_top == 4);
+	Assert(d_bot == 1 || d_bot == 4);
+
+	size_t d_dst = d_top == 1 && d_bot == 1 ? 1 : 4;
+
+	grs_bitmap *dst = *p_dst;
+	if (!dst || dst->bm_w != w || dst->bm_h != h || dst->bm_depth != d_dst) {
+		gr_free_bitmap(dst);
+		dst = gr_new_bitmap(w, h, d_dst);
+		*p_dst = dst;
+	}
+
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+			uint8_t *dst_p = dst->bm_data + dst->bm_rowsize * y + x * d_dst;
+
+			int tx, ty;
+			scale_pixel(w, top->bm_w, x, y, &tx, &ty);
+			orient_transform(orient, top->bm_w, tx, ty, &tx, &ty);
+
+			uint8_t *top_p = top->bm_data + ty * top->bm_rowsize + tx * d_top;
+
+			int c_top = check_pixel_type(top_p, top->bm_flags, d_top);
+			if (c_top & BM_FLAG_SUPER_TRANSPARENT) {
+				convert_pixel(dst_p, d_dst, &(uint8_t){255}, 1, BM_FLAG_TRANSPARENT);
+			} else if (!(c_top & BM_FLAG_TRANSPARENT)) {
+				convert_pixel(dst_p, d_dst, top_p, d_top, top->bm_flags);
+			} else {
+				int bx, by;
+				scale_pixel(w, bot->bm_w, x, y, &bx, &by);
+
+				uint8_t *bot_p = bot->bm_data + by * bot->bm_rowsize + bx * d_bot;
+				convert_pixel(dst_p, d_dst, bot_p, d_bot, bot->bm_flags);
+			}
+		}
+	}
+
+	if (top->bm_flags & BM_FLAG_SUPER_TRANSPARENT)	{
+		dst->bm_flags = BM_FLAG_TRANSPARENT;
+		dst->avg_color = top->avg_color;
+	} else	{
+		dst->bm_flags = bot->bm_flags & (~BM_FLAG_RLE);
+		dst->avg_color = bot->avg_color;
+	}
+
+	return true;
+}
+
 int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 {
 	int orient = ((tmap_top&0xC000)>>14) & 3;
@@ -295,29 +308,16 @@ int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 		int w = bm_top->bm_w;
 		int h = bm_top->bm_h;
 
+		if (WARN_ON(w != h))
+			return 0;
+
 		int bx = ((unsigned) f2i(u*w)) % w;
 		int by = ((unsigned) f2i(v*h)) % h;
 
 		// Reverse the transformation done on merging.
+		static const int opposite_orient[4] = {0, 3, 2, 1};
 		int tx, ty;
-		switch (orient)	{
-		case 0:
-			tx = bx;
-			ty = by;
-			break;
-		case 1:
-			tx = by;
-			ty = w - bx - 1;
-			break;
-		case 2:
-			tx = w - bx - 1;
-			ty = h - by - 1;
-			break;
-		case 3:
-			tx = h - by - 1;
-			ty = bx;
-			break;
-		}
+		orient_transform(opposite_orient[orient], w, bx, by, &tx, &ty);
 
 		size_t d_top = bm_top->bm_depth < 1 ? 1 : bm_top->bm_depth;
 		int c_top = check_pixel_type(bm_top->bm_data + ty * w * d_top + tx * d_top,

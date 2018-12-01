@@ -38,9 +38,28 @@ void gr_set_bitmap_data (grs_bitmap *bm, unsigned char *data)
 	bm->bm_data = data;
 }
 
+grs_bitmap *gr_new_bitmap(int w, int h, int depth)
+{
+	Assert(depth == 1 || depth == 4);
+
+	grs_bitmap *new = malloc(sizeof(*new));
+	if (WARN_ON(!new))
+		abort();
+	*new = (grs_bitmap){
+		.bm_w = w,
+		.bm_h = h,
+		.bm_rowsize = w * depth,
+		.bm_depth = depth,
+	};
+	new->bm_data = calloc(h, new->bm_rowsize);
+	if (WARN_ON(!new->bm_data))
+		abort();
+	return new;
+}
+
 grs_bitmap *gr_create_bitmap(int w, int h )
 {
-	return gr_create_bitmap_raw (w, h, d_malloc( MAX_BMP_SIZE(w, h) ));
+	return gr_new_bitmap(w, h, 1);
 }
 
 grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data )
@@ -52,7 +71,6 @@ grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data )
 
 	return new;
 }
-
 
 void gr_init_bitmap( grs_bitmap *bm, int x, int y, int w, int h, int bytesperline, unsigned char * data ) // TODO: virtualize
 {
@@ -99,9 +117,9 @@ grs_bitmap *gr_create_sub_bitmap(grs_bitmap *bm, int x, int y, int w, int h )
 
 void gr_free_bitmap(grs_bitmap *bm )
 {
-	gr_free_bitmap_data (bm);
-	if (bm!=NULL)
-		d_free(bm);
+	if (bm)
+		gr_free_bitmap_data (bm);
+	d_free(bm);
 }
 
 void gr_free_sub_bitmap(grs_bitmap *bm )

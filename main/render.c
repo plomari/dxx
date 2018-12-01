@@ -227,6 +227,9 @@ void render_face(int segnum, int sidenum, int nv, int *vp, int tmap1, int tmap2,
 		}
 	}
 
+	if (!bm)
+		return;
+
 	Assert( !(bm->bm_flags & BM_FLAG_PAGED_OUT) );
 
 	//set light values for each vertex & build pointlist

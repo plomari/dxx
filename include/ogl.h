@@ -97,4 +97,7 @@ extern unsigned char *ogl_pal;
 #define PAL2Tg(c) ((ogl_pal[c*3+1])/63.0)
 #define PAL2Tb(c) ((ogl_pal[c*3+2])/63.0)
 
+void ogl_pal_to_rgba8(uint8_t *src_data, uint8_t *texp, int bm_flags,
+					  size_t count);
+
 #endif

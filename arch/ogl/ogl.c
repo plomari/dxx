@@ -958,8 +958,8 @@ int pow2ize(int x){
 	return i;
 }
 
-static void expand_pal_data(unsigned char *src_data, GLubyte *texp,
-							int bm_flags, size_t count)
+void ogl_pal_to_rgba8(uint8_t *src_data, uint8_t *texp, int bm_flags,
+					  size_t count)
 {
 	for (size_t n = 0; n < count; n++) {
 		uint8_t c = *src_data++;
@@ -1041,8 +1041,8 @@ static int ogl_loadtexture(grs_bitmap *bm, unsigned char *data)
 			memcpy(texbuf + y * tex_stride, data + y * bm->bm_w * 4, 4 * bm->bm_w);
 	} else if (bm->bm_depth == 0 || bm->bm_depth == 1) {
 		for (int y = 0; y < bm->bm_h; y++) {
-			expand_pal_data(data + y * bm->bm_w, texbuf + y * tex_stride,
-							bm->bm_flags, bm->bm_w);
+			ogl_pal_to_rgba8(data + y * bm->bm_w, texbuf + y * tex_stride,
+							 bm->bm_flags, bm->bm_w);
 		}
 	} else {
 		Int3();
@@ -1094,7 +1094,8 @@ unsigned char decodebuf[1024*1024];
 
 void ogl_loadbmtexture(grs_bitmap *bm)
 {
-	unsigned char *buf;
+	if (!bm)
+		return;
 
 	Assert(!(bm->bm_flags & BM_FLAG_PAGED_OUT));
 	Assert(bm->bm_data);
@@ -1103,7 +1104,7 @@ void ogl_loadbmtexture(grs_bitmap *bm)
 		bm=bm->bm_parent;
 	if (bm->gltexture && bm->gltexture->handle > 0)
 		return;
-	buf=bm->bm_data;
+	unsigned char *buf=bm->bm_data;
 
 	if (bm->gltexture == NULL){
 		bm->gltexture = ogl_get_free_texture();
@@ -1154,7 +1155,7 @@ void ogl_freetexture(ogl_texture *gltexture)
 	}
 }
 void ogl_freebmtexture(grs_bitmap *bm){
-	if (bm->gltexture){
+	if (bm && bm->gltexture){
 		ogl_freetexture(bm->gltexture);
 		bm->gltexture=NULL;
 	}
