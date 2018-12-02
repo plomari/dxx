@@ -142,35 +142,6 @@ int robot_get_anim_state(jointpos **jp_list_ptr,int robot_type,int gun_num,int s
 
 }
 
-
-//for test, set a robot to a specific state
-void set_robot_state(object *obj,int state)
-{
-	int g,j,jo;
-	robot_info *ri;
-	jointlist *jl;
-
-	Assert(obj->type == OBJ_ROBOT);
-
-	ri = &Robot_info[obj->id];
-
-	for (g=0;g<ri->n_guns+1;g++) {
-
-		jl = &ri->anim_states[g][state];
-
-		jo = jl->offset;
-
-		for (j=0;j<jl->n_joints;j++,jo++) {
-			int jn;
-
-			jn = Robot_joints[jo].jointnum;
-
-			obj->rtype.pobj_info.anim_angles[jn] = Robot_joints[jo].angles;
-
-		}
-	}
-}
-
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
 void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS])

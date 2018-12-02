@@ -136,28 +136,6 @@ void object_goto_next_viewer()
 
 }
 
-//set viewer object to next object in array
-void object_goto_prev_viewer()
-{
-	int i, start_obj = 0;
-
-	start_obj = Viewer - Objects;		//get viewer object number
-	
-	for (i=0; i<=Highest_object_index; i++) {
-
-		start_obj--;
-		if (start_obj < 0 ) start_obj = Highest_object_index;
-
-		if (Objects[start_obj].type != OBJ_NONE )	{
-			Viewer = &Objects[start_obj];
-			return;
-		}
-	}
-
-	Error( "Couldn't find a viewer object!" );
-
-}
-
 object *obj_find_first_of_type (int type)
 {
 	int i;
@@ -166,25 +144,6 @@ object *obj_find_first_of_type (int type)
 		if (Objects[i].type==type)
 			return (&Objects[i]);
 	return ((object *)NULL);
-}
-
-int obj_return_num_of_type (int type)
-{
-	int i,count=0;
-
-	for (i=0;i<=Highest_object_index;i++)
-		if (Objects[i].type==type)
-			count++;
-	return (count);
-}
-int obj_return_num_of_typeid (int type,int id)
-{
-	int i,count=0;
-
-	for (i=0;i<=Highest_object_index;i++)
-		if (Objects[i].type==type && Objects[i].id==id)
-			count++;
-	return (count);
 }
 
 //draw an object that has one bitmap & doesn't rotate
@@ -645,46 +604,6 @@ void create_small_fireball_on_object(object *objp, fix size_scale, int sound_fla
 		}
 	}
 }
-
-//	------------------------------------------------------------------------------------------------------------------
-void create_vclip_on_object(object *objp, fix size_scale, int vclip_num)
-{
-	fix			size;
-	vms_vector	pos, rand_vec;
-	int			segnum;
-
-	pos = objp->pos;
-	make_random_vector(&rand_vec);
-
-	vm_vec_scale(&rand_vec, objp->size/2);
-
-	vm_vec_add2(&pos, &rand_vec);
-
-	size = fixmul(size_scale, F1_0 + d_rand()*4);
-
-	segnum = find_point_seg(&pos, objp->segnum);
-	if (segnum != -1) {
-		object *expl_obj;
-		expl_obj = object_create_explosion(segnum, &pos, size, vclip_num);
-		if (!expl_obj)
-			return;
-
-		expl_obj->movement_type = MT_PHYSICS;
-		expl_obj->mtype.phys_info.velocity.x = objp->mtype.phys_info.velocity.x/2;
-		expl_obj->mtype.phys_info.velocity.y = objp->mtype.phys_info.velocity.y/2;
-		expl_obj->mtype.phys_info.velocity.z = objp->mtype.phys_info.velocity.z/2;
-	}
-}
-
-// -- mk, 02/05/95 -- #define	VCLIP_INVULNERABILITY_EFFECT	VCLIP_SMALL_EXPLOSION
-// -- mk, 02/05/95 --
-// -- mk, 02/05/95 -- // -----------------------------------------------------------------------------
-// -- mk, 02/05/95 -- void do_player_invulnerability_effect(object *objp)
-// -- mk, 02/05/95 -- {
-// -- mk, 02/05/95 -- 	if (d_rand() < FrameTime*8) {
-// -- mk, 02/05/95 -- 		create_vclip_on_object(objp, F1_0, VCLIP_INVULNERABILITY_EFFECT);
-// -- mk, 02/05/95 -- 	}
-// -- mk, 02/05/95 -- }
 
 static void draw_object_debug(object *obj)
 {
@@ -1929,41 +1848,6 @@ void object_move_all()
 
 //	check_duplicate_objects();
 //	remove_incorrect_objects();
-
-}
-
-//make object array non-sparse
-void compress_objects(void)
-{
-	int start_i;	//,last_i;
-
-	//last_i = find_last_obj(MAX_OBJECTS);
-
-	//	Note: It's proper to do < (rather than <=) Highest_object_index here because we
-	//	are just removing gaps, and the last object can't be a gap.
-	for (start_i=0;start_i<Highest_object_index;start_i++)
-
-		if (Objects[start_i].type == OBJ_NONE) {
-
-			int	segnum_copy;
-
-			segnum_copy = Objects[Highest_object_index].segnum;
-
-			obj_unlink(Highest_object_index);
-
-			Objects[start_i] = Objects[Highest_object_index];
-
-			Objects[Highest_object_index].type = OBJ_NONE;
-
-			obj_link(start_i,segnum_copy);
-
-			while (Objects[--Highest_object_index].type == OBJ_NONE);
-
-			//last_i = find_last_obj(last_i);
-			
-		}
-
-	reset_objects(num_objects);
 
 }
 

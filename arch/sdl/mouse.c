@@ -177,17 +177,6 @@ void mouse_get_pos( int *x, int *y, int *z )
 	*z=Mouse.z;
 }
 
-int mouse_in_window(window *wind)
-{
-	grs_canvas *canv;
-	
-	canv = window_get_canvas(wind);
-	return	(Mouse.x >= canv->cv_x) &&
-			(Mouse.x <= canv->cv_x + canv->cv_w) &&
-			(Mouse.y >= canv->cv_y) &&
-			(Mouse.y <= canv->cv_y + canv->cv_h);
-}
-
 void mouse_get_delta( int *dx, int *dy, int *dz )
 {
 	SDL_GetRelativeMouseState( &Mouse.delta_x, &Mouse.delta_y );
@@ -216,23 +205,6 @@ int event_mouse_get_button(d_event *event)
 {
 	Assert((event->type == EVENT_MOUSE_BUTTON_DOWN) || (event->type == EVENT_MOUSE_BUTTON_UP));
 	return ((d_event_mousebutton *)event)->button;
-}
-
-int mouse_get_btns()
-{
-	int i;
-	uint flag=1;
-	int status = 0;
-
-//	event_poll();
-
-	for (i=0; i<MOUSE_MAX_BUTTONS; i++ ) {
-		if (Mouse.button_state[i])
-			status |= flag;
-		flag <<= 1;
-	}
-
-	return status;
 }
 
 void mouse_toggle_cursor(int activate)

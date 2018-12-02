@@ -173,12 +173,6 @@ int gr_toggle_fullscreen(void)
 	return ogl_fullscreen;
 }
 
-// Set the buffer to draw to. 0 is front, 1 is back
-void gr_set_draw_buffer(int buf)
-{
-	glDrawBuffer((buf == 0) ? GL_FRONT : GL_BACK);
-}
-
 const char *gl_vendor, *gl_renderer, *gl_version, *gl_extensions;
 
 static void ogl_get_verinfo(void)
@@ -201,21 +195,6 @@ static void ogl_get_verinfo(void)
 	}
 	else if (GameCfg.TexFilt >= 3)
 		GameCfg.TexFilt = 2;
-}
-
-#define GLstrcmptestr(a,b) if (stricmp(a,#b)==0 || stricmp(a,"GL_" #b)==0)return GL_ ## b;
-int ogl_atotexfilti(char *a,int min)
-{
-	GLstrcmptestr(a,NEAREST);
-	GLstrcmptestr(a,LINEAR);
-	if (min)
-	{//mipmaps are valid only for the min filter
-		GLstrcmptestr(a,NEAREST_MIPMAP_NEAREST);
-		GLstrcmptestr(a,NEAREST_MIPMAP_LINEAR);
-		GLstrcmptestr(a,LINEAR_MIPMAP_NEAREST);
-		GLstrcmptestr(a,LINEAR_MIPMAP_LINEAR);
-	}
-	Error("unknown/invalid texture filter %s\n",a);
 }
 
 void gr_set_attributes(void)
@@ -433,17 +412,6 @@ void gr_palette_load( ubyte *pal )
 
 	gr_palette_step_up(0, 0, 0); // make ogl_setbrightness_internal get run so that menus get brightened too.
 	init_computed_colors();
-}
-
-void gr_palette_read(ubyte * pal)
-{
-	int i;
-	for (i=0; i<768; i++ )
-	{
-		pal[i]=gr_current_pal[i];
-		if (pal[i] > 63)
-			pal[i] = 63;
-	}
 }
 
 #define GL_BGR_EXT 0x80E0

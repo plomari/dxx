@@ -17,8 +17,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  *
  */
 
-//#define SLEW_ON 1
-
 //#define _MARK_ON
 
 #include <stdlib.h>
@@ -63,9 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "movie.h"
 #include "render.h"
 #include "titles.h"
-#ifdef OGL
 #include "ogl.h"
-#endif
 
 typedef struct flythrough_data {
 	object		*obj;
@@ -88,9 +84,6 @@ typedef struct flythrough_data {
 #define EL_STOPPED		4		//stopped, watching explosion
 #define EL_PANNING		5		//panning around, watching player
 #define EL_CHASING		6		//chasing player to station
-
-#define SHORT_SEQUENCE	1		//if defined, end sequnce when panning starts
-//#define STATION_ENABLED	1		//if defined, load & use space station model
 
 int Endlevel_sequence = 0;
 
@@ -130,12 +123,6 @@ vms_vector satellite_pos,satellite_upvec;
 int station_modelnum,exit_modelnum,destroyed_exit_modelnum;
 
 vms_vector station_pos = {0xf8c4<<10,0x3c1c<<12,0x372<<10};
-
-#ifdef STATION_ENABLED
-grs_bitmap *station_bitmap;
-grs_bitmap **station_bitmap_list[1];
-int station_modelnum;
-#endif
 
 vms_vector mine_exit_point;
 vms_vector mine_ground_exit_point;
@@ -221,25 +208,6 @@ free_endlevel_data()
 
 void init_endlevel()
 {
-	//##satellite_bitmap = bm_load("earth.bbm");
-	//##terrain_bitmap = bm_load("moon.bbm");
-	//##
-	//##load_terrain("matt5b.bbm");		//load bitmap as height array
-	//##//load_terrain("ttest2.bbm");		//load bitmap as height array
-
-	#ifdef STATION_ENABLED
-	station_bitmap = bm_load("steel3.bbm");
-	station_bitmap_list[0] = &station_bitmap;
-
-	station_modelnum = load_polygon_model("station.pof",1,station_bitmap_list,NULL);
-	#endif
-
-//!!	exit_bitmap = bm_load("steel1.bbm");
-//!!	exit_bitmap_list[0] = &exit_bitmap;
-
-//!!	exit_modelnum = load_polygon_model("exit01.pof",1,exit_bitmap_list,NULL);
-//!!	destroyed_exit_modelnum = load_polygon_model("exit01d.pof",1,exit_bitmap_list,NULL);
-
 	generate_starfield();
 
 	terrain_bm_instance.bm_data = satellite_bm_instance.bm_data = NULL;
@@ -704,29 +672,22 @@ void do_endlevel_frame()
 				bank_rate = (-exit_seg_angles.b - cam_angles.b)/2;
 
 				ConsoleObject->control_type = endlevel_camera->control_type = CT_NONE;
-
-#ifdef SLEW_ON
- slew_obj = endlevel_camera;
-#endif
 			}
 
 			break;
 		}
 
 		case EL_OUTSIDE: {
-			#ifndef SLEW_ON
 			vms_angvec cam_angles;
-			#endif
 
 			vm_vec_scale_add2(&ConsoleObject->pos,&ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
-#ifndef SLEW_ON
+
 			vm_vec_scale_add2(&endlevel_camera->pos,&endlevel_camera->orient.fvec,fixmul(FrameTime,-2*cur_fly_speed));
 			vm_vec_scale_add2(&endlevel_camera->pos,&endlevel_camera->orient.uvec,fixmul(FrameTime,-cur_fly_speed/10));
 
 			vm_extract_angles_matrix(&cam_angles,&endlevel_camera->orient);
 			cam_angles.b += fixmul(bank_rate,FrameTime);
 			vm_angles_2_matrix(&endlevel_camera->orient,&cam_angles);
-#endif
 
 			timer -= FrameTime;
 
@@ -755,51 +716,20 @@ void do_endlevel_frame()
 
 			if (timer < 0) {
 
-				#ifdef SLEW_ON
-				slew_obj = endlevel_camera;
-				_do_slew_movement(endlevel_camera,1);
-				timer += FrameTime;		//make time stop
-				break;
-				#else
-
-				#ifdef SHORT_SEQUENCE
 
 				stop_endlevel_sequence();
-
-				#else
-				Endlevel_sequence = EL_PANNING;
-
-				vm_extract_angles_matrix(&camera_cur_angles,&endlevel_camera->orient);
-
-
-				timer = i2f(3);
-
-				if (Game_mode & GM_MULTI) { // try to skip part of the seq if multiplayer
-					stop_endlevel_sequence();
-					return;
-				}
-
-				#endif		//SHORT_SEQUENCE
-				#endif		//SLEW_ON
 
 			}
 			break;
 		}
 
-		#ifndef SHORT_SEQUENCE
 		case EL_PANNING: {
-			#ifndef SLEW_ON
 			int mask;
-			#endif
 
 			get_angs_to_object(&player_dest_angles,&station_pos,&ConsoleObject->pos);
 			chase_angles(&player_angles,&player_dest_angles);
 			vm_angles_2_matrix(&ConsoleObject->orient,&player_angles);
 			vm_vec_scale_add2(&ConsoleObject->pos,&ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
-
-			#ifdef SLEW_ON
-			_do_slew_movement(endlevel_camera,1);
-			#else
 
 			get_angs_to_object(&camera_desired_angles,&ConsoleObject->pos,&endlevel_camera->pos);
 			mask = chase_angles(&camera_cur_angles,&camera_desired_angles);
@@ -816,7 +746,6 @@ void do_endlevel_frame()
 
 				desired_fly_speed *= 2;
 			}
-			#endif
 
 			break;
 		}
@@ -824,16 +753,10 @@ void do_endlevel_frame()
 		case EL_CHASING: {
 			fix d,speed_scale;
 
-			#ifdef SLEW_ON
-			_do_slew_movement(endlevel_camera,1);
-			#endif
-
 			get_angs_to_object(&camera_desired_angles,&ConsoleObject->pos,&endlevel_camera->pos);
 			chase_angles(&camera_cur_angles,&camera_desired_angles);
 
-			#ifndef SLEW_ON
 			vm_angles_2_matrix(&endlevel_camera->orient,&camera_cur_angles);
-			#endif
 
 			d = vm_vec_dist_quick(&ConsoleObject->pos,&endlevel_camera->pos);
 
@@ -845,17 +768,15 @@ void do_endlevel_frame()
 			vm_angles_2_matrix(&ConsoleObject->orient,&player_angles);
 
 			vm_vec_scale_add2(&ConsoleObject->pos,&ConsoleObject->orient.fvec,fixmul(FrameTime,cur_fly_speed));
-			#ifndef SLEW_ON
+
 			vm_vec_scale_add2(&endlevel_camera->pos,&endlevel_camera->orient.fvec,fixmul(FrameTime,fixmul(speed_scale,cur_fly_speed)));
 
 			if (vm_vec_dist(&ConsoleObject->pos,&station_pos) < i2f(10))
 				stop_endlevel_sequence();
-			#endif
 
 			break;
 
 		}
-		#endif		//ifdef SHORT_SEQUENCE
 
 	}
 }
@@ -927,9 +848,8 @@ fix satellite_size = i2f(400);
 
 void render_external_scene(fix eye_offset)
 {
-#ifdef OGL
 	int orig_Render_depth = Render_depth;
-#endif
+
 	g3s_lrgb lrgb = { f1_0, f1_0, f1_0 };
 
 	Viewer_eye = Viewer->pos;
@@ -966,19 +886,13 @@ void render_external_scene(fix eye_offset)
 		}
 	}
 
-	#ifdef STATION_ENABLED
-	draw_polygon_model(&station_pos,&vmd_identity_matrix,NULL,station_modelnum,0,lrgb,NULL,NULL,0);
-	#endif
-
-#ifdef OGL
 	ogl_toggle_depth_test(0);
 	Render_depth = (200-(vm_vec_dist_quick(&mine_ground_exit_point, &Viewer_eye)/F1_0))/36;
-#endif
+
 	render_terrain(&mine_ground_exit_point,exit_point_bmx,exit_point_bmy);
-#ifdef OGL
+
 	Render_depth = orig_Render_depth;
 	ogl_toggle_depth_test(1);
-#endif
 
 	draw_exit_model();
 	if (ext_expl_playing)
@@ -1292,57 +1206,6 @@ extern short old_joy_x,old_joy_y;	//position last time around
 
 #include "key.h"
 #include "joy.h"
-
-#ifdef SLEW_ON		//this is a special routine for slewing around external scene
-int _do_slew_movement(object *obj, int check_keys )
-{
-	int moved = 0;
-	vms_vector svel, movement;				//scaled velocity (per this frame)
-	vms_matrix rotmat,new_pm;
-	vms_angvec rotang;
-
-	if (keyd_pressed[KEY_PAD5])
-		vm_vec_zero(&obj->phys_info.velocity);
-
-	if (check_keys) {
-		obj->phys_info.velocity.x += VEL_SPEED * keyd_pressed[KEY_PAD9] * FrameTime;
-		obj->phys_info.velocity.x -= VEL_SPEED * keyd_pressed[KEY_PAD7] * FrameTime;
-		obj->phys_info.velocity.y += VEL_SPEED * keyd_pressed[KEY_PADMINUS] * FrameTime;
-		obj->phys_info.velocity.y -= VEL_SPEED * keyd_pressed[KEY_PADPLUS] * FrameTime;
-		obj->phys_info.velocity.z += VEL_SPEED * keyd_pressed[KEY_PAD8] * FrameTime;
-		obj->phys_info.velocity.z -= VEL_SPEED * keyd_pressed[KEY_PAD2] * FrameTime;
-
-		rotang.pitch = rotang.bank  = rotang.head  = 0;
-		rotang.pitch += keyd_pressed[KEY_LBRACKET] * FrameTime / ROT_SPEED;
-		rotang.pitch -= keyd_pressed[KEY_RBRACKET] * FrameTime / ROT_SPEED;
-		rotang.bank  += keyd_pressed[KEY_PAD1] * FrameTime / ROT_SPEED;
-		rotang.bank  -= keyd_pressed[KEY_PAD3] * FrameTime / ROT_SPEED;
-		rotang.head  += keyd_pressed[KEY_PAD6] * FrameTime / ROT_SPEED;
-		rotang.head  -= keyd_pressed[KEY_PAD4] * FrameTime / ROT_SPEED;
-	}
-	else
-		rotang.pitch = rotang.bank  = rotang.head  = 0;
-
-	moved = rotang.pitch | rotang.bank | rotang.head;
-
-	vm_angles_2_matrix(&rotmat,&rotang);
-	vm_matrix_x_matrix(&new_pm,&obj->orient,&rotmat);
-	obj->orient = new_pm;
-	vm_transpose_matrix(&new_pm);		//make those columns rows
-
-	moved |= obj->phys_info.velocity.x | obj->phys_info.velocity.y | obj->phys_info.velocity.z;
-
-	svel = obj->phys_info.velocity;
-	vm_vec_scale(&svel,FrameTime);		//movement in this frame
-	vm_vec_rotate(&movement,&svel,&new_pm);
-
-	vm_vec_add2(&obj->pos,&movement);
-
-	moved |= (movement.x || movement.y || movement.z);
-
-	return moved;
-}
-#endif
 
 #define LINE_LEN	80
 #define NUM_VARS	8

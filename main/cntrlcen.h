@@ -90,6 +90,4 @@ extern int reactor_read_n(reactor *r, int n, CFILE *fp);
  */
 extern int control_center_triggers_read_n(control_center_triggers *cct, int n, CFILE *fp);
 
-extern int control_center_triggers_write(control_center_triggers *cct, PHYSFS_file *fp);
-
 #endif /* _CNTRLCEN_H */

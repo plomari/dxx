@@ -434,23 +434,6 @@ void do_lunacy_off(void)
 	Difficulty_level = Diff_save;
 }
 
-//	----------------------------------------------------------------
-//	Do *dest = *delta unless:
-//				*delta is pretty small
-//		and	they are of different signs.
-void set_rotvel_and_saturate(fix *dest, fix delta)
-{
-	if ((delta ^ *dest) < 0) {
-		if (abs(delta) < F1_0/8) {
-			*dest = delta/4;
-		} else
-			*dest = delta;
-	} else {
-		*dest = delta;
-	}
-}
-
-
 extern void physics_turn_towards_vector(vms_vector *goal_vector, object *obj, fix rate);
 extern fix Seismic_tremor_magnitude;
 

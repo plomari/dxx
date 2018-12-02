@@ -101,9 +101,6 @@ typedef struct g3s_object {
 //start the frame
 void g3_start_frame(void);
 
-//set view from x,y,z & p,b,h, zoom.  Must call one of g3_set_view_*() 
-void g3_set_view_angles(const vms_vector *view_pos,const vms_angvec *view_orient,fix zoom);
-
 //set view from x,y,z, viewer matrix, and zoom.  Must call one of g3_set_view_*() 
 void g3_set_view_matrix(const vms_vector *view_pos,const vms_matrix *view_matrix,fix zoom);
 
@@ -153,16 +150,10 @@ void g3_project_point(g3s_point *point);
 //calculate the depth of a point - returns the z coord of the rotated point
 fix g3_calc_point_depth(const vms_vector *pnt);
 
-//from a 2d point, compute the vector through that point
-void g3_point_2_vec(vms_vector *v,short sx,short sy);
-
 //code a point.  fills in the p3_codes field of the point, and returns the codes
 ubyte g3_code_point(g3s_point *point);
 
 //delta rotation functions
-vms_vector *g3_rotate_delta_x(vms_vector *dest,fix dx);
-vms_vector *g3_rotate_delta_y(vms_vector *dest,fix dy);
-vms_vector *g3_rotate_delta_z(vms_vector *dest,fix dz);
 vms_vector *g3_rotate_delta_vec(vms_vector *dest,const vms_vector *src);
 ubyte g3_add_delta_vec(g3s_point *dest,const g3s_point *src,const vms_vector *deltav);
 
@@ -195,10 +186,6 @@ bool g3_check_and_draw_tmap(int nv,const g3s_point **pointlist,g3s_uvl *uvl_list
 
 //draws a line. takes two points.
 bool g3_draw_line(const g3s_point *p0,const g3s_point *p1);
-
-//draw a polygon that is always facing you
-//returns 1 if off screen, 0 if drew
-bool g3_draw_rod_flat(g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width);
 
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew

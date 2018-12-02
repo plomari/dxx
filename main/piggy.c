@@ -184,8 +184,6 @@ void DiskBitmapHeader_d1_read(DiskBitmapHeader *dbh, CFILE *fp)
 	dbh->offset = cfile_read_int(fp);
 }
 
-int piggy_is_substitutable_bitmap( char * name, char * subst_name );
-
 void swap_0_255(grs_bitmap *bmp)
 {
 	int i;
@@ -196,17 +194,6 @@ void swap_0_255(grs_bitmap *bmp)
 		else if (bmp->bm_data[i] == 255)
 			bmp->bm_data[i] = 0;
 	}
-}
-
-char* piggy_game_bitmap_name(grs_bitmap *bmp)
-{
-	if (bmp >= GameBitmaps && bmp < &GameBitmaps[MAX_BITMAP_FILES])
-	{
-		int i = bmp-GameBitmaps; // i = (bmp - GameBitmaps) / sizeof(grs_bitmap);
-		Assert (bmp == &GameBitmaps[i] && i >= 0 && i < MAX_BITMAP_FILES);
-		return AllBitmaps[i].name;
-	}
-	return NULL;
 }
 
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
@@ -293,18 +280,6 @@ bitmap_index piggy_find_bitmap( char * name )
 	return bmp;
 }
 
-int piggy_find_sound( char * name )     
-{
-	int i;
-
-	i = hashtable_search( &AllDigiSndNames, name );
-
-	if ( i < 0 )
-		return 255;
-
-	return i;
-}
-
 CFILE * Piggy_fp = NULL;
 
 char Current_pigfile[FILENAME_LEN] = "";
@@ -322,66 +297,6 @@ int Pigfile_initialized=0;
 
 #define PIGFILE_ID              MAKE_SIG('G','I','P','P') //PPIG
 #define PIGFILE_VERSION         2
-
-extern char CDROM_dir[];
-
-int request_cd(void);
-
-
-//PC Version of copy_pigfile_from_cd is below
-
-//copies a pigfile from the CD to the current dir
-//retuns file handle of new pig
-CFILE *copy_pigfile_from_cd(char *filename)
-{
-#if 0
-	char name[80];
-	FILEFINDSTRUCT find;
-	int ret;
-
-	show_boxed_message("Copying bitmap data from CD...");
-	gr_palette_load(gr_palette);    //I don't think this line is really needed
-
-	//First, delete all PIG files currently in the directory
-
-	if( !FileFindFirst( "*.pig", &find ) ) {
-		do      {
-			cfile_delete(find.name);
-		} while( !FileFindNext( &find ) );
-		FileFindClose();
-	}
-
-	//Now, copy over new pig
-
-	songs_stop_redbook();           //so we can read off the cd
-
-	//new code to unarj file
-	strcpy(name,CDROM_dir);
-	strcat(name,"descent2.sow");
-
-	do {
-//		ret = unarj_specific_file(name,filename,filename);
-
-		ret = !EXIT_SUCCESS;
-
-		if (ret != EXIT_SUCCESS) {
-
-			//delete file, so we don't leave partial file
-			cfile_delete(filename);
-
-			#ifndef MACINTOSH
-			if (request_cd() == -1)
-			#endif
-				//NOTE LINK TO ABOVE IF
-				Error("Cannot load file <%s> from CD",filename);
-		}
-
-	} while (ret != EXIT_SUCCESS);
-#endif
-
-
-	return cfopen(filename, "rb");
-}
 
 //initialize a pigfile, reading headers
 //returns the size of all the bitmap data
@@ -1099,45 +1014,6 @@ char * gauge_bitmap_names[NUM_GAUGE_BITMAPS] = {
 	"gauss1", "helix1",
 	"phoenix1"
 };
-
-
-int piggy_is_gauge_bitmap( char * base_name )
-{
-	int i;
-	for (i=0; i<NUM_GAUGE_BITMAPS; i++ )    {
-		if ( !stricmp( base_name, gauge_bitmap_names[i] ))      
-			return 1;
-	}
-
-	return 0;
-}
-
-int piggy_is_substitutable_bitmap( char * name, char * subst_name )
-{
-	int frame;
-	char * p;
-	char base_name[ 16 ];
-	
-	strcpy( subst_name, name );
-	p = strchr( subst_name, '#' );
-	if ( p ) {
-		frame = atoi( &p[1] );
-		*p = 0;
-		strcpy( base_name, subst_name );
-		if ( !piggy_is_gauge_bitmap( base_name )) {
-			sprintf( subst_name, "%s#%d", base_name, frame+1 );
-			if ( piggy_does_bitmap_exist_slow( subst_name )  ) {
-				if ( frame & 1 ) {
-					sprintf( subst_name, "%s#%d", base_name, frame-1 );
-					return 1;
-				}
-			}
-		}
-	}
-	strcpy( subst_name, name );
-	return 0;
-}
-
 
 
 /*

@@ -1363,8 +1363,3 @@ void kc_set_controls()
 	for (unsigned i=0; i < ARRAY_ELEMS(kc_d2x); i++ )
 		kcm_d2x[i].value = PlayerCfg.KeySettingsD2X[i];
 }
-
-char GetKeyValue (char key)
-{
-	return (kcm_keyboard[(int)key].value);
-}

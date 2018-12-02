@@ -260,26 +260,18 @@ void draw_window_label()
 	if ( Show_view_text_timer > 0 )
 	{
 		char *viewer_name,*control_name;
-		char	*viewer_id;
 		Show_view_text_timer -= FrameTime;
 
-		viewer_id = "";
 		switch( Viewer->type )
 		{
 			case OBJ_FIREBALL:	viewer_name = "Fireball"; break;
 			case OBJ_ROBOT:		viewer_name = "Robot";
-#ifdef EDITOR
-										viewer_id = Robot_names[Viewer->id];
-#endif
 				break;
 			case OBJ_HOSTAGE:		viewer_name = "Hostage"; break;
 			case OBJ_PLAYER:		viewer_name = "Player"; break;
 			case OBJ_WEAPON:		viewer_name = "Weapon"; break;
 			case OBJ_CAMERA:		viewer_name = "Camera"; break;
 			case OBJ_POWERUP:		viewer_name = "Powerup";
-#ifdef EDITOR
-										viewer_id = Powerup_names[Viewer->id];
-#endif
 				break;
 			case OBJ_DEBRIS:		viewer_name = "Debris"; break;
 			case OBJ_CNTRLCEN:	viewer_name = "Reactor"; break;
@@ -298,7 +290,7 @@ void draw_window_label()
 
 		gr_set_curfont(GAME_FONT);
 		gr_set_fontcolor(BM_XRGB(31,0,0),-1);
-		gr_printf( 0x8000, (SHEIGHT/10), "%zi: %s [%s] View - %s",Viewer-Objects, viewer_name, viewer_id, control_name );
+		gr_printf( 0x8000, (SHEIGHT/10), "%zi: %s View - %s",Viewer-Objects, viewer_name, control_name );
 
 	}
 }
@@ -417,51 +409,6 @@ void expand_row(ubyte * dest, ubyte * src, int num_src_pixels )
 	for (i = 0; i < num_src_pixels; i++) {
 		*dest++ = *src;
 		*dest++ = *src++;
-	}
-}
-
-// doubles the size in x or y of a bitmap in place.
-void game_expand_bitmap( grs_bitmap * bmp, uint flags )
-{
-	int i;
-	ubyte * dptr, * sptr;
-
-	switch(flags & 3)	{
-	case 2:	// expand x
-		Assert( bmp->bm_rowsize == bmp->bm_w*2 );
-		dptr = &bmp->bm_data[(bmp->bm_h-1)*bmp->bm_rowsize];
-		for (i=bmp->bm_h-1; i>=0; i-- )	{
-			expand_row( dptr, dptr, bmp->bm_w );	
-			dptr -= bmp->bm_rowsize;
-		}
-		bmp->bm_w *= 2;
-		break;
-	case 1:	// expand y
-		dptr = &bmp->bm_data[(2*(bmp->bm_h-1)+1)*bmp->bm_rowsize];
-		sptr = &bmp->bm_data[(bmp->bm_h-1)*bmp->bm_rowsize];
-		for (i=bmp->bm_h-1; i>=0; i-- )	{
-			memcpy( dptr, sptr, bmp->bm_w );	
-			dptr -= bmp->bm_rowsize;
-			memcpy( dptr, sptr, bmp->bm_w );	
-			dptr -= bmp->bm_rowsize;
-			sptr -= bmp->bm_rowsize;
-		}
-		bmp->bm_h *= 2;
-		break;
-	case 3:	// expand x & y
-		Assert( bmp->bm_rowsize == bmp->bm_w*2 );
-		dptr = &bmp->bm_data[(2*(bmp->bm_h-1)+1)*bmp->bm_rowsize];
-		sptr = &bmp->bm_data[(bmp->bm_h-1)*bmp->bm_rowsize];
-		for (i=bmp->bm_h-1; i>=0; i-- )	{
-			expand_row( dptr, sptr, bmp->bm_w );	
-			dptr -= bmp->bm_rowsize;
-			expand_row( dptr, sptr, bmp->bm_w );	
-			dptr -= bmp->bm_rowsize;
-			sptr -= bmp->bm_rowsize;
-		}
-		bmp->bm_w *= 2;
-		bmp->bm_h *= 2;
-		break;
 	}
 }
 

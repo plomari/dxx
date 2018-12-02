@@ -383,9 +383,6 @@ void obj_delete(int objnum);
 // compressed
 void reset_objects(int n_objs);
 
-// make object array non-sparse
-void compress_objects(void);
-
 // Render an object.  Calls one of several routines based on type
 void render_object(object *obj);
 

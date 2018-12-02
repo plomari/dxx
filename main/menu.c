@@ -107,7 +107,6 @@ enum MENUS
 // Function Prototypes added after LINTING
 int do_option(int select);
 int do_new_game_menu(void);
-int do_load_level_menu(void);
 void do_multi_player_menu();
 void do_sandbox_menu();
 extern void newmenu_free_background();
@@ -264,6 +263,13 @@ int player_menu_handler( listbox *lb, d_event *event, char **list )
 	return 0;
 }
 
+static int string_array_sort_func(const void *p0, const void *p1)
+{
+	const char **e0 = p0;
+	const char **e1 = p1;
+	return stricmp(*e0, *e1);
+}
+
 //Inputs the player's name, without putting up the background screen
 int RegisterPlayer(int at_program_start)
 {
@@ -342,7 +348,7 @@ int RegisterPlayer(int at_program_start)
 	}
 
 	// Sort by name, except the <Create New Player> string
-	qsort(&m[1], NumItems - 1, sizeof(char *), (int (*)( const void *, const void * ))string_array_sort_func);
+	qsort(&m[1], NumItems - 1, sizeof(char *), string_array_sort_func);
 
 	for ( i=0; i<NumItems; i++ )
 		if (!stricmp(Players[Player_num].callsign, m[i]) )
@@ -768,26 +774,6 @@ try_again:
 	StartNewGame(new_level_num);
 
 	return 1;	// exit mission listbox
-}
-
-int do_load_level_menu(void)
-{
-	newmenu_item m;
-	char text[10]="";
-	int new_level_num;
-
-	m.type=NM_TYPE_INPUT; m.text_len = 10; m.text = text;
-
-	newmenu_do( NULL, "Enter level to load", 1, &m, NULL, NULL );
-
-	new_level_num = atoi(m.text);
-
-	if (new_level_num!=0 && new_level_num>=Last_secret_level && new_level_num<=Last_level)  {
-		StartNewGame(new_level_num);
-		return 1;
-	}
-
-	return 0;
 }
 
 void do_sound_menu();

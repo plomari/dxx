@@ -18,7 +18,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #define COMPRESS		1	//do the RLE or not? (for debugging mostly)
-#define WRITE_TINY	0	//should we write a TINY chunk?
 
 #define MIN_COMPRESS_WIDTH	65	//don't compress if less than this wide
 
@@ -563,26 +562,6 @@ int iff_read_bitmap(char *ifilename,grs_bitmap *bm,ubyte *palette)
 
 }
 
-//like iff_read_bitmap(), but reads into a bitmap that already exists,
-//without allocating memory for the bitmap.
-int iff_read_into_bitmap(char *ifilename, grs_bitmap *bm, sbyte *palette)
-{
-	int ret;			//return code
-	PHYSFS_file *ifile;
-
-	ifile = cfopen(ifilename, "rb");
-	if (ifile == NULL)
-		return IFF_NO_FILE;
-
-	ret = iff_parse_bitmap(ifile,bm,palette,NULL);
-
-	PHYSFS_close(ifile);
-
-	return ret;
-
-
-}
-
 #define BMHD_SIZE 20
 
 int write_bmhd(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header)
@@ -742,60 +721,6 @@ int write_body(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressi
 
 }
 
-#if WRITE_TINY
-//write a small representation of a bitmap. returns size
-int write_tiny(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compression_on)
-{
-	int skip;
-	int new_w,new_h;
-	int len,total_len=0,newlen;
-	int x,y,xofs,odd;
-	ubyte *p = bitmap_header->raw_data;
-	ubyte tspan[80],new_span[80*2];
-	long save_pos;
-
-	skip = max((bitmap_header->w+79)/80,(bitmap_header->h+63)/64);
-
-	new_w = bitmap_header->w / skip;
-	new_h = bitmap_header->h / skip;
-
-	odd = new_w & 1;
-
-	len = new_w * new_h + 4;
-
-	put_sig(tiny_sig,ofile);
-	save_pos = PHYSFS_tell(ofile);
-	PHYSFS_writeSBE32(ofile, EVEN(len));
-
-	PHYSFS_writeSBE16(ofile, new_w);
-	PHYSFS_writeSBE16(ofile, new_h);
-
-	for (y=0;y<new_h;y++) {
-		for (x=xofs=0;x<new_w;x++,xofs+=skip)
-			tspan[x] = p[xofs];
-
-		if (compression_on) {
-			total_len += newlen = rle_span(new_span,tspan,new_w+odd);
-			PHYSFS_write(ofile,new_span,newlen,1);
-		}
-		else
-			PHYSFS_write(ofile,p,new_w+odd,1);
-
-		p += skip * bitmap_header->row_size;		//bitmap_header->w;
-
-	}
-
-	if (compression_on) {
-		Assert(cfseek(ofile,save_pos,SEEK_SET)==0);
-		PHYSFS_writeSBE32(ofile, 4+total_len);
-		Assert(cfseek(ofile,4+total_len,SEEK_CUR)==0);
-		if (total_len&1) PHYSFSX_writeU8(ofile, 0);		//pad to even
-	}
-
-	return ((compression_on) ? (EVEN(total_len)+8+4) : (len+8));
-}
-#endif
-
 int write_pbm(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compression_on)			/* writes a pbm iff file */
 {
 	int ret;
@@ -814,11 +739,7 @@ int write_pbm(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressio
 	ret = write_pal(ofile,bitmap_header);
 	if (ret != IFF_NO_ERROR) return ret;
 
-#if WRITE_TINY
-	tiny_size = write_tiny(ofile,bitmap_header,compression_on);
-#else
 	tiny_size = 0;
-#endif
 
 	body_size = write_body(ofile,bitmap_header,compression_on);
 
@@ -827,120 +748,6 @@ int write_pbm(PHYSFS_file *ofile,iff_bitmap_header *bitmap_header,int compressio
 	Assert(cfseek(ofile,save_pos,SEEK_SET)==0);
 	PHYSFS_writeSBE32(ofile, pbm_size+8);
 	Assert(cfseek(ofile,pbm_size+8,SEEK_CUR)==0);
-
-	return ret;
-
-}
-
-//writes an IFF file from a grs_bitmap structure. writes palette if not null
-//returns error codes - see IFF.H.
-int iff_write_bitmap(char *ofilename,grs_bitmap *bm,ubyte *palette)
-{
-	PHYSFS_file *ofile;
-	iff_bitmap_header bmheader;
-	int ret;
-	int compression_on;
-
-#if COMPRESS
-	compression_on = (bm->bm_w>=MIN_COMPRESS_WIDTH);
-#else
-	compression_on = 0;
-#endif
-
-	//fill in values in bmheader
-
-	bmheader.x = bmheader.y = 0;
-	bmheader.w = bm->bm_w;
-	bmheader.h = bm->bm_h;
-	bmheader.type = TYPE_PBM;
-	bmheader.transparentcolor = iff_transparent_color;
-	bmheader.pagewidth = bm->bm_w;	//I don't think it matters what I write
-	bmheader.pageheight = bm->bm_h;
-	bmheader.nplanes = 8;
-	bmheader.masking = mskNone;
-	if (iff_has_transparency)	{
-		 bmheader.masking |= mskHasTransparentColor;
-	}
-	bmheader.compression = (compression_on?cmpByteRun1:cmpNone);
-
-	bmheader.xaspect = bmheader.yaspect = 1;	//I don't think it matters what I write
-	bmheader.raw_data = bm->bm_data;
-	bmheader.row_size = bm->bm_rowsize;
-
-	if (palette) memcpy(&bmheader.palette,palette,256*3);
-
-	//open file and write
-
-	if ((ofile = PHYSFS_openWrite(ofilename)) == NULL)
-		return IFF_NO_FILE;
-
-	ret = write_pbm(ofile,&bmheader,compression_on);
-
-	PHYSFS_close(ofile);
-
-	return ret;
-}
-
-//read in many brushes.  fills in array of pointers, and n_bitmaps.
-//returns iff error codes
-int iff_read_animbrush(char *ifilename,grs_bitmap **bm_list,int max_bitmaps,int *n_bitmaps,ubyte *palette)
-{
-	int ret = IFF_NO_ERROR;			//return code
-	PHYSFS_file *ifile;
-	iff_bitmap_header bmheader;
-	int sig,form_len;
-	long form_type;
-
-	*n_bitmaps=0;
-
-	ifile = cfopen(ifilename, "rb");
-	if (ifile == NULL)
-		return IFF_NO_FILE;
-
-	bmheader.raw_data = NULL;
-
-	sig=get_sig(ifile);
-	PHYSFS_readSBE32(ifile, &form_len);
-
-	if (sig != form_sig) {
-		ret = IFF_NOT_IFF;
-		goto done;
-	}
-
-	form_type = get_sig(ifile);
-
-	if ((form_type == pbm_sig) || (form_type == ilbm_sig))
-		ret = IFF_FORM_BITMAP;
-	else if (form_type == anim_sig) {
-		int anim_end = PHYSFS_tell(ifile) + form_len - 4;
-
-		while (PHYSFS_tell(ifile) < anim_end && *n_bitmaps < max_bitmaps) {
-
-			grs_bitmap *prev_bm;
-
-			prev_bm = *n_bitmaps>0?bm_list[*n_bitmaps-1]:NULL;
-
-			MALLOC(bm_list[*n_bitmaps] , grs_bitmap, 1 );
-			bm_list[*n_bitmaps]->bm_data = NULL;
-
-			ret = iff_parse_bitmap(ifile,bm_list[*n_bitmaps],*n_bitmaps>0?NULL:(signed char *)palette,prev_bm);
-
-			if (ret != IFF_NO_ERROR)
-				goto done;
-
-			(*n_bitmaps)++;
-		}
-
-		if (PHYSFS_tell(ifile) < anim_end)	//ran out of room
-			ret = IFF_TOO_MANY_BMS;
-
-	}
-	else
-		ret = IFF_UNKNOWN_FORM;
-
-done:
-
-	PHYSFS_close(ifile);
 
 	return ret;
 

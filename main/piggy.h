@@ -59,7 +59,6 @@ void piggy_close();
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file );
 int piggy_register_sound( digi_sound * snd, char * name, int in_file );
 bitmap_index piggy_find_bitmap( char * name );
-int piggy_find_sound( char * name );
 
 extern int Pigfile_initialized;
 
@@ -67,8 +66,6 @@ void piggy_read_bitmap_data(grs_bitmap * bmp);
 void piggy_read_sound_data(digi_sound *snd);
 
 void piggy_load_level_data();
-
-char* piggy_game_bitmap_name(grs_bitmap *bmp);
 
 #define MAX_BITMAP_FILES    2620 // Upped for CD Enhanced
 #define MAX_SOUND_FILES     MAX_SOUNDS

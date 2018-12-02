@@ -62,18 +62,11 @@ typedef struct d_event
 	event_type type;
 } d_event;
 
-int event_init();
-
 // Set and call the default event handler
 void set_default_handler(int (*handler)(d_event *event));
 int call_default_handler(d_event *event);
 
 // Send an event to the front window as first priority, then to the windows behind if it's not modal (editor), then the default handler
 void event_send(d_event *event);
-
-
-// See how long we were idle for
-void event_reset_idle_seconds();
-fix event_get_idle_seconds();
 
 #endif

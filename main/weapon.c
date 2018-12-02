@@ -769,13 +769,6 @@ extern void multi_send_seismic (fix,fix);
 #define	SEISMIC_DISTURBANCE_DURATION	(F1_0*5)
 fix	Seismic_disturbance_start_time = 0, Seismic_disturbance_end_time;
 
-int Seismic_level=0;
-
-int	on_seismic_level(void)
-{
-	return Seismic_level;
-}
-
 void init_seismic_disturbances(void)
 {
 	Seismic_disturbance_start_time = 0;

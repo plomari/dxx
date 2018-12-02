@@ -157,6 +157,4 @@ void old_matcen_info_read(old_matcen_info *mi, CFILE *fp);
  */
 void matcen_info_read(matcen_info *ps, CFILE *fp);
 
-void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp);
-
 #endif

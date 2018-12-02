@@ -62,16 +62,6 @@ grs_bitmap *gr_create_bitmap(int w, int h )
 	return gr_new_bitmap(w, h, 1);
 }
 
-grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data )
-{
-	grs_bitmap *new;
-
-	new = (grs_bitmap *)d_malloc( sizeof(grs_bitmap) );
-	gr_init_bitmap (new, 0, 0, w, h, w, raw_data);
-
-	return new;
-}
-
 void gr_init_bitmap( grs_bitmap *bm, int x, int y, int w, int h, int bytesperline, unsigned char * data ) // TODO: virtualize
 {
 	bm->bm_x = x;
@@ -206,31 +196,6 @@ void build_colormap_good( ubyte * palette, ubyte * colormap, int * freq )
  		*colormap++ = gr_find_closest_color( r, g, b );
 		*freq++ = 0;
 	}
-}
-
-void gr_remap_bitmap( grs_bitmap * bmp, ubyte * palette, int transparent_color, int super_transparent_color )
-{
-	ubyte colormap[256];
-	int freq[256];
-
-	Assert(bmp->bm_depth <= 1);
-
-	// This should be build_colormap_asm, but we're not using invert table, so...
-	build_colormap_good( palette, colormap, freq );
-
-	if ( (super_transparent_color>=0) && (super_transparent_color<=255))
-		colormap[super_transparent_color] = 254;
-
-	if ( (transparent_color>=0) && (transparent_color<=255))
-		colormap[transparent_color] = TRANSPARENCY_COLOR;
-
-	decode_data(bmp->bm_data, bmp->bm_w * bmp->bm_h, colormap, freq );
-
-	if ( (transparent_color>=0) && (transparent_color<=255) && (freq[transparent_color]>0) )
-		gr_set_transparent (bmp, 1);
-
-	if ( (super_transparent_color>=0) && (super_transparent_color<=255) && (freq[super_transparent_color]>0) )
-		gr_set_super_transparent (bmp, 0);
 }
 
 void gr_remap_bitmap_good( grs_bitmap * bmp, ubyte * palette, int transparent_color, int super_transparent_color )

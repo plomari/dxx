@@ -82,26 +82,6 @@ int PCXHeader_read_n(PCXHeader *ph, int n, CFILE *fp)
 	return i;
 }
 
-int pcx_get_dimensions( char *filename, int *width, int *height)
-{
-	CFILE *PCXfile;
-	PCXHeader header;
-
-	PCXfile = cfopen(filename, "rb");
-	if (!PCXfile) return PCX_ERROR_OPENING;
-
-	if (PCXHeader_read_n(&header, 1, PCXfile) != 1) {
-		cfclose(PCXfile);
-		return PCX_ERROR_NO_HEADER;
-	}
-	cfclose(PCXfile);
-
-	*width = header.Xmax - header.Xmin+1;
-	*height = header.Ymax - header.Ymin+1;
-
-	return PCX_ERROR_NONE;
-}
-
 int pcx_read_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette )
 {
 	PCXHeader header;
@@ -174,69 +154,6 @@ int pcx_read_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette )
 	}
 	cfclose(PCXfile);
 	return PCX_ERROR_NONE;
-}
-
-int pcx_write_bitmap( char * filename, grs_bitmap * bmp, ubyte * palette )
-{
-	int retval;
-	int i;
-	ubyte data;
-	PCXHeader header;
-	PHYSFS_file *PCXfile;
-
-	memset( &header, 0, PCXHEADER_SIZE );
-
-	header.Manufacturer = 10;
-	header.Encoding = 1;
-	header.Nplanes = 1;
-	header.BitsPerPixel = 8;
-	header.Version = 5;
-	header.Xmax = bmp->bm_w-1;
-	header.Ymax = bmp->bm_h-1;
-	header.BytesPerLine = bmp->bm_w;
-
-	PCXfile = PHYSFSX_openWriteBuffered(filename);
-	if ( !PCXfile )
-		return PCX_ERROR_OPENING;
-
-	if (PHYSFS_write(PCXfile, &header, PCXHEADER_SIZE, 1) != 1)
-	{
-		PHYSFS_close(PCXfile);
-		return PCX_ERROR_WRITING;
-	}
-
-	for (i=0; i<bmp->bm_h; i++ )	{
-		if (!pcx_encode_line( &bmp->bm_data[bmp->bm_rowsize*i], bmp->bm_w, PCXfile ))	{
-			PHYSFS_close(PCXfile);
-			return PCX_ERROR_WRITING;
-		}
-	}
-
-	// Mark an extended palette
-	data = 12;
-	if (PHYSFS_write(PCXfile, &data, 1, 1) != 1)
-	{
-		PHYSFS_close(PCXfile);
-		return PCX_ERROR_WRITING;
-	}
-
-	// Write the extended palette
-	for (i=0; i<768; i++ )
-		palette[i] <<= 2;
-
-	retval = PHYSFS_write(PCXfile, palette, 768, 1);
-
-	for (i=0; i<768; i++ )
-		palette[i] >>= 2;
-
-	if (retval !=1)	{
-		PHYSFS_close(PCXfile);
-		return PCX_ERROR_WRITING;
-	}
-
-	PHYSFS_close(PCXfile);
-	return PCX_ERROR_NONE;
-
 }
 
 // returns number of bytes written into outBuff, 0 if failed

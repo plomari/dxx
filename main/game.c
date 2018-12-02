@@ -323,22 +323,6 @@ void calc_frame_time()
 	calc_d_tick();
 }
 
-void move_player_2_segment(segment *seg,int side)
-{
-	vms_vector vp;
-
-	compute_segment_center(&ConsoleObject->pos,seg);
-	compute_center_point_on_side(&vp,seg,side);
-	vm_vec_sub2(&vp,&ConsoleObject->pos);
-	vm_vector_2_matrix(&ConsoleObject->orient,&vp,NULL,NULL);
-
-	obj_relink( ConsoleObject-Objects, SEG_PTR_2_NUM(seg) );
-
-}
-
-void do_photos();
-void level_with_floor();
-
 //initialize flying
 void fly_init(object *obj)
 {
@@ -1623,15 +1607,6 @@ void flickering_light_read(flickering_light *fl, CFILE *fp)
 	fl->mask = cfile_read_int(fp);
 	fl->timer = cfile_read_fix(fp);
 	fl->delay = cfile_read_fix(fp);
-}
-
-void flickering_light_write(flickering_light *fl, PHYSFS_file *fp)
-{
-	PHYSFS_writeSLE16(fp, fl->segnum);
-	PHYSFS_writeSLE16(fp, fl->sidenum);
-	PHYSFS_writeULE32(fp, fl->mask);
-	PHYSFSX_writeFix(fp, fl->timer);
-	PHYSFSX_writeFix(fp, fl->delay);
 }
 
 bool is_d2x_xl_level(void)

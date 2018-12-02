@@ -1147,12 +1147,6 @@ int sphere_intersects_wall(vms_vector *pnt,int segnum,fix rad,int *hseg,int *hsi
 	return sphere_intersects_wall_r(pnt, segnum, rad, hseg, hside, hface);
 }
 
-//Returns true if the object is through any walls
-int object_intersects_wall(object *objp)
-{
-	return sphere_intersects_wall(&objp->pos,objp->segnum,objp->size,NULL,NULL,NULL);
-}
-
 int object_intersects_wall_d(object *objp,int *hseg,int *hside,int *hface)
 {
 	return sphere_intersects_wall(&objp->pos,objp->segnum,objp->size,hseg,hside,hface);

@@ -303,21 +303,7 @@ int g3_poly_get_color(void *model_ptr)
 				int nv = w(p+2);
 				Assert( nv < MAX_POINTS_PER_POLY );
 				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
-#ifdef FADE_FLATPOLY
-					short c;
-					unsigned char cc;
-					int l;
-#endif
-#ifndef FADE_FLATPOLY
 					color = gr_find_closest_color_15bpp(w(p + 28));
-#else
-					//l = (32 * model_light) >> 16;
-					l = f2i(fixmul(i2f(32), (model_light.r+model_light.g+model_light.b)/3));
-					if (l<0) l = 0;
-					else if (l>32) l = 32;
-					cc = gr_find_closest_color_15bpp(w(p+28));
-					color = gr_fade_table[(l<<8)|cc];
-#endif
 				}
 				p += 30 + ((nv&~1)+1)*2;
 				break;
@@ -803,11 +789,4 @@ void g3_init_polygon_model(void *model_ptr)
 	highest_texture_num = -1;
 
 	init_model_sub((ubyte *) model_ptr);
-}
-
-//uninit code for bitmap models
-void g3_uninit_polygon_model(void *model_ptr)
-{
-	// not required, the above g3_init_polygon_model doesn't change the data
-	model_ptr = model_ptr;
 }

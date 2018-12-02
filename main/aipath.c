@@ -45,9 +45,7 @@ void validate_all_paths(void);
 void ai_path_set_orient_and_vel(object *objp, vms_vector* goal_point, int player_visibility, vms_vector *vec_to_player);
 void maybe_ai_path_garbage_collect(void);
 void ai_path_garbage_collect(void);
-#if PATH_VALIDATION
 int validate_path(int debug_flag, point_seg* psegs, int num_points);
-#endif
 
 //	------------------------------------------------------------------------
 void create_random_xlate(sbyte *xt)
@@ -270,9 +268,8 @@ int create_path_points(object *objp, int start_seg, int end_seg, point_seg *pseg
 	point_seg	*original_psegs = psegs;
 	int		l_num_points;
 
-#if PATH_VALIDATION
-	validate_all_paths();
-#endif
+	if (Debug_mode)
+		validate_all_paths();
 
 if ((objp->type == OBJ_ROBOT) && (objp->ctype.ai_info.behavior == AIB_RUN_FROM)) {
 	random_flag = 1;
@@ -415,9 +412,8 @@ cpp_done1: ;
 	psegs++;
 	l_num_points++;
 
-#if PATH_VALIDATION
-	validate_path(1, original_psegs, l_num_points);
-#endif
+	if (Debug_mode)
+		validate_path(1, original_psegs, l_num_points);
 
 	//	Now, reverse point_segs in place.
 	for (i=0; i< l_num_points/2; i++) {
@@ -425,9 +421,9 @@ cpp_done1: ;
 		*(original_psegs + i) = *(original_psegs + l_num_points - i - 1);
 		*(original_psegs + l_num_points - i - 1) = temp_point_seg;
 	}
-#if PATH_VALIDATION
-	validate_path(2, original_psegs, l_num_points);
-#endif
+
+	if (Debug_mode)
+		validate_path(2, original_psegs, l_num_points);
 
 	//	Now, if safety_flag set, then insert the point at the center of the side connecting two segments
 	//	between the two points.  This is messy because we must insert into the list.  The simplest (and not too slow)
@@ -444,9 +440,8 @@ cpp_done1: ;
 		}
 	}
 
-#if PATH_VALIDATION
-	validate_path(3, original_psegs, l_num_points);
-#endif
+	if (Debug_mode)
+		validate_path(3, original_psegs, l_num_points);
 
 //  This code causes apparent discontinuities in the path, moving a point
 //	into a new segment.  It is not necessarily bad, but it makes it hard to track down actual
@@ -455,9 +450,8 @@ cpp_done1: ;
 		if (Robot_info[objp->id].companion)
 			move_towards_outside(original_psegs, &l_num_points, objp, 0);
 
-#if PATH_VALIDATION
-	validate_path(4, original_psegs, l_num_points);
-#endif
+	if (Debug_mode)
+		validate_path(4, original_psegs, l_num_points);
 
 	*num_points = l_num_points;
 	return 0;
@@ -744,9 +738,10 @@ void create_n_segment_path(object *objp, int path_length, int avoid_seg)
 
 	aip->hide_index = Point_segs_free_ptr - Point_segs;
 	aip->cur_path_index = 0;
-#if PATH_VALIDATION
-	validate_path(8, Point_segs_free_ptr, aip->path_length);
-#endif
+
+	if (Debug_mode)
+		validate_path(8, Point_segs_free_ptr, aip->path_length);
+
 	Point_segs_free_ptr += aip->path_length;
 	if (Point_segs_free_ptr - Point_segs + MAX_PATH_LENGTH*2 > MAX_POINT_SEGS) {
 		//Int3();	//	Contact Mike: This is curious, though not deadly. /eip++;g
@@ -781,54 +776,6 @@ void create_n_segment_path_to_door(object *objp, int path_length, int avoid_seg)
 extern int Connected_segment_distance;
 
 #define Int3_if(cond) if (!cond) Int3();
-
-//	----------------------------------------------------------------------------------------------------
-void move_object_to_goal(object *objp, vms_vector *goal_point, int goal_seg)
-{
-	ai_static	*aip = &objp->ctype.ai_info;
-	int			segnum;
-
-	if (aip->path_length < 2)
-		return;
-
-	Assert(objp->segnum != -1);
-	Assert(aip->path_length >= 2);
-
-	if (aip->cur_path_index <= 0) {
-		if (aip->behavior == AIB_STATION) {
-			create_path_to_station(objp, 15);
-			return;
-		}
-		aip->cur_path_index = 1;
-		aip->PATH_DIR = 1;
-	} else if (aip->cur_path_index >= aip->path_length - 1) {
-		if (aip->behavior == AIB_STATION) {
-			create_path_to_station(objp, 15);
-			if (aip->path_length == 0) {
-				ai_local		*ailp = &Ai_local_info[objp-Objects];
-				ailp->mode = AIM_STILL;
-			}
-			return;
-		}
-		Assert(aip->path_length != 0);
-		aip->cur_path_index = aip->path_length-2;
-		aip->PATH_DIR = -1;
-	} else
-		aip->cur_path_index += aip->PATH_DIR;
-
-	//--Int3_if(((aip->cur_path_index >= 0) && (aip->cur_path_index < aip->path_length)));
-
-	objp->pos = *goal_point;
-	segnum = find_object_seg(objp);
-
-	if (segnum == -1) {
-		Int3();	//	Oops, object is not in any segment.
-					// Contact Mike: This is impossible.
-		//	Hack, move object to center of segment it used to be in.
-		compute_segment_center(&objp->pos, &Segments[objp->segnum]);
-	} else
-		obj_relink(objp-Objects, segnum);
-}
 
 // -- too much work -- //	----------------------------------------------------------------------------------------------------------
 // -- too much work -- //	Return true if the object the companion wants to kill is reachable.
@@ -933,38 +880,6 @@ void ai_follow_path(object *objp, int player_visibility, int previous_visibility
 	else
 		dist_to_player = vm_vec_dist_quick(&objp->pos, &ConsoleObject->pos);
 
-#if 0
-	//	Efficiency hack: If far away from player, move in big quantized jumps.
-	if (!(player_visibility || previous_visibility) && (dist_to_player > F1_0*200) && !(Game_mode & GM_MULTI)) {
-		if (dist_to_goal < F1_0*2) {
-			move_object_to_goal(objp, &goal_point, goal_seg);
-			return;
-		} else {
-			robot_info	*robptr = &Robot_info[objp->id];
-			fix	cur_speed = robptr->max_speed[Difficulty_level]/2;
-			fix	distance_travellable = fixmul(FrameTime, cur_speed);
-
-			// int	connect_side = find_connect_side(objp->segnum, goal_seg);
-			//	Only move to goal if allowed to fly through the side.
-			//	Buddy-bot can create paths he can't fly, waiting for player.
-			// -- bah, this isn't good enough, buddy will fail to get through any door! if (WALL_IS_DOORWAY(&Segments]objp->segnum], connect_side) & WID_FLY_FLAG) {
-			if (!Robot_info[objp->id].companion && !Robot_info[objp->id].thief) {
-				if (distance_travellable >= dist_to_goal) {
-					move_object_to_goal(objp, &goal_point, goal_seg);
-				} else {
-					fix	prob = fixdiv(distance_travellable, dist_to_goal);
-	
-					int	rand_num = d_rand();
-					if ( (rand_num >> 1) < prob) {
-						move_object_to_goal(objp, &goal_point, goal_seg);
-					}
-				}
-				return;
-			}
-		}
-
-	}
-#endif
 	//	If running from player, only run until can't be seen.
 	if (ailp->mode == AIM_RUN_FROM_OBJECT) {
 		if ((player_visibility == 0) && (ailp->player_awareness_type == 0)) {

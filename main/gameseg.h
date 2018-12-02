@@ -85,9 +85,6 @@ segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, char *call
 //Returns segnum if found, or -1
 int find_point_seg(const vms_vector *p,int segnum);
 
-//--repair-- // Create data specific to segments which does not need to get written to disk.
-//--repair-- extern void create_local_segment_data(void);
-
 //      Sort of makes sure create_local_segment_data has been called for the currently executing mine.
 //      Returns 1 if Lsegments appears valid, 0 if not.
 int check_lsegments_validity(void);
@@ -110,21 +107,6 @@ extern void extract_orient_from_segment(vms_matrix *m,segment *seg);
 extern void validate_segment(segment *sp);
 
 extern void validate_segment_all(void);
-
-//      Extract the forward vector from segment *sp, return in *vp.
-//      The forward vector is defined to be the vector from the the center of the front face of the segment
-// to the center of the back face of the segment.
-extern  void extract_forward_vector_from_segment(segment *sp,vms_vector *vp);
-
-//      Extract the right vector from segment *sp, return in *vp.
-//      The forward vector is defined to be the vector from the the center of the left face of the segment
-// to the center of the right face of the segment.
-extern  void extract_right_vector_from_segment(segment *sp,vms_vector *vp);
-
-//      Extract the up vector from segment *sp, return in *vp.
-//      The forward vector is defined to be the vector from the the center of the bottom face of the segment
-// to the center of the top face of the segment.
-extern  void extract_up_vector_from_segment(segment *sp,vms_vector *vp);
 
 extern void create_walls_on_side(segment *sp, int sidenum);
 

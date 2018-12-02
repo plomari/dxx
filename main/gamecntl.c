@@ -93,8 +93,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <SDL.h>
 
-extern void object_goto_prev_viewer(void);
-
 //	External Variables ---------------------------------------------------------
 
 extern char WaitForRefuseAnswer,RefuseThisPlayer,RefuseTeam;
@@ -118,7 +116,6 @@ extern int	allowed_to_fire_missile(void);
 extern int	allowed_to_fire_flare(void);
 extern void	check_rear_view(void);
 extern int	create_special_path(void);
-extern void move_player_2_segment(segment *seg, int side);
 extern void	kconfig_center_headset(void);
 extern void newdemo_strip_frames(char *, int);
 extern void toggle_cockpit(void);
@@ -1061,47 +1058,6 @@ void kill_and_so_forth(void)
 
 kasf_done: ;
 
-}
-
-void kill_all_snipers(void)
-{
-	int     i, dead_count=0;
-
-	//	Kill all snipers.
-	for (i=0; i<=Highest_object_index; i++)
-		if (Objects[i].type == OBJ_ROBOT)
-			if (Objects[i].ctype.ai_info.behavior == AIB_SNIPE) {
-				dead_count++;
-				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
-			}
-
-	HUD_init_message(HM_DEFAULT, "%i robots toasted!", dead_count);
-}
-
-void kill_thief(void)
-{
-	int     i;
-
-	//	Kill thief.
-	for (i=0; i<=Highest_object_index; i++)
-		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[Objects[i].id].thief) {
-				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
-				HUD_init_message(HM_DEFAULT, "Thief toasted!");
-			}
-}
-
-void kill_buddy(void)
-{
-	int     i;
-
-	//	Kill buddy.
-	for (i=0; i<=Highest_object_index; i++)
-		if (Objects[i].type == OBJ_ROBOT)
-			if (Robot_info[Objects[i].id].companion) {
-				Objects[i].flags |= OF_EXPLODING|OF_SHOULD_BE_DEAD;
-				HUD_init_message(HM_DEFAULT, "Buddy toasted!");
-			}
 }
 
 int HandleTestKey(int key)

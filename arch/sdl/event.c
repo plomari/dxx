@@ -25,7 +25,6 @@ extern void joy_hat_handler(SDL_JoyHatEvent *jhe);
 extern int joy_axis_handler(SDL_JoyAxisEvent *jae);
 extern void mouse_cursor_autohide();
 
-static int initialised=0;
 static bool quitting;
 
 static void event_poll(void)
@@ -111,21 +110,11 @@ static void event_poll(void)
 		ievent.type = EVENT_IDLE;
 		event_send(&ievent);
 	}
-	else
-		event_reset_idle_seconds();
 	
 	mouse_cursor_autohide();
 
 done:
 	window_unregister_weak_ptr(&cur);
-}
-
-int event_init()
-{
-	// We should now be active and responding to events.
-	initialised = 1;
-
-	return 0;
 }
 
 int (*default_handler)(d_event *event) = NULL;
@@ -218,16 +207,3 @@ void window_run_event_loop(window *wind)
 		event_process();
 	window_unregister_weak_ptr(&wind);
 }
-
-static fix64 last_event = 0;
-
-void event_reset_idle_seconds()
-{
-	last_event = timer_query();
-}
-
-fix event_get_idle_seconds()
-{
-	return (timer_query() - last_event)/F1_0;
-}
-

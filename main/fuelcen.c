@@ -722,14 +722,3 @@ void matcen_info_read(matcen_info *mi, CFILE *fp)
 	mi->segnum = cfile_read_short(fp);
 	mi->fuelcen_num = cfile_read_short(fp);
 }
-
-void matcen_info_write(matcen_info *mi, short version, PHYSFS_file *fp)
-{
-	PHYSFS_writeSLE32(fp, mi->robot_flags[0]);
-	if (version >= 27)
-		PHYSFS_writeSLE32(fp, mi->robot_flags[1]);
-	PHYSFSX_writeFix(fp, mi->hit_points);
-	PHYSFSX_writeFix(fp, mi->interval);
-	PHYSFS_writeSLE16(fp, mi->segnum);
-	PHYSFS_writeSLE16(fp, mi->fuelcen_num);
-}

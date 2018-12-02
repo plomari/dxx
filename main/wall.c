@@ -1536,29 +1536,6 @@ void blast_nearby_glass(object *objp, fix damage)
 
 }
 
-#define MAX_CLIP_FRAMES_D1 20
-
-/*
- * reads a wclip structure from a CFILE
- */
-int wclip_read_n_d1(wclip *wc, int n, CFILE *fp)
-{
-	int i, j;
-
-	for (i = 0; i < n; i++) {
-		wc[i].play_time = cfile_read_fix(fp);
-		wc[i].num_frames = cfile_read_short(fp);
-		for (j = 0; j < MAX_CLIP_FRAMES_D1; j++)
-			wc[i].frames[j] = cfile_read_short(fp);
-		wc[i].open_sound = cfile_read_short(fp);
-		wc[i].close_sound = cfile_read_short(fp);
-		wc[i].flags = cfile_read_short(fp);
-		cfread(wc[i].filename, 13, 1, fp);
-		wc[i].pad = cfile_read_byte(fp);
-	}
-	return i;
-}
-
 /*
  * reads a wclip structure from a CFILE
  */

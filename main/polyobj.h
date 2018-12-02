@@ -25,9 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gr.h"
 #include "3d.h"
 
-#ifndef DRIVE
 #include "robot.h"
-#endif
 #include "piggy.h"
 
 #define MAX_POLYGON_MODELS 500
@@ -66,17 +64,10 @@ extern char Pof_names[MAX_POLYGON_MODELS][13];
 void free_polygon_models();
 void init_polygon_models();
 
-#ifndef DRIVE
 int load_polygon_model(char *filename,int n_textures,int first_texture,robot_info *r);
-#else
-int load_polygon_model(char *filename,int n_textures,grs_bitmap ***textures);
-#endif
 
 // draw a polygon model
 void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angles,int model_num,int flags,g3s_lrgb lrgb,fix *glow_values, size_t num_glow_values, bitmap_index alt_textures[]);
-
-// fills in arrays gun_points & gun_dirs, returns the number of guns read
-int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs, int *gun_submodels);
 
 // draws the given model in the current canvas.  The distance is set to
 // more-or-less fill the canvas.  Note that this routine actually renders

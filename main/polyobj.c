@@ -30,7 +30,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "args.h"
 #include "byteswap.h"
-#ifndef DRIVE
 #include "texmap.h"
 #include "bm.h"
 #include "textures.h"
@@ -38,7 +37,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "lighting.h"
 #include "cfile.h"
 #include "piggy.h"
-#endif
 #include "render.h"
 
 #include "ogl.h"
@@ -166,15 +164,11 @@ void pof_read_angs(vms_angvec *angs,int n,ubyte *bufp)
 #define ID_IDTA 0x41544449 // 'ATDI'  //Interpreter data
 #define ID_TXTR 0x52545854 // 'RTXT'  //Texture filename list
 
-#ifdef DRIVE
-#define robot_info void
-#else
 vms_angvec anim_angs[N_ANIM_STATES][MAX_SUBMODELS];
 
 //set the animation angles for this robot.  Gun fields of robot info must
 //be filled in.
 void robot_set_angles(robot_info *r,polymodel *pm,vms_angvec angs[N_ANIM_STATES][MAX_SUBMODELS]);
-#endif
 
 #ifdef WORDS_NEED_ALIGNMENT
 ubyte * old_dest(chunk o) // return where chunk is (in unaligned struct)
@@ -332,7 +326,6 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 
 			}
 			
-			#ifndef DRIVE
 			case ID_GUNS: {		//List of guns on this object
 
 				if (r) {
@@ -393,7 +386,6 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 					pof_cfseek(model_buf,len,SEEK_CUR);
 
 				break;
-			#endif
 			
 			case ID_TXTR: {		//Texture filename list
 				int n;
@@ -431,71 +423,6 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 	swap_polygon_model_data(pm->model_data);
 #endif
 	return pm;
-}
-
-//reads the gun information for a model
-//fills in arrays gun_points & gun_dirs, returns the number of guns read
-int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs, int *gun_submodels)
-{
-	CFILE *ifile;
-	short version;
-	int id,len;
-	int n_guns=0;
-	ubyte	model_buf[MODEL_BUF_SIZE];
-
-	if ((ifile=cfopen(filename,"rb"))==NULL)
-		Error("Can't open file <%s>",filename);
-
-	Assert(cfilelength(ifile) <= MODEL_BUF_SIZE);
-
-	Pof_addr = 0;
-	Pof_file_end = cfread(model_buf, 1, cfilelength(ifile), ifile);
-	cfclose(ifile);
-
-	id = pof_read_int(model_buf);
-
-	if (id!=0x4f505350) /* 'OPSP' */
-		Error("Bad ID in model file <%s>",filename);
-
-	version = pof_read_short(model_buf);
-
-	Assert(version >= 7);		//must be 7 or higher for this data
-
-	if (version < PM_COMPATIBLE_VERSION || version > PM_OBJFILE_VERSION)
-		Error("Bad version (%d) in model file <%s>",version,filename);
-
-	while (new_pof_read_int(id,model_buf) == 1) {
-		id = INTEL_INT(id);
-		//id  = pof_read_int(model_buf);
-		len = pof_read_int(model_buf);
-
-		if (id == ID_GUNS) {		//List of guns on this object
-
-			int i;
-
-			n_guns = pof_read_int(model_buf);
-
-			for (i=0;i<n_guns;i++) {
-				int id,sm;
-
-				id = pof_read_short(model_buf);
-				sm = pof_read_short(model_buf);
-				if (gun_submodels)
-					gun_submodels[id] = sm;
-				else if (sm!=0)
-					Error("Invalid gun submodel in file <%s>",filename);
-				pof_read_vecs(&gun_points[id],1,model_buf);
-
-				pof_read_vecs(&gun_dirs[id],1,model_buf);
-			}
-
-		}
-		else
-			pof_cfseek(model_buf,len,SEEK_CUR);
-
-	}
-
-	return n_guns;
 }
 
 //free up a model, getting rid of all its memory
@@ -671,16 +598,8 @@ extern short highest_texture_num;	//from the 3d
 char Pof_names[MAX_POLYGON_MODELS][FILENAME_LEN];
 
 //returns the number of this model
-#ifndef DRIVE
 int load_polygon_model(char *filename,int n_textures,int first_texture,robot_info *r)
-#else
-int load_polygon_model(char *filename,int n_textures,grs_bitmap ***textures)
-#endif
 {
-	#ifdef DRIVE
-	#define r NULL
-	#endif
-
 	Assert(N_polygon_models < MAX_POLYGON_MODELS);
 	Assert(n_textures < MAX_POLYOBJ_TEXTURES);
 

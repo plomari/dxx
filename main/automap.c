@@ -789,9 +789,7 @@ int automap_handler(window *wind, d_event *event, automap *am)
 		case EVENT_WINDOW_CLOSE:
 			if (!am->pause_game)
 				ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
-#ifdef OGL
 			gr_free_bitmap_data(&am->automap_background);
-#endif
 			d_free(am->edges);
 			d_free(am->drawingListBright);
 			d_free(am);

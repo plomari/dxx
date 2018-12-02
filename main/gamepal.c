@@ -67,9 +67,7 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 		//if not editor, load pig first so small install message can come
 		//up in old palette.  If editor version, we must load the pig after
 		//the palette is loaded so we can remap new textures.
-		#ifndef EDITOR
 		piggy_new_pigfile(pigname);
-		#endif
 	}
 
 	if (stricmp(last_palette_loaded,name) != 0) {
@@ -94,10 +92,6 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 	if (used_for_level && stricmp(last_palette_loaded_pig,name) != 0) {
 
 		strncpy(last_palette_loaded_pig,name,sizeof(last_palette_loaded_pig));
-
-		#ifdef EDITOR
-		piggy_new_pigfile(pigname);
-		#endif
 
 		texmerge_flush();
 		rle_cache_flush();

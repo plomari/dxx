@@ -99,17 +99,6 @@ int calc_rod_corners(g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix
 	return 0;
 }
 
-//draw a polygon that is always facing you
-//returns 1 if off screen, 0 if drew
-bool g3_draw_rod_flat(g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width)
-{
-	if (calc_rod_corners(bot_point,bot_width,top_point,top_width))
-		return 0;
-
-	return g3_draw_poly(4,rod_point_list);
-
-}
-
 //draw a bitmap object that is always facing you
 //returns 1 if off screen, 0 if drew
 bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width,g3s_lrgb light)

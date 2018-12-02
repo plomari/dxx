@@ -4,12 +4,6 @@
  * 
  */
 
-#ifdef HAVE_CONFIG_H
-#include <conf.h>
-#endif
-
-#define PATCH12
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

@@ -260,8 +260,6 @@ void start_wall_decloak(segment *seg, int side);
 
 int wall_check_transparency(segment * seg, int side);
 
-extern int wclip_read_n_d1(wclip *wc, int n, CFILE *fp);
-
 /*
  * reads n wclip structs from a CFILE
  */

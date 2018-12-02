@@ -168,9 +168,6 @@ grs_bitmap *gr_create_bitmap(int w,int h);
 // As gr_create_bitmap(), but with a specific bm_depth.
 grs_bitmap *gr_new_bitmap(int w, int h, int depth);
 
-// Allocated a bitmap and makes its data be raw_data that is already somewhere.
-grs_bitmap *gr_create_bitmap_raw(int w, int h, unsigned char * raw_data );
-
 // Creates a bitmap which is part of another bitmap
 grs_bitmap *gr_create_sub_bitmap(grs_bitmap *bm,int x,int y,int w, int h);
 
@@ -230,7 +227,6 @@ void gr_urect(int left,int top,int right,int bot);
 int gr_disk(fix x,fix y,fix r);
 
 // Draw an outline circle
-int gr_circle(fix x,fix y,fix r);
 int gr_ucircle(fix x,fix y,fix r);
 
 // Draw an unfilled rectangle into the current canvas
@@ -254,7 +250,6 @@ void gr_set_fontcolor( int fg_color, int bg_color );
 int gr_string(int x, int y, const char *s );
 int gr_ustring(int x, int y, const char *s );
 int gr_printf( int x, int y, const char * format, ... ) PRINTF_FORMAT(3, 4);
-int gr_uprintf( int x, int y, const char * format, ... ) PRINTF_FORMAT(3, 4);
 void gr_get_string_size(const char *s, int *string_width, int *string_height, int *average_width );
 
 typedef struct vms_vector vms_vector;
@@ -299,8 +294,6 @@ extern ushort gr_fade_table_selector;
 //			gr_remap_bitmap( new, newpal, iff_transparent_color );
 //		else
 //			gr_remap_bitmap( new, newpal, -1 );
-extern void gr_remap_bitmap( grs_bitmap * bmp, ubyte * palette, int transparent_color, int super_transparent_color );
-
 // Same as above, but searches using gr_find_closest_color which uses
 // 18-bit accurracy instead of 15bit when translating colors.
 extern void gr_remap_bitmap_good( grs_bitmap * bmp, ubyte * palette, int transparent_color, int super_transparent_color );
@@ -326,7 +319,6 @@ int gr_find_closest_color_15bpp( int rgb );
 
 void gr_prepare_frame(void);
 extern void gr_flip(void);
-extern void gr_set_draw_buffer(int buf);
 
 /*
  * must return 0 if windowed, 1 if fullscreen

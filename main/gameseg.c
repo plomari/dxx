@@ -122,73 +122,6 @@ void get_side_verts(int *vertlist,int segnum,int sidenum)
 		vertlist[i] = vp[sv[i]];
 }
 
-
-#ifdef EDITOR
-// -----------------------------------------------------------------------------------
-//	Create all vertex lists (1 or 2) for faces on a side.
-//	Sets:
-//		num_faces		number of lists
-//		vertices			vertices in all (1 or 2) faces
-//	If there is one face, it has 4 vertices.
-//	If there are two faces, they both have three vertices, so face #0 is stored in vertices 0,1,2,
-//	face #1 is stored in vertices 3,4,5.
-// Note: these are not absolute vertex numbers, but are relative to the segment
-// Note:  for triagulated sides, the middle vertex of each trianle is the one NOT
-//   adjacent on the diagonal edge
-void create_all_vertex_lists(int *num_faces, int *vertices, int segnum, int sidenum)
-{
-	side	*sidep = &Segments[segnum].sides[sidenum];
-	const int  *sv = Side_to_verts_int[sidenum];
-
-	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
-	Assert((sidenum >= 0) && (sidenum < 6));
-
-	switch (sidep->type) {
-		case SIDE_IS_QUAD:
-
-			vertices[0] = sv[0];
-			vertices[1] = sv[1];
-			vertices[2] = sv[2];
-			vertices[3] = sv[3];
-
-			*num_faces = 1;
-			break;
-		case SIDE_IS_TRI_02:
-			*num_faces = 2;
-
-			vertices[0] = sv[0];
-			vertices[1] = sv[1];
-			vertices[2] = sv[2];
-
-			vertices[3] = sv[2];
-			vertices[4] = sv[3];
-			vertices[5] = sv[0];
-
-			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
-			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			break;
-		case SIDE_IS_TRI_13:
-			*num_faces = 2;
-
-			vertices[0] = sv[3];
-			vertices[1] = sv[0];
-			vertices[2] = sv[1];
-
-			vertices[3] = sv[1];
-			vertices[4] = sv[2];
-			vertices[5] = sv[3];
-
-			//IMPORTANT: DON'T CHANGE THIS CODE WITHOUT CHANGING GET_SEG_MASKS()
-			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
-			break;
-		default:
-			Error("Illegal side type (1), type = %i, segment # = %i, side # = %i\n Please report this bug.\n", sidep->type, segnum, sidenum);
-			break;
-	}
-
-}
-#endif
-
 // -----------------------------------------------------------------------------------
 // Like create all vertex lists, but returns the vertnums (relative to
 // the side) for each of the faces that make up the side. 
@@ -1200,33 +1133,6 @@ void extract_orient_from_segment(vms_matrix *m,segment *seg)
 	vm_vector_2_matrix(m,&fvec,&uvec,NULL);
 }
 
-// ------------------------------------------------------------------------------------------
-//	Extract the forward vector from segment *sp, return in *vp.
-//	The forward vector is defined to be the vector from the the center of the front face of the segment
-// to the center of the back face of the segment.
-void extract_forward_vector_from_segment(segment *sp,vms_vector *vp)
-{
-	extract_vector_from_segment(sp,vp,WFRONT,WBACK);
-}
-
-// ------------------------------------------------------------------------------------------
-//	Extract the right vector from segment *sp, return in *vp.
-//	The forward vector is defined to be the vector from the the center of the left face of the segment
-// to the center of the right face of the segment.
-void extract_right_vector_from_segment(segment *sp,vms_vector *vp)
-{
-	extract_vector_from_segment(sp,vp,WLEFT,WRIGHT);
-}
-
-// ------------------------------------------------------------------------------------------
-//	Extract the up vector from segment *sp, return in *vp.
-//	The forward vector is defined to be the vector from the the center of the bottom face of the segment
-// to the center of the top face of the segment.
-void extract_up_vector_from_segment(segment *sp,vms_vector *vp)
-{
-	extract_vector_from_segment(sp,vp,WBOTTOM,WTOP);
-}
-
 void add_side_as_quad(segment *sp, int sidenum, vms_vector *normal)
 {
 	side	*sidep = &sp->sides[sidenum];
@@ -1760,17 +1666,6 @@ void clear_light_subtracted(void)
 	for (i=0; i<=Highest_segment_index; i++)
 		Light_subtracted[i] = 0;
 
-}
-
-//	-----------------------------------------------------------------------------
-fix find_connected_distance_segments( int seg0, int seg1, int depth, int wid_flag)
-{
-	vms_vector	p0, p1;
-
-	compute_segment_center(&p0, &Segments[seg0]);
-	compute_segment_center(&p1, &Segments[seg1]);
-
-	return find_connected_distance(&p0, seg0, &p1, seg1, depth, wid_flag);
 }
 
 #define	AMBIENT_SEGMENT_DEPTH		5

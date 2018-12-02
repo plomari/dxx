@@ -22,16 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "pstypes.h"
 
-
-// MACRO for single line #ifdef WINDOWS #else DOS
-#ifdef WINDOWS
-#define WINDOS(x,y) x
-#define WIN(x) x
-#else
-#define WINDOS(x,y) y
-#define WIN(x)
-#endif
-
 struct d_event;
 
 /**

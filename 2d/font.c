@@ -617,18 +617,6 @@ void gr_get_string_size(const char *s, int *string_width, int *string_height, in
 	*string_height = string_height_f;
 }
 
-
-int gr_uprintf( int x, int y, const char * format, ... )
-{
-	char buffer[1000];
-	va_list args;
-
-	va_start(args, format );
-	vsnprintf(buffer,sizeof(buffer),format,args);
-	va_end(args);
-	return gr_ustring( x, y, buffer );
-}
-
 int gr_printf( int x, int y, const char * format, ... )
 {
 	char buffer[1000];

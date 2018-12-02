@@ -1005,15 +1005,6 @@ void newdemo_record_sound( int soundno )
 //--unused-- }
 //--unused--
 
-void newdemo_record_cockpit_change (int mode)
-{
-	stop_time();
-	nd_write_byte (ND_EVENT_CHANGE_COCKPIT);
-	nd_write_int(mode);
-	start_time();
-}
-
-
 void newdemo_record_sound_3d( int soundno, int angle, int volume )
 {
 	stop_time();
@@ -1094,14 +1085,6 @@ void newdemo_record_trigger( int segnum, int side, int objnum,int shot )
 	nd_write_int( side );
 	nd_write_int( objnum );
 	nd_write_int(shot);
-	start_time();
-}
-
-void newdemo_record_hostage_rescued( int hostage_number )
-{
-	stop_time();
-	nd_write_byte( ND_EVENT_HOSTAGE_RESCUED );
-	nd_write_int( hostage_number );
 	start_time();
 }
 

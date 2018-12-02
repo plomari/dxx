@@ -27,9 +27,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "palette.h"
 #include "newmenu.h"
 #include "inferno.h"
-#ifdef EDITOR
-#include "editor/editor.h"
-#endif
 #include "dxxerror.h"
 #include "object.h"
 #include "game.h"
@@ -75,7 +72,6 @@ int Gamesave_current_version;
 #define MENU_CURSOR_X_MIN       MENU_X
 #define MENU_CURSOR_X_MAX       MENU_X+6
 
-#ifdef EDITOR
 struct {
 	ushort  fileinfo_signature;
 	ushort  fileinfo_version;
@@ -118,42 +114,16 @@ struct {
 	int     delta_light_howmany;
 	int     delta_light_sizeof;
 } game_fileinfo;
-#endif // EDITOR
 
 //  LINT: adding function prototypes
 void read_object(object *obj, CFILE *f, int version);
-#ifdef EDITOR
 void write_object(object *obj, short version, PHYSFS_file *f);
-void do_load_save_levels(int save);
-#endif
 
 extern char MaxPowerupsAllowed[MAX_POWERUP_TYPES];
 extern char PowerupsInMine[MAX_POWERUP_TYPES];
 
-#ifdef EDITOR
-extern char mine_filename[];
-extern int save_mine_data_compiled(PHYSFS_file *SaveFile);
-//--unused-- #else
-//--unused-- char mine_filename[128];
-#endif
-
 int Gamesave_num_org_robots = 0;
 //--unused-- grs_bitmap * Gamesave_saved_bitmap = NULL;
-
-#ifdef EDITOR
-// Return true if this level has a name of the form "level??"
-// Note that a pathspec can appear at the beginning of the filename.
-int is_real_level(char *filename)
-{
-	int len = strlen(filename);
-
-	if (len < 6)
-		return 0;
-
-	return !strnicmp(&filename[len-11], "level", 5);
-
-}
-#endif
 
 //--unused-- vms_angvec zero_angles={0,0,0};
 
@@ -493,20 +463,7 @@ void read_object(object *obj,CFILE *f,int version)
 
 			tmo = cfile_read_int(f);
 
-			#ifndef EDITOR
 			obj->rtype.pobj_info.tmap_override	= tmo;
-			#else
-			if (tmo==-1)
-				obj->rtype.pobj_info.tmap_override	= -1;
-			else {
-				int xlated_tmo = tmap_xlate_table[tmo];
-				if (xlated_tmo < 0)	{
-					Int3();
-					xlated_tmo = 0;
-				}
-				obj->rtype.pobj_info.tmap_override	= xlated_tmo;
-			}
-			#endif
 
 			obj->rtype.pobj_info.alt_textures	= 0;
 
@@ -593,8 +550,6 @@ void read_object(object *obj,CFILE *f,int version)
 	}
 
 }
-
-#ifdef EDITOR
 
 //writes one object to the given file
 void write_object(object *obj, short version, PHYSFS_file *f)
@@ -721,7 +676,7 @@ void write_object(object *obj, short version, PHYSFS_file *f)
 		case CT_FLYTHROUGH:
 		default:
 			Int3();
-	
+
 	}
 
 	switch (obj->render_type) {
@@ -765,7 +720,6 @@ void write_object(object *obj, short version, PHYSFS_file *f)
 	}
 
 }
-#endif
 
 extern int remove_trigger_num(int trigger_num);
 

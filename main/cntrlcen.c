@@ -530,16 +530,3 @@ extern int control_center_triggers_read_n(control_center_triggers *cct, int n, C
 	}
 	return i;
 }
-
-int control_center_triggers_write(control_center_triggers *cct, PHYSFS_file *fp)
-{
-	int j;
-
-	PHYSFS_writeSLE16(fp, cct->num_links);
-	for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
-		PHYSFS_writeSLE16(fp, cct->seg[j]);
-	for (j = 0; j < MAX_CONTROLCEN_LINKS; j++)
-		PHYSFS_writeSLE16(fp, cct->side[j]);
-
-	return 1;
-}

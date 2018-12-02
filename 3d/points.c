@@ -117,53 +117,6 @@ void g3_project_point(g3s_point *p)
 		p->p3_flags |= PF_OVERFLOW;
 }
 
-//from a 2d point, compute the vector through that point
-void g3_point_2_vec(vms_vector *v,short sx,short sy)
-{
-	vms_vector tempv;
-	vms_matrix tempm;
-
-	tempv.x =  fixmuldiv(fixdiv((sx<<16) - Canv_w2,Canv_w2),Matrix_scale.z,Matrix_scale.x);
-	tempv.y = -fixmuldiv(fixdiv((sy<<16) - Canv_h2,Canv_h2),Matrix_scale.z,Matrix_scale.y);
-	tempv.z = f1_0;
-
-	vm_vec_normalize(&tempv);
-
-	vm_copy_transpose_matrix(&tempm,&Unscaled_matrix);
-
-	vm_vec_rotate(v,&tempv,&tempm);
-
-}
-
-//delta rotation functions
-vms_vector *g3_rotate_delta_x(vms_vector *dest,fix dx)
-{
-	dest->x = fixmul(View_matrix.rvec.x,dx);
-	dest->y = fixmul(View_matrix.uvec.x,dx);
-	dest->z = fixmul(View_matrix.fvec.x,dx);
-
-	return dest;
-}
-
-vms_vector *g3_rotate_delta_y(vms_vector *dest,fix dy)
-{
-	dest->x = fixmul(View_matrix.rvec.y,dy);
-	dest->y = fixmul(View_matrix.uvec.y,dy);
-	dest->z = fixmul(View_matrix.fvec.y,dy);
-
-	return dest;
-}
-
-vms_vector *g3_rotate_delta_z(vms_vector *dest,fix dz)
-{
-	dest->x = fixmul(View_matrix.rvec.z,dz);
-	dest->y = fixmul(View_matrix.uvec.z,dz);
-	dest->z = fixmul(View_matrix.fvec.z,dz);
-
-	return dest;
-}
-
-
 vms_vector *g3_rotate_delta_vec(vms_vector *dest,const vms_vector *src)
 {
 	return vm_vec_rotate(dest,src,&View_matrix);

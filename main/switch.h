@@ -160,6 +160,4 @@ extern void v30_trigger_read(v30_trigger *t, CFILE *fp);
  */
 extern void trigger_read(trigger *t, CFILE *fp, bool obj_trigger);
 
-extern void trigger_write(trigger *t, short version, PHYSFS_file *fp);
-
 #endif

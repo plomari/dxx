@@ -28,7 +28,6 @@ extern int gr_palette_get_gamma();
 extern void gr_palette_clear();
 extern void gr_palette_load( ubyte * pal );
 extern int gr_find_closest_color_current( int r, int g, int b );
-extern void gr_palette_read(ubyte * palette);
 extern void init_computed_colors(void);
 extern ubyte gr_palette_gamma;
 extern ubyte gr_current_pal[256*3];

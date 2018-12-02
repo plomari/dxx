@@ -229,10 +229,6 @@ void delta_light_read(delta_light *dl, CFILE *fp);
  */
 void dl_index_read(dl_index *di, CFILE *fp);
 
-void segment2_write(segment *s2, PHYSFS_file *fp);
-void delta_light_write(delta_light *dl, PHYSFS_file *fp);
-void dl_index_write(dl_index *di, PHYSFS_file *fp);
-
 struct segment_bit_array {
 	uint8_t bits[BIT_ARRAY_SIZE(MAX_SEGMENTS)];
 };
