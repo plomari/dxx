@@ -240,7 +240,7 @@ int do_powerup(object *obj)
 
 	switch (obj->id) {
 		case POW_EXTRA_LIFE:
-			Players[Player_num].lives++;
+			Players[Player_num].lives = SAT_ADD_UNSIGNED(Players[Player_num].lives, 1);
 			powerup_basic(15, 15, 15, 0, "%s", TXT_EXTRA_LIFE);
 			used=1;
 			break;

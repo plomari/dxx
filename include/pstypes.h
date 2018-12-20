@@ -52,5 +52,16 @@ typedef uint32_t uint;
 #define NORETURN __attribute__ ((noreturn))
 #define PRINTF_FORMAT(a, b) __attribute__ ((format (printf, a, b)))
 
+// Saturated a+b. Both a and b are assumed to be unsigned, saturating is done
+// on a's unsigned type.
+#define SAT_ADD_UNSIGNED(a, b) \
+	(__typeof__(a))( \
+		(UINT_TYPE_MAX(__typeof__(a)) - (uintmax_t)(a) < (uintmax_t)(b) \
+			? UINT_TYPE_MAX(__typeof__(a)) : (uintmax_t)(a) + (uintmax_t)(b)))
+
+#define UINT_TYPE_MAX(t) \
+	(sizeof(t) == sizeof(uintmax_t) \
+		? UINTMAX_MAX : (UINTMAX_C(1) << (sizeof(t) * CHAR_BIT)) - 1)
+
 #endif //_TYPES_H
 
