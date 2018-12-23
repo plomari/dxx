@@ -30,7 +30,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define MAX_PATH_LENGTH                 30          // Maximum length of path in ai path following.
 #define MAX_DEPTH_TO_SEARCH_FOR_PLAYER  10
 #define BOSS_GATE_MATCEN_NUM            -1
-#define MAX_BOSS_TELEPORT_SEGS          100
+#define MAX_BOSS_TELEPORT_SEGS          1000
 
 #define ROBOT_BRAIN 7
 #define ROBOT_BOSS1 17
@@ -56,19 +56,13 @@ extern const ubyte Boss_invulnerable_energy[NUM_D2_BOSSES];   // Set byte if bos
 extern const ubyte Boss_invulnerable_matter[NUM_D2_BOSSES];   // Set byte if boss is invulnerable to matter weapons.
 extern const ubyte Boss_invulnerable_spot[NUM_D2_BOSSES];     // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 
-extern fix Boss_cloak_start_time, Boss_cloak_end_time;
-extern int Num_boss_teleport_segs;
-extern short Boss_teleport_segs[MAX_BOSS_TELEPORT_SEGS];
-extern fix Last_teleport_time;
-extern fix Boss_cloak_duration;
-
 extern ai_local Ai_local_info[MAX_OBJECTS];
 
 extern vms_vector Believed_player_pos;
 extern int Believed_player_seg;
 
 extern void move_towards_segment_center(object *objp);
-extern int gate_in_robot(int type, int segnum);
+int gate_in_robot(int objnum, int type, int segnum);
 extern void do_ai_movement(object *objp);
 extern void ai_move_to_new_segment( object * obj, short newseg, int first_time );
 // extern void ai_follow_path( object * obj, short newseg, int first_time );
@@ -76,10 +70,10 @@ extern void ai_recover_from_wall_hit(object *obj, int segnum);
 extern void ai_move_one(object *objp);
 extern void do_ai_frame(object *objp);
 extern void init_ai_object(int objnum, int initial_mode, int hide_segment);
+void ai_delete_object(int objnum);
 extern void update_player_awareness(object *objp, fix new_awareness);
 extern void create_awareness_event(object *objp, int type);         // object *objp can create awareness of player, amount based on "type"
 extern void do_ai_frame_all(void);
-extern void reset_ai_states(object *objp);
 extern int create_path_points(object *objp, int start_seg, int end_seg, point_seg *point_segs, short *num_points, int max_depth, int random_flag, int safety_flag, int avoid_seg);
 extern void create_all_paths(void);
 extern void create_path_to_station(object *objp, int max_length);
@@ -118,7 +112,6 @@ extern void do_snipe_frame(object *objp, fix dist_to_player, int player_visibili
 extern void do_thief_frame(object *objp, fix dist_to_player, int player_visibility, vms_vector *vec_to_player);
 
 extern void ai_init_boss_for_ship(void);
-extern void boss_init_all_segments(int boss_objnum);
 extern int Boss_been_hit;
 extern fix AI_proc_time;
 
@@ -218,38 +211,39 @@ extern int   Max_escort_length;
 
 extern void  ai_multi_send_robot_position(int objnum, int force);
 
-// Amount of time since the current robot was last processed for things such as movement.
-// It is not valid to use FrameTime because robots do not get moved every frame.
-
-extern int   Num_boss_teleport_segs;
-extern short Boss_teleport_segs[];
-extern int   Num_boss_gate_segs;
-extern short Boss_gate_segs[];
-
-
-// --------- John: These variables must be saved as part of gamesave. ---------
 extern int              Ai_initialized;
 extern int              Overall_agitation;
 extern ai_local         Ai_local_info[MAX_OBJECTS];
 extern point_seg        Point_segs[MAX_POINT_SEGS];
 extern point_seg        *Point_segs_free_ptr;
 extern ai_cloak_info    Ai_cloak_info[MAX_AI_CLOAK_INFO];
-extern fix              Boss_cloak_start_time;
-extern fix              Boss_cloak_end_time;
-extern fix              Last_teleport_time;
-extern fix              Boss_teleport_interval;
-extern fix              Boss_cloak_interval;        // Time between cloaks
-extern fix              Boss_cloak_duration;
-extern fix              Last_gate_time;
+
 extern fix              Gate_interval;
-extern fix              Boss_hit_time;
-// -- extern int              Boss_been_hit;
-// ------ John: End of variables which must be saved as part of gamesave. -----
+
+typedef struct ai_boss_info {
+	int objnum;				// Objects[] index of the boss; -1 in non d2x-xl mode
+							// in d2x-xl mode, -1 indicates a free slot (only
+							// for items < Num_boss_info; but these free slots
+							// have sufficiently valid fields)
+	fix cloak_start_time;
+	fix cloak_end_time;
+	fix teleport_time;
+	fix gate_time;
+	fix hit_time;
+
+	int		num_teleport_segs;
+	short	teleport_segs[MAX_BOSS_TELEPORT_SEGS];
+	int		num_gate_segs;
+	short	gate_segs[MAX_BOSS_TELEPORT_SEGS];
+} ai_boss_info;
+
+#define MAX_BOSSES 50
+extern ai_boss_info Boss_info[MAX_BOSSES];
+extern int Num_boss_info;
+
+ai_boss_info *ai_get_boss_info(int objnum);
 
 extern int  ai_evaded;
-
-extern sbyte Super_boss_gate_list[];
-#define MAX_GATE_INDEX  25
 
 extern int  Robot_firing_enabled;
 

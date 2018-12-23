@@ -99,14 +99,6 @@ enum {
 };
 static const sbyte   Mike_to_matt_xlate[] = {AS_REST, AS_REST, AS_ALERT, AS_ALERT, AS_FLINCH, AS_FIRE, AS_RECOIL, AS_REST};
 
-//	Amount of time since the current robot was last processed for things such as movement.
-//	It is not valid to use FrameTime because robots do not get moved every frame.
-
-int	Num_boss_teleport_segs;
-short	Boss_teleport_segs[MAX_BOSS_TELEPORT_SEGS];
-int	Num_boss_gate_segs;
-short	Boss_gate_segs[MAX_BOSS_TELEPORT_SEGS];
-
 // ---------- John: These variables must be saved as part of gamesave. --------
 int             Ai_initialized = 0;
 int             Overall_agitation;
@@ -114,15 +106,16 @@ ai_local        Ai_local_info[MAX_OBJECTS];
 point_seg       Point_segs[MAX_POINT_SEGS];
 point_seg       *Point_segs_free_ptr = Point_segs;
 ai_cloak_info   Ai_cloak_info[MAX_AI_CLOAK_INFO];
-fix             Boss_cloak_start_time = 0;
-fix             Boss_cloak_end_time = 0;
-fix             Last_teleport_time = 0;
-fix             Boss_teleport_interval = F1_0*8;
-fix             Boss_cloak_interval = F1_0*10;                    //    Time between cloaks
-fix             Boss_cloak_duration = BOSS_CLOAK_DURATION;
-fix             Last_gate_time = 0;
-fix             Gate_interval = F1_0*6;
+
 fix             Boss_hit_time;
+
+// Semi-constant, depend on static level parameters.
+static fix      Boss_teleport_interval = F1_0*8;
+static fix      Boss_cloak_interval = F1_0*10;                    //    Time between cloaks
+fix             Gate_interval = F1_0*6;
+
+ai_boss_info Boss_info[MAX_BOSSES];
+int Num_boss_info;
 
 // -- ubyte Boss_cloaks[NUM_D2_BOSSES]              = {1,1,1,1,1,1};      // Set byte if this boss can cloak
 
@@ -135,8 +128,6 @@ const ubyte Boss_invulnerable_matter[NUM_D2_BOSSES] = {0,0,0,0,1,1, 1,0}; // Set
 const ubyte Boss_invulnerable_spot[NUM_D2_BOSSES]   = {0,0,0,0,0,1, 0,1}; // Set byte if boss is invulnerable in all but a certain spot.  (Dot product fvec|vec_to_collision < BOSS_INVULNERABLE_DOT)
 
 int ai_evaded=0;
-
-// -- sbyte Super_boss_gate_list[MAX_GATE_INDEX] = {0, 1, 8, 9, 10, 11, 12, 15, 16, 18, 19, 20, 22, 0, 8, 11, 19, 20, 8, 20, 8};
 
 int Robot_firing_enabled = 1;
 int Animation_enabled = 1;
@@ -248,25 +239,74 @@ int ai_behavior_to_mode(int behavior)
 	return AIM_STILL;
 }
 
+// Return the ai_boss_info if objnum refers to a boss, NULL otherwise.
+ai_boss_info *ai_get_boss_info(int objnum)
+{
+	if (objnum >= 0 && Objects[objnum].type == OBJ_ROBOT &&
+		Robot_info[Objects[objnum].id].boss_flag)
+	{
+		// (Hesitant to add a new object field, so use a linear search.)
+		for (int n = 0; n < Num_boss_info; n++) {
+			if (!is_d2x_xl_level() || Boss_info[n].objnum == objnum)
+				return &Boss_info[n];
+		}
+	}
+
+	return NULL;
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 //	Call every time the player starts a new ship.
 void ai_init_boss_for_ship(void)
 {
-	Boss_hit_time = -F1_0*10;
-
+	for (int n = 0; n < Num_boss_info; n++)
+		Boss_info[n].hit_time = -F1_0*10;
 }
 
-void boss_init_all_segments(int boss_objnum)
+static void boss_init(int boss_objnum)
 {
-	if (Num_boss_teleport_segs)
-		return;	// already have boss segs
+	if (!is_d2x_xl_level() && Num_boss_info) {
+		Assert(Num_boss_info == 1 && Boss_info[0].objnum == -1);
+		return;
+	}
 
-	init_boss_segments(boss_objnum, Boss_gate_segs, &Num_boss_gate_segs, 0, 0);
-	
-	init_boss_segments(boss_objnum, Boss_teleport_segs, &Num_boss_teleport_segs, 1, 0);
+	int new = 0;
+	while (new < Num_boss_info && Boss_info[new].objnum >= 0)
+		new++;
 
-	if (Num_boss_teleport_segs < 2)
-		init_boss_segments(boss_objnum, Boss_teleport_segs, &Num_boss_teleport_segs, 1, 1);
+	if (WARN_ON(new >= MAX_BOSSES))
+		return;
+
+	ai_boss_info *info = &Boss_info[new];
+	Num_boss_info = max(Num_boss_info, new + 1);
+
+	*info = (ai_boss_info){
+		.objnum = is_d2x_xl_level() ? boss_objnum : -1,
+		.hit_time = -F1_0*10,
+	};
+
+	init_boss_segments(boss_objnum, info->gate_segs, &info->num_gate_segs, 0, 0);
+
+	init_boss_segments(boss_objnum, info->teleport_segs, &info->num_teleport_segs, 1, 0);
+
+	if (info->num_teleport_segs < 2)
+		init_boss_segments(boss_objnum, info->teleport_segs, &info->num_teleport_segs, 1, 1);
+}
+
+void ai_delete_object(int objnum)
+{
+	ai_boss_info *info = ai_get_boss_info(objnum);
+	if (info && is_d2x_xl_level()) {
+		// Mark as free; to simplify the savegame code, clear other fields too.
+		*info = (ai_boss_info){.objnum = -1};
+
+		int num_new = 0;
+		for (int n = 0; n < Num_boss_info; n++) {
+			if (Boss_info[n].objnum >= 0)
+				num_new = n + 1;
+		}
+		Num_boss_info = num_new;
+	}
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -345,7 +385,7 @@ void init_ai_object(int objnum, int behavior, int hide_segment)
 	aip->danger_laser_num = -1;
 
 	if (robptr->boss_flag)
-		boss_init_all_segments(objnum);
+		boss_init(objnum);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -353,8 +393,7 @@ void init_ai_objects(void)
 {
 	int	i;
 
-	Num_boss_gate_segs = 0;
-	Num_boss_teleport_segs = 0;
+	Num_boss_info = 0;
 
 	Point_segs_free_ptr = Point_segs;
 
@@ -1611,7 +1650,7 @@ int check_object_object_intersection(vms_vector *pos, fix size, segment *segp)
 // --------------------------------------------------------------------------------------------------------------------
 //	Return objnum if object created, else return -1.
 //	If pos == NULL, pick random spot in segment.
-int create_gated_robot( int segnum, int object_id, vms_vector *pos)
+static int create_gated_robot(int boss_objnum, int segnum, int object_id, vms_vector *pos)
 {
 	int		objnum;
 	object	*objp;
@@ -1622,7 +1661,11 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 	fix		objsize = Polygon_models[robptr->model_num].rad;
 	int		default_behavior;
 
-	if (GameTime - Last_gate_time < Gate_interval)
+	ai_boss_info *info = ai_get_boss_info(boss_objnum);
+	if (WARN_ON(!info))
+		return -1;
+
+	if (GameTime - info->gate_time < Gate_interval)
 		return -1;
 
 	for (i=0; i<=Highest_object_index; i++)
@@ -1631,7 +1674,7 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 				count++;
 
 	if (count > 2*Difficulty_level + 6) {
-		Last_gate_time = GameTime - 3*Gate_interval/4;
+		info->gate_time = GameTime - 3*Gate_interval/4;
 		return -1;
 	}
 
@@ -1643,14 +1686,14 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 
 	//	See if legal to place object here.  If not, move about in segment and try again.
 	if (check_object_object_intersection(&object_pos, objsize, segp)) {
-		Last_gate_time = GameTime - 3*Gate_interval/4;
+		info->gate_time = GameTime - 3*Gate_interval/4;
 		return -1;
 	}
 
 	objnum = obj_create(OBJ_ROBOT, object_id, segnum, &object_pos, &vmd_identity_matrix, objsize, CT_AI, MT_PHYSICS, RT_POLYOBJ);
 
 	if ( objnum < 0 ) {
-		Last_gate_time = GameTime - 3*Gate_interval/4;
+		info->gate_time = GameTime - 3*Gate_interval/4;
 		return -1;
 	}
 
@@ -1684,7 +1727,7 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 	digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, segnum, 0, &object_pos, 0 , F1_0);
 	morph_start(objp);
 
-	Last_gate_time = GameTime;
+	info->gate_time = GameTime;
 
 	Players[Player_num].num_robots_level++;
 	Players[Player_num].num_robots_total++;
@@ -1697,14 +1740,18 @@ int create_gated_robot( int segnum, int object_id, vms_vector *pos)
 //	The process of him bringing in a robot takes one second.
 //	Then a robot appears somewhere near the player.
 //	Return objnum if robot successfully created, else return -1
-int gate_in_robot(int type, int segnum)
+int gate_in_robot(int objnum, int type, int segnum)
 {
+	ai_boss_info *info = ai_get_boss_info(objnum);
+	if (WARN_ON(!info))
+		return -1;
+
 	if (segnum < 0)
-		segnum = Boss_gate_segs[(d_rand() * Num_boss_gate_segs) >> 15];
+		segnum = info->gate_segs[(d_rand() * info->num_gate_segs) >> 15];
 
 	Assert((segnum >= 0) && (segnum <= Highest_segment_index));
 
-	return create_gated_robot(segnum, type, NULL);
+	return create_gated_robot(objnum, segnum, type, NULL);
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -1853,11 +1900,16 @@ void teleport_boss(object *objp)
 {
 	int			rand_segnum, rand_index;
 	vms_vector	boss_dir;
-	Assert(Num_boss_teleport_segs > 0);
+
+	ai_boss_info *info = ai_get_boss_info(objp - Objects);
+	if (WARN_ON(!info))
+		return;
+
+	Assert(info->num_teleport_segs > 0);
 
 	//	Pick a random segment from the list of boss-teleportable-to segments.
-	rand_index = (d_rand() * Num_boss_teleport_segs) >> 15;
-	rand_segnum = Boss_teleport_segs[rand_index];
+	rand_index = (d_rand() * info->num_teleport_segs) >> 15;
+	rand_segnum = info->teleport_segs[rand_index];
 	Assert((rand_segnum >= 0) && (rand_segnum <= Highest_segment_index));
 
 #ifdef NETWORK
@@ -1868,7 +1920,7 @@ void teleport_boss(object *objp)
 	compute_segment_center(&objp->pos, &Segments[rand_segnum]);
 	obj_relink(objp-Objects, rand_segnum);
 
-	Last_teleport_time = GameTime;
+	info->teleport_time = GameTime;
 
 	//	make boss point right at player
 	vm_vec_sub(&boss_dir, &Objects[Players[Player_num].objnum].pos, &objp->pos);
@@ -1890,6 +1942,11 @@ int boss_spew_robot(object *objp, vms_vector *pos)
 {
 	int		objnum, segnum;
 	int		boss_index;
+	int		boss_objnum = objp - Objects;
+
+	ai_boss_info *info = ai_get_boss_info(boss_objnum);
+	if (WARN_ON(!info))
+		return -1;
 
 	boss_index = Robot_info[objp->id].boss_flag - BOSS_D2;
 
@@ -1900,7 +1957,7 @@ int boss_spew_robot(object *objp, vms_vector *pos)
 		return -1;
 	}
 
-	objnum = create_gated_robot( segnum, Spew_bots[boss_index][(Max_spew_bots[boss_index] * d_rand()) >> 15], pos);
+	objnum = create_gated_robot(boss_objnum, segnum, Spew_bots[boss_index][(Max_spew_bots[boss_index] * d_rand()) >> 15], pos);
 
 	//	Make spewed robot come tumbling out as if blasted by a flash missile.
 	if (objnum != -1) {
@@ -2069,6 +2126,10 @@ static void do_boss_stuff(object *objp, int player_visibility)
 {
 	int	boss_id, boss_index;
 
+	ai_boss_info *info = ai_get_boss_info(objp - Objects);
+	if (WARN_ON(!info))
+		return;
+
 	boss_id = Robot_info[objp->id].boss_flag;
 
 	Assert((boss_id >= BOSS_D2) && (boss_id < BOSS_D2 + NUM_D2_BOSSES));
@@ -2076,34 +2137,34 @@ static void do_boss_stuff(object *objp, int player_visibility)
 	boss_index = boss_id - BOSS_D2;
 
 	//	New code, fixes stupid bug which meant boss never gated in robots if > 32767 seconds played.
-	if (Last_teleport_time > GameTime)
-		Last_teleport_time = GameTime;
+	if (info->teleport_time > GameTime)
+		info->teleport_time = GameTime;
 
-	if (Last_gate_time > GameTime)
-		Last_gate_time = GameTime;
+	if (info->gate_time > GameTime)
+		info->gate_time = GameTime;
 
 	//	@mk, 10/13/95:  Reason:
 	//		Level 4 boss behind locked door.  But he's allowed to teleport out of there.  So he
 	//		teleports out of there right away, and blasts player right after first door.
-	if (!player_visibility && (GameTime - Boss_hit_time > F1_0*2))
+	if (!player_visibility && (GameTime - info->hit_time > F1_0*2))
 		return;
 
 	if (!objp->ctype.ai_info.dying_start_time && Boss_teleports[boss_index]) {
 		if (objp->ctype.ai_info.CLOAKED == 1) {
-			Boss_hit_time = GameTime;	//	Keep the cloak:teleport process going.
-			if ((GameTime - Boss_cloak_start_time > BOSS_CLOAK_DURATION/3) && (Boss_cloak_end_time - GameTime > BOSS_CLOAK_DURATION/3) && (GameTime - Last_teleport_time > Boss_teleport_interval)) {
+			info->hit_time = GameTime;	//	Keep the cloak:teleport process going.
+			if ((GameTime - info->cloak_start_time > BOSS_CLOAK_DURATION/3) && (info->cloak_end_time - GameTime > BOSS_CLOAK_DURATION/3) && (GameTime - info->teleport_time > Boss_teleport_interval)) {
 				if (ai_multiplayer_awareness(objp, 98))
 					teleport_boss(objp);
-			} else if (GameTime - Boss_hit_time > F1_0*2) {
-				Last_teleport_time -= Boss_teleport_interval/4;
+			} else if (GameTime - info->hit_time > F1_0*2) {
+				info->teleport_time -= Boss_teleport_interval/4;
 			}
 
-			if (GameTime > Boss_cloak_end_time || GameTime < Boss_cloak_start_time)
+			if (GameTime > info->cloak_end_time || GameTime < info->cloak_start_time)
 				objp->ctype.ai_info.CLOAKED = 0;
-		} else if ((GameTime - Boss_cloak_end_time > Boss_cloak_interval) || (GameTime - Boss_cloak_end_time < -Boss_cloak_duration)) {
+		} else if ((GameTime - info->cloak_end_time > Boss_cloak_interval) || (GameTime - info->cloak_end_time < -BOSS_CLOAK_DURATION)) {
 			if (ai_multiplayer_awareness(objp, 95)) {
-				Boss_cloak_start_time = GameTime;
-				Boss_cloak_end_time = GameTime+Boss_cloak_duration;
+				info->cloak_start_time = GameTime;
+				info->cloak_end_time = GameTime + BOSS_CLOAK_DURATION;
 				objp->ctype.ai_info.CLOAKED = 1;
 #ifdef NETWORK
 				if (Game_mode & GM_MULTI)
@@ -3538,18 +3599,21 @@ int ai_save_state(PHYSFS_file *fp)
         PHYSFS_write(fp, &i, sizeof(int), 1);
 	PHYSFS_write(fp, Point_segs, sizeof(point_seg) * i, 1);
 	PHYSFS_write(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
-	PHYSFS_write(fp, &Boss_cloak_start_time, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_cloak_end_time, sizeof(fix), 1);
-	PHYSFS_write(fp, &Last_teleport_time, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_teleport_interval, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_cloak_interval, sizeof(fix), 1);
-	PHYSFS_write(fp, &Boss_cloak_duration, sizeof(fix), 1);
-	PHYSFS_write(fp, &Last_gate_time, sizeof(fix), 1);
-	PHYSFS_write(fp, &Gate_interval, sizeof(fix), 1);
-	PHYSFS_write(fp, &(fix){0}, sizeof(fix), 1);
-	PHYSFS_write(fp, &(int){0}, sizeof(int), 1);
-	PHYSFS_write(fp, &(int){0}, sizeof(int), 1);
-	PHYSFS_write(fp, &Boss_hit_time, sizeof(fix), 1);
+
+	PHYSFS_write(fp, &Num_boss_info, sizeof(Num_boss_info), 1);
+	for (int n = 0; n < Num_boss_info; n++) {
+		ai_boss_info *info = &Boss_info[n];
+		PHYSFS_write(fp, &info->objnum, sizeof(info->objnum), 1);
+		PHYSFS_write(fp, &info->cloak_start_time, sizeof(info->cloak_start_time), 1);
+		PHYSFS_write(fp, &info->cloak_end_time, sizeof(info->cloak_end_time), 1);
+		PHYSFS_write(fp, &info->teleport_time, sizeof(info->teleport_time), 1);
+		PHYSFS_write(fp, &info->gate_time, sizeof(info->gate_time), 1);
+		PHYSFS_write(fp, &info->hit_time, sizeof(info->hit_time), 1);
+		PHYSFS_write(fp, &info->num_teleport_segs, sizeof(info->num_teleport_segs), 1);
+		PHYSFS_write(fp, &info->teleport_segs, sizeof(info->teleport_segs[0]), info->num_teleport_segs);
+		PHYSFS_write(fp, &info->num_gate_segs, sizeof(info->num_gate_segs), 1);
+		PHYSFS_write(fp, &info->gate_segs, sizeof(info->gate_segs[0]), info->num_gate_segs);
+	}
 
 	PHYSFS_write(fp, &Escort_kill_object, sizeof(Escort_kill_object), 1);
 	PHYSFS_write(fp, &Escort_last_path_created, sizeof(Escort_last_path_created), 1);
@@ -3563,15 +3627,6 @@ int ai_save_state(PHYSFS_file *fp)
 		temp = Point_segs_free_ptr - Point_segs;
 		PHYSFS_write(fp, &temp, sizeof(int), 1);
 	}
-
-	PHYSFS_write(fp, &Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs), 1);
-	PHYSFS_write(fp, &Num_boss_gate_segs, sizeof(Num_boss_gate_segs), 1);
-
-	if (Num_boss_gate_segs)
-		PHYSFS_write(fp, Boss_gate_segs, sizeof(Boss_gate_segs[0]), Num_boss_gate_segs);
-
-	if (Num_boss_teleport_segs)
-		PHYSFS_write(fp, Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs);
 
 	return 1;
 }
@@ -3591,19 +3646,41 @@ int ai_restore_state(PHYSFS_file *fp, int version)
             PHYSFS_read(fp, &i, sizeof(int), 1);
         PHYSFS_read(fp, Point_segs, sizeof(point_seg), i);
 	PHYSFS_read(fp, Ai_cloak_info, sizeof(ai_cloak_info) * MAX_AI_CLOAK_INFO, 1);
-	PHYSFS_read(fp, &Boss_cloak_start_time, sizeof(fix), 1);
-	PHYSFS_read(fp, &Boss_cloak_end_time, sizeof(fix), 1);
-	PHYSFS_read(fp, &Last_teleport_time, sizeof(fix), 1);
-	PHYSFS_read(fp, &Boss_teleport_interval, sizeof(fix), 1);
-	PHYSFS_read(fp, &Boss_cloak_interval, sizeof(fix), 1);
-	PHYSFS_read(fp, &Boss_cloak_duration, sizeof(fix), 1);
-	PHYSFS_read(fp, &Last_gate_time, sizeof(fix), 1);
-	PHYSFS_read(fp, &Gate_interval, sizeof(fix), 1);
+
 	fix Boss_dying_start_time = 0;
-	PHYSFS_read(fp, &Boss_dying_start_time, sizeof(fix), 1);
-	PHYSFS_read(fp, &(int){0}, sizeof(int), 1);
-	PHYSFS_read(fp, &(int){0}, sizeof(int), 1);
-	PHYSFS_read(fp, &Boss_hit_time, sizeof(fix), 1);
+
+	if (version >= 26) {
+		PHYSFS_read(fp, &Num_boss_info, sizeof(Num_boss_info), 1);
+		for (int n = 0; n < Num_boss_info; n++) {
+			ai_boss_info *info = &Boss_info[n];
+			PHYSFS_read(fp, &info->objnum, sizeof(info->objnum), 1);
+			PHYSFS_read(fp, &info->cloak_start_time, sizeof(info->cloak_start_time), 1);
+			PHYSFS_read(fp, &info->cloak_end_time, sizeof(info->cloak_end_time), 1);
+			PHYSFS_read(fp, &info->teleport_time, sizeof(info->teleport_time), 1);
+			PHYSFS_read(fp, &info->gate_time, sizeof(info->gate_time), 1);
+			PHYSFS_read(fp, &info->hit_time, sizeof(info->hit_time), 1);
+			PHYSFS_read(fp, &info->num_teleport_segs, sizeof(info->num_teleport_segs), 1);
+			PHYSFS_read(fp, &info->teleport_segs, sizeof(info->teleport_segs[0]), info->num_teleport_segs);
+			PHYSFS_read(fp, &info->num_gate_segs, sizeof(info->num_gate_segs), 1);
+			PHYSFS_read(fp, &info->gate_segs, sizeof(info->gate_segs[0]), info->num_gate_segs);
+		}
+	} else {
+		Num_boss_info = 1;
+		ai_boss_info *info = &Boss_info[0];
+		*info = (ai_boss_info){.objnum = -1};
+		PHYSFS_read(fp, &info->cloak_start_time, sizeof(fix), 1);
+		PHYSFS_read(fp, &info->cloak_end_time, sizeof(fix), 1);
+		PHYSFS_read(fp, &info->teleport_time, sizeof(fix), 1);
+		PHYSFS_read(fp, &(fix){0}, sizeof(fix), 1);
+		PHYSFS_read(fp, &(fix){0}, sizeof(fix), 1);
+		PHYSFS_read(fp, &(fix){0}, sizeof(fix), 1);
+		PHYSFS_read(fp, &info->gate_time, sizeof(fix), 1);
+		PHYSFS_read(fp, &(fix){0}, sizeof(fix), 1);
+		PHYSFS_read(fp, &Boss_dying_start_time, sizeof(fix), 1);
+		PHYSFS_read(fp, &(int){0}, sizeof(int), 1);
+		PHYSFS_read(fp, &(int){0}, sizeof(int), 1);
+		PHYSFS_read(fp, &info->hit_time, sizeof(fix), 1);
+	}
 
 	if (version >= 8) {
 		PHYSFS_read(fp, &Escort_kill_object, sizeof(Escort_kill_object), 1);
@@ -3634,15 +3711,16 @@ int ai_restore_state(PHYSFS_file *fp, int version)
 	} else
 		ai_reset_all_paths();
 
-	if (version >= 21) {
-		PHYSFS_read(fp, &Num_boss_teleport_segs, sizeof(Num_boss_teleport_segs), 1);
-		PHYSFS_read(fp, &Num_boss_gate_segs, sizeof(Num_boss_gate_segs), 1);
+	if (version >= 21 && version < 26) {
+		ai_boss_info *info = &Boss_info[0];
+		PHYSFS_read(fp, &info->num_teleport_segs, sizeof(info->num_teleport_segs), 1);
+		PHYSFS_read(fp, &info->num_gate_segs, sizeof(info->num_gate_segs), 1);
 
-		if (Num_boss_gate_segs)
-			PHYSFS_read(fp, Boss_gate_segs, sizeof(Boss_gate_segs[0]), Num_boss_gate_segs);
+		if (info->num_gate_segs)
+			PHYSFS_read(fp, info->gate_segs, sizeof(info->gate_segs[0]), info->num_gate_segs);
 
-		if (Num_boss_teleport_segs)
-			PHYSFS_read(fp, Boss_teleport_segs, sizeof(Boss_teleport_segs[0]), Num_boss_teleport_segs);
+		if (info->num_teleport_segs)
+			PHYSFS_read(fp, info->teleport_segs, sizeof(info->teleport_segs[0]), info->num_teleport_segs);
 	}
 
 	// If boss teleported, set the looping 'see' sound
@@ -3653,15 +3731,26 @@ int ai_restore_state(PHYSFS_file *fp, int version)
 			if (objp->type == OBJ_ROBOT) {
 				int boss_id = Robot_info[objp->id].boss_flag;
 				if (boss_id >= BOSS_D2 && Boss_teleports[boss_id - BOSS_D2]) {
-					if (Last_teleport_time != 0 && Last_teleport_time != Boss_cloak_start_time)
+					ai_boss_info *info = ai_get_boss_info(i);
+
+					if (!info) {
+						// Make sure boss segments are initialized. (Normally,
+						// these are part of the savegame; maybe this is for
+						// ancient savegames, where this was not done yet?)
+						boss_init(i);
+						info = ai_get_boss_info(i);
+						if (WARN_ON(!info))
+							continue;
+					}
+
+					if (info->teleport_time != 0 && info->teleport_time != info->cloak_start_time)
 						boss_link_see_sound(objp);
-					boss_init_all_segments(i);
 				}
 			}
 		}
 	}
 
-	// For old savegames. May handle sound restorinmg incorrectly.
+	// For old savegames. May handle sound restoring incorrectly.
 	if (Boss_dying_start_time)
 		restart_multiboss_dying(Boss_dying_start_time);
 

@@ -418,8 +418,9 @@ void draw_polygon_object(object *obj)
 		if (obj->type==OBJ_PLAYER && (Players[obj->id].flags&PLAYER_FLAGS_CLOAKED))
 			draw_cloaked_object(obj,light,engine_glow_value,ARRAY_ELEMS(engine_glow_value),Players[obj->id].cloak_time,Players[obj->id].cloak_time+CLOAK_TIME_MAX);
 		else if ((obj->type == OBJ_ROBOT) && (obj->ctype.ai_info.CLOAKED)) {
-			if (Robot_info[obj->id].boss_flag)
-				draw_cloaked_object(obj,light,engine_glow_value, ARRAY_ELEMS(engine_glow_value), Boss_cloak_start_time, Boss_cloak_end_time);
+			ai_boss_info *info = ai_get_boss_info(obj - Objects);
+			if (info)
+				draw_cloaked_object(obj,light,engine_glow_value, ARRAY_ELEMS(engine_glow_value), info->cloak_start_time, info->cloak_end_time);
 			else
 				draw_cloaked_object(obj,light,engine_glow_value, ARRAY_ELEMS(engine_glow_value), GameTime-F1_0*10, GameTime+F1_0*10);
 		} else {
@@ -1170,6 +1171,8 @@ void obj_delete(int objnum)
 {
 	int pnum;
 	object *obj = &Objects[objnum];
+
+	ai_delete_object(objnum);
 
 	Assert(objnum != -1);
 	Assert(objnum != 0 );

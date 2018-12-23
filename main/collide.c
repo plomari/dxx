@@ -1257,8 +1257,9 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 
 	if (robot->shields < 0 ) return 0;	//robot already dead...
 
-	if (Robot_info[robot->id].boss_flag)
-		Boss_hit_time = GameTime;
+	ai_boss_info *boss_info = ai_get_boss_info(robot - Objects);
+	if (boss_info)
+		boss_info->hit_time = GameTime;
 
 	//	Buddy invulnerable on level 24 so he can give you his important messages.  Bah.
 	//	Also invulnerable if his cheat for firing weapons is in effect.
@@ -1393,6 +1394,10 @@ static enum boss_weapon_collision_result do_boss_weapon_collision(object *robot,
 {
 	int	d2_boss_index;
 
+	ai_boss_info *info = ai_get_boss_info(robot - Objects);
+	if (WARN_ON(!info))
+		return boss_weapon_collision_result_normal;
+
 	d2_boss_index = Robot_info[robot->id].boss_flag - BOSS_D2;
 
 	Assert((d2_boss_index >= 0) && (d2_boss_index < NUM_D2_BOSSES));
@@ -1403,7 +1408,7 @@ static enum boss_weapon_collision_result do_boss_weapon_collision(object *robot,
 			if (Boss_spew_more[d2_boss_index])
 				if (d_rand() > 16384) {
 					if (boss_spew_robot(robot, collision_point) != -1)
-						Last_gate_time = GameTime - Gate_interval - 1;	//	Force allowing spew of another bot.
+						info->gate_time = GameTime - Gate_interval - 1;	//	Force allowing spew of another bot.
 				}
 			boss_spew_robot(robot, collision_point);
 		}
@@ -1479,9 +1484,9 @@ void collide_robot_and_weapon( object * robot, object * weapon, vms_vector *coll
 		if (!ok_to_do_omega_damage(weapon)) // see comment in laser.c
 			return;
 
-	if (Robot_info[robot->id].boss_flag) {
-		Boss_hit_time = GameTime;
-	}
+	ai_boss_info *boss_info = ai_get_boss_info(robot - Objects);
+	if (boss_info)
+		boss_info->hit_time = GameTime;
 
 	enum boss_weapon_collision_result damage_flag = (Robot_info[robot->id].boss_flag >= BOSS_D2)
 		? do_boss_weapon_collision(robot, weapon, collision_point)

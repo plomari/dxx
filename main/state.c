@@ -71,7 +71,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern void game_disable_cheats();
 
-#define STATE_VERSION 25
+#define STATE_VERSION 26
 #define STATE_COMPATIBLE_VERSION 20
 // 0 - Put DGSS (Descent Game State Save) id at tof.
 // 1 - Added Difficulty level save
@@ -96,6 +96,7 @@ extern void game_disable_cheats();
 // 23- extend object count and make it dynamic (for segments too)
 // 24- save Missile_gun, and D2X-XL spawn position
 // 25- extend struct wall
+// 26- correctly save D2X-XL multi-boss info (old D2 levels use new format too)
 
 // Things to change on next incompatible savegame change:
 // - add a way to save/restore objects in a backward/forward compatible way

@@ -715,8 +715,9 @@ void nd_write_object(object *obj)
 	}
 
 	if (obj->type == OBJ_ROBOT) {
-		if (Robot_info[obj->id].boss_flag) {
-			if ((GameTime > Boss_cloak_start_time) && (GameTime < Boss_cloak_end_time))
+		ai_boss_info *info = ai_get_boss_info(obj - Objects);
+		if (info) {
+			if ((GameTime > info->cloak_start_time) && (GameTime < info->cloak_end_time))
 				nd_write_byte(1);
 			else
 				nd_write_byte(0);
@@ -1526,7 +1527,6 @@ int newdemo_read_demo_start(enum purpose_type purpose)
 		nd_write_int(Newdemo_game_mode);
 	}
 
-	Boss_cloak_start_time=Boss_cloak_end_time=GameTime;
 #ifndef NETWORK
 	if (Newdemo_game_mode & GM_MULTI) {
 		nm_messagebox( NULL, "can't playback net game\nwith this version of code\n", "Ok" );

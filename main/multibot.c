@@ -970,6 +970,10 @@ multi_do_boss_actions(char *buf)
 		return;
 	}
 
+	ai_boss_info *info = ai_get_boss_info(boss_objnum);
+	if (WARN_ON(!info))
+		return;
+
 	boss_obj = &Objects[boss_objnum];
 
 	if ((boss_obj->type != OBJ_ROBOT) || !(Robot_info[boss_obj->id].boss_flag))
@@ -985,12 +989,12 @@ multi_do_boss_actions(char *buf)
 				int teleport_segnum;
 				vms_vector boss_dir;
 
-				if ((secondary < 0) || (secondary >= Num_boss_teleport_segs))
+				if ((secondary < 0) || (secondary >= info->num_teleport_segs))
 				{
 					Int3(); // Bad segnum for boss teleport, ROB!!
 					return;
 				}
-				teleport_segnum = Boss_teleport_segs[secondary];
+				teleport_segnum = info->teleport_segs[secondary];
 				if ((teleport_segnum < 0) || (teleport_segnum > Highest_segment_index))
 				{
 					Int3();  // See Rob
@@ -998,7 +1002,7 @@ multi_do_boss_actions(char *buf)
 				}
 				compute_segment_center(&boss_obj->pos, &Segments[teleport_segnum]);
 				obj_relink(boss_obj-Objects, teleport_segnum);
-				Last_teleport_time = GameTime;
+				info->teleport_time = GameTime;
 		
 				vm_vec_sub(&boss_dir, &Objects[Players[pnum].objnum].pos, &boss_obj->pos);
 				vm_vector_2_matrix(&boss_obj->orient, &boss_dir, NULL, NULL);
@@ -1019,9 +1023,9 @@ multi_do_boss_actions(char *buf)
 			}
 			break;
 		case 2: // Cloak
-			Boss_hit_time = -F1_0*10;
-			Boss_cloak_start_time = GameTime;
-			Boss_cloak_end_time = GameTime + Boss_cloak_duration;
+			info->hit_time = -F1_0*10;
+			info->cloak_start_time = GameTime;
+			info->cloak_end_time = GameTime + BOSS_CLOAK_DURATION;
 			boss_obj->ctype.ai_info.CLOAKED = 1;
 			break;
 		case 3: // Gate in robots!
@@ -1034,7 +1038,7 @@ multi_do_boss_actions(char *buf)
 				}
 
 				// Gate one in!
-				if (gate_in_robot(secondary, segnum))
+				if (gate_in_robot(boss_objnum, secondary, segnum))
 					map_objnum_local_to_remote(Net_create_objnums[0], remote_objnum, pnum);
 			}
 			break;

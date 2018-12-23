@@ -824,10 +824,11 @@ int escort_set_goal_object(void)
 	else if (!(ConsoleObject->flags & PLAYER_FLAGS_RED_KEY) && (exists_in_mine(ConsoleObject->segnum, OBJ_POWERUP, POW_KEY_RED, -1) != -1))
 		return ESCORT_GOAL_RED_KEY;
 	else if (Control_center_destroyed == 0) {
-		if (Num_boss_teleport_segs)
-			return ESCORT_GOAL_BOSS;
-		else
-			return ESCORT_GOAL_CONTROLCEN;
+		for (int n = 0; n < Num_boss_info; n++) {
+			if (Boss_info[n].num_teleport_segs)
+				return ESCORT_GOAL_BOSS;
+		}
+		return ESCORT_GOAL_CONTROLCEN;
 	} else
 		return ESCORT_GOAL_EXIT;
 	
