@@ -49,121 +49,45 @@ int Num_triggers;
 
 extern int Do_appearance_effect;
 
-//link Links[MAX_WALL_LINKS];
-//int Num_links;
-
-//-----------------------------------------------------------------
-// Executes a link, attached to a trigger.
-// Toggles all walls linked to the switch.
-// Opens doors, Blasts blast walls, turns off illusions.
-static void do_link(int trigger_num)
-{
-	int i;
-
-	if (trigger_num != -1) {
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			wall_toggle(Triggers[trigger_num].seg[i], Triggers[trigger_num].side[i]);
-  		}
-  	}
-}
-
-//close a door
-static void do_close_door(int trigger_num)
-{
-	int i;
-
-	if (trigger_num != -1) {
-		for (i=0;i<Triggers[trigger_num].num_links;i++)
-			wall_close_door(&Segments[Triggers[trigger_num].seg[i]], Triggers[trigger_num].side[i]);
-  	}
-}
-
-//turns lighting on.  returns true if lights were actually turned on. (they
-//would not be if they had previously been shot out).
-static int do_light_on(int trigger_num)
+//turns lighting on or off.  returns true if lights were actually changed. (they
+//would not be if they had previously been shot out etc.).
+static int do_change_light(trigger *trigger, bool on)
 {
 	int i,ret=0;
 
-	if (trigger_num != -1) {
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
+		for (i=0;i<trigger->num_links;i++) {
 			int segnum,sidenum;
-			segnum = Triggers[trigger_num].seg[i];
-			sidenum = Triggers[trigger_num].side[i];
+			segnum = trigger->seg[i];
+			sidenum = trigger->side[i];
 
 			//check if tmap2 casts light before turning the light on.  This
 			//is to keep us from turning on blown-out lights
 			if (TmapInfo[Segments[segnum].sides[sidenum].tmap_num2 & 0x3fff].lighting) {
-				ret |= add_light(segnum, sidenum); 		//any light sets flag
-				enable_flicker(segnum, sidenum);
+				if (on) {
+					ret |= add_light(segnum, sidenum);
+					enable_flicker(segnum, sidenum);
+				} else {
+					ret |= subtract_light(segnum, sidenum);
+					disable_flicker(segnum, sidenum);
+				}
 			}
 		}
-	}
 
 	return ret;
-}
-
-//turns lighting off.  returns true if lights were actually turned off. (they
-//would not be if they had previously been shot out).
-static int do_light_off(int trigger_num)
-{
-	int i,ret=0;
-
-	if (trigger_num != -1) {
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			int segnum,sidenum;
-			segnum = Triggers[trigger_num].seg[i];
-			sidenum = Triggers[trigger_num].side[i];
-
-			//check if tmap2 casts light before turning the light off.  This
-			//is to keep us from turning off blown-out lights
-			if (TmapInfo[Segments[segnum].sides[sidenum].tmap_num2 & 0x3fff].lighting) {
-				ret |= subtract_light(segnum, sidenum); 	//any light sets flag
-				disable_flicker(segnum, sidenum);
-			}
-  		}
-  	}
-
-	return ret;
-}
-
-// Unlocks all doors linked to the switch.
-static void do_unlock_doors(int trigger_num)
-{
-	int i;
-
-	if (trigger_num != -1) {
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			Walls[Segments[Triggers[trigger_num].seg[i]].sides[Triggers[trigger_num].side[i]].wall_num].flags &= ~WALL_DOOR_LOCKED;
-			Walls[Segments[Triggers[trigger_num].seg[i]].sides[Triggers[trigger_num].side[i]].wall_num].keys = KEY_NONE;
-  		}
-  	}
-}
-
-// Locks all doors linked to the switch.
-static void do_lock_doors(int trigger_num)
-{
-	int i;
-
-	if (trigger_num != -1) {
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			Walls[Segments[Triggers[trigger_num].seg[i]].sides[Triggers[trigger_num].side[i]].wall_num].flags |= WALL_DOOR_LOCKED;
-  		}
-  	}
 }
 
 // Changes walls pointed to by a trigger. returns true if any walls changed
-static int do_change_walls(int trigger_num)
+static int do_change_walls(trigger *trigger)
 {
 	int i,ret=0;
 
-	if (trigger_num != -1) {
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
+		for (i=0;i<trigger->num_links;i++) {
 			segment *segp,*csegp;
 			short side,cside;
 			int new_wall_type;
 
-			segp = &Segments[Triggers[trigger_num].seg[i]];
-			side = Triggers[trigger_num].side[i];
+			segp = &Segments[trigger->seg[i]];
+			side = trigger->side[i];
 
 			if (segp->children[side] < 0)
 			{
@@ -180,7 +104,7 @@ static int do_change_walls(int trigger_num)
 			//segp->sides[side].wall_num = -1;
 			//csegp->sides[cside].wall_num = -1;
 
-			switch (Triggers[trigger_num].type) {
+			switch (trigger->type) {
 				case TT_OPEN_WALL:		new_wall_type = WALL_OPEN; break;
 				case TT_CLOSE_WALL:		new_wall_type = WALL_CLOSED; break;
 				case TT_ILLUSORY_WALL:	new_wall_type = WALL_ILLUSION; break;
@@ -197,7 +121,7 @@ static int do_change_walls(int trigger_num)
 
 			ret = 1;
 
-			switch (Triggers[trigger_num].type) {
+			switch (trigger->type) {
 
 				case TT_OPEN_WALL:
 					if ((TmapInfo[segp->sides[side].tmap_num].flags & TMI_FORCE_FIELD)) {
@@ -245,65 +169,8 @@ static int do_change_walls(int trigger_num)
 				kill_stuck_objects(csegp->sides[cside].wall_num);
 
   		}
-  	}
 
 	return ret;
-}
-
-void print_trigger_message (int pnum,int trig,int shot,char *message)
- {
-	char *pl;		//points to 's' or nothing for plural word
-
-   if (pnum!=Player_num)
-		return;
-
-	pl = (Triggers[trig].num_links>1)?"s":"";
-
-    if (!(Triggers[trig].flags & TF_NO_MESSAGE) && shot)
-     HUD_init_message(HM_DEFAULT, message,pl);
- }
-
-
-static void do_matcen(int trigger_num)
-{
-	int i;
-
-	if (trigger_num != -1) {
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			trigger_matcen(Triggers[trigger_num].seg[i] );
-  		}
-  	}
-}
-
-
-static void do_il_on(int trigger_num)
-{
-	int i;
-
-	if (trigger_num != -1) {
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			wall_illusion_on(&Segments[Triggers[trigger_num].seg[i]], Triggers[trigger_num].side[i]);
-  		}
-  	}
-}
-
-static void do_il_off(int trigger_num)
-{
-	int i;
-
-	if (trigger_num != -1) {
-		for (i=0;i<Triggers[trigger_num].num_links;i++) {
-			vms_vector	cp;
-			segment		*seg = &Segments[Triggers[trigger_num].seg[i]];
-			int			side = Triggers[trigger_num].side[i];
-
-			wall_illusion_off(seg, side);
-
-			compute_center_point_on_side(&cp, seg, side );
-			digi_link_sound_to_pos( SOUND_WALL_REMOVED, seg-Segments, side, &cp, 0, F1_0 );
-
-  		}
-  	}
 }
 
 extern void EnterSecretLevel(void);
@@ -387,6 +254,9 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 	if (trig->flags & TF_ONE_SHOT)		//if this is a one-shot...
 		trig->flags |= TF_DISABLED;		//..then don't let it happen again
 
+	bool show_msg = pnum == Player_num && !(trig->flags & TF_NO_MESSAGE) && shot;
+	const char *pl = trig->num_links > 1 ? "s" : "";
+
 	switch (trig->type) {
 
 		case TT_EXIT:
@@ -462,77 +332,101 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 		}
 
 		case TT_OPEN_DOOR:
-			do_link(trigger_num);
-			print_trigger_message (pnum,trigger_num,shot,"Door%s opened!");
+			for (int i = 0; i < trig->num_links; i++)
+				wall_toggle(trig->seg[i], trig->side[i]);
 
+			if (show_msg)
+				HUD_init_message(HM_DEFAULT, "Door%s opened!", pl);
 			break;
 
 		case TT_CLOSE_DOOR:
-			do_close_door(trigger_num);
-			print_trigger_message (pnum,trigger_num,shot,"Door%s closed!");
+			for (int i = 0; i < trig->num_links; i++)
+				wall_close_door(&Segments[trig->seg[i]], trig->side[i]);
+
+			if (show_msg)
+				HUD_init_message(HM_DEFAULT, "Door%s closed!", pl);
 			break;
 
 		case TT_UNLOCK_DOOR:
-			do_unlock_doors(trigger_num);
-			print_trigger_message (pnum,trigger_num,shot,"Door%s unlocked!");
+			for (int i = 0; i < trig->num_links; i++) {
+				Walls[Segments[trig->seg[i]].sides[trig->side[i]].wall_num].flags &= ~WALL_DOOR_LOCKED;
+				Walls[Segments[trig->seg[i]].sides[trig->side[i]].wall_num].keys = KEY_NONE;
+			}
 
+			if (show_msg)
+				HUD_init_message(HM_DEFAULT, "Door%s unlocked!", pl);
 			break;
 
 		case TT_LOCK_DOOR:
-			do_lock_doors(trigger_num);
-			print_trigger_message (pnum,trigger_num,shot,"Door%s locked!");
+			for (int i = 0; i < trig->num_links; i++)
+				Walls[Segments[trig->seg[i]].sides[trig->side[i]].wall_num].flags |= WALL_DOOR_LOCKED;
 
+			if (show_msg)
+				HUD_init_message(HM_DEFAULT, "Door%s locked!", pl);
 			break;
 
 		case TT_OPEN_WALL:
-			if (do_change_walls(trigger_num))
-			{
+			if (do_change_walls(trig) && show_msg) {
 				if (wall_is_forcefield(trig))
-					print_trigger_message (pnum,trigger_num,shot,"Force field%s deactivated!");
+					HUD_init_message(HM_DEFAULT, "Force field%s deactivated!", pl);
 				else
-					print_trigger_message (pnum,trigger_num,shot,"Wall%s opened!");
+					HUD_init_message(HM_DEFAULT, "Wall%s opened!", pl);
 			}
 			break;
 
 		case TT_CLOSE_WALL:
-			if (do_change_walls(trigger_num))
-			{
+			if (do_change_walls(trig) && show_msg) {
 				if (wall_is_forcefield(trig))
-					print_trigger_message (pnum,trigger_num,shot,"Force field%s activated!");
+					HUD_init_message(HM_DEFAULT, "Force field%s activated!", pl);
 				else
-					print_trigger_message (pnum,trigger_num,shot,"Wall%s closed!");
+					HUD_init_message(HM_DEFAULT, "Wall%s closed!", pl);
 			}
 			break;
 
 		case TT_ILLUSORY_WALL:
 			//don't know what to say, so say nothing
-			do_change_walls(trigger_num);
+			do_change_walls(trig);
 			break;
 
 		case TT_MATCEN:
-			if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS))
-				do_matcen(trigger_num);
+			if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS)) {
+				for (int i = 0; i < trig->num_links; i++)
+					trigger_matcen(trig->seg[i]);
+			}
 			break;
 
 		case TT_ILLUSION_ON:
-			do_il_on(trigger_num);
-			print_trigger_message (pnum,trigger_num,shot,"Illusion%s on!");
+			for (int i = 0; i < trig->num_links; i++)
+				wall_illusion_on(&Segments[trig->seg[i]], trig->side[i]);
+
+			if (show_msg)
+				HUD_init_message(HM_DEFAULT, "Illusion%s on!", pl);
 			break;
 
 		case TT_ILLUSION_OFF:
-			do_il_off(trigger_num);
-			print_trigger_message (pnum,trigger_num,shot,"Illusion%s off!");
+			for (int i = 0; i < trig->num_links; i++) {
+				vms_vector	cp;
+				segment		*seg = &Segments[trig->seg[i]];
+				int			side = trig->side[i];
+
+				wall_illusion_off(seg, side);
+
+				compute_center_point_on_side(&cp, seg, side );
+				digi_link_sound_to_pos( SOUND_WALL_REMOVED, seg-Segments, side, &cp, 0, F1_0 );
+			}
+
+			if (show_msg)
+				HUD_init_message(HM_DEFAULT, "Illusion%s off!", pl);
 			break;
 
 		case TT_LIGHT_OFF:
-			if (do_light_off(trigger_num))
-				print_trigger_message (pnum,trigger_num,shot,"Lights off!");
+			if (do_change_light(trig, false) && show_msg)
+				HUD_init_message(HM_DEFAULT, "Lights off!");
 			break;
 
 		case TT_LIGHT_ON:
-			if (do_light_on(trigger_num))
-				print_trigger_message (pnum,trigger_num,shot,"Lights on!");
-
+			if (do_change_light(trig, true) && show_msg)
+				HUD_init_message(HM_DEFAULT, "Lights on!");
 			break;
 
 		// D2X-XL
@@ -540,7 +434,8 @@ int check_trigger_sub(int trigger_num, int pnum,int shot)
 			if (!Player_is_dead) {
 				printf("D2X-XL: teleport\n");
 				do_teleport_player(trig);
-				print_trigger_message (pnum,trigger_num,shot,"Teleporting!");
+				if (show_msg)
+					HUD_init_message(HM_DEFAULT, "Teleporting!");
 			}
 			break;
 		case TT_SET_SPAWN:
