@@ -776,6 +776,8 @@ int load_game_data(CFILE *LoadFile)
 	cfile_read_int(LoadFile); // size
 	Assert(Num_triggers >= 0 && Num_triggers < MAX_TRIGGERS);
 
+	Num_object_triggers = 0;
+
 	cfile_read_int(LoadFile); // links offset
 	cfile_read_int(LoadFile); // links num
 	cfile_read_int(LoadFile); // links size
@@ -936,6 +938,8 @@ int load_game_data(CFILE *LoadFile)
 
 	for (i = 0; i < Num_triggers; i++)
 	{
+		Triggers[i] = TRIGGER_DEFAULTS;
+
 		if (game_top_fileinfo_version < 31)
 		{
 			v30_trigger trig;
@@ -1006,28 +1010,23 @@ int load_game_data(CFILE *LoadFile)
 			trigger_read(&Triggers[i], LoadFile, false);
 	}
 
+
+
 	if (game_top_fileinfo_version >= 33 && trigger_offset >= 0) {
-		int ntrigger1 = cfile_read_int(LoadFile);
+		Num_object_triggers = cfile_read_int(LoadFile);
 
-		if (ntrigger1)
-			printf("D2X-XL: discarding %d object triggers:", ntrigger1);
-
-		for (i = 0; i < ntrigger1; i++) {
-			struct trigger tmp;
-			trigger_read(&tmp, LoadFile, true);
+		for (i = 0; i < Num_object_triggers; i++) {
+			ObjectTriggers[i] = TRIGGER_DEFAULTS;
+			trigger_read(&ObjectTriggers[i], LoadFile, true);
 		}
 
-		for (i = 0; i < ntrigger1; i++) {
+		for (i = 0; i < Num_object_triggers; i++) {
 			if (game_top_fileinfo_version < 40)
 				cfile_read_int(LoadFile); // 2x short unused by D2X-XL
-			int obj = cfile_read_short(LoadFile); // TODO: per trigger nObject
-			printf(" %d", obj);
+			ObjectTriggers[i].object_id = cfile_read_short(LoadFile);
 		}
 
-		if (ntrigger1)
-			printf("\n");
-
-		if (ntrigger1) {
+		if (Num_object_triggers) {
 			int weirdshitdiscard = 0;
 			if (game_top_fileinfo_version >= 36 && game_top_fileinfo_version < 40) {
 				weirdshitdiscard = cfile_read_short(LoadFile) * 4;
@@ -1163,10 +1162,18 @@ int load_game_data(CFILE *LoadFile)
 		i++;
 	}
 
+	for (i = 0; i < Num_object_triggers; i++) {
+		int objid = ObjectTriggers[i].object_id;
+		if (objid >= 0) {
+			Assert(objid <= Highest_object_index);
+			Objects[objid].flags |= OF_HAS_TRIGGERS;
+		}
+	}
+
 	//	MK, 10/17/95: Make walls point back at the triggers that control them.
 	//	Go through all triggers, set WALL_HAS_TRIGGERS.
 
-	for (int t=0; t<Num_triggers; t++) {
+	for (int t=0; t<Num_triggers + Num_object_triggers; t++) {
 		int	l;
 		for (l=0; l<Triggers[t].num_links; l++) {
 			int	seg_num, side_num, wall_num;
@@ -1200,6 +1207,7 @@ int load_game_data(CFILE *LoadFile)
 
 			switch (Triggers[t].type) {
 			case TT_MATCEN:
+			case TT_SPAWN_BOT:
 				if (Segments[seg_num].special != SEGMENT_IS_ROBOTMAKER)
 					Int3();		//matcen trigger doesn't point to matcen
 				break;

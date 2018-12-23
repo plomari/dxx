@@ -125,6 +125,10 @@ enum object_type_t
 #define OF_ATTACHED         16  // this object is a fireball attached to another object
 #define OF_HARMLESS         32  // this object does no damage.  Added to make quad lasers do 1.5 damage as normal lasers.
 #define OF_PLAYER_DROPPED   64  // this object was dropped by the player...
+// D2X-XL
+//#define OF_ARMAGEDDON		128	// (probably doesn't happen in level files)
+// This fork. Internally set.
+#define OF_HAS_TRIGGERS		128	// hint that there's at least 1 associated object trigger
 
 // Different Weapon ID types...
 #define WEAPON_ID_LASER         0

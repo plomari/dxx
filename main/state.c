@@ -97,6 +97,7 @@ extern void game_disable_cheats();
 // 24- save Missile_gun, and D2X-XL spawn position
 // 25- extend struct wall
 // 26- correctly save D2X-XL multi-boss info (old D2 levels use new format too)
+//	   save D2X-XL trigger info
 
 // Things to change on next incompatible savegame change:
 // - add a way to save/restore objects in a backward/forward compatible way
@@ -554,7 +555,20 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	
 	//Save trigger info
 		PHYSFS_write(fp, &Num_triggers, sizeof(int), 1);
-		PHYSFS_write(fp, Triggers, sizeof(trigger), Num_triggers);
+		for (i = 0; i < Num_triggers; i++) {
+			trigger *trig = &Triggers[i];
+			CFILE_var_w(fp, &trig->type);
+			CFILE_var_w(fp, &trig->num_links);
+			CFILE_var_w(fp, &trig->value);
+			CFILE_var_w(fp, &trig->time);
+			CFILE_var_w(fp, &trig->flags);
+			CFILE_var_w(fp, &trig->delay);
+			CFILE_var_w(fp, &trig->last_operated);
+			CFILE_var_w(fp, &trig->last_player);
+			CFILE_var_w(fp, &trig->object_id);
+			PHYSFS_write(fp, trig->seg, sizeof(trig->seg[0]), trig->num_links);
+			PHYSFS_write(fp, trig->side, sizeof(trig->side[0]), trig->num_links);
+		}
 	
 	//Save tmap info
 		for (i = 0; i <= Highest_segment_index; i++)
@@ -976,8 +990,32 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	
 		//Restore trigger info
 		PHYSFS_read(fp, &Num_triggers, sizeof(int), 1);
-		PHYSFS_read(fp, Triggers, sizeof(trigger), Num_triggers);
-	
+		for (i = 0; i < Num_triggers; i++) {
+			trigger *trig = &Triggers[i];
+			*trig = TRIGGER_DEFAULTS;
+			CFILE_var_r(fp, &trig->type);
+			if (version < 26) {
+				ubyte flags;
+				CFILE_var_r(fp, &flags);
+				trig->flags = flags;
+			}
+			CFILE_var_r(fp, &trig->num_links);
+			if (version < 26)
+				CFILE_var_r(fp, &(sbyte){0}); // pad
+			CFILE_var_r(fp, &trig->value);
+			CFILE_var_r(fp, &trig->time);
+			if (version >= 26) {
+				CFILE_var_r(fp, &trig->flags);
+				CFILE_var_r(fp, &trig->delay);
+				CFILE_var_r(fp, &trig->last_operated);
+				CFILE_var_r(fp, &trig->last_player);
+				CFILE_var_r(fp, &trig->object_id);
+			}
+			int read_links = version < 26 ? 10 : trig->num_links;
+			PHYSFS_read(fp, trig->seg, sizeof(trig->seg[0]), read_links);
+			PHYSFS_read(fp, trig->side, sizeof(trig->side[0]), read_links);
+		}
+
 		//Restore tmap info (to temp values so we can use compiled-in tmap info to compute static_light
 		for (i=0; i<=Highest_segment_index; i++ )	{
 			for (j=0; j<6; j++ )	{

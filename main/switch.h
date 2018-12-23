@@ -23,7 +23,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "segment.h"
 
-#define MAX_TRIGGERS        254
+#define MAX_TRIGGERS		254
+#define MAX_OBJ_TRIGGERS	254
+#define MAX_ALL_TRIGGERS	(MAX_TRIGGERS + MAX_OBJ_TRIGGERS)
 #define MAX_WALLS_PER_LINK  10
 
 // Trigger types
@@ -83,6 +85,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TF_AUTOPLAY			128
 #define TF_PLAYING_SOUND	256
 #define TF_FLY_THROUGH		512
+// This fork. (D2X-XL also has such a flag, but as separate int32 bool field.)
+#define TF_SHOT				(1 << 17)
 
 //old trigger structs
 
@@ -127,23 +131,43 @@ typedef struct v30_trigger {
 //flags bits are exclusive of the others.
 typedef struct trigger {
 	ubyte   type;       //what this trigger does
-	ubyte   flags;      //currently unused
+	uint32_t flags;     //TF_* bits
 	sbyte   num_links;  //how many doors, etc. linked to this
-	sbyte   pad;        //keep alignment
-	fix     value;
-	fix     time;
 	short   seg[MAX_WALLS_PER_LINK];
 	short   side[MAX_WALLS_PER_LINK];
-} __pack__ trigger;
+	// d2x-xl only fields
+	fix     value;			// unknown function (present in D2 but never used)
+	fix     time;			// shake duration? (present in D2 but never used)
+	fix		delay;			// something absurd about delaying triggers?
+	fix		last_operated; 	// last time at which this was "operated"
+	int8_t	last_player; 	// last player by which this was "operated"
+	int16_t	object_id;		// object triggers: Objects[] index
+							// multiple triggers can point to the same object
+							// -1 if dead/not object trigger
+} trigger;
 
-extern trigger Triggers[MAX_TRIGGERS];
+#define TRIGGER_DEFAULTS (trigger){		\
+	.last_operated = -1,				\
+	.last_player = -1,					\
+	.object_id = -1,					\
+}
+
+extern trigger Triggers[MAX_ALL_TRIGGERS];
 
 extern int Num_triggers;
+extern int Num_object_triggers;
+
+#define ObjectTriggers (Triggers + Num_triggers)
+#define IS_OBJECT_TRIGGER(id) ((id) >= Num_triggers && \
+							   (id) < Num_triggers + Num_object_triggers)
+#define OBJECT_TRIGGER_INDEX(id) ((id) + Num_triggers)
 
 extern void trigger_init();
 extern void check_trigger(segment *seg, short side, short objnum,int shot);
 extern int check_trigger_sub(int trigger_num, int player_num,int shot);
 extern void triggers_frame_process();
+
+void trigger_delete_object(int objnum);
 
 /*
  * reads a v29_trigger structure from a CFILE

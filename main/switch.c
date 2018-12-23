@@ -44,10 +44,13 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "kconfig.h"
 
-trigger Triggers[MAX_TRIGGERS];
+trigger Triggers[MAX_ALL_TRIGGERS];
 int Num_triggers;
+int Num_object_triggers;
 
 extern int Do_appearance_effect;
+
+static int do_trigger(int trigger_num, int pnum, int shot);
 
 //turns lighting on or off.  returns true if lights were actually changed. (they
 //would not be if they had previously been shot out etc.).
@@ -240,6 +243,11 @@ static void do_master(trigger *trig, int player_index, int shot)
 }
 
 int check_trigger_sub(int trigger_num, int pnum,int shot)
+{
+	return do_trigger(trigger_num, pnum, shot);
+}
+
+static int do_trigger(int trigger_num, int pnum, int shot)
 {
 	trigger *trig = &Triggers[trigger_num];
 
@@ -513,11 +521,23 @@ void check_trigger(segment *seg, short side, short objnum,int shot)
 
 void triggers_frame_process()
 {
-	int i;
+}
 
-	for (i=0;i<Num_triggers;i++)
-		if (Triggers[i].time >= 0)
-			Triggers[i].time -= FrameTime;
+void trigger_delete_object(int objnum)
+{
+	object *obj = &Objects[objnum];
+
+	if (!(obj->flags & OF_HAS_TRIGGERS))
+		return;
+
+	for (int n = 0; n < Num_object_triggers; n++) {
+		trigger *trig = &ObjectTriggers[n];
+		if (trig->object_id == objnum) {
+			// Coincidentally destroying the object also triggers the trigger.
+			do_trigger(OBJECT_TRIGGER_INDEX(n), Player_num, 1);
+			trig->object_id = -1;
+		}
+	}
 }
 
 /*
@@ -566,15 +586,12 @@ extern void trigger_read(trigger *t, CFILE *fp, bool obj_trigger)
 
 	t->type = cfile_read_byte(fp);
 	if (obj_trigger) {
-		short v = cfile_read_short(fp);
-		if (v < 0 || v > 0xFF)
-			printf("D2X-XL: warning: cutting off flags %d\n", v);
-		t->flags = v;
+		t->flags = (uint16_t)cfile_read_short(fp);
 	} else {
 		t->flags = cfile_read_byte(fp);
 	}
 	t->num_links = cfile_read_byte(fp);
-	t->pad = cfile_read_byte(fp);
+	cfile_read_byte(fp);
 	t->value = cfile_read_fix(fp);
 	t->time = cfile_read_fix(fp);
 	for (i=0; i<MAX_WALLS_PER_LINK; i++ )

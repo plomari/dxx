@@ -639,9 +639,11 @@ static void draw_object_debug(object *obj)
 
 	APPENDF(t,
 		"type: %d\n"
+		"flags: 0x%x\n"
 		"id: %d\n"
 		"shield: %f\n",
 		 obj->type,
+		 (unsigned int)obj->flags,
 		 obj->id,
 		 f2fl(obj->shields));
 
@@ -1173,6 +1175,7 @@ void obj_delete(int objnum)
 	object *obj = &Objects[objnum];
 
 	ai_delete_object(objnum);
+	trigger_delete_object(objnum);
 
 	Assert(objnum != -1);
 	Assert(objnum != 0 );

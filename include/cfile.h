@@ -244,4 +244,7 @@ bool cfile_is_directory(char *path);
 CFILE *cfile_open_data_dir_file(const char *filename);
 #define PHYSFSX_openDataFile cfile_open_data_dir_file
 
+#define CFILE_var_w(fp, ptr) cfile_write((fp), (ptr), sizeof(*(ptr)), 1)
+#define CFILE_var_r(fp, ptr)  cfread((ptr), sizeof(*(ptr)), 1, (fp))
+
 #endif
