@@ -56,7 +56,7 @@ extern int Do_appearance_effect;
 // Executes a link, attached to a trigger.
 // Toggles all walls linked to the switch.
 // Opens doors, Blasts blast walls, turns off illusions.
-void do_link(sbyte trigger_num)
+static void do_link(int trigger_num)
 {
 	int i;
 
@@ -68,7 +68,7 @@ void do_link(sbyte trigger_num)
 }
 
 //close a door
-void do_close_door(sbyte trigger_num)
+static void do_close_door(int trigger_num)
 {
 	int i;
 
@@ -80,7 +80,7 @@ void do_close_door(sbyte trigger_num)
 
 //turns lighting on.  returns true if lights were actually turned on. (they
 //would not be if they had previously been shot out).
-int do_light_on(sbyte trigger_num)
+static int do_light_on(int trigger_num)
 {
 	int i,ret=0;
 
@@ -104,7 +104,7 @@ int do_light_on(sbyte trigger_num)
 
 //turns lighting off.  returns true if lights were actually turned off. (they
 //would not be if they had previously been shot out).
-int do_light_off(sbyte trigger_num)
+static int do_light_off(int trigger_num)
 {
 	int i,ret=0;
 
@@ -127,7 +127,7 @@ int do_light_off(sbyte trigger_num)
 }
 
 // Unlocks all doors linked to the switch.
-void do_unlock_doors(sbyte trigger_num)
+static void do_unlock_doors(int trigger_num)
 {
 	int i;
 
@@ -140,7 +140,7 @@ void do_unlock_doors(sbyte trigger_num)
 }
 
 // Locks all doors linked to the switch.
-void do_lock_doors(sbyte trigger_num)
+static void do_lock_doors(int trigger_num)
 {
 	int i;
 
@@ -152,7 +152,7 @@ void do_lock_doors(sbyte trigger_num)
 }
 
 // Changes walls pointed to by a trigger. returns true if any walls changed
-int do_change_walls(sbyte trigger_num)
+static int do_change_walls(int trigger_num)
 {
 	int i,ret=0;
 
@@ -264,7 +264,7 @@ void print_trigger_message (int pnum,int trig,int shot,char *message)
  }
 
 
-void do_matcen(sbyte trigger_num)
+static void do_matcen(int trigger_num)
 {
 	int i;
 
@@ -276,7 +276,7 @@ void do_matcen(sbyte trigger_num)
 }
 
 
-void do_il_on(sbyte trigger_num)
+static void do_il_on(int trigger_num)
 {
 	int i;
 
@@ -287,7 +287,7 @@ void do_il_on(sbyte trigger_num)
   	}
 }
 
-void do_il_off(sbyte trigger_num)
+static void do_il_off(int trigger_num)
 {
 	int i;
 
