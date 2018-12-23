@@ -486,9 +486,9 @@ fix check_vector_to_object(vms_vector *intp,vms_vector *p0,vms_vector *p1,fix ra
 }
 
 
-#define MAX_SEGS_VISITED 100
-int n_segs_visited;
-short segs_visited[MAX_SEGS_VISITED];
+#define MAX_SEGS_VISITED 1000
+static int n_segs_visited;
+static short segs_visited[MAX_SEGS_VISITED];
 
 int fvi_nest_count;
 
