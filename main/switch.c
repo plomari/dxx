@@ -50,7 +50,9 @@ int Num_object_triggers;
 
 extern int Do_appearance_effect;
 
-static int do_trigger(int trigger_num, int pnum, int shot);
+#define SWITCH_DEPTH 100
+
+static int do_trigger(int trigger_num, int pnum, int shot, int depth);
 
 //turns lighting on or off.  returns true if lights were actually changed. (they
 //would not be if they had previously been shot out etc.).
@@ -232,24 +234,28 @@ static void do_set_spawn(trigger *trig, int player_index)
 						 &Player_init[player_index]);
 }
 
-static void do_master(trigger *trig, int player_index, int shot)
+static void do_master(trigger *trig, int player_index, int shot, int depth)
 {
 	for (int i = 0; i < trig->num_links; i++) {
 		int wall_num = Segments[trig->seg[i]].sides[trig->side[i]].wall_num;
 		int sub_trig = Walls[wall_num].trigger;
 		printf("trigger %zd: sub trigger %d (%d) \n", trig-Triggers, sub_trig, Triggers[sub_trig].type);
-		check_trigger_sub(sub_trig, player_index, shot);
+		do_trigger(sub_trig, player_index, shot, depth);
 	}
 }
 
 int check_trigger_sub(int trigger_num, int pnum,int shot)
 {
-	return do_trigger(trigger_num, pnum, shot);
+	return do_trigger(trigger_num, pnum, shot, SWITCH_DEPTH);
 }
 
-static int do_trigger(int trigger_num, int pnum, int shot)
+static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 {
 	trigger *trig = &Triggers[trigger_num];
+
+	if (depth == 0)
+		return 0;
+	depth--;
 
 	if (pnum < 0 || pnum > MAX_PLAYERS)
 		return 1;
@@ -455,7 +461,7 @@ static int do_trigger(int trigger_num, int pnum, int shot)
 			break;
 		case TT_MASTER:
 			printf("D2X-XL: master\n");
-			do_master(trig, Player_num, shot);
+			do_master(trig, Player_num, shot, depth);
 			break;
 
 		default:
@@ -575,7 +581,7 @@ void trigger_delete_object(int objnum)
 		trigger *trig = &ObjectTriggers[n];
 		if (trig->object_id == objnum) {
 			// Coincidentally destroying the object also triggers the trigger.
-			do_trigger(OBJECT_TRIGGER_INDEX(n), Player_num, 1);
+			do_trigger(OBJECT_TRIGGER_INDEX(n), Player_num, 1, SWITCH_DEPTH);
 			trig->object_id = -1;
 		}
 	}
