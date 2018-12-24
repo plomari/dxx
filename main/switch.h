@@ -168,6 +168,7 @@ extern int check_trigger_sub(int trigger_num, int player_num,int shot);
 extern void triggers_frame_process();
 
 void trigger_delete_object(int objnum);
+bool trigger_warn_unsupported(int idx, bool hud);
 
 /*
  * reads a v29_trigger structure from a CFILE

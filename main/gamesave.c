@@ -1174,6 +1174,8 @@ int load_game_data(CFILE *LoadFile)
 	//	Go through all triggers, set WALL_HAS_TRIGGERS.
 
 	for (int t=0; t<Num_triggers + Num_object_triggers; t++) {
+		trigger_warn_unsupported(t, false);
+
 		int	l;
 		for (l=0; l<Triggers[t].num_links; l++) {
 			int	seg_num, side_num, wall_num;

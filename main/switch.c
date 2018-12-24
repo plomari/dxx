@@ -265,6 +265,9 @@ static int do_trigger(int trigger_num, int pnum, int shot)
 	bool show_msg = pnum == Player_num && !(trig->flags & TF_NO_MESSAGE) && shot;
 	const char *pl = trig->num_links > 1 ? "s" : "";
 
+	if (!trigger_warn_unsupported(trigger_num, true))
+		return 0;
+
 	switch (trig->type) {
 
 		case TT_EXIT:
@@ -454,28 +457,6 @@ static int do_trigger(int trigger_num, int pnum, int shot)
 			printf("D2X-XL: master\n");
 			do_master(trig, Player_num, shot);
 			break;
-		case TT_SPEEDBOOST:
-		case TT_CAMERA:
-		case TT_SHIELD_DAMAGE:
-		case TT_ENERGY_DRAIN:
-		case TT_CHANGE_TEXTURE:
-		case TT_SMOKE_LIFE:
-		case TT_SMOKE_SPEED:
-		case TT_SMOKE_DENS:
-		case TT_SMOKE_SIZE:
-		case TT_SMOKE_DRIFT:
-		case TT_COUNTDOWN:
-		case TT_SPAWN_BOT:
-		case TT_SMOKE_BRIGHTNESS:
-		case TT_MESSAGE:
-		case TT_SOUND:
-		case TT_ENABLE_TRIGGER:
-		case TT_DISABLE_TRIGGER:
-		case TT_DISARM_ROBOT:
-		case TT_REPROGRAM_ROBOT:
-		case TT_SHAKE_MINE:
-			HUD_init_message(HM_DEFAULT, "D2X-XL: unimplemented trigger %d", trig->type);
-			break;
 
 		default:
 			Int3();
@@ -483,6 +464,66 @@ static int do_trigger(int trigger_num, int pnum, int shot)
 	}
 
 	return 0;
+}
+
+bool trigger_warn_unsupported(int idx, bool hud)
+{
+	char msg[180] = "";
+	bool ok = true;
+
+	trigger *trig = &Triggers[idx];
+
+	int unsupp = trig->flags & (
+		TF_PERMANENT |
+		TF_ALTERNATE |
+		TF_SET_ORIENT |
+		TF_SILENT |
+		TF_AUTOPLAY |
+		TF_PLAYING_SOUND |
+		TF_FLY_THROUGH
+	);
+
+	switch (trig->type) {
+	case TT_SPEEDBOOST:
+	case TT_CAMERA:
+	case TT_SHIELD_DAMAGE:
+	case TT_ENERGY_DRAIN:
+	case TT_CHANGE_TEXTURE:
+	case TT_SMOKE_LIFE:
+	case TT_SMOKE_SPEED:
+	case TT_SMOKE_DENS:
+	case TT_SMOKE_SIZE:
+	case TT_SMOKE_DRIFT:
+	case TT_COUNTDOWN:
+	case TT_SPAWN_BOT:
+	case TT_SMOKE_BRIGHTNESS:
+	case TT_MESSAGE:
+	case TT_SOUND:
+	case TT_ENABLE_TRIGGER:
+	case TT_DISABLE_TRIGGER:
+	case TT_DISARM_ROBOT:
+	case TT_REPROGRAM_ROBOT:
+	case TT_SHAKE_MINE:
+		APPENDF(msg, "D2X-XL: trigger %d: unimplemented type %d\n",
+				idx, trig->type);
+		ok = false;
+		break;
+	}
+
+	if (unsupp) {
+		APPENDF(msg, "D2X-XL: Trigger %d: unsupported flags: 0x%x\n",
+				idx, unsupp);
+	}
+
+	if (msg[0]) {
+		if (hud) {
+			HUD_init_message(HM_DEFAULT, "%s", msg);
+		} else {
+			printf("%s", msg);
+		}
+	}
+
+	return ok;
 }
 
 //-----------------------------------------------------------------
