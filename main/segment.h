@@ -114,28 +114,6 @@ typedef struct segment {
 #define SEGMENT_IS_SKYBOX		10
 #define SEGMENT_IS_EQUIPMAKER	11
 
-// D2X-XL (rl2 level versions 21 and higher)
-#define SEGMENT_FUNC_NONE			0
-#define SEGMENT_FUNC_FUELCENTER		1
-#define SEGMENT_FUNC_REPAIRCENTER	2
-#define SEGMENT_FUNC_REACTOR		3
-#define SEGMENT_FUNC_ROBOTMAKER		4
-#define SEGMENT_FUNC_GOAL_BLUE		5
-#define SEGMENT_FUNC_GOAL_RED		6
-#define SEGMENT_FUNC_TEAM_BLUE		7
-#define SEGMENT_FUNC_TEAM_RED		8
-#define SEGMENT_FUNC_SPEEDBOOST		9
-#define SEGMENT_FUNC_SKYBOX			10
-#define SEGMENT_FUNC_EQUIPMAKER		11
-#define SEGMENT_PROP_NONE			0
-#define SEGMENT_PROP_WATER			1
-#define SEGMENT_PROP_LAVA			2
-#define SEGMENT_PROP_BLOCKED		4
-#define SEGMENT_PROP_NODAMAGE		8
-#define SEGMENT_PROP_OUTDOORS		16
-#define SEGMENT_PROP_LIGHT_FOG		32
-#define SEGMENT_PROP_DENSE_FOG		64
-
 // Globals from mglobal.c
 extern vms_vector   Vertices[];
 extern segment      Segments[];
