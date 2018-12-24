@@ -1207,8 +1207,13 @@ int load_game_data(CFILE *LoadFile)
 
 			switch (Triggers[t].type) {
 			case TT_MATCEN:
+				if (Segments[seg_num].special != SEGMENT_IS_ROBOTMAKER) {
+					if (!is_d2x_xl_level())
+						Int3(); //matcen trigger doesn't point to matcen
+				}
+				break;
 			case TT_SPAWN_BOT:
-				if (Segments[seg_num].special != SEGMENT_IS_ROBOTMAKER)
+				if (seg_num >= 0 && Segments[seg_num].special != SEGMENT_IS_ROBOTMAKER)
 					Int3();		//matcen trigger doesn't point to matcen
 				break;
 			case TT_MASTER:
