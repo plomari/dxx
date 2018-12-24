@@ -112,28 +112,9 @@ void HUD_render_message_frame()
 	gr_set_curfont( GAME_FONT );
 }
 
-static int is_worth_showing(int class_flag)
+static void hud_add_str(int class_flag, char *message)
 {
-	if (PlayerCfg.NoRedundancy && (class_flag & HM_REDUNDANT))
-		return 0;
-
-	if (PlayerCfg.MultiMessages && (Game_mode & GM_MULTI) && !(class_flag & HM_MULTI))
-		return 0;
-	return 1;
-}
-
-// Call to flash a message on the HUD.  Returns true if message drawn.
-// (message might not be drawn if previous message was same)
-int HUD_init_message_va(int class_flag, const char * format, va_list args)
-{
-	if (!is_worth_showing(class_flag))
-		return 0;
-
 	int i, j;
-	char message[HUD_MESSAGE_LENGTH+1] = "";
-
-	vsnprintf(message, sizeof(message), format, args);
-
 
 	// check if message is already in list and bail out if so
 	if (HUD_nmessages > 0)
@@ -147,7 +128,7 @@ int HUD_init_message_va(int class_flag, const char * format, va_list args)
 				if (i >= HUD_nmessages-HUD_MAX_NUM_DISP) // if redundant message on display, update them all
 					for (i = (HUD_nmessages-HUD_MAX_NUM_DISP<0?0:HUD_nmessages-HUD_MAX_NUM_DISP), j = 1; i < HUD_nmessages; i++, j++)
 						HUD_messages[i].time = F1_0*(j*2);
-				return 0;
+				return;
 			}
 		}
 	}
@@ -178,6 +159,40 @@ int HUD_init_message_va(int class_flag, const char * format, va_list args)
 
 	if (Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_hud_message( message );
+}
+
+static int is_worth_showing(int class_flag)
+{
+	if (PlayerCfg.NoRedundancy && (class_flag & HM_REDUNDANT))
+		return 0;
+
+	if (PlayerCfg.MultiMessages && (Game_mode & GM_MULTI) && !(class_flag & HM_MULTI))
+		return 0;
+	return 1;
+}
+
+// Call to flash a message on the HUD.  Returns true if message drawn.
+// (message might not be drawn if previous message was same)
+int HUD_init_message_va(int class_flag, const char * format, va_list args)
+{
+	if (!is_worth_showing(class_flag))
+		return 0;
+
+	char message[HUD_MESSAGE_LENGTH+1] = "";
+
+	vsnprintf(message, sizeof(message), format, args);
+
+	char *cur = message;
+	while (1) {
+		char *end = cur + strcspn(cur, "\n");
+		bool is_end = !*end;
+		*end = '\0';
+		if (cur[0])
+			hud_add_str(class_flag, cur);
+		if (is_end)
+			break;
+		cur = end + 1;
+	}
 
 	return 1;
 }
