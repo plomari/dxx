@@ -240,8 +240,6 @@ void do_controlcen_destroyed_stuff(object *objp)
    if ((Game_mode & GM_MULTI_ROBOTS) && Control_center_destroyed)
     return; // Don't allow resetting if control center and boss on same level
 
-    if (objp)
-		Assert(Robot_info[objp->id].boss_flag);
     // In D2X-XL mode, the boss dies only if all bosses have been destroyed.
     if (objp && Robot_info[objp->id].boss_flag && is_d2x_xl_level()) {
 		for (int i = 0; i <= Highest_object_index; i++) {
