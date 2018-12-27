@@ -464,7 +464,10 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 
 	db=0;
 
+	Assert(blower->type == OBJ_WEAPON);
+
 	//	If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
+	// We don't want robots blowing puzzles.  Only player or buddy can open!
 	{
 		int	ok_to_blow = effect_parent_is_guidebot(blower);
 
@@ -581,6 +584,8 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 		  			digi_link_sound_to_pos( SOUND_LIGHT_BLOWNUP, seg-Segments, 0, pnt,  0, F1_0 );
 				}
 
+				// could be a wall switch
+				check_trigger(seg,side,blower->ctype.laser_info.parent_num,1);
 
 				return 1;		//blew up!
 			}
@@ -669,11 +674,6 @@ void collide_weapon_and_wall( object * weapon, fix hitspeed, short hitseg, short
 			playernum = Objects[weapon->ctype.laser_info.parent_num].id;
 		else
 			playernum = -1;		//not a player (thus a robot)
-	}
-
-	if (blew_up) {		//could be a wall switch
-		// We don't want robots blowing puzzles.  Only player or buddy can open!
-		check_trigger(seg,hitwall,weapon->ctype.laser_info.parent_num,1);
 	}
 
 	if (weapon->id == EARTHSHAKER_ID)
