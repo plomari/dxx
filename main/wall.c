@@ -1499,7 +1499,10 @@ static void bng_process_segment(object *objp, fix damage, segment *segp, int dep
 					if ((dist > 0) && (dist < damage/2))
 					{
 						Assert(objp->type == OBJ_WEAPON);
-						check_effect_blowup(segp, sidenum, &pnt, objp, 1);
+						// Blow up the wall, but only if it's not a trigger.
+						int wall_num = segp->sides[sidenum].wall_num;
+						if (!(wall_num >= 0 && Walls[wall_num].trigger >= 0))
+							check_effect_blowup(segp, sidenum, &pnt, objp, 1);
 					}
 				}
 			}
