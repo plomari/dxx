@@ -1152,7 +1152,10 @@ void render_frame(fix eye_offset, int window_num)
 	}
 
 	start_lighting_frame(Viewer);		//this is for ugly light-smoothing hack
-  
+
+	if (window_num > 0)
+		gr_clear_canvas(BM_XRGB(0, 0, 0));
+
 	g3_start_frame();
 
 	Viewer_eye = Viewer->pos;
@@ -1176,9 +1179,6 @@ void render_frame(fix eye_offset, int window_num)
 	} else	{
 		g3_set_view_matrix(&Viewer_eye,&Viewer->orient,Render_zoom);
 	}
-
-	if (window_num > 0)
-		gr_clear_canvas(BM_XRGB(0, 0, 0));
 
 	render_mine(start_seg_num, eye_offset, window_num);
 
