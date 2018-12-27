@@ -90,6 +90,8 @@ int do_slew_movement(object *obj, int check_keys )
 			obj->mtype.phys_info.velocity.x = SLIDE_SPEED * Controls.sideways_thrust_time;
 			obj->mtype.phys_info.velocity.y = SLIDE_SPEED * Controls.vertical_thrust_time;
 			obj->mtype.phys_info.velocity.z = ZOOM_SPEED_FACTOR * Controls.forward_thrust_time;
+			if (Controls.afterburner_state)
+				vm_vec_scale(&obj->mtype.phys_info.velocity, 20 * F1_0);
 
 			rotang.p = Controls.pitch_time/ROT_SPEED ;
 			rotang.b  = Controls.bank_time/ROT_SPEED;
