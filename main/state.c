@@ -555,7 +555,8 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	
 	//Save trigger info
 		PHYSFS_write(fp, &Num_triggers, sizeof(int), 1);
-		for (i = 0; i < Num_triggers; i++) {
+		PHYSFS_write(fp, &Num_object_triggers, sizeof(int), 1);
+		for (i = 0; i < Num_triggers + Num_object_triggers; i++) {
 			trigger *trig = &Triggers[i];
 			CFILE_var_w(fp, &trig->type);
 			CFILE_var_w(fp, &trig->num_links);
@@ -990,7 +991,10 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	
 		//Restore trigger info
 		PHYSFS_read(fp, &Num_triggers, sizeof(int), 1);
-		for (i = 0; i < Num_triggers; i++) {
+		Num_object_triggers = 0;
+		if (version >= 26)
+			PHYSFS_read(fp, &Num_object_triggers, sizeof(int), 1);
+		for (i = 0; i < Num_triggers + Num_object_triggers; i++) {
 			trigger *trig = &Triggers[i];
 			*trig = TRIGGER_DEFAULTS;
 			CFILE_var_r(fp, &trig->type);
