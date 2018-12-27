@@ -511,7 +511,7 @@ void draw_automap(automap *am)
 			g3_draw_sphere(&sphere_point,objp->size);	
 			break;
 		case OBJ_POWERUP:
-			if ( Automap_visited[objp->segnum] )	{
+			if ( Automap_visited[objp->segnum] || (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) )	{
 				if ( (objp->id==POW_KEY_RED) || (objp->id==POW_KEY_BLUE) || (objp->id==POW_KEY_GOLD) )	{
 					switch (objp->id) {
 					case POW_KEY_RED:		gr_setcolor(BM_XRGB(63, 5, 5));	break;
