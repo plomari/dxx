@@ -77,7 +77,7 @@ typedef struct player_config
 	int AlphaEffects;
 	int DynLightColor;
 	int OldKeyboardRamping;
-} __pack__ player_config;
+} player_config;
 
 extern struct player_config PlayerCfg;
 
