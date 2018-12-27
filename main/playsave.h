@@ -73,6 +73,7 @@ typedef struct player_config
 	ubyte MultiMessages;
 	ubyte NoRankings;
 	ubyte AutomapFreeFlight;
+	ubyte AutomapObjects;
 	ubyte NoFireAutoselect;
 	int AlphaEffects;
 	int DynLightColor;

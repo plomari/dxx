@@ -455,7 +455,8 @@ void draw_automap(automap *am)
 	gr_printf((SWIDTH/10.666), (SHEIGHT/1.083),
 			  "F9/F10 Changes viewing distance - F11 to use %s controls",
 		      PlayerCfg.AutomapFreeFlight ? "classic" : "free flight");
-	gr_printf((SWIDTH/10.666), (SHEIGHT/1.043), TXT_AUTOMAP_MARKER);
+	gr_printf((SWIDTH/10.666), (SHEIGHT/1.043), "%s - F12 toggle objects",
+			  TXT_AUTOMAP_MARKER);
 
 	gr_set_current_canvas(&am->automap_view);
 
@@ -504,6 +505,10 @@ void draw_automap(automap *am)
 
 	objp = &Objects[0];
 	for (i=0;i<=Highest_object_index;i++,objp++) {
+		bool visible = objp->type != OBJ_NONE &&
+			((Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) ||
+			 Automap_visited[objp->segnum]);
+
 		switch( objp->type )	{
 		case OBJ_HOSTAGE:
 			gr_setcolor(am->hostage_color);
@@ -511,7 +516,7 @@ void draw_automap(automap *am)
 			g3_draw_sphere(&sphere_point,objp->size);	
 			break;
 		case OBJ_POWERUP:
-			if ( Automap_visited[objp->segnum] || (Players[Player_num].flags & PLAYER_FLAGS_MAP_ALL) )	{
+			if (visible)	{
 				if ( (objp->id==POW_KEY_RED) || (objp->id==POW_KEY_BLUE) || (objp->id==POW_KEY_GOLD) )	{
 					switch (objp->id) {
 					case POW_KEY_RED:		gr_setcolor(BM_XRGB(63, 5, 5));	break;
@@ -521,8 +526,19 @@ void draw_automap(automap *am)
 						Error("Illegal key type: %i", objp->id);
 					}
 					g3_rotate_point(&sphere_point,&objp->pos);
-					g3_draw_sphere(&sphere_point,objp->size*4);	
+					g3_draw_sphere(&sphere_point,objp->size*4);
+				} else if (PlayerCfg.AutomapObjects) {
+					gr_setcolor(BM_XRGB(63, 0, 63));
+					g3_rotate_point(&sphere_point,&objp->pos);
+					g3_draw_sphere(&sphere_point,F1_0);
 				}
+			}
+			break;
+		case OBJ_ROBOT:
+			if (visible && PlayerCfg.AutomapObjects) {
+				gr_setcolor(BM_XRGB(63, 0, 0));
+				g3_rotate_point(&sphere_point,&objp->pos);
+				g3_draw_sphere(&sphere_point,F1_0 * 2);
 			}
 			break;
 		}
@@ -595,6 +611,9 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 			return 1;
 		case KEY_F11:
 			PlayerCfg.AutomapFreeFlight = !PlayerCfg.AutomapFreeFlight;
+			return 1;
+		case KEY_F12:
+			PlayerCfg.AutomapObjects = !PlayerCfg.AutomapObjects;
 			return 1;
 		case KEY_1:
 		case KEY_2:
