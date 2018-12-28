@@ -141,8 +141,6 @@ void copy_defaults_to_robot_all(void);
 
 int	Do_appearance_effect=0;
 
-extern int Rear_view;
-
 int	First_secret_visit = 1;
 
 extern int descent_critical_error;

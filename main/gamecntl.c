@@ -93,6 +93,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include <SDL.h>
 
+bool Rear_view;
+static fix64 Rear_down_time;
+
 //	External Variables ---------------------------------------------------------
 
 extern char WaitForRefuseAnswer,RefuseThisPlayer,RefuseTeam;
@@ -114,7 +117,6 @@ extern void InitMarkerInput();
 extern int  MarkerInputMessage(int key);
 extern int	allowed_to_fire_missile(void);
 extern int	allowed_to_fire_flare(void);
-extern void	check_rear_view(void);
 extern int	create_special_path(void);
 extern void	kconfig_center_headset(void);
 extern void newdemo_strip_frames(char *, int);
@@ -133,6 +135,69 @@ int HandleTestKey(int key);
 #define key_isfunc(k) (((k&0xff)>=KEY_F1 && (k&0xff)<=KEY_F10) || (k&0xff)==KEY_F11 || (k&0xff)==KEY_F12)
 
 // Functions ------------------------------------------------------------------
+
+#define LEAVE_TIME 0x4000		//how long until we decide key is down	(Used to be 0x4000)
+
+// Handles a key whose down state is represented by key_state, and whose
+// logical state is stored in *state. The logic is that if the key is hit for
+// short time, the state will "stick" as being asserted. Hitting the key again
+// will release it. Keeping the key down for a longer time will de-assert the
+// key state as the key is released.
+// Initialize *down_time with 0 and keep it as additional state.
+// Returns whether *state was changed.
+static bool handle_sticky_key(int key_state, bool *state, fix64 *down_time)
+{
+	fix64 now = timer_query();
+	bool old_state = *state;
+
+	if (key_state) {
+		if (*down_time <= 0) {
+			// Key went down.
+			*state = !*state;
+			*down_time = now;
+		}
+	} else {
+		if (*down_time > 0) {
+			// Key went up.
+			if (now - *down_time >= LEAVE_TIME)
+				*state = false; // non-sticky
+			*down_time = 0;
+		}
+	}
+
+	return *state != old_state;
+}
+
+//deal with rear view - switch it on, or off, or whatever
+static void process_rear_view_key(void)
+{
+	if (Newdemo_state == ND_STATE_PLAYBACK)
+		return;
+
+	if (handle_sticky_key(Controls.rear_view_state, &Rear_view, &Rear_down_time)) {
+		if (Rear_view) {
+			if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
+				select_cockpit(CM_REAR_VIEW);
+		} else {
+			if (PlayerCfg.CockpitMode[1]==CM_REAR_VIEW)
+				select_cockpit(PlayerCfg.CockpitMode[0]);
+		}
+
+		if (Newdemo_state == ND_STATE_RECORDING)
+			newdemo_record_rearview();
+	}
+}
+
+void reset_rear_view(void)
+{
+	if (Rear_view) {
+		if (Newdemo_state == ND_STATE_RECORDING)
+			newdemo_record_restore_rearview();
+	}
+
+	Rear_view = 0;
+	select_cockpit(PlayerCfg.CockpitMode[0]);
+}
 
 #define CONVERTER_RATE  20		//10 units per second xfer rate
 #define CONVERTER_SCALE  2		//2 units energy -> 1 unit shields
@@ -1690,7 +1755,7 @@ void ProcessControls(void)
 	kconfig_process_controls_frame();
 
 	if (!Endlevel_sequence && !Player_is_dead && (Newdemo_state != ND_STATE_PLAYBACK)) {
-		check_rear_view();
+		process_rear_view_key();
 
 		// If automap key pressed, enable automap unless you are in network mode, control center destroyed and < 10 seconds left
 		if ( Controls.automap_state )

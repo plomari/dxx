@@ -1129,7 +1129,6 @@ void build_object_lists(int n_segs)
 
 vms_angvec Player_head_angles;
 
-int Rear_view=0;
 extern ubyte RenderingType;
 
 void start_lighting_frame(object *viewer);

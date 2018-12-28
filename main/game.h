@@ -141,7 +141,7 @@ extern void save_screen_shot(int automap_flag);
 #define CM_FULL_SCREEN      3   // full screen, no cockpit (w/ reticle)
 #define CM_LETTERBOX        4   // half-height window (for cutscenes)
 
-extern int Rear_view;           // if true, looking back.
+extern bool Rear_view;          // if true, looking back.
 
 // initalize flying
 void fly_init(struct object *obj);
