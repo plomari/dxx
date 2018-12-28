@@ -265,8 +265,8 @@ int player_menu_handler( listbox *lb, d_event *event, char **list )
 
 static int string_array_sort_func(const void *p0, const void *p1)
 {
-	const char **e0 = p0;
-	const char **e1 = p1;
+	const char *const *e0 = p0;
+	const char *const *e1 = p1;
 	return stricmp(*e0, *e1);
 }
 
