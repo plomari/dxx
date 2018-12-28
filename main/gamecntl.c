@@ -546,6 +546,9 @@ int pause_handler(window *wind, d_event *event, char *msg)
 				case KEY_F1:
 					show_help();
 					return 1;
+				case KEY_ENTER:
+				case KEY_PADENTER:
+				case KEY_SPACEBAR:
 				case KEY_PAUSE:
 					window_close(wind);
 					return 1;
