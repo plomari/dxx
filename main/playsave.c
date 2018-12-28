@@ -120,6 +120,8 @@ int new_player_config()
 	PlayerCfg.AlphaEffects = 0;
 	PlayerCfg.DynLightColor = 0;
 	PlayerCfg.OldKeyboardRamping = 1;
+	PlayerCfg.KeyStickRearView = KEY_STICK_STICKY;
+	PlayerCfg.KeyStickEnergyConvert = KEY_STICK_NORMAL;
 
 	// Default taunt macros
 	#ifdef NETWORK
@@ -171,6 +173,10 @@ int read_player_d2x(char *filename)
 					PlayerCfg.KeyboardSens[4] = atoi(line);
 				if(!strcmp(word,"OLDRAMPING"))
 					PlayerCfg.OldKeyboardRamping = atoi(line);
+				if(!strcmp(word,"STICKREARVIEW"))
+					PlayerCfg.KeyStickRearView = atoi(line);
+				if(!strcmp(word,"STICKENERGYCONVERT"))
+					PlayerCfg.KeyStickEnergyConvert = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -423,6 +429,8 @@ int write_player_d2x(char *filename)
 		PHYSFSX_printf(fout,"sensitivity3=%d\n",PlayerCfg.KeyboardSens[3]);
 		PHYSFSX_printf(fout,"sensitivity4=%d\n",PlayerCfg.KeyboardSens[4]);
 		PHYSFSX_printf(fout,"oldramping=%d\n",PlayerCfg.OldKeyboardRamping);
+		PHYSFSX_printf(fout,"stickrearview=%d\n", PlayerCfg.KeyStickRearView);
+		PHYSFSX_printf(fout,"stickenergyconvert=%d\n", PlayerCfg.KeyStickEnergyConvert);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[joystick]\n");
 		PHYSFSX_printf(fout,"sensitivity0=%d\n",PlayerCfg.JoystickSens[0]);

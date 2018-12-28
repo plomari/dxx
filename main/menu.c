@@ -877,7 +877,32 @@ void input_config_sensitivity()
 	PlayerCfg.OldKeyboardRamping = m[keysens+5].value;
 }
 
-static int opt_ic_usejoy = 0, opt_ic_usemouse = 0, opt_ic_confkey = 0, opt_ic_confjoy = 0, opt_ic_confmouse = 0, opt_ic_confweap = 0, opt_ic_mouseflightsim = 0, opt_ic_joymousesens = 0, opt_ic_grabinput = 0, opt_ic_mousefsgauge = 0, opt_ic_help0 = 0, opt_ic_help1 = 0, opt_ic_help2 = 0;
+static void input_config_stick(enum key_stick_type *field, char *name)
+{
+	newmenu_item m[3];
+
+	// Nobody said life isn't terrible
+	static_assert(KEY_STICK_NORMAL == 0, "");
+	static_assert(KEY_STICK_TOGGLE == 1, "");
+	static_assert(KEY_STICK_STICKY == 2, "");
+
+	if ((unsigned)*field >= 3)
+		*field = KEY_STICK_NORMAL;
+
+	nm_set_item_radio(&m[0], "Active while key held", *field == 0, 0);
+	nm_set_item_radio(&m[1], "Toggle active on press", *field == 1, 0);
+	nm_set_item_radio(&m[2], "Toggle on short press,\ntemporary on long press", *field == 2, 0);
+
+	newmenu_do1(NULL, name, 3, m, NULL, NULL, 0);
+
+	for (int n = 0; n < 3; n++) {
+		if (m[n].value)
+			*field = n;
+	}
+}
+
+static int opt_ic_usejoy = 0, opt_ic_usemouse = 0, opt_ic_confkey = 0, opt_ic_confjoy = 0, opt_ic_confmouse = 0, opt_ic_confweap = 0, opt_ic_mouseflightsim = 0, opt_ic_joymousesens = 0, opt_ic_grabinput = 0, opt_ic_mousefsgauge = 0, opt_ic_help0 = 0, opt_ic_help1 = 0, opt_ic_help2 = 0, opt_ic_conf_stick_rear, opt_ic_conf_stick_conv;
+
 int input_config_menuset(newmenu *menu, d_event *event, void *userdata)
 {
 	newmenu_item *items = newmenu_get_items(menu);
@@ -913,6 +938,10 @@ int input_config_menuset(newmenu *menu, d_event *event, void *userdata)
 				kconfig(3, "WEAPON KEYS");
 			if (citem == opt_ic_joymousesens)
 				input_config_sensitivity();
+			if (citem == opt_ic_conf_stick_rear)
+				input_config_stick(&PlayerCfg.KeyStickRearView, "Rear view");
+			if (citem == opt_ic_conf_stick_conv)
+				input_config_stick(&PlayerCfg.KeyStickEnergyConvert, "Energy->shield");
 			if (citem == opt_ic_help0)
 				show_help();
 			if (citem == opt_ic_help1)
@@ -931,7 +960,7 @@ int input_config_menuset(newmenu *menu, d_event *event, void *userdata)
 
 void input_config()
 {
-	newmenu_item m[20];
+	newmenu_item m[30];
 	int nitems = 0;
 
 	opt_ic_usejoy = nitems;
@@ -956,6 +985,13 @@ void input_config()
 	opt_ic_joymousesens = nitems;
 	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "SENSITIVITY & DEADZONE"; nitems++;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+
+	opt_ic_conf_stick_rear = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "Rear view key stickiness"; nitems++;
+	opt_ic_conf_stick_conv = nitems;
+	m[nitems].type = NM_TYPE_MENU; m[nitems].text = "Energy->shield key stickiness"; nitems++;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+
 	opt_ic_grabinput = nitems;
 	nm_set_item_checkbox(&m[nitems], "Keep Keyboard/Mouse focus", GameCfg.Grabinput); nitems++;
 	opt_ic_mousefsgauge = nitems;

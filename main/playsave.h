@@ -34,6 +34,14 @@ typedef struct hli {
 	ubyte	LevelNum;
 } hli;
 
+
+// (values are saved as raw integers in user config files)
+enum key_stick_type {
+	KEY_STICK_NORMAL,	// state is active while key is held down
+	KEY_STICK_TOGGLE,	// key down toggles the state
+	KEY_STICK_STICKY,	// short press is like TOGGLE, long press like NORMAL
+};
+
 typedef struct player_config
 {
 	ubyte ControlType;
@@ -78,6 +86,8 @@ typedef struct player_config
 	int AlphaEffects;
 	int DynLightColor;
 	int OldKeyboardRamping;
+	enum key_stick_type KeyStickRearView;
+	enum key_stick_type KeyStickEnergyConvert;
 } player_config;
 
 extern struct player_config PlayerCfg;

@@ -148,7 +148,8 @@ int HandleTestKey(int key);
 // key state as the key is released.
 // Initialize *down_time with 0 and keep it as additional state.
 // Returns whether *state was changed.
-static bool handle_sticky_key(int key_state, bool *state, fix64 *down_time)
+static bool handle_sticky_key(int key_state, bool *state, fix64 *down_time,
+							  enum key_stick_type config)
 {
 	fix64 now = timer_query();
 	bool old_state = *state;
@@ -156,13 +157,14 @@ static bool handle_sticky_key(int key_state, bool *state, fix64 *down_time)
 	if (key_state) {
 		if (*down_time <= 0) {
 			// Key went down.
-			*state = !*state;
+			*state = config == KEY_STICK_NORMAL ? true : !*state;
 			*down_time = now;
 		}
 	} else {
 		if (*down_time > 0) {
 			// Key went up.
-			if (now - *down_time >= LEAVE_TIME)
+			if ((config == KEY_STICK_STICKY && now - *down_time >= LEAVE_TIME) ||
+				config == KEY_STICK_NORMAL)
 				*state = false; // non-sticky
 			*down_time = 0;
 		}
@@ -177,7 +179,8 @@ static void process_rear_view_key(void)
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		return;
 
-	if (handle_sticky_key(Controls.rear_view_state, &Rear_view, &Rear_down_time)) {
+	if (handle_sticky_key(Controls.rear_view_state, &Rear_view, &Rear_down_time,
+						  PlayerCfg.KeyStickRearView)) {
 		if (Rear_view) {
 			if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
 				select_cockpit(CM_REAR_VIEW);
@@ -372,7 +375,8 @@ void do_weapon_n_item_stuff()
 	if (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) {
 		handle_sticky_key(Controls.energy_to_shield_state,
 						  &Converter_active,
-						  &Converter_down_time);
+						  &Converter_down_time,
+						  PlayerCfg.KeyStickEnergyConvert);
 
 		if (Converter_active)
 			transfer_energy_to_shield(!Controls.energy_to_shield_state);

@@ -14,7 +14,7 @@ that are enabled by default:
 - raise the ammo rack weapons limit to basically infinite; you also drop all
   ammo when you die
 - keep the ammo rack when you die
-- make transfer-energy-to-shield key "sticky" (like rear view)
+- make rear view and transfer-energy-to-shield key "stickiness" configurable
 - raise vulcan ammo to basically infinite
 - a "killboss" cheat that doesn't trigger cheat penalty, because I hate boss
   fights
