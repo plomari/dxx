@@ -456,13 +456,69 @@ void format_time(char *str, int secs_int)
 
 extern int netplayerinfo_on;
 
+static void menu_save(void)
+{
+	if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
+		state_save_all(0, 0, NULL, 0); // 0 means not between levels.
+}
+
+static void menu_load(void)
+{
+	if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
+		state_restore_all(1, 0, NULL);
+}
+
+enum game_menu {
+	GAME_MENU_ABORT,
+	GAME_MENU_CONT,
+	GAME_MENU_CONFIG,
+	GAME_MENU_SAVE,
+	GAME_MENU_LOAD,
+	GAME_MENU_COUNT
+};
+
+static int game_menu_handler(newmenu *menu, d_event *event, void *userdata)
+{
+	switch (event->type) {
+	case EVENT_NEWMENU_SELECTED:
+		newmenu_set_visible(menu, false);
+
+		switch(newmenu_get_citem(menu)) {
+		case GAME_MENU_ABORT:
+			window_close(Game_wind);
+			break;
+		case GAME_MENU_CONT:
+			break;
+		case GAME_MENU_CONFIG:
+			do_options_menu();
+			break;
+		case GAME_MENU_SAVE:
+			menu_save();
+			break;
+		case GAME_MENU_LOAD:
+			menu_load();
+			break;
+		default:
+			Int3();
+		}
+		return 0;
+	default:;
+	}
+
+	return 0;
+}
+
 static void run_quit_menu(void)
 {
-	int choice = nm_messagebox(NULL, TXT_ABORT_GAME, TXT_YES, TXT_NO);
-	if (choice == 0)
-		window_close(Game_wind);
+	newmenu_item m[GAME_MENU_COUNT] = {0};
 
-	return;
+	nm_set_item_menu(&m[GAME_MENU_ABORT], "Abort game");
+	nm_set_item_menu(&m[GAME_MENU_CONT], "Continue game");
+	nm_set_item_menu(&m[GAME_MENU_CONFIG], "Options...");
+	nm_set_item_menu(&m[GAME_MENU_SAVE], "Save game...");
+	nm_set_item_menu(&m[GAME_MENU_LOAD], "Load game...");
+
+	newmenu_do2(NULL, "Game Menu", GAME_MENU_COUNT, m, game_menu_handler, NULL, 0, NULL );
 }
 
 //Process selected keys until game unpaused
@@ -931,14 +987,12 @@ int HandleSystemKey(int key)
 #endif
 
 		case KEY_ALTED+KEY_F2:
-			if (!Player_is_dead && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
-				state_save_all(0, 0, NULL, 0); // 0 means not between levels.
+			menu_save();
 			break;
 
 		case KEY_ALTED+KEY_F1:	if (!Player_is_dead) state_save_all(0, 0, NULL, 1);	break;
 		case KEY_ALTED+KEY_F3:
-			if (!((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_COOP)))
-				state_restore_all(1, 0, NULL);
+			menu_load();
 			break;
 
 		case KEY_F4 + KEY_SHIFTED:

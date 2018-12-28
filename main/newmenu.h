@@ -113,6 +113,7 @@ newmenu_item *newmenu_get_items(newmenu *menu);
 int newmenu_get_nitems(newmenu *menu);
 int newmenu_get_citem(newmenu *menu);
 void nm_draw_background(int x1, int y1, int x2, int y2);
+void newmenu_set_visible(newmenu *menu, bool visible);
 
 extern const char *Newmenu_allowed_chars;
 

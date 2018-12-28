@@ -86,6 +86,7 @@ struct newmenu
 	int				mouse_state, dblclick_flag;
 	int				*rval;			// Pointer to return value (for polling newmenus)
 	void			*userdata;		// For whatever - like with window system
+	bool			hide;
 };
 
 grs_bitmap nm_background, nm_background1;
@@ -1341,12 +1342,20 @@ void newmenu_create_structure( newmenu *menu )
 	gr_set_current_canvas(save_canvas);
 }
 
+void newmenu_set_visible(newmenu *menu, bool visible)
+{
+	menu->hide = !visible;
+}
+
 int newmenu_draw(window *wind, newmenu *menu)
 {
 	grs_canvas *menu_canvas = window_get_canvas(wind), *save_canvas = grd_curcanv;
 	int tw, th = 0, ty, sx, sy;
 	int i;
 	int string_width, string_height, average_width;
+
+	if (menu->hide)
+		return 1;
 
 	if (menu->swidth != SWIDTH || menu->sheight != SHEIGHT || menu->fntscalex != FNTScaleX || menu->fntscalex != FNTScaleY)
 	{
