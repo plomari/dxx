@@ -456,8 +456,8 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		glGetIntegerv(GL_DRAW_BUFFER, &gl_draw_buffer);
 		glReadBuffer(gl_draw_buffer);
 		glReadPixels(0, SHEIGHT - THUMBNAIL_H, THUMBNAIL_W, THUMBNAIL_H, GL_RGBA, GL_UNSIGNED_BYTE, buf);
-		for (int y = THUMBNAIL_H - 1; y >= 0; y--) {
-			ubyte *dst = &thm[y * THUMBNAIL_W];
+		for (int y = 0; y < THUMBNAIL_H; y++) {
+			ubyte *dst = &thm[(THUMBNAIL_H - 1 - y) * THUMBNAIL_W];
 			ubyte *src = &buf[y * THUMBNAIL_W * 4];
 			for (int x = 0; x < THUMBNAIL_W; x++) {
 				*dst++ = gr_find_closest_color(src[0] / 4, src[1] / 4, src[2] / 4);
