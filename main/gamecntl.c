@@ -96,6 +96,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 bool Rear_view;
 static fix64 Rear_down_time;
 
+static bool Converter_active;
+static fix64 Converter_down_time;
+
 //	External Variables ---------------------------------------------------------
 
 extern char WaitForRefuseAnswer,RefuseThisPlayer,RefuseTeam;
@@ -204,7 +207,7 @@ void reset_rear_view(void)
 
 #define CONVERTER_SOUND_DELAY (f1_0/2)		//play every half second
 
-void transfer_energy_to_shield()
+static void transfer_energy_to_shield(bool sticky_conversion)
 {
 	fix e;		//how much energy gets transfered
 	static fix last_play_time=0;
@@ -212,6 +215,9 @@ void transfer_energy_to_shield()
 	e = min(min(FrameTime*CONVERTER_RATE,Players[Player_num].energy - INITIAL_ENERGY),(MAX_SHIELDS-Players[Player_num].shields)*CONVERTER_SCALE);
 
 	if (e <= 0) {
+		// If the conversion is in the "background", don't be noisy.
+		if (sticky_conversion)
+			return;
 
 		if (Players[Player_num].energy <= INITIAL_ENERGY) {
 			HUD_init_message(HM_DEFAULT, "Need more than %i energy to enable transfer", f2i(INITIAL_ENERGY));
@@ -363,8 +369,14 @@ void do_weapon_n_item_stuff()
 		Controls.toggle_bomb_count = 0;
 	}
 
-	if (Controls.energy_to_shield_state && (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER))
-		transfer_energy_to_shield();
+	if (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) {
+		handle_sticky_key(Controls.energy_to_shield_state,
+						  &Converter_active,
+						  &Converter_down_time);
+
+		if (Converter_active)
+			transfer_energy_to_shield(!Controls.energy_to_shield_state);
+	}
 }
 
 
