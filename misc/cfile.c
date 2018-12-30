@@ -55,7 +55,7 @@ void cfile_init_paths(int argc, char *argv[])
 		exit(1);
 	}
 
-	int r = snprintf(write_path, sizeof(write_path), "%s/.d2x-rebirth/", home);
+	int r = snprintf(write_path, sizeof(write_path), "%s/.d2c/", home);
 	if (r >= sizeof(write_path)) {
 		fprintf(stderr, "$HOME path too long.\n");
 		exit(1);
