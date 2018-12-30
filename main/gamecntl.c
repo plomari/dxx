@@ -1611,6 +1611,14 @@ static bool FinalCheats(int key)
 		}
 	}
 
+	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("debugmode")], "debugmode"))
+	{
+		Debug_mode = !Debug_mode;
+		HUD_init_message(HM_DEFAULT, "Debug mode: %s", Debug_mode ? "on" : "off");
+		if (Debug_mode)
+			HUD_init_message(HM_DEFAULT, "Please use responsibly.");
+	}
+
 
   if (!(strcmp (cryptstring,InvulCheat)))
 		{
