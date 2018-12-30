@@ -54,8 +54,8 @@ conflict with upstream DXX.
 Building
 --------
 
-Running "scons" should be sufficient. The binary is created as d2x-rebirth-gl
-in the source directory.
+Running "scons release=1" should be sufficient. The binary is created as
+d2x-rebirth-gl in the source directory.
 
 You can also try the experimental Meson build system:
 

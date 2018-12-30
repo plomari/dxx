@@ -20,12 +20,10 @@ DATA_SUBDIR = '/share/games/d2x-rebirth'
 BIN_DIR = PREFIX + BIN_SUBDIR
 DATA_DIR = PREFIX + DATA_SUBDIR
 
-# command-line parms
+# command-line params
 sharepath = str(ARGUMENTS.get('sharepath', DATA_DIR))
-debug = int(ARGUMENTS.get('debug', 0))
-profiler = int(ARGUMENTS.get('profiler', 0))
+release = int(ARGUMENTS.get('release', 0))
 sdlmixer = int(ARGUMENTS.get('sdlmixer', 0))
-arm = int(ARGUMENTS.get('arm', 0))
 ipv6 = int(ARGUMENTS.get('ipv6', 0))
 micro = int(ARGUMENTS.get('micro', 0))
 use_svn_as_micro = int(ARGUMENTS.get('svnmicro', 0))
@@ -256,11 +254,6 @@ else:
 	libs = generic_libs
 	lflags = '-L/usr/X11R6/lib'
 
-# arm architecture?
-if (arm == 1):
-	env.Append(CPPDEFINES = ['WORDS_NEED_ALIGNMENT'])
-	env.Append(CPPFLAGS = ['-mstructure-size-boundary=8'])
-
 print "building with OpenGL"
 target = 'd2x-rebirth-gl'
 env.Append(CPPDEFINES = ogldefines)
@@ -275,17 +268,16 @@ if (sdlmixer == 1):
 	if (sys.platform != 'darwin'):
 		libs += sdlmixerlib
 
-# debug?
-if (debug == 1):
-	print "including: DEBUG"
-	env.Append(CPPFLAGS = ['-g'])
-else:
-	env.Append(CPPFLAGS = ['-O0', '-g', '-ggdb3'])
+env.Append(CPPFLAGS = ['-g', '-ggdb3'])
 
-# profiler?
-if (profiler == 1):
-	env.Append(CPPFLAGS = ['-pg'])
-	lflags += ' -pg'
+# debug?
+if release == 0:
+	print("Not building in release mode. Including sanitizers (very slow)!")
+	print("Add release=1 to scons command line to build in release mode.")
+	env.Append(CPPFLAGS = ['-O0', '-fsanitize=address,undefined'])
+	lflags += ' -fsanitize=address,undefined'
+else:
+	env.Append(CPPFLAGS = ['-O3'])
 
 # IPv6 compability?
 if (ipv6 == 1):
@@ -328,9 +320,7 @@ Help(PROGRAM_NAME + ', SConstruct file help:' +
 	
 	'sharepath=DIR'   (non-Mac OS *NIX only) use DIR for shared game data. (default: /usr/local/share/games/d2x-rebirth)
 	'sdlmixer=1'      use SDL_Mixer for sound (includes external music support)
-	'debug=1'         build DEBUG binary which includes asserts, debugging output, cheats and more output
-	'profiler=1'      do profiler build
-	'arm=1'           compile for ARM architecture
+	'release=1'       build properly optimized binary (without sanitizer)
 	'ipv6=1'          enables IPv6 copability
 	
 	Default values:
