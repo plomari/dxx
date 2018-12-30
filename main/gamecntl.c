@@ -1587,6 +1587,28 @@ static bool FinalCheats(int key)
 		Players[Player_num].cloak_time = GameTime+i2f(1000);
 	}
 
+	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("jumpseg")], "jumpseg")) {
+		char num_text[10] = "4809";
+		newmenu_item m[1];
+		nm_set_item_input(&m[0], sizeof(num_text), num_text);
+
+		newmenu_do(NULL, "Jump to segment", 1, m, NULL, NULL);
+
+		int seg = atoi(num_text);
+
+		if (seg < 0 || seg >= Num_segments) {
+			HUD_init_message(HM_DEFAULT, "Invalid segment number.");
+		} else {
+			vms_vector pos;
+			compute_segment_center(&pos, &Segments[seg]);
+
+			ConsoleObject->pos = pos;
+			obj_relink(ConsoleObject-Objects, seg);
+
+			do_cheat_penalty();
+		}
+	}
+
 	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("showtrigger")], "showtrigger"))
 	{
 		extern int highlight_seg;
