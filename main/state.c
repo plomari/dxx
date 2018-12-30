@@ -832,25 +832,27 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	{
 		StartNewLevelSub(current_level, 1, secret_restore);
 
+		player saved_player;
+		PHYSFS_read(fp, &saved_player, sizeof(player), 1);
+
 		if (secret_restore) {
-			player	dummy_player;
 
-			PHYSFS_read(fp, &dummy_player, sizeof(player), 1);
 			if (secret_restore == 1) {		//	This means he didn't die, so he keeps what he got in the secret level.
-				Players[Player_num].level = dummy_player.level;
-				Players[Player_num].last_score = dummy_player.last_score;
-				Players[Player_num].time_level = dummy_player.time_level;
+				Players[Player_num].level = saved_player.level;
+				Players[Player_num].last_score = saved_player.last_score;
+				Players[Player_num].time_level = saved_player.time_level;
 
-				Players[Player_num].num_robots_level = dummy_player.num_robots_level;
-				Players[Player_num].num_robots_total = dummy_player.num_robots_total;
-				Players[Player_num].hostages_rescued_total = dummy_player.hostages_rescued_total;
-				Players[Player_num].hostages_total = dummy_player.hostages_total;
-				Players[Player_num].hostages_on_board = dummy_player.hostages_on_board;
-				Players[Player_num].hostages_level = dummy_player.hostages_level;
-				Players[Player_num].homing_object_dist = dummy_player.homing_object_dist;
-				Players[Player_num].hours_level = dummy_player.hours_level;
-				Players[Player_num].hours_total = dummy_player.hours_total;
+				Players[Player_num].num_robots_level = saved_player.num_robots_level;
+				Players[Player_num].num_robots_total = saved_player.num_robots_total;
+				Players[Player_num].hostages_rescued_total = saved_player.hostages_rescued_total;
+				Players[Player_num].hostages_total = saved_player.hostages_total;
+				Players[Player_num].hostages_on_board = saved_player.hostages_on_board;
+				Players[Player_num].hostages_level = saved_player.hostages_level;
+				Players[Player_num].homing_object_dist = saved_player.homing_object_dist;
+				Players[Player_num].hours_level = saved_player.hours_level;
+				Players[Player_num].hours_total = saved_player.hours_total;
 				do_cloak_invul_secret_stuff(old_gametime);
+				saved_player = Players[Player_num];
 			} else {
 				// Keep keys even if they died on secret level (otherwise game becomes impossible)
 				// Example: Cameron 'Stryker' Fultz's Area 51
@@ -859,12 +861,11 @@ int state_restore_all_sub(char *filename, int secret_restore)
 									 PLAYER_FLAGS_GOLD_KEY;
 				if (PlayerCfg.ExtendedAmmoRack)
 					preserve_flags |= PLAYER_FLAGS_AMMO_RACK;
-				dummy_player.flags |= Players[Player_num].flags & preserve_flags;
-				Players[Player_num] = dummy_player;
+				saved_player.flags |= Players[Player_num].flags & preserve_flags;
 			}
-		} else {
-			PHYSFS_read(fp, &Players[Player_num], sizeof(player), 1);
 		}
+
+		Players[Player_num] = saved_player;
 	}
 	strcpy( Players[Player_num].callsign, org_callsign );
 
