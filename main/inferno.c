@@ -280,7 +280,7 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "Initializing movie libraries...\n" );
 	init_movies();		//init movie libraries
 
-	if (!GameArg.SysNoMovies)
+	if (!GameArg.SysNoMovies && !GameCfg.SkipProgramIntro)
 		show_titles();
 
 	gr_set_current_canvas(NULL);

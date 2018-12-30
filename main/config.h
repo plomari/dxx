@@ -47,6 +47,7 @@ typedef struct Cfg
 	int VSync;
 	int Multisample;
 	int Grabinput;
+	int SkipProgramIntro;
 } __pack__ Cfg;
 
 extern struct Cfg GameCfg;

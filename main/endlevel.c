@@ -182,7 +182,11 @@ int start_endlevel_movie()
 
 	memcpy(save_pal,gr_palette,768);
 
-	r=PlayMovie(movie_name,(Game_mode & GM_MULTI)?0:1);
+	if (PlayerCfg.SkipLevelMovies) {
+		r = MOVIE_ABORTED;
+	} else {
+		r = PlayMovie(movie_name,(Game_mode & GM_MULTI)?0:1);
+	}
 
 	if (Newdemo_state == ND_STATE_PLAYBACK) {
 		gr_set_current_canvas(NULL);

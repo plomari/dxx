@@ -1217,12 +1217,13 @@ void DoEndGame(void)
 
 	if (PLAYING_BUILTIN_MISSION && !(Game_mode & GM_MULTI))
 	{ //only built-in mission, & not multi
-		int played=MOVIE_NOT_PLAYED;	//default is not played
+		int played = MOVIE_ABORTED;
 
 		init_subtitles("end" ".tex");	//ingore errors
-		played = PlayMovie("end", 1);
+		if (!PlayerCfg.SkipLevelMovies)
+			played = PlayMovie("end", 1);
 		close_subtitles();
-		if (!played)
+		if (!played && !PlayerCfg.SkipLevelBriefing)
 		{
 			do_end_briefing_screens(Ending_text_filename);
 		}
@@ -1231,7 +1232,8 @@ void DoEndGame(void)
    {
 		char tname[4096];
 
-		do_end_briefing_screens (Ending_text_filename);
+		if (!PlayerCfg.SkipLevelBriefing)
+			do_end_briefing_screens (Ending_text_filename);
 
 		//try doing special credits
 		snprintf(tname, sizeof(tname), "%s.ctb", Current_mission_filename);
@@ -1584,7 +1586,7 @@ void ShowLevelIntro(int level_num)
 {
 	//if shareware, show a briefing?
 
-	if (!(Game_mode & GM_MULTI)) {
+	if (!(Game_mode & GM_MULTI) && !PlayerCfg.SkipLevelBriefing) {
 		int i;
 
 		ubyte save_pal[sizeof(gr_palette)];
@@ -1592,7 +1594,6 @@ void ShowLevelIntro(int level_num)
 		memcpy(save_pal,gr_palette,sizeof(gr_palette));
 
 		if (PLAYING_BUILTIN_MISSION) {
-			int movie=0;
 
 			if (is_SHAREWARE || is_MAC_SHARE)
 			{
@@ -1610,8 +1611,8 @@ void ShowLevelIntro(int level_num)
 				{
 					if (intro_movie[i].level_num == level_num)
 					{
-						PlayMovie(intro_movie[i].movie_name,1);
-						movie=1;
+						if (!PlayerCfg.SkipLevelMovies)
+							PlayMovie(intro_movie[i].movie_name,1);
 						break;
 					}
 				}

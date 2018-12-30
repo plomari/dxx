@@ -89,6 +89,8 @@ typedef struct player_config
 	enum key_stick_type KeyStickRearView;
 	enum key_stick_type KeyStickEnergyConvert;
 	int ExtendedAmmoRack;
+	int SkipLevelMovies;
+	int SkipLevelBriefing;
 } player_config;
 
 extern struct player_config PlayerCfg;

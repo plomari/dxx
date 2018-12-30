@@ -1263,7 +1263,7 @@ void do_sound_menu()
 
 void do_misc_menu()
 {
-	newmenu_item m[15];
+	newmenu_item m[18];
 	int i = 0;
 
 	do {
@@ -1281,7 +1281,10 @@ void do_misc_menu()
 		ADD_CHECK(11, "Free Flight controls in Automap",PlayerCfg.AutomapFreeFlight);
 		ADD_CHECK(12, "No Weapon Autoselect when firing",PlayerCfg.NoFireAutoselect);
 		ADD_CHECK(13, "Extended ammo rack mode", PlayerCfg.ExtendedAmmoRack);
-		ADD_CHECK(14, "Debug mode", Debug_mode);
+		ADD_CHECK(14, "Skip game startup movie/delay", GameCfg.SkipProgramIntro);
+		ADD_CHECK(15, "Skip level briefing", PlayerCfg.SkipLevelBriefing);
+		ADD_CHECK(16, "Skip level movies", PlayerCfg.SkipLevelMovies);
+		ADD_CHECK(17, "Debug mode", Debug_mode);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
@@ -1299,7 +1302,10 @@ void do_misc_menu()
 		PlayerCfg.AutomapFreeFlight		= m[11].value;
 		PlayerCfg.NoFireAutoselect		= m[12].value;
 		PlayerCfg.ExtendedAmmoRack		= m[13].value;
-		Debug_mode						= m[14].value;
+		GameCfg.SkipProgramIntro		= m[14].value;
+		PlayerCfg.SkipLevelBriefing		= m[15].value;
+		PlayerCfg.SkipLevelMovies		= m[16].value;
+		Debug_mode						= m[17].value;
 
 	} while( i>-1 );
 

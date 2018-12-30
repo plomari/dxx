@@ -62,6 +62,7 @@ static const char *MovieSubtitlesStr="MovieSubtitles";
 static const char *VSyncStr="VSync";
 static const char *MultisampleStr="Multisample";
 static const char *GrabinputStr="GrabInput";
+static const char *SkipProgramIntroStr="SkipProgramIntro";
 
 int ReadConfigFile()
 {
@@ -184,6 +185,8 @@ int ReadConfigFile()
 				GameCfg.Multisample = strtol(value, NULL, 10);
 			else if (!strcmp(token, GrabinputStr))
 				GameCfg.Grabinput = strtol(value, NULL, 10);
+			else if (!strcmp(token, SkipProgramIntroStr))
+				GameCfg.SkipProgramIntro = strtol(value, NULL, 10);
 		}
 	}
 
@@ -233,6 +236,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", VSyncStr, GameCfg.VSync);
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
 	PHYSFSX_printf(infile, "%s=%i\n", GrabinputStr, GameCfg.Grabinput);
+	PHYSFSX_printf(infile, "%s=%i\n", SkipProgramIntroStr, GameCfg.SkipProgramIntro);
 
 	PHYSFS_close(infile);
 

@@ -123,6 +123,8 @@ int new_player_config()
 	PlayerCfg.KeyStickRearView = KEY_STICK_STICKY;
 	PlayerCfg.KeyStickEnergyConvert = KEY_STICK_NORMAL;
 	PlayerCfg.ExtendedAmmoRack = 0;
+	PlayerCfg.SkipLevelMovies = 0;
+	PlayerCfg.SkipLevelBriefing = 0;
 
 	// Default taunt macros
 	#ifdef NETWORK
@@ -332,6 +334,10 @@ int read_player_d2x(char *filename)
 					PlayerCfg.NoFireAutoselect = atoi(line);
 				if(!strcmp(word,"EXTENDEDAMMORACK"))
 					PlayerCfg.ExtendedAmmoRack = atoi(line);
+				if (!strcmp(word,"SKIPLEVELMOVIES"))
+					PlayerCfg.SkipLevelMovies = atoi(line);
+				if (!strcmp(word,"SKIPLEVELBRIEFING"))
+					PlayerCfg.SkipLevelBriefing = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -489,6 +495,8 @@ int write_player_d2x(char *filename)
 		PHYSFSX_printf(fout,"automapobjects=%i\n",PlayerCfg.AutomapObjects);
 		PHYSFSX_printf(fout,"nofireautoselect=%i\n",PlayerCfg.NoFireAutoselect);
 		PHYSFSX_printf(fout,"extendedammorack=%i\n", PlayerCfg.ExtendedAmmoRack);
+		PHYSFSX_printf(fout,"skiplevelmovies=%i\n", PlayerCfg.SkipLevelMovies);
+		PHYSFSX_printf(fout,"skiplevelbriefing=%i\n", PlayerCfg.SkipLevelBriefing);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[graphics]\n");
 		PHYSFSX_printf(fout,"alphaeffects=%i\n",PlayerCfg.AlphaEffects);
