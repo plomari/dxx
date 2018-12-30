@@ -398,6 +398,25 @@ static void highlight_side_triggers(int segnum, int sidenum)
 	bool is_trigger = false;
 	bool is_target = false;
 
+#if 0
+	APPENDF(t, "tmaps: %d (%d/%d) %d (%d/%d)\n",
+			segp->sides[sidenum].tmap_num,
+			Textures[segp->sides[sidenum].tmap_num].index,
+			GameBitmaps[Textures[segp->sides[sidenum].tmap_num].index].bm_flags,
+			segp->sides[sidenum].tmap_num2,
+			Textures[segp->sides[sidenum].tmap_num2].index,
+			GameBitmaps[Textures[segp->sides[sidenum].tmap_num2 & 0x3FFF ].index].bm_flags);
+	if ( (segp->sides[sidenum].tmap_num2 & 0x3FFF) == 0) {
+		if (GameBitmaps[Textures[segp->sides[sidenum].tmap_num].index].bm_flags & BM_FLAG_TRANSPARENT )
+			APPENDF(t, "transparent\n");
+	} else if (GameBitmaps[Textures[segp->sides[sidenum].tmap_num2 & 0x3FFF ].index].bm_flags & BM_FLAG_SUPER_TRANSPARENT ) {
+		APPENDF(t, "supertransparent\n");
+	}
+
+	APPENDF(t, "doorway: %d\nchild: %d\n", WALL_IS_DOORWAY(segp, sidenum), segp->children[sidenum]);
+	APPENDF(t, "special: %d, flags: %d\n", segp->special, segp->s2_flags);
+#endif
+
 	int wall_num = Segments[segnum].sides[sidenum].wall_num;
 	if (wall_num >= 0) {
 		struct wall *wall = &Walls[wall_num];
