@@ -1263,7 +1263,7 @@ void do_sound_menu()
 
 void do_misc_menu()
 {
-	newmenu_item m[14];
+	newmenu_item m[15];
 	int i = 0;
 
 	do {
@@ -1280,7 +1280,8 @@ void do_misc_menu()
 		ADD_CHECK(10, "No Rankings (Multi)",PlayerCfg.NoRankings);
 		ADD_CHECK(11, "Free Flight controls in Automap",PlayerCfg.AutomapFreeFlight);
 		ADD_CHECK(12, "No Weapon Autoselect when firing",PlayerCfg.NoFireAutoselect);
-		ADD_CHECK(13, "Debug mode", Debug_mode);
+		ADD_CHECK(13, "Extended ammo rack mode", PlayerCfg.ExtendedAmmoRack);
+		ADD_CHECK(14, "Debug mode", Debug_mode);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, NULL, NULL, i );
 
@@ -1297,7 +1298,8 @@ void do_misc_menu()
 		PlayerCfg.NoRankings 			= m[10].value;
 		PlayerCfg.AutomapFreeFlight		= m[11].value;
 		PlayerCfg.NoFireAutoselect		= m[12].value;
-		Debug_mode						= m[13].value;
+		PlayerCfg.ExtendedAmmoRack		= m[13].value;
+		Debug_mode						= m[14].value;
 
 	} while( i>-1 );
 

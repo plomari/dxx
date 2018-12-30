@@ -407,6 +407,11 @@ void init_player_stats_new_ship()
 {
 	int	i;
 
+	int preserve_flags = 0;
+	if (PlayerCfg.ExtendedAmmoRack)
+		preserve_flags |= PLAYER_FLAGS_AMMO_RACK;
+	int restore_flags = preserve_flags & Players[Player_num].flags;
+
 	if (Newdemo_state == ND_STATE_RECORDING) {
 		newdemo_record_laser_level(Players[Player_num].laser_level, 0);
 		newdemo_record_player_weapon(0, 0);
@@ -448,6 +453,8 @@ void init_player_stats_new_ship()
 												PLAYER_FLAGS_HEADLIGHT |
 												PLAYER_FLAGS_HEADLIGHT_ON |
 												PLAYER_FLAGS_FLAG);
+
+	Players[Player_num].flags |= restore_flags;
 
 	Players[Player_num].cloak_time = 0;
 	Players[Player_num].invulnerable_time = 0;
@@ -1385,9 +1392,7 @@ void DoPlayerDead()
 			}
 		}
 	} else {
-                int preserve_flags = Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK;
 		init_player_stats_new_ship();
-                Players[Player_num].flags |= preserve_flags;
 		StartLevel(1);
 	}
 

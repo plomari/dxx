@@ -68,6 +68,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "gr.h"
 #include "physfsx.h"
+#include "playsave.h"
 
 extern void game_disable_cheats();
 
@@ -853,10 +854,12 @@ int state_restore_all_sub(char *filename, int secret_restore)
 			} else {
 				// Keep keys even if they died on secret level (otherwise game becomes impossible)
 				// Example: Cameron 'Stryker' Fultz's Area 51
-				dummy_player.flags |= (Players[Player_num].flags &
-										  (PLAYER_FLAGS_BLUE_KEY |
-										   PLAYER_FLAGS_RED_KEY |
-										   PLAYER_FLAGS_GOLD_KEY));
+				int preserve_flags = PLAYER_FLAGS_BLUE_KEY |
+									 PLAYER_FLAGS_RED_KEY |
+									 PLAYER_FLAGS_GOLD_KEY;
+				if (PlayerCfg.ExtendedAmmoRack)
+					preserve_flags |= PLAYER_FLAGS_AMMO_RACK;
+				dummy_player.flags |= Players[Player_num].flags & preserve_flags;
 				Players[Player_num] = dummy_player;
 			}
 		} else {

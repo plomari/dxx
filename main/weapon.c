@@ -52,7 +52,6 @@ const ubyte Secondary_weapon_to_weapon_info[MAX_SECONDARY_WEAPONS] = {CONCUSSION
 //for each Secondary weapon, which gun it fires out of
 const ubyte Secondary_weapon_to_gun_num[MAX_SECONDARY_WEAPONS] = {4,4,7,7,7,4,4,7,4,7};
 
-const int Primary_ammo_max[MAX_PRIMARY_WEAPONS] = {0, VULCAN_AMMO_MAX, 0, 0, 0, 0, VULCAN_AMMO_MAX, 0, 0, 0};
 const ubyte Secondary_ammo_max[MAX_SECONDARY_WEAPONS] = {20, 10, 10, 5, 5, 20, 20, 15, 10, 10};
 
 //for each primary weapon, what kind of powerup gives weapon
@@ -471,7 +470,7 @@ int pick_up_secondary(int weapon_index,int count)
 	max = Secondary_ammo_max[weapon_index];
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK)
-		max = 400;
+		max = PlayerCfg.ExtendedAmmoRack ? 400 : max * 2;
 
 	if (Players[Player_num].secondary_ammo[weapon_index] >= max) {
 		HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %i %ss!", TXT_ALREADY_HAVE, Players[Player_num].secondary_ammo[weapon_index],SECONDARY_WEAPON_NAMES(weapon_index));
@@ -482,12 +481,10 @@ int pick_up_secondary(int weapon_index,int count)
 	Players[Player_num].secondary_ammo[weapon_index] += count;
 
 	num_picked_up = count;
-#if 1
 	if (Players[Player_num].secondary_ammo[weapon_index] > max) {
 		num_picked_up = count - (Players[Player_num].secondary_ammo[weapon_index] - max);
 		Players[Player_num].secondary_ammo[weapon_index] = max;
 	}
-#endif
 
 	if (Players[Player_num].secondary_ammo[weapon_index] == count)	// only autoselect if player didn't have any
 	{
@@ -649,9 +646,10 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 
 	Assert(class_flag==CLASS_PRIMARY && weapon_index==VULCAN_INDEX);
 
-	max = Primary_ammo_max[weapon_index];
+	max = VULCAN_AMMO_MAX;
+
 	if (Players[Player_num].flags & PLAYER_FLAGS_AMMO_RACK)
-		max *= 2;
+		max *= PlayerCfg.ExtendedAmmoRack ? 20 : 2;
 
 	if (Players[Player_num].primary_ammo[weapon_index] >= max)
 		return 0;
@@ -660,12 +658,12 @@ int pick_up_ammo(int class_flag,int weapon_index,int ammo_count)
 
 	Players[Player_num].primary_ammo[weapon_index] += ammo_count;
 
-#if 0
-	if (Players[Player_num].primary_ammo[weapon_index] > max) {
+	if (Players[Player_num].primary_ammo[weapon_index] > max &&
+		!PlayerCfg.ExtendedAmmoRack)
+	{
 		ammo_count += (max - Players[Player_num].primary_ammo[weapon_index]);
 		Players[Player_num].primary_ammo[weapon_index] = max;
 	}
-#endif
 	cutpoint=POrderList (255);
 
 	if (Primary_weapon==LASER_INDEX && Players[Player_num].laser_level>=4)

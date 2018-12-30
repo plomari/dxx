@@ -88,6 +88,7 @@ typedef struct player_config
 	int OldKeyboardRamping;
 	enum key_stick_type KeyStickRearView;
 	enum key_stick_type KeyStickEnergyConvert;
+	int ExtendedAmmoRack;
 } player_config;
 
 extern struct player_config PlayerCfg;

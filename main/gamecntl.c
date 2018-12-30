@@ -1493,11 +1493,14 @@ static bool FinalCheats(int key)
 				Players[Player_num].secondary_weapon_flags = 0xffff;
 			}
 
-			for (i=0; i<MAX_PRIMARY_WEAPONS; i++)
-					Players[Player_num].primary_ammo[i] = Primary_ammo_max[i];
+			Players[Player_num].primary_ammo[VULCAN_INDEX] =
+				max(Players[Player_num].primary_ammo[VULCAN_INDEX], VULCAN_AMMO_MAX);
 
-				for (i=0; i<MAX_SECONDARY_WEAPONS; i++)
-					Players[Player_num].secondary_ammo[i] = Secondary_ammo_max[i];
+				for (i=0; i<MAX_SECONDARY_WEAPONS; i++) {
+					Players[Player_num].secondary_ammo[i] =
+						max(Players[Player_num].secondary_ammo[i],
+							Secondary_ammo_max[i]);
+				}
 
 				if (Piggy_hamfile_version < 3) // SHAREWARE
 				{

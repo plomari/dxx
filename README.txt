@@ -11,18 +11,18 @@ that are enabled by default:
 - a raised object limit. This fixes behavior even with some official levels
   (at least level 12), where dropping a lot of weapons can bring the object
   count above the limit and you can't shoot anymore.
-- raise the ammo rack weapons limit to basically infinite; you also drop all
-  ammo when you die
-- keep the ammo rack when you die
+- extended ammo rack mode (off by default): raise the ammo rack weapons limit
+  to basically infinite; you also drop all ammo when you die, and you keep the
+  ammo rack even if you die. You never lose ammo, unless you get killed during
+  reactor countdown or in a later unreachable area.
 - make rear view and transfer-energy-to-shield key "stickiness" configurable
-- raise vulcan ammo to basically infinite
 - a "killboss" cheat that doesn't trigger cheat penalty, because I hate boss
   fights
 - logging remaining robot life as HUD messages (actually this is very annoying,
   but I left it in because it's sometimes useful)
 - fix display of current bomb type (for b/n keys) in a certain cockpit mode
 - show the total number of levels in the automap
-- some shitty cheats (with penatly; see source code)
+- some shitty cheats (with penalty; see source code)
 - some bug fixes
 - remains pure C. I'm against the pointless C++ uglification that upstream did.
   This also doesn't include the d1x unification.

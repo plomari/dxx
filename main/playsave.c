@@ -122,6 +122,7 @@ int new_player_config()
 	PlayerCfg.OldKeyboardRamping = 1;
 	PlayerCfg.KeyStickRearView = KEY_STICK_STICKY;
 	PlayerCfg.KeyStickEnergyConvert = KEY_STICK_NORMAL;
+	PlayerCfg.ExtendedAmmoRack = 0;
 
 	// Default taunt macros
 	#ifdef NETWORK
@@ -309,7 +310,7 @@ int read_player_d2x(char *filename)
 			word=splitword(line,'=');
 			strupr(word);
 	
-			while(!strstr(word,"END") && !PHYSFS_eof(f))
+			while(strcmp(word,"[END]") != 0 && !PHYSFS_eof(f))
 			{
 				if(!strcmp(word,"ESCORTHOTKEYS"))
 					PlayerCfg.EscortHotKeys = atoi(line);
@@ -329,6 +330,8 @@ int read_player_d2x(char *filename)
 					PlayerCfg.AutomapObjects = atoi(line);
 				if(!strcmp(word,"NOFIREAUTOSELECT"))
 					PlayerCfg.NoFireAutoselect = atoi(line);
+				if(!strcmp(word,"EXTENDEDAMMORACK"))
+					PlayerCfg.ExtendedAmmoRack = atoi(line);
 				d_free(word);
 				cfgets(line,50,f);
 				word=splitword(line,'=');
@@ -485,6 +488,7 @@ int write_player_d2x(char *filename)
 		PHYSFSX_printf(fout,"automapfreeflight=%i\n",PlayerCfg.AutomapFreeFlight);
 		PHYSFSX_printf(fout,"automapobjects=%i\n",PlayerCfg.AutomapObjects);
 		PHYSFSX_printf(fout,"nofireautoselect=%i\n",PlayerCfg.NoFireAutoselect);
+		PHYSFSX_printf(fout,"extendedammorack=%i\n", PlayerCfg.ExtendedAmmoRack);
 		PHYSFSX_printf(fout,"[end]\n");
 		PHYSFSX_printf(fout,"[graphics]\n");
 		PHYSFSX_printf(fout,"alphaeffects=%i\n",PlayerCfg.AlphaEffects);

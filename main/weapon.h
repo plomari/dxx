@@ -156,6 +156,9 @@ typedef struct weapon_info {
 
 #define VULCAN_AMMO_SCALE   0xcc163 //(0x198300/2)      //multiply ammo by this before displaying
 
+#define VULCAN_AMMO_INT() \
+    (int)(f2i((unsigned int)Players[Player_num].primary_ammo[VULCAN_INDEX] * (unsigned long long)VULCAN_AMMO_SCALE))
+
 #define NUM_SMART_CHILDREN  6   // Number of smart children created by default.
 
 extern weapon_info Weapon_info[];
@@ -188,7 +191,6 @@ extern const char *const Primary_weapon_names_short[];
 extern const char *const Secondary_weapon_names_short[];
 extern const char *const Primary_weapon_names[];
 extern const char *const Secondary_weapon_names[];
-extern const int  Primary_ammo_max[MAX_PRIMARY_WEAPONS];
 extern const ubyte    Secondary_ammo_max[MAX_SECONDARY_WEAPONS];
 extern const sbyte    Weapon_is_energy[MAX_WEAPON_TYPES];
 

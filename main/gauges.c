@@ -271,9 +271,6 @@ bitmap_index Gauges_hires[MAX_GAUGE_BMS];   // hires gauges
 grs_bitmap deccpt;
 grs_bitmap *WinBoxOverlay[2] = { NULL, NULL }; // Overlay subbitmaps for both weapon boxes
 
-#define VULCAN_AMMO_INT() \
-    (int)(f2i((unsigned int)Players[Player_num].primary_ammo[VULCAN_INDEX] * (unsigned long long)VULCAN_AMMO_SCALE))
-
 #define PAGE_IN_GAUGE(x) page_in_gauge(x)
 static inline void page_in_gauge(int x)
 {
