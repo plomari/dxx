@@ -18,8 +18,6 @@ that are enabled by default:
 - make rear view and transfer-energy-to-shield key "stickiness" configurable
 - a "killboss" cheat that doesn't trigger cheat penalty, because I hate boss
   fights
-- logging remaining robot life as HUD messages (actually this is very annoying,
-  but I left it in because it's sometimes useful)
 - fix display of current bomb type (for b/n keys) in a certain cockpit mode
 - show the total number of levels in the automap
 - some shitty cheats (with penalty; see source code)

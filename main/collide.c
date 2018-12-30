@@ -1278,8 +1278,8 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 //		Boss_been_hit = 1;
 
 	robot->shields -= damage;
-        if (damage && robot->shields > (100 << 16))
-            HUD_init_message(HM_DEFAULT, "Robot %i now as at shield: %i (%i damage)", robot->id, robot->shields >> 16, damage >> 16);
+        if (Debug_mode && damage && robot->shields > (100 << 16))
+            HUD_init_message(HM_DEFAULT, "Robot %zi (%i) is now at shield: %i (%i damage)", robot - Objects, robot->id, robot->shields >> 16, damage >> 16);
 
 	//	Do unspeakable hacks to make sure player doesn't die after killing boss.  Or before, sort of.
 	if (Robot_info[robot->id].boss_flag)
