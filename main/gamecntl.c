@@ -1369,6 +1369,7 @@ static bool FinalCheats(int key)
 			}
 #endif
 			HUD_init_message(HM_DEFAULT, "Take that...cheater!");
+			return true;
 		}
 
   if (!(strcmp (cryptstring,AcidCheat)))
@@ -1384,11 +1385,14 @@ static bool FinalCheats(int key)
 				 HUD_init_message (HM_DEFAULT, "Going up!");
 				}
 
+				return true;
+
 		}
 
   if (!(strcmp (cryptstring,FramerateCheat)))
 		{
 			GameArg.SysFPSIndicator = !GameArg.SysFPSIndicator;
+			return true;
 		}
 
     if (!strcmp(&CheatBuffer[7], "killboss"))
@@ -1400,6 +1404,7 @@ static bool FinalCheats(int key)
                 break;
             }
         }
+        return true;
     }
 
   if (Game_mode & GM_MULTI)
@@ -1418,6 +1423,7 @@ static bool FinalCheats(int key)
 			do_cheat_penalty();
 	 	} else
 			HUD_init_message(HM_DEFAULT|HM_REDUNDANT, TXT_MAXED_OUT,TXT_SHIELD);
+		return true;
    }
 
   if (!(strcmp(cryptstring,BuddyLifeCheat)))
@@ -1425,6 +1431,7 @@ static bool FinalCheats(int key)
 	 do_cheat_penalty();
 	 HUD_init_message(HM_DEFAULT, "What's this? Another buddy bot!");
 	 create_buddy_bot();
+	 return true;
    }
 
 
@@ -1440,6 +1447,7 @@ static bool FinalCheats(int key)
 		strcpy(PlayerCfg.GuidebotName,PlayerCfg.GuidebotNameReal);
 		HUD_init_message(HM_DEFAULT, "%s calms down",PlayerCfg.GuidebotName);
 	 }
+	 return true;
   }
 
 
@@ -1448,6 +1456,7 @@ static bool FinalCheats(int key)
     Monster_mode=1-Monster_mode;
 	 do_cheat_penalty();
 	 HUD_init_message(HM_DEFAULT, Monster_mode?"Oh no, there goes Tokyo!":"What have you done, I'm shrinking!!");
+	 return true;
    }
 
 
@@ -1456,6 +1465,7 @@ static bool FinalCheats(int key)
 		do_cheat_penalty();
 		HUD_init_message(HM_DEFAULT, "Bouncing weapons!");
 		BounceCheat=1;
+		return true;
 	}
 
 	if (!(strcmp(cryptstring,LevelWarpCheat)))
@@ -1474,6 +1484,7 @@ static bool FinalCheats(int key)
 				return true;
 			}
 		}
+		return true;
 	 }
 
   if (!(strcmp (cryptstring,WowieCheat)))
@@ -1519,6 +1530,7 @@ static bool FinalCheats(int key)
 				Players[Player_num].laser_level = MAX_SUPER_LASER_LEVEL;
 				Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
 				update_laser_weapon_info();
+				return true;
 	}
 
 
@@ -1527,6 +1539,7 @@ static bool FinalCheats(int key)
 		do_cheat_penalty();
 				HUD_init_message(HM_DEFAULT, TXT_ALL_KEYS);
 				Players[Player_num].flags |= PLAYER_FLAGS_BLUE_KEY | PLAYER_FLAGS_RED_KEY | PLAYER_FLAGS_GOLD_KEY;
+		return true;
 	}
 
     if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("unlock")], "unlock"))
@@ -1536,6 +1549,8 @@ static bool FinalCheats(int key)
 
         for (int n = 0; n < Num_walls; n++)
             Walls[n].flags &= ~(unsigned)WALL_DOOR_LOCKED;
+
+		return true;
     }
 
     if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("freewalk")], "freewalk"))
@@ -1550,6 +1565,7 @@ static bool FinalCheats(int key)
                 Triggers[n].type = NUM_TRIGGER_TYPES;
         }
 
+        return true;
     }
 
     if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("wireframe")], "wireframe"))
@@ -1562,6 +1578,8 @@ static bool FinalCheats(int key)
 
         for (int n = 0; n < Num_walls; n++)
             Walls[n].trigger = -1;
+
+		return true;
     }
 
     if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("fuckrobots")], "fuckrobots"))
@@ -1577,6 +1595,8 @@ static bool FinalCheats(int key)
 		}
 
 		HUD_init_message(HM_DEFAULT, "fucked %d assholes", cnt);
+
+		return true;
 	}
 
 	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("cloak")], "cloak"))
@@ -1585,6 +1605,7 @@ static bool FinalCheats(int key)
 		Players[Player_num].flags ^= PLAYER_FLAGS_CLOAKED;
 		HUD_init_message(HM_DEFAULT, "%s %s!", "Cloak", (Players[Player_num].flags&PLAYER_FLAGS_CLOAKED)?TXT_ON:TXT_OFF);
 		Players[Player_num].cloak_time = GameTime+i2f(1000);
+		return true;
 	}
 
 	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("jumpseg")], "jumpseg")) {
@@ -1607,6 +1628,7 @@ static bool FinalCheats(int key)
 
 			do_cheat_penalty();
 		}
+		return true;
 	}
 
 	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("showtrigger")], "showtrigger"))
@@ -1631,6 +1653,8 @@ static bool FinalCheats(int key)
 			highlight_seg = hit.hit_seg;
 			highlight_side = hit.hit_side;
 		}
+
+		return true;
 	}
 
 	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("debugmode")], "debugmode"))
@@ -1639,6 +1663,7 @@ static bool FinalCheats(int key)
 		HUD_init_message(HM_DEFAULT, "Debug mode: %s", Debug_mode ? "on" : "off");
 		if (Debug_mode)
 			HUD_init_message(HM_DEFAULT, "Please use responsibly.");
+		return true;
 	}
 
 
@@ -1648,6 +1673,7 @@ static bool FinalCheats(int key)
 				Players[Player_num].flags ^= PLAYER_FLAGS_INVULNERABLE;
 				HUD_init_message(HM_DEFAULT, "%s %s!", TXT_INVULNERABILITY, (Players[Player_num].flags&PLAYER_FLAGS_INVULNERABLE)?TXT_ON:TXT_OFF);
 				Players[Player_num].invulnerable_time = GameTime+i2f(1000);
+				return true;
 		}
   if (!(strcmp (cryptstring,AccessoryCheat)))
 		{
@@ -1658,6 +1684,7 @@ static bool FinalCheats(int key)
 				Players[Player_num].flags |=PLAYER_FLAGS_CONVERTER;
 
 				HUD_init_message(HM_DEFAULT, "Accessories!!");
+				return true;
 		}
   if (!(strcmp (cryptstring,FullMapCheat)))
 		{
@@ -1665,6 +1692,7 @@ static bool FinalCheats(int key)
 				Players[Player_num].flags |=PLAYER_FLAGS_MAP_ALL;
 
 				HUD_init_message(HM_DEFAULT, "Full Map!!");
+				return true;
 		}
 
 
@@ -1679,6 +1707,7 @@ static bool FinalCheats(int key)
 				  Weapon_info[i].homing_flag=1;
 				 }
 				HUD_init_message(HM_DEFAULT, "Homing weapons!");
+				return true;
 			}
 		}
 
@@ -1686,12 +1715,14 @@ static bool FinalCheats(int key)
 		{
 				do_cheat_penalty();
 				kill_all_robots();
+				return true;
 		}
 
   if (!(strcmp (cryptstring,FinishLevelCheat)))
 		{
 				do_cheat_penalty();
 				kill_and_so_forth();
+				return true;
 		}
 
 	if (!(strcmp (cryptstring,RobotsKillRobotsCheat))) {
@@ -1702,6 +1733,7 @@ static bool FinalCheats(int key)
 		}
 		else
 			HUD_init_message(HM_DEFAULT, "Kill the player!");
+		return true;
 	}
 
 	if (!(strcmp (cryptstring,AhimsaCheat))) {
@@ -1712,6 +1744,7 @@ static bool FinalCheats(int key)
 		}
 		else
 			HUD_init_message(HM_DEFAULT, "%s", "Robot firing ON!");
+		return true;
 	}
 
 	if (!(strcmp (cryptstring,RapidFireCheat))) {
@@ -1724,6 +1757,7 @@ static bool FinalCheats(int key)
 			do_cheat_penalty();
 			HUD_init_message(HM_DEFAULT, "%s", "Rapid fire ON!");
 		}
+		return true;
 	}
 
 	return false;
