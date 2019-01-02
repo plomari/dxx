@@ -470,6 +470,9 @@ static void highlight_side_triggers(int segnum, int sidenum)
 				 wall->keys,
 			     ARRAY_OR_DEF(wall->keys, Keys, "?"));
 
+		if (wall->type == WALL_BLASTABLE)
+			APPENDF(t, "hps: %f\n", f2fl(wall->hps));
+
 		if (wall->trigger >= 0) {
 			trigger *tr = &Triggers[wall->trigger];
 
