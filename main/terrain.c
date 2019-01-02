@@ -333,7 +333,8 @@ void load_terrain(char *filename)
 
 	iff_error = iff_read_bitmap(filename,&height_bitmap,NULL);
 	if (iff_error != IFF_NO_ERROR) {
-		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
+		printf("Error: File %s - IFF error: %s",filename,iff_errormsg(iff_error));
+		return;
 	}
 
 	if (height_array)
