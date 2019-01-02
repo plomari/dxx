@@ -437,6 +437,13 @@ void read_object(object *obj,CFILE *f,int version)
 		case CT_CNTRLCEN:
 			break;
 
+		// D2X-XL types
+		case CT_WAYPOINT:
+			cfile_read_int(f); // id
+			cfile_read_int(f); // next point?
+			cfile_read_int(f); // "speed"
+			break;
+
 		case CT_MORPH:
 		case CT_FLYTHROUGH:
 		case CT_REPAIRCEN:

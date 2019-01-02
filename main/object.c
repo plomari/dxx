@@ -1685,6 +1685,9 @@ void object_move_one( object * obj )
 
 		case CT_CNTRLCEN: do_controlcen_frame(obj); break;
 
+		// D2X-XL
+		case CT_WAYPOINT: break;
+
 		default:
 
 			Error("Unknown control type %d in object %i, sig/type/id = %i/%i/%i",obj->control_type, (int)(obj-Objects), obj->signature, obj->type, obj->id);
