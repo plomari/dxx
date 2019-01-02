@@ -842,9 +842,11 @@ int load_game_data(CFILE *LoadFile)
 
 	if (game_top_fileinfo_version >= 19) {	//load pof names
 		N_save_pof_names = cfile_read_short(LoadFile);
-		if (N_save_pof_names != 0x614d && N_save_pof_names != 0x5547) { // "Ma"de w/DMB beta/"GU"ILE
-			Assert(N_save_pof_names < MAX_POLYGON_MODELS);
+		if (N_save_pof_names < MAX_POLYGON_MODELS) {
 			cfread(Save_pof_names,N_save_pof_names,FILENAME_LEN,LoadFile);
+		} else {
+			printf("Warning: ignoring bogus N_save_pof_names==%d\n",
+				   N_save_pof_names);
 		}
 	}
 
