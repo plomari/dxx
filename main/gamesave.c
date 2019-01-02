@@ -479,6 +479,12 @@ void read_object(object *obj,CFILE *f,int version)
 			obj->rtype.vclip_info.frametime	= cfile_read_fix(f);
 			obj->rtype.vclip_info.framenum	= cfile_read_byte(f);
 
+			if (obj->rtype.vclip_info.vclip_num >= Num_vclips) {
+				printf("Warning: object %zd: vclip %d >= Num_clips %d\n",
+					   obj - Objects, obj->rtype.vclip_info.vclip_num, Num_vclips);
+				obj->rtype.vclip_info.vclip_num = 0;
+			}
+
 			break;
 
 		case RT_LASER:
