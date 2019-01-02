@@ -450,7 +450,8 @@ int load_screen_text(char *filename, char **buf)
 	int	len, i,x;
 	int	have_binary = 0;
 
-	if (!stricmp(strrchr(filename, '.'), ".txb"))
+	char *t = strrchr(filename, '.');
+	if (t && !stricmp(t, ".txb"))
 		have_binary = 1;
 	
 	if ((tfile = cfopen(filename, "rb")) == NULL)
