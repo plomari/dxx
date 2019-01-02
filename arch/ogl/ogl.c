@@ -895,14 +895,6 @@ void ogl_prepare_state_3d(void)
 			   grd_curcanv->cv_w,
 			   grd_curcanv->cv_h);
 
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-
-	glLineWidth(linedotscale);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GEQUAL,0.02);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 
@@ -910,27 +902,30 @@ void ogl_prepare_state_3d(void)
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
-	glShadeModel(GL_SMOOTH);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();//clear matrix
 	perspective(90.0,1.0,0.1,5000.0);   
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();//clear matrix
 }
 
 void ogl_prepare_state_2d(void)
 {
 	glViewport(0,0,grd_curscreen->sc_w,grd_curscreen->sc_h);
+
+	glLineWidth(linedotscale);
+
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();//clear matrix
 	glOrtho(0.0, 1.0, 0.0, 1.0, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();//clear matrix
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	glClearColor(0.0, 0.0, 0.0, 0.0);
+
+	glEnable(GL_ALPHA_TEST);
+	glAlphaFunc(GL_GEQUAL,0.02);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glShadeModel(GL_SMOOTH);
 }
 
 void gr_prepare_frame(void)
