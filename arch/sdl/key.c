@@ -426,11 +426,8 @@ int event_key_get_raw(d_event *event)
 {
 	int keycode = ((d_event_keycommand *)event)->keycode;
 	Assert(event->type == EVENT_KEY_COMMAND || event->type == EVENT_KEY_RELEASE);
-	if ( keycode & KEY_SHIFTED ) keycode &= ~KEY_SHIFTED;
-	if ( keycode & KEY_ALTED ) keycode &= ~KEY_ALTED;
-	if ( keycode & KEY_CTRLED ) keycode &= ~KEY_CTRLED;
-	if ( keycode & KEY_DEBUGGED ) keycode &= ~KEY_DEBUGGED;
-	if ( keycode & KEY_METAED ) keycode &= ~KEY_METAED;
+	keycode &= ~(unsigned)(KEY_SHIFTED | KEY_ALTED | KEY_CTRLED | KEY_DEBUGGED |
+						   KEY_METAED);
 	return keycode;
 }
 
