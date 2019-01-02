@@ -482,7 +482,6 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 
 	glLineWidth(linedotscale*2);
 	OGL_DISABLE(TEXTURE_2D);
-	glDisable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 	
@@ -554,7 +553,6 @@ void ogl_draw_vertex_reticle(int cross,int primary,int secondary,int color,int a
 	glDisableClientState(GL_COLOR_ARRAY);
 	glPopMatrix();
 	glLineWidth(linedotscale);
-	glEnable(GL_CULL_FACE);
 }
 
 void gr_enable_depth(int enable)
