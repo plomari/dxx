@@ -77,7 +77,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "movie.h"
 #include "scores.h"
 #include "collide.h"
-
+#include "controls.h"
 #include "multi.h"
 #include "desc_id.h"
 #include "cntrlcen.h"
@@ -1682,6 +1682,8 @@ static bool FinalCheats(int key)
 				Players[Player_num].flags |=PLAYER_FLAGS_AFTERBURNER;
 				Players[Player_num].flags |=PLAYER_FLAGS_AMMO_RACK;
 				Players[Player_num].flags |=PLAYER_FLAGS_CONVERTER;
+
+				Afterburner_charge = f1_0;
 
 				HUD_init_message(HM_DEFAULT, "Accessories!!");
 				return true;
