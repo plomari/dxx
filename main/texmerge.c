@@ -156,7 +156,7 @@ static int check_pixel_type(uint8_t *p, int bm_flags, int bm_depth)
 	if (bm_depth <= 1) {
 		uint8_t v = p[0];
 		if (v == 254 && (bm_flags & BM_FLAG_SUPER_TRANSPARENT))
-			return BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT;
+			return BM_FLAG_SUPER_TRANSPARENT;
 		if (v == TRANSPARENCY_COLOR)
 			return BM_FLAG_TRANSPARENT;
 		return 0;
@@ -335,7 +335,7 @@ int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 	size_t d_bottom = bm_bottom->bm_depth < 1 ? 1 : bm_bottom->bm_depth;
 	int c_bottom = check_pixel_type(bm_bottom->bm_data + by * w * d_bottom + bx * d_bottom,
 									bm_bottom->bm_flags, bm_bottom->bm_depth);
-	if (c_bottom & BM_FLAG_TRANSPARENT)
+	if (c_bottom & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT))
 		return WID_RENDPAST_FLAG;
 
 	return 0;
