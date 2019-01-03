@@ -314,10 +314,8 @@ int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 		int bx = ((unsigned) f2i(u*w)) % w;
 		int by = ((unsigned) f2i(v*h)) % h;
 
-		// Reverse the transformation done on merging.
-		static const int opposite_orient[4] = {0, 3, 2, 1};
 		int tx, ty;
-		orient_transform(opposite_orient[orient], w, bx, by, &tx, &ty);
+		orient_transform(orient, w, bx, by, &tx, &ty);
 
 		size_t d_top = bm_top->bm_depth < 1 ? 1 : bm_top->bm_depth;
 		int c_top = check_pixel_type(bm_top->bm_data + ty * w * d_top + tx * d_top,
