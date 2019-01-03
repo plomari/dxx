@@ -288,53 +288,51 @@ static bool do_merge_textures(int orient, grs_bitmap *bot, grs_bitmap *top,
 	return true;
 }
 
+// Return transparency-related BM_FLAG_* combination for this pixel.
+int tmap_test_pixel(int tmap, fix u, fix v)
+{
+	int orient = ((tmap&0xC000)>>14) & 3;
+	tmap = tmap&0x3FFF;
+
+	PIGGY_PAGE_IN(Textures[tmap]);
+
+	grs_bitmap *bm = &GameBitmaps[Textures[tmap].index];
+
+	if (bm->bm_flags & BM_FLAG_RLE)
+		bm = rle_expand_texture(bm);
+
+	int w = bm->bm_w;
+	int h = bm->bm_h;
+
+	if (orient && WARN_ON(w != h))
+		return 0;
+
+	int bx = ((unsigned) f2i(u*w)) % w;
+	int by = ((unsigned) f2i(v*h)) % h;
+
+	int tx, ty;
+	orient_transform(orient, w, bx, by, &tx, &ty);
+
+	size_t depth = bm->bm_depth < 1 ? 1 : bm->bm_depth;
+	return check_pixel_type(bm->bm_data + ty * w * depth + tx * depth,
+							bm->bm_flags, bm->bm_depth);
+}
+
 int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 {
-	int orient = ((tmap_top&0xC000)>>14) & 3;
-
 	piggy_page_in_two(tmap_bottom, tmap_top);
 
-	grs_bitmap *bm_bottom = &GameBitmaps[Textures[tmap_bottom].index];
-
-	if (bm_bottom->bm_flags & BM_FLAG_RLE)
-		bm_bottom = rle_expand_texture(bm_bottom);
-
 	if (tmap_top) {
-		grs_bitmap *bm_top = &GameBitmaps[Textures[tmap_top&0x3FFF].index];
+		int c_top = tmap_test_pixel(tmap_top, u, v);
 
-		if (bm_top->bm_flags & BM_FLAG_RLE)
-			bm_top = rle_expand_texture(bm_top);
-
-		int w = bm_top->bm_w;
-		int h = bm_top->bm_h;
-
-		if (WARN_ON(w != h))
-			return 0;
-
-		int bx = ((unsigned) f2i(u*w)) % w;
-		int by = ((unsigned) f2i(v*h)) % h;
-
-		int tx, ty;
-		orient_transform(orient, w, bx, by, &tx, &ty);
-
-		size_t d_top = bm_top->bm_depth < 1 ? 1 : bm_top->bm_depth;
-		int c_top = check_pixel_type(bm_top->bm_data + ty * w * d_top + tx * d_top,
-									 bm_top->bm_flags, bm_top->bm_depth);
 		if (c_top & BM_FLAG_SUPER_TRANSPARENT)
 			return WID_RENDPAST_FLAG;
 		if (!(c_top & BM_FLAG_TRANSPARENT))
 			return 0;
 	}
 
-	int w = bm_bottom->bm_w;
-	int h = bm_bottom->bm_h;
+	int c_bottom = tmap_test_pixel(tmap_bottom, u, v);
 
-	int bx = ((unsigned) f2i(u*w)) % w;
-	int by = ((unsigned) f2i(v*h)) % h;
-
-	size_t d_bottom = bm_bottom->bm_depth < 1 ? 1 : bm_bottom->bm_depth;
-	int c_bottom = check_pixel_type(bm_bottom->bm_data + by * w * d_bottom + bx * d_bottom,
-									bm_bottom->bm_flags, bm_bottom->bm_depth);
 	if (c_bottom & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT))
 		return WID_RENDPAST_FLAG;
 

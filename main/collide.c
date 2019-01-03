@@ -70,6 +70,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "collide.h"
 #include "escort.h"
+#include "texmerge.h"
 
 #define WALL_DAMAGE_SCALE (128)
 #define WALL_DAMAGE_THRESHOLD (F1_0/3)
@@ -493,31 +494,21 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 		//check if it's an animation (monitor) or casts light
 		if ((((ec=TmapInfo[tm].eclip_num)!=-1) && ((db=Effects[ec].dest_bm_num)!=-1 && !(Effects[ec].flags&EF_ONE_SHOT))) ||	(ec==-1 && (TmapInfo[tm].destroyed!=-1))) {
 			fix u,v;
-			grs_bitmap *bm = &GameBitmaps[Textures[tm].index];
-			int x=0,y=0,t;
 
-			PIGGY_PAGE_IN(Textures[tm]);
+			bool hit = force_blowup_flag;
 
 			//this can be blown up...did we hit it?
 
-			if (!force_blowup_flag) {
+			if (!hit) {
 				find_hitpoint_uv(&u,&v,NULL,pnt,seg,side,0);	//evil: always say face zero
 
-				x = ((unsigned) f2i(u*bm->bm_w)) % bm->bm_w;
-				y = ((unsigned) f2i(v*bm->bm_h)) % bm->bm_h;
+				int flags = tmap_test_pixel(tm | tmf, u, v);
 
-				switch (tmf) {		//adjust for orientation of paste-on
-					case 0x0000:	break;
-					case 0x4000:	t=y; y=x; x=bm->bm_w-t-1; break;
-					case 0x8000:	y=bm->bm_h-y-1; x=bm->bm_w-x-1; break;
-					case 0xc000:	t=x; x=y; y=bm->bm_h-t-1; break;
-				}
-
-				if (bm->bm_flags & BM_FLAG_RLE)
-					bm = rle_expand_texture(bm);
+				//not trans, thus an effect
+				hit = !(flags & BM_FLAG_TRANSPARENT);
 			}
 
-			if (force_blowup_flag || (bm->bm_data[y*bm->bm_w+x] != TRANSPARENCY_COLOR)) {		//not trans, thus on effect
+			if (hit) {
 				int vc,sound_num;
 				fix dest_size;
 
