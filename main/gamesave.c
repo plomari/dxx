@@ -1246,7 +1246,15 @@ int load_game_data(CFILE *LoadFile)
 			default:
 				if (wall_num == -1) {
  					printf("Error: no wall for trigger type %d\n", Triggers[t].type);
-					Int3();	//	This is illegal.  This trigger requires a wall
+					printf("Removing this bogus link (%d walls left).\n",
+						   Triggers[t].num_links - 1);
+					if (l + 1 < Triggers[t].num_links) {
+						Triggers[t].seg[l] = Triggers[t].seg[l + 1];
+						Triggers[t].side[l] = Triggers[t].side[l + 1];
+					}
+					Triggers[t].num_links -= 1;
+					l -= 1;
+					continue;
 				} else {
 					Walls[wall_num].flags |= WALL_HAS_TRIGGERS;
 				}
