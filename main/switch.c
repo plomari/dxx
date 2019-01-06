@@ -106,8 +106,10 @@ static int do_change_walls(trigger *trigger)
 				Assert(cside != -1);
 			}
 
-			//segp->sides[side].wall_num = -1;
-			//csegp->sides[cside].wall_num = -1;
+			int wall_num = segp->sides[side].wall_num;
+
+			if (wall_num < 0)
+				printf("Warning: wall trigger with no wall. Working around.\n");
 
 			switch (trigger->type) {
 				case TT_OPEN_WALL:		new_wall_type = WALL_OPEN; break;
@@ -119,7 +121,8 @@ static int do_change_walls(trigger *trigger)
 					break;
 			}
 
-			if (Walls[segp->sides[side].wall_num].type == new_wall_type &&
+			if (wall_num > -1 &&
+				Walls[segp->sides[side].wall_num].type == new_wall_type &&
 			    (cside < 0 || csegp->sides[cside].wall_num < 0 ||
 			     Walls[csegp->sides[cside].wall_num].type == new_wall_type))
 				continue;		//already in correct state, so skip
@@ -133,8 +136,10 @@ static int do_change_walls(trigger *trigger)
 						vms_vector pos;
 						compute_center_point_on_side(&pos, segp, side );
 						digi_link_sound_to_pos( SOUND_FORCEFIELD_OFF, segp-Segments, side, &pos, 0, F1_0 );
-						Walls[segp->sides[side].wall_num].type = new_wall_type;
-						digi_kill_sound_linked_to_segment(segp-Segments,side,SOUND_FORCEFIELD_HUM);
+						if (wall_num > -1) {
+							Walls[segp->sides[side].wall_num].type = new_wall_type;
+							digi_kill_sound_linked_to_segment(segp-Segments,side,SOUND_FORCEFIELD_HUM);
+						}
 						if (cside > -1 && csegp->sides[cside].wall_num > -1)
 						{
 							Walls[csegp->sides[cside].wall_num].type = new_wall_type;
@@ -153,7 +158,8 @@ static int do_change_walls(trigger *trigger)
 						vms_vector pos;
 						compute_center_point_on_side(&pos, segp, side );
 						digi_link_sound_to_pos(SOUND_FORCEFIELD_HUM,segp-Segments,side,&pos,1, F1_0/2);
-						Walls[segp->sides[side].wall_num].type = new_wall_type;
+						if (wall_num > -1)
+							Walls[segp->sides[side].wall_num].type = new_wall_type;
 						if (cside > -1 && csegp->sides[cside].wall_num > -1)
 							Walls[csegp->sides[cside].wall_num].type = new_wall_type;
 					}
@@ -162,14 +168,16 @@ static int do_change_walls(trigger *trigger)
 					break;
 
 				case TT_ILLUSORY_WALL:
-					Walls[segp->sides[side].wall_num].type = new_wall_type;
+					if (wall_num > -1)
+						Walls[segp->sides[side].wall_num].type = new_wall_type;
 					if (cside > -1 && csegp->sides[cside].wall_num > -1)
 						Walls[csegp->sides[cside].wall_num].type = new_wall_type;
 					break;
 			}
 
 
-			kill_stuck_objects(segp->sides[side].wall_num);
+			if (wall_num > -1)
+				kill_stuck_objects(segp->sides[side].wall_num);
 			if (cside > -1 && csegp->sides[cside].wall_num > -1)
 				kill_stuck_objects(csegp->sides[cside].wall_num);
 
@@ -366,8 +374,11 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 
 		case TT_UNLOCK_DOOR:
 			for (int i = 0; i < trig->num_links; i++) {
-				Walls[Segments[trig->seg[i]].sides[trig->side[i]].wall_num].flags &= ~WALL_DOOR_LOCKED;
-				Walls[Segments[trig->seg[i]].sides[trig->side[i]].wall_num].keys = KEY_NONE;
+				int wall_num = Segments[trig->seg[i]].sides[trig->side[i]].wall_num;
+				if (wall_num > -1) {
+					Walls[wall_num].flags &= ~WALL_DOOR_LOCKED;
+					Walls[wall_num].keys = KEY_NONE;
+				}
 			}
 
 			if (show_msg)
@@ -375,8 +386,10 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 			break;
 
 		case TT_LOCK_DOOR:
-			for (int i = 0; i < trig->num_links; i++)
-				Walls[Segments[trig->seg[i]].sides[trig->side[i]].wall_num].flags |= WALL_DOOR_LOCKED;
+			for (int i = 0; i < trig->num_links; i++) {
+				int wall_num = Segments[trig->seg[i]].sides[trig->side[i]].wall_num;
+				Walls[wall_num].flags |= WALL_DOOR_LOCKED;
+			}
 
 			if (show_msg)
 				HUD_init_message(HM_DEFAULT, "Door%s locked!", pl);

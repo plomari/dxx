@@ -1243,18 +1243,18 @@ int load_game_data(CFILE *LoadFile)
 			case TT_SET_SPAWN:
 			case TT_SPEEDBOOST:
 				break;
-			default:
+			case TT_OPEN_WALL:
+			case TT_CLOSE_WALL:
+			case TT_ILLUSORY_WALL:
+			case TT_LOCK_DOOR:
+			case TT_UNLOCK_DOOR:
+			case TT_OPEN_DOOR:
+			case TT_CLOSE_DOOR:
+			case TT_ILLUSION_ON:
+			case TT_ILLUSION_OFF:
 				if (wall_num == -1) {
- 					printf("Error: no wall for trigger type %d\n", Triggers[t].type);
-					printf("Removing this bogus link (%d walls left).\n",
-						   Triggers[t].num_links - 1);
-					if (l + 1 < Triggers[t].num_links) {
-						Triggers[t].seg[l] = Triggers[t].seg[l + 1];
-						Triggers[t].side[l] = Triggers[t].side[l + 1];
-					}
-					Triggers[t].num_links -= 1;
-					l -= 1;
-					continue;
+					// (All game code should be able to deal with this.)
+ 					printf("Error: no wall for trigger %d\n", t);
 				} else {
 					Walls[wall_num].flags |= WALL_HAS_TRIGGERS;
 				}

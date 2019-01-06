@@ -425,17 +425,28 @@ void start_wall_cloak(segment *seg, int side)
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
-	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
+	csegp = &Segments[seg->children[side]];
+	Connectside = find_connect_side(seg, csegp);
+	Assert(Connectside != -1);
+	cwall_num = csegp->sides[Connectside].wall_num;
+
+	if (WARN_ON(seg->sides[side].wall_num < 0)) {
+		// Workaround for some broken levels.
+		if (cwall_num < 0)
+			return; // no workaround available
+		cwall_num = -1;
+		segment *t = csegp;
+		csegp = seg;
+		seg = t;
+		int t2 = side;
+		side = Connectside;
+		Connectside = t2;
+	}
 
 	w = &Walls[seg->sides[side].wall_num];
 
 	if (w->type == WALL_OPEN || w->state == WALL_DOOR_CLOAKING)		//already open or cloaking
 		return;
-
-	csegp = &Segments[seg->children[side]];
-	Connectside = find_connect_side(seg, csegp);
-	Assert(Connectside != -1);
-	cwall_num = csegp->sides[Connectside].wall_num;
 
 	if (w->state == WALL_DOOR_DECLOAKING) {	//decloaking, so reuse door
 
@@ -510,7 +521,8 @@ void start_wall_decloak(segment *seg, int side)
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
-	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
+	if (WARN_ON(seg->sides[side].wall_num < 0))
+		return; // workaround not possible
 
 	w = &Walls[seg->sides[side].wall_num];
 
@@ -676,7 +688,8 @@ void wall_close_door(segment *seg, int side)
 	int Connectside, wall_num, cwall_num;
 	segment *csegp;
 
-	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
+	if (WARN_ON(seg->sides[side].wall_num < 0))
+		return;
 
 	w = &Walls[seg->sides[side].wall_num];
 	wall_num = w - Walls;
