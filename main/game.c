@@ -234,10 +234,6 @@ void stop_time()
 		fix64 time;
 		timer_update();
 		time = timer_query();
-		last_timer_value = time - last_timer_value;
-		if (last_timer_value < 0) {
-			last_timer_value = 0;
-		}
 	}
 	time_paused++;
 }
@@ -250,7 +246,7 @@ void start_time()
 		fix64 time;
 		timer_update();
 		time = timer_query();
-		last_timer_value = time - last_timer_value;
+		last_timer_value = time;
 	}
 }
 
