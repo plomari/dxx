@@ -3084,7 +3084,9 @@ _exit_cheat:
 			int anger_level = 65;
 
 			if (aip->behavior == AIB_STATION)
-				if (Point_segs[aip->hide_index + aip->path_length - 1].segnum == aip->hide_segment) {
+				if (aip->hide_index >= 0 && aip->path_length > 0 &&
+					Point_segs[aip->hide_index + aip->path_length - 1].segnum == aip->hide_segment)
+				{
 					anger_level = 64;
 				}
 
