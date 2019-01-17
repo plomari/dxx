@@ -1478,7 +1478,9 @@ static bool FinalCheats(int key)
 		item = newmenu_do( NULL, TXT_WARP_TO_LEVEL, 1, &m, NULL, NULL );
 		if (item != -1) {
 			new_level_num = atoi(m.text);
-			if (new_level_num!=0 && new_level_num>=0 && new_level_num<=Last_level) {
+			if ((new_level_num >= 1 && new_level_num <= Last_level) ||
+				(new_level_num <= -1 && new_level_num >= Last_secret_level))
+			{
 				StartNewLevel(new_level_num, 0);
 				do_cheat_penalty();
 				return true;
