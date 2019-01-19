@@ -53,6 +53,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define PLAYER_FLAGS_AFTERBURNER    4096    // Player's afterburner is engaged
 #define PLAYER_FLAGS_HEADLIGHT      8192    // Player has headlight boost
 #define PLAYER_FLAGS_HEADLIGHT_ON   16384   // is headlight on or off?
+#define PLAYER_FLAGS_CONVERTER_ON	(1 << 15) // converter toggle on
 
 #define AFTERBURNER_MAX_TIME    (F1_0*5)    // Max time afterburner can be on.
 #define CALLSIGN_LEN                8       // so can use as filename (was: 12)

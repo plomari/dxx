@@ -96,7 +96,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 bool Rear_view;
 static fix64 Rear_down_time;
 
-static bool Converter_active;
 static fix64 Converter_down_time;
 
 //	External Variables ---------------------------------------------------------
@@ -373,12 +372,19 @@ void do_weapon_n_item_stuff()
 	}
 
 	if (Players[Player_num].flags & PLAYER_FLAGS_CONVERTER) {
+		bool converter_active =
+			Players[Player_num].flags & PLAYER_FLAGS_CONVERTER_ON;
+
 		handle_sticky_key(Controls.energy_to_shield_state,
-						  &Converter_active,
+						  &converter_active,
 						  &Converter_down_time,
 						  PlayerCfg.KeyStickEnergyConvert);
 
-		if (Converter_active)
+		Players[Player_num].flags =
+			(Players[Player_num].flags & ~(unsigned)PLAYER_FLAGS_CONVERTER_ON) |
+			(converter_active ? PLAYER_FLAGS_CONVERTER_ON : 0);
+
+		if (converter_active)
 			transfer_energy_to_shield(!Controls.energy_to_shield_state);
 	}
 }
