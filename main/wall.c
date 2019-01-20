@@ -134,9 +134,9 @@ int wall_is_doorway_rest(segment * seg, int side)
 		return WID_FLY_FLAG | WID_RENDPAST_FLAG;
 
 	if (type == WALL_ILLUSION) {
+		if (Walls[seg->sides[side].wall_num].flags & WALL_ILLUSION_OFF)
+			return WID_FLY_FLAG | WID_RENDPAST_FLAG;
 		res |= WID_FLY_FLAG;
-		if ((Walls[seg->sides[side].wall_num].flags & WALL_ILLUSION_OFF))
-			res &= ~WID_RENDER_FLAG;
 	}
 
 	if (type == WALL_BLASTABLE) {
