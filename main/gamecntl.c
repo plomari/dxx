@@ -1403,13 +1403,15 @@ static bool FinalCheats(int key)
 
     if (!strcmp(&CheatBuffer[7], "killboss"))
     {
+		bool any = false;
         for (i=0; i<=Highest_object_index; i++) {
             if (Objects[i].type == OBJ_ROBOT && Robot_info[Objects[i].id].boss_flag) {
-                HUD_init_message(HM_DEFAULT, "Fuck boss fights indeed.");
                 Objects[i].shields=i2f(1);
-                break;
+				any = true;
             }
         }
+        if (any)
+			HUD_init_message(HM_DEFAULT, "Fuck boss fights indeed.");
         return true;
     }
 
