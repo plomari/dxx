@@ -628,7 +628,8 @@ void do_physics_sim(object *obj)
 					//obj->pos = save_pos;
 
 					if (obj->mtype.phys_info.flags&PF_PERSISTENT || (old_vel.x == obj->mtype.phys_info.velocity.x && old_vel.y == obj->mtype.phys_info.velocity.y && old_vel.z == obj->mtype.phys_info.velocity.z)) {
-						//if (Objects[hit_info.hit_object].type == OBJ_POWERUP)
+						// (+1 so termination entry can be added later)
+						if (!WARN_ON(n_ignore_objs + 1 >= MAX_IGNORE_OBJS))
 							ignore_obj_list[n_ignore_objs++] = hit_info.hit_object;
 						try_again = 1;
 					}
