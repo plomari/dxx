@@ -56,6 +56,7 @@ int cfile_hog_remove(char *hogname);
 int64_t cfile_size(char *hogname);
 int cfgetc(CFILE *fp);
 int cfseek(CFILE *fp, int64_t offset, int where);
+void cfskip(CFILE *fp, int64_t amount);
 #define PHYSFS_seek(fp, offs) cfseek(fp, offs, SEEK_SET)
 char * cfgets(char *buf, size_t n, CFILE *fp);
 int cfile_read_int(CFILE *file);

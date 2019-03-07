@@ -1108,8 +1108,13 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	}
 	if (version>=12) {
 		//read last was super information
-		PHYSFS_read(fp, &Primary_last_was_super, sizeof(Primary_last_was_super), 1);
-		PHYSFS_read(fp, &Secondary_last_was_super, sizeof(Secondary_last_was_super), 1);
+		if (secret_restore != 1) {
+			PHYSFS_read(fp, &Primary_last_was_super, sizeof(Primary_last_was_super), 1);
+			PHYSFS_read(fp, &Secondary_last_was_super, sizeof(Secondary_last_was_super), 1);
+		} else {
+			cfskip(fp, sizeof(Primary_last_was_super));
+			cfskip(fp, sizeof(Secondary_last_was_super));
+		}
 	}
 
 	if (version >= 12) {

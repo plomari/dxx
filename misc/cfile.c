@@ -335,6 +335,10 @@ int cfseek(CFILE *fp, int64_t offset, int where)
 	return r;
 }
 
+void cfskip(CFILE *fp, int64_t amount)
+{
+	cfseek(fp, amount, SEEK_CUR);
+}
 
 int cfile_hog_add(char *hogname, int add_to_end)
 {
