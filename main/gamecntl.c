@@ -1618,6 +1618,12 @@ static bool FinalCheats(int key)
 		return true;
 	}
 
+	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("darkness")], "darkness")) {
+		do_cheat_penalty();
+		HUD_init_message(HM_DEFAULT, "The light has died.");
+		No_flash_effects = true;
+	}
+
 	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("jumpseg")], "jumpseg")) {
 		char num_text[10] = "4809";
 		newmenu_item m[1];

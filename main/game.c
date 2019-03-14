@@ -118,6 +118,8 @@ int	Global_missile_firing_count = 0;
 fix	Next_flare_fire_time = 0;
 #define	FLARE_BIG_DELAY	(F1_0*2)
 
+bool No_flash_effects;
+
 //	Function prototypes for GAME.C exclusively.
 
 void GameProcessFrame(void);
@@ -469,6 +471,9 @@ void PALETTE_FLASH_ADD(int _dr, int _dg, int _db)
 {
 	int	maxval;
 
+	if (No_flash_effects)
+		return;
+
 	PaletteRedAdd += _dr;
 	PaletteGreenAdd += _dg;
 	PaletteBlueAdd += _db;
@@ -788,6 +793,7 @@ void turn_cheats_off()
 	Monster_mode = 0;
 	Robots_kill_robots_cheat=0;
 	Robot_firing_enabled = 1;
+	No_flash_effects = false;
 }
 
 //turns off all cheats & resets cheater flag

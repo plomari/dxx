@@ -43,6 +43,7 @@ extern fix Next_missile_fire_time;  // Time at which player can next fire his se
 extern fix Next_flare_fire_time;
 extern fix Laser_delay_time;        // Delay between laser fires.
 extern int Cheats_enabled;
+extern bool No_flash_effects;
 
 extern struct object *Missile_viewer;
 extern int Missile_viewer_sig;
