@@ -141,8 +141,17 @@ fvi_info    Hit_data;
 int             Num_awareness_events = 0;
 awareness_event Awareness_events[MAX_AWARENESS_EVENTS];
 
+static sbyte New_awareness[MAX_SEGMENTS];
+
 vms_vector      Believed_player_pos;
 int             Believed_player_seg;
+
+int	Lunacy = 0;
+static int	Diff_save = 1;
+
+static fix     Firing_wait_copy[MAX_ROBOT_TYPES];
+static fix     Firing_wait2_copy[MAX_ROBOT_TYPES];
+static sbyte   Rapidfire_count_copy[MAX_ROBOT_TYPES];
 
 void teleport_boss(object *objp);
 int boss_fits_in_seg(object *boss_objp, int segnum);
@@ -423,13 +432,6 @@ void init_ai_objects(void)
 		Boss_cloak_interval = F1_0*10;					//	Time between cloaks
 	}
 }
-
-int	Lunacy = 0;
-int	Diff_save = 1;
-
-fix     Firing_wait_copy[MAX_ROBOT_TYPES];
-fix     Firing_wait2_copy[MAX_ROBOT_TYPES];
-sbyte   Rapidfire_count_copy[MAX_ROBOT_TYPES];
 
 void do_lunacy_on(void)
 {
@@ -799,11 +801,6 @@ void do_ai_robot_hit_attack(object *robot, object *playerobj, vms_vector *collis
 	}
 
 }
-
-#ifndef _OBJECT_H
-extern int Player_exploded;
-#endif
-
 
 // --------------------------------------------------------------------------------------------------------------------
 //	Computes point at which projectile fired by robot can hit player given positions, player vel, elapsed time
@@ -3493,8 +3490,6 @@ void create_awareness_event(object *objp, int type)
 		}
 	}
 }
-
-sbyte New_awareness[MAX_SEGMENTS];
 
 // ----------------------------------------------------------------------------------
 void pae_aux(int segnum, int type, int level)
