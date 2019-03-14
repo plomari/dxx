@@ -611,9 +611,11 @@ int automap_key_command(window *wind, d_event *event, automap *am)
 			return 1;
 		case KEY_F11:
 			PlayerCfg.AutomapFreeFlight = !PlayerCfg.AutomapFreeFlight;
+			write_player_file();
 			return 1;
 		case KEY_F12:
 			PlayerCfg.AutomapObjects = !PlayerCfg.AutomapObjects;
+			write_player_file();
 			return 1;
 		case KEY_1:
 		case KEY_2:
