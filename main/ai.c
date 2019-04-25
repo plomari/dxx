@@ -3631,6 +3631,10 @@ int ai_save_state(PHYSFS_file *fp)
 int ai_restore_state(PHYSFS_file *fp, int version)
 {
         int i;
+
+	Num_awareness_events = 0;
+	memset(New_awareness, 0, sizeof(New_awareness));
+
 	PHYSFS_read(fp, &Ai_initialized, sizeof(int), 1);
 	PHYSFS_read(fp, &Overall_agitation, sizeof(int), 1);
         memset(Ai_local_info, 0, sizeof(Ai_local_info));
