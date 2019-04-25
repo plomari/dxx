@@ -1816,8 +1816,9 @@ void do_cheat_menu()
 	nm_set_item_input(&mm[6], 10, score_text);
 	nm_set_item_number(&mm[7], "Laser Level", Players[Player_num].laser_level+1, 0, MAX_SUPER_LASER_LEVEL+1);
 	nm_set_item_number(&mm[8], "Missiles", Players[Player_num].secondary_ammo[CONCUSSION_INDEX], 0, 200);
+	nm_set_item_number(&mm[9], "Vulcan", Players[Player_num].primary_ammo[VULCAN_INDEX], 0, VULCAN_AMMO_MAX);
 
-	mmn = newmenu_do("Wimp Menu",NULL,9, mm, NULL, NULL );
+	mmn = newmenu_do("Wimp Menu",NULL,10, mm, NULL, NULL );
 
 	if (mmn > -1 )  {
 		if ( mm[0].value )  {
@@ -1848,6 +1849,7 @@ void do_cheat_menu()
 		//if (mm[10].value) Players[Player_num].laser_level=3;
 		Players[Player_num].laser_level = mm[7].value-1;
 		Players[Player_num].secondary_ammo[CONCUSSION_INDEX] = mm[8].value;
+		Players[Player_num].primary_ammo[VULCAN_INDEX] = mm[9].value;
 		init_gauges();
 	}
 }
