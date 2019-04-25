@@ -649,7 +649,7 @@ extern void trigger_read(trigger *t, CFILE *fp, bool obj_trigger)
 	if (obj_trigger) {
 		t->flags = (uint16_t)cfile_read_short(fp);
 	} else {
-		t->flags = cfile_read_byte(fp);
+		t->flags = (uint8_t)cfile_read_byte(fp);
 	}
 	t->num_links = cfile_read_byte(fp);
 	cfile_read_byte(fp);
