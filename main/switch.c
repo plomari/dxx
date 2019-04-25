@@ -502,7 +502,7 @@ bool trigger_warn_unsupported(int idx, bool hud)
 		TF_FLY_THROUGH
 	);
 
-	switch (trig->type) {
+	switch (min(trig->type, NUM_TRIGGER_TYPES)) {
 	case TT_SPEEDBOOST:
 	case TT_CAMERA:
 	case TT_SHIELD_DAMAGE:
@@ -523,6 +523,7 @@ bool trigger_warn_unsupported(int idx, bool hud)
 	case TT_DISARM_ROBOT:
 	case TT_REPROGRAM_ROBOT:
 	case TT_SHAKE_MINE:
+	case NUM_TRIGGER_TYPES:
 		APPENDF(msg, "D2X-XL: trigger %d: unimplemented type %d\n",
 				idx, trig->type);
 		ok = false;
