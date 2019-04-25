@@ -1232,8 +1232,8 @@ int HandleTestKey(int key)
 			kill_all_robots();
 			break;
 
-		case KEY_DEBUGGED+KEY_LAPOSTRO: Show_view_text_timer = 0x30000; object_goto_next_viewer(); break;
-		case KEY_DEBUGGED+KEY_SHIFTED+KEY_LAPOSTRO: Viewer=ConsoleObject; break;
+		case KEY_DEBUGGED+KEY_N: Show_view_text_timer = 0x30000; object_goto_next_viewer(); break;
+		case KEY_DEBUGGED+KEY_SHIFTED+KEY_N: Viewer=ConsoleObject; break;
 		case KEY_DEBUGGED+KEY_O: toggle_outline_mode(); break;
 		case KEY_DEBUGGED+KEY_T:
 			if (GameArg.SysMaxFPS == 30)
