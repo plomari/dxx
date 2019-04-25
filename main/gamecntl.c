@@ -1292,6 +1292,35 @@ int HandleTestKey(int key)
 			GameTime = i2f(0x7fff - 600) - (F1_0*10);
 			HUD_init_message(HM_DEFAULT, "GameTime %i - Reset in 10 seconds!", GameTime);
 			break;
+
+		case KEY_DEBUGGED+KEY_H: {
+			extern int highlight_seg;
+			extern int highlight_side;
+
+			if (highlight_seg >= 0) {
+				highlight_seg = -1;
+			} else {
+				vms_vector p1;
+				vm_vec_add(&p1, &Viewer->pos, &Viewer->orient.fvec);
+
+				fvi_query q = {
+					.p0 = &Viewer->pos,
+					.p1 = &p1,
+					.startseg = Viewer->segnum,
+					.rad = 0,
+					.thisobjnum = Viewer - Objects,
+					.flags = FQ_INFINITE|FQ_WALL_SIDES,
+				};
+
+				fvi_info hit;
+				if (find_vector_intersection(&q, &hit) == HIT_WALL) {
+					highlight_seg = hit.hit_seg;
+					highlight_side = hit.hit_side;
+				}
+			}
+
+			break;
+		}
 		default:
 			return 0;
 			break;
@@ -1659,32 +1688,6 @@ static bool FinalCheats(int key)
 
 			do_cheat_penalty();
 		}
-		return true;
-	}
-
-	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("showtrigger")], "showtrigger"))
-	{
-		extern int highlight_seg;
-		extern int highlight_side;
-
-		vms_vector p1;
-		vm_vec_add(&p1, &Viewer->pos, &Viewer->orient.fvec);
-
-		fvi_query q = {
-			.p0 = &Viewer->pos,
-			.p1 = &p1,
-			.startseg = Viewer->segnum,
-			.rad = 0,
-			.thisobjnum = Viewer - Objects,
-			.flags = FQ_INFINITE|FQ_WALL_SIDES,
-		};
-
-		fvi_info hit;
-		if (find_vector_intersection(&q, &hit) == HIT_WALL) {
-			highlight_seg = hit.hit_seg;
-			highlight_side = hit.hit_side;
-		}
-
 		return true;
 	}
 
