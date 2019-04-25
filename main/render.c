@@ -304,7 +304,7 @@ void highlight_seg_side(segment *segp, int sidenum)
         g3_draw_line(&Segment_points[segp->verts[Side_to_verts[sidenum][vert]]],&Segment_points[segp->verts[Side_to_verts[sidenum][(vert+2)%4]]]);
 }
 
-static void draw_links(segment *segp, int sidenum)
+static void draw_links(segment *segp, int sidenum, int tr_link)
 {
 	side		*sidep = &segp->sides[sidenum];
 
@@ -329,6 +329,9 @@ static void draw_links(segment *segp, int sidenum)
     g3_draw_sphere(&cpp, 1 << 16);
 
     for (int i=0; i < trigp->num_links; i++) {
+		if (tr_link >= 0 && i != tr_link)
+			continue;
+
         segment *tseg = &Segments[trigp->seg[i]];
         int tside = trigp->side[i];
 
@@ -339,10 +342,13 @@ static void draw_links(segment *segp, int sidenum)
         g3_rotate_point(&tcpp, &tcp);
         g3_project_point(&tcpp);
 
-		gr_setcolor(gr_find_closest_color(0,0,63));
-		g3_draw_sphere(&tcpp, 1 << 16);
+		if (tr_link < 0) {
+			gr_setcolor(gr_find_closest_color(0,0,63));
+			g3_draw_sphere(&tcpp, 1 << 16);
+		}
 
-		gr_setcolor(gr_find_closest_color(0,63,0));
+		gr_setcolor(tr_link < 0 ? gr_find_closest_color(0,63,0)
+								: gr_find_closest_color(0,63,63));
         g3_draw_line(&cpp, &tcpp);
     }
 }
@@ -351,12 +357,11 @@ void highlight_trigger(segment *segp, int sidenum)
 {
 	int segnum = segp - Segments;
 
-    draw_links(segp, sidenum);
+    draw_links(segp, sidenum, -1);
 
 	int conn_seg, conn_side;
 	find_connect_side2(segnum, sidenum, &conn_seg, &conn_side);
 
-	bool any_triggers = false, otherside_triggers = false;
 	for (int n = 0; n < Num_triggers; n++) {
 		trigger *tr = &Triggers[n];
 
@@ -369,8 +374,9 @@ void highlight_trigger(segment *segp, int sidenum)
 				for (int x = 0; x <= Highest_segment_index; x++) {
 					for (int s = 0; s < MAX_SIDES_PER_SEGMENT; s++) {
 						int w = Segments[x].sides[s].wall_num;
-						if (w >= 0 && Walls[w].trigger == n)
-							draw_links(&Segments[x], s);
+						if (w >= 0 && Walls[w].trigger == n) {
+							draw_links(&Segments[x], s, i);
+						}
 					}
 				}
 			}
@@ -478,11 +484,6 @@ static void highlight_side_triggers(int segnum, int sidenum)
 
 			is_trigger = true;
 
-			#define TF_NO_MESSAGE       1   // Don't show a message when triggered
-#define TF_ONE_SHOT         2   // Only trigger once
-#define TF_DISABLED         4   // Set after one-shot fires
-
-
 			static const char *const Trigger_name[] = {
 				[TT_OPEN_DOOR] = "open_door",
 				[TT_CLOSE_DOOR] = "close_door",
@@ -498,12 +499,65 @@ static void highlight_side_triggers(int segnum, int sidenum)
 				[TT_ILLUSORY_WALL] = "ill_wall",
 				[TT_LIGHT_OFF] = "lights_off",
 				[TT_LIGHT_ON] = "lights_on",
+				[TT_TELEPORT] = "teleport",
+				[TT_SPEEDBOOST] = "speedboost",
+				[TT_CAMERA] = "camera",
+				[TT_SHIELD_DAMAGE] = "shield_damage",
+				[TT_ENERGY_DRAIN] = "energy_drain",
+				[TT_CHANGE_TEXTURE] = "change_texture",
+				[TT_SMOKE_LIFE] = "smoke_life",
+				[TT_SMOKE_SPEED] = "smoke_speed",
+				[TT_SMOKE_DENS] = "smoke_dens",
+				[TT_SMOKE_SIZE] = "smoke_size",
+				[TT_SMOKE_DRIFT] = "smoke_drift",
+				[TT_COUNTDOWN] = "countdown",
+				[TT_SPAWN_BOT] = "spawn_bot",
+				[TT_SMOKE_BRIGHTNESS] = "smoke_brightness",
+				[TT_SET_SPAWN] = "set_spawn",
+				[TT_MESSAGE] = "message",
+				[TT_SOUND] = "sound",
+				[TT_MASTER] = "master",
+				[TT_ENABLE_TRIGGER] = "enable_trigger",
+				[TT_DISABLE_TRIGGER] = "disable_trigger",
+				[TT_DISARM_ROBOT] = "disarm_robot",
+				[TT_REPROGRAM_ROBOT] = "reprogram_robot",
+				[TT_SHAKE_MINE] = "shake_mine",
 			};
+
+			char tr_flags_str[80];
+			tr_flags_str[0] = '\0';
+			struct flag {
+				uint32_t val;
+				const char *name;
+			};
+			static const struct flag Trigger_flags[] = {
+				{TF_NO_MESSAGE, 	"nomsg"},
+				{TF_ONE_SHOT, 		"oneshot"},
+			    {TF_DISABLED, 		"disabled"},
+				{TF_PERMANENT, 		"permanent"},
+				{TF_ALTERNATE, 		"alternate"},
+				{TF_SET_ORIENT, 	"set_orient"},
+				{TF_SILENT, 		"silent"},
+				{TF_AUTOPLAY, 		"autoplay"},
+				{TF_PLAYING_SOUND, 	"playing_sound"},
+				{TF_FLY_THROUGH, 	"fly_through"},
+				{TF_SHOT, 			"shot"},
+			};
+			uint32_t tr_flags_unknown = tr->flags;
+			for (int n = 0; n < ARRAY_ELEMS(Trigger_flags); n++) {
+				if (tr->flags & Trigger_flags[n].val) {
+					APPENDF(tr_flags_str, "%s%s", tr_flags_str[0] ? "+" : "",
+							Trigger_flags[n].name);
+					tr_flags_unknown &= ~Trigger_flags[n].val;
+				}
+			}
+			if (tr_flags_unknown)
+				APPENDF(tr_flags_str, " + 0x%"PRIx32, tr_flags_unknown);
 
 			APPENDF(t,
 				"trigger: %d\n"
 				"type: %d (%s)\n"
-				"flags: 0x%x (%s%s%s)\n"
+				"flags: 0x%x (%s)\n"
 				"value: %f\n"
 				"time: %f\n"
 				"num_links: %d\n\n",
@@ -511,9 +565,7 @@ static void highlight_side_triggers(int segnum, int sidenum)
 				tr->type,
 			    ARRAY_OR_DEF(tr->type, Trigger_name, "?"),
 			    tr->flags,
-			    tr->flags & TF_NO_MESSAGE ? "nomsg " : "",
-			    tr->flags & TF_ONE_SHOT ? "oneshot " : "",
-			    tr->flags & TF_DISABLED ? "disabled " : "",
+			    tr_flags_str,
 			    f2fl(tr->value),
 			    f2fl(tr->time),
 			    tr->num_links);
