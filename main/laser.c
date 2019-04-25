@@ -1439,58 +1439,58 @@ void Laser_do_weapon_sequence(object *obj)
 			}
 
 #ifdef NEWHOMER
-                        if (d_homer_tick_step)
-                        {
-                                int obj_track_goal = obj->ctype.laser_info.track_goal;
-                                int track_goal = track_track_goal(obj_track_goal, obj, &dot, d_homer_tick_count);
+			if (d_homer_tick_step)
+			{
+				int obj_track_goal = obj->ctype.laser_info.track_goal;
+				int track_goal = track_track_goal(obj_track_goal, obj, &dot, d_homer_tick_count);
 
-                                if (track_goal == Players[Player_num].objnum) {
-                                        fix	dist_to_player;
+				if (track_goal == Players[Player_num].objnum) {
+						fix	dist_to_player;
 
-                                        dist_to_player = vm_vec_dist_quick(&obj->pos, &Objects[track_goal].pos);
-                                        if ((dist_to_player < Players[Player_num].homing_object_dist) || (Players[Player_num].homing_object_dist < 0))
-                                                Players[Player_num].homing_object_dist = dist_to_player;
-                                }
+						dist_to_player = vm_vec_dist_quick(&obj->pos, &Objects[track_goal].pos);
+						if ((dist_to_player < Players[Player_num].homing_object_dist) || (Players[Player_num].homing_object_dist < 0))
+								Players[Player_num].homing_object_dist = dist_to_player;
+				}
 
-                                if (track_goal > -1)
-                                {
-                                        vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
+				if (track_goal > -1)
+				{
+					vm_vec_sub(&vector_to_object, &Objects[track_goal].pos, &obj->pos);
 
-                                        vm_vec_normalize_quick(&vector_to_object);
-                                        temp_vec = obj->mtype.phys_info.velocity;
-                                        speed = vm_vec_normalize_quick(&temp_vec);
-                                        max_speed = Weapon_info[obj->id].speed[Difficulty_level];
-                                        if (speed+F1_0 < max_speed) {
-                                                speed += fixmul(max_speed, HOMING_TURN_TIME);
-                                                if (speed > max_speed)
-                                                        speed = max_speed;
-                                        }
+					vm_vec_normalize_quick(&vector_to_object);
+					temp_vec = obj->mtype.phys_info.velocity;
+					speed = vm_vec_normalize_quick(&temp_vec);
+					max_speed = Weapon_info[obj->id].speed[Difficulty_level];
+					if (speed+F1_0 < max_speed) {
+						speed += fixmul(max_speed, HOMING_TURN_TIME);
+						if (speed > max_speed)
+							speed = max_speed;
+					}
 
-                                        vm_vec_add2(&temp_vec, &vector_to_object);
-                                        //	The boss' smart children track better...
-                                        if (Weapon_info[obj->id].render_type != WEAPON_RENDER_POLYMODEL)
-                                                vm_vec_add2(&temp_vec, &vector_to_object);
-                                        vm_vec_normalize_quick(&temp_vec);
+					vm_vec_add2(&temp_vec, &vector_to_object);
+					//	The boss' smart children track better...
+					if (Weapon_info[obj->id].render_type != WEAPON_RENDER_POLYMODEL)
+						vm_vec_add2(&temp_vec, &vector_to_object);
+					vm_vec_normalize_quick(&temp_vec);
 
-										obj->mtype.phys_info.velocity = temp_vec;
-										vm_vec_scale(&obj->mtype.phys_info.velocity, speed);
+					obj->mtype.phys_info.velocity = temp_vec;
+					vm_vec_scale(&obj->mtype.phys_info.velocity, speed);
 
-                                        //	Subtract off life proportional to amount turned.
-                                        //	For hardest turn, it will lose 2 seconds per second.
-                                        {
-                                                fix	lifelost, absdot;
+					//	Subtract off life proportional to amount turned.
+					//	For hardest turn, it will lose 2 seconds per second.
+					{
+						fix	lifelost, absdot;
 
-                                                absdot = abs(F1_0 - dot);
+						absdot = abs(F1_0 - dot);
 
-                                                lifelost = fixmul(absdot*32, HOMING_TURN_TIME);
-                                                obj->lifeleft -= lifelost;
-                                        }
+						lifelost = fixmul(absdot*32, HOMING_TURN_TIME);
+						obj->lifeleft -= lifelost;
+					}
 
-                                        //	Only polygon objects have visible orientation, so only they should turn.
-                                        if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
-                                                homing_missile_turn_towards_velocity(obj, &temp_vec);		//	temp_vec is normalized velocity.
-                                }
-                        }
+					//	Only polygon objects have visible orientation, so only they should turn.
+					if (Weapon_info[obj->id].render_type == WEAPON_RENDER_POLYMODEL)
+						homing_missile_turn_towards_velocity(obj, &temp_vec);		//	temp_vec is normalized velocity.
+				}
+			}
 #else // old FPS-dependent homers - NOTE: I know this is very redundant but I want to keep the historical code 100% preserved to compare against potential changes in the above.
 			//	Make sure the object we are tracking is still trackable.
 			int track_goal = track_track_goal(obj->ctype.laser_info.track_goal, obj, &dot, d_tick_count);
