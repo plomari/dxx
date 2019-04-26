@@ -536,6 +536,7 @@ char * cfgets(char *buf, size_t n, CFILE *fp)
 {
 	size_t i;
 	int c;
+	char *start = buf;
 
 	for (i = 0; n && i < n - 1; i++)
 	{
@@ -546,7 +547,7 @@ char * cfgets(char *buf, size_t n, CFILE *fp)
 			{
 				*buf = 0;
 
-				return NULL;
+				return start != buf ? buf : NULL;
 			}
 			if (c == 0 || c == 10)  // Unix line ending
 				break;
