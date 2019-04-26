@@ -341,34 +341,46 @@ int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 
 void gr_bitmap_check_transparency(grs_bitmap *bmp)
 {
+	grs_bitmap *bmp_data = bmp;
+	if (bmp->bm_flags & BM_FLAG_RLE)
+		bmp_data = rle_expand_texture(bmp);
+
 	bmp->bm_flags &= ~(BM_FLAG_TRANSPARENT |
 					   BM_FLAG_SUPER_TRANSPARENT |
 					   BM_FLAG_SEE_THRU |
 					   BM_FLAG_ALPHA);
 
-	if (bmp->bm_depth == 4) {
+	size_t depth = bmp->bm_depth;
+	if (depth < 1)
+		depth = 1;
+
+	if (depth == 1 || depth == 4) {
 		// D2X-XL computes these flags on loading in CTGA::SetProperties(). It's
 		// a fucked up complicated heuristic, so I'm mostly _not_ duplicating it
 		// here.
 		// I have no idea why these flags aren't just set correctly when the
 		// levels are authored.
+		// For D2X-XL levels, this is also called for depth=1 (see call site).
 
-		ubyte *data = bmp->bm_data;
+		ubyte *data = bmp_data->bm_data;
 		int flags = 0;
 
-		for (int y=0; y<bmp->bm_h; y++ )	{
-			for (int x=0; x<bmp->bm_w; x++ )	{
-				int res = check_pixel_type(data, 0, 4);
-				if (res & BM_FLAG_SUPER_TRANSPARENT)
+		for (int y = 0; y < bmp->bm_h; y++ ) {
+			for (int x = 0; x < bmp->bm_w; x++ ) {
+				// Note: we pass BM_FLAG_SUPER_TRANSPARENT so that the function
+				// considers the possibility that the pixel is super transparent.
+				// Otherwise, it would be a normal palette entry (for depth=1).
+				int res = check_pixel_type(data, BM_FLAG_SUPER_TRANSPARENT, depth);
+				if (depth == 4 && (res & BM_FLAG_SUPER_TRANSPARENT))
 					data[3] = 0; // fucked up
-				data += 4;
+				data += depth;
 				flags |= res;
 			}
-			data += bmp->bm_rowsize - bmp->bm_w * 4;
+			data += bmp->bm_rowsize - bmp->bm_w * depth;
 		}
 
 		bmp->bm_flags |= flags;
 	} else {
-		abort(); // unused
+		abort(); // unsupported
 	}
 }

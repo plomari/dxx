@@ -1092,6 +1092,7 @@ void load_bitmap_replacements(char *level_name)
 			gr_set_bitmap_data(bm, NULL);	// free ogl texture
 			gr_init_bitmap(bm, 0, 0, width, height, width * depth, NULL);
 			bm->avg_color = bmh.avg_color;
+			bm->bm_depth = depth;
 
 			gr_set_bitmap_flags(bm, bmh.flags & (BM_FLAGS_TO_COPY | BM_FLAG_TGA));
 
@@ -1108,8 +1109,6 @@ void load_bitmap_replacements(char *level_name)
 			if (bm->bm_flags & BM_FLAG_TGA) {
 				Assert(!(bm->bm_flags & BM_FLAG_RLE));
 
-				bm->bm_depth = 4;
-
 				// The flags are unreliable and we need to recompute them! (WTF?)
 				gr_bitmap_check_transparency(bm);
 
@@ -1119,6 +1118,17 @@ void load_bitmap_replacements(char *level_name)
 				if (frames > 1) {
 					printf("D2X-XL: unsupported D2X-XL animation entry %d\n", i);
 					bm->bm_h = bm->bm_w;
+				}
+			} else if (is_d2x_xl_level()) {
+				// Hack for D2X-XL: some paletted textures apparently miss
+				// some transparency flags (e.g. The Sphere, level 1: the
+				// outdoor room hides the skybox). It's unknown how d2x-xl
+				// handles this.
+				int old_flags = bm->bm_flags;
+				gr_bitmap_check_transparency(bm);
+				if (old_flags != bm->bm_flags) {
+					printf("D2X-XL: changing flags for %d/%d from 0x%x to 0x%x\n",
+						   i, indices[i], old_flags, bm->bm_flags);
 				}
 			}
 		}
