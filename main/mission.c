@@ -38,6 +38,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "u_mem.h"
 
+extern int Robot_replacements_loaded;
+
 //values that describe where a mission is located
 enum mle_loc
 {
@@ -777,6 +779,7 @@ int load_mission(mle *mission)
 	Secret_level_table = NULL;
 	Level_names = NULL;
 	Secret_level_names = NULL;
+	Robot_replacements_loaded = 0;
 
 	// for Descent 1 missions, load descent.hog
 	if (EMULATING_D1) {
