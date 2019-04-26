@@ -558,7 +558,7 @@ static void highlight_side_triggers(int segnum, int sidenum)
 				"trigger: %d\n"
 				"type: %d (%s)\n"
 				"flags: 0x%x (%s)\n"
-				"value: %f\n"
+				"value: %f (%"PRId32")\n"
 				"time: %f\n"
 				"num_links: %d\n\n",
 				wall->trigger,
@@ -566,7 +566,7 @@ static void highlight_side_triggers(int segnum, int sidenum)
 			    ARRAY_OR_DEF(tr->type, Trigger_name, "?"),
 			    tr->flags,
 			    tr_flags_str,
-			    f2fl(tr->value),
+			    f2fl(tr->value), tr->value,
 			    f2fl(tr->time),
 			    tr->num_links);
 		}
