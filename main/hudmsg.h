@@ -5,7 +5,7 @@
 
 #include "pstypes.h"
 
-#define HUD_MESSAGE_LENGTH	150
+#define HUD_MESSAGE_LENGTH	1024
 #define HUD_MAX_NUM_DISP	4
 #define HUD_MAX_NUM_STOR	20
 
