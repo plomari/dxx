@@ -353,7 +353,12 @@ int cfile_hog_add(char *hogname, int add_to_end)
 	}
 
 	if (!hog) {
-		fprintf(stderr, "no free HOG slot\n");
+		fprintf(stderr, "no free HOG slot\nOpened HOGs:\n");
+		for (size_t n = 0; n < ARRAY_ELEMS(hogs_alloc); n++) {
+			struct hogmount *cur = &hogs_alloc[n];
+			if (cur->file)
+				fprintf(stderr, "  %zd: '%s'\n", n, cur->filename);
+		}
 		return 0;
 	}
 
