@@ -85,20 +85,24 @@ void kill_stuck_objects(int wallnum);
 
 int wall_check_transparency(segment * seg, int side)
 {
-	if ((seg->sides[side].tmap_num2 & 0x3FFF) == 0) {
-		int tmap_flags = GameBitmaps[Textures[seg->sides[side].tmap_num].index].bm_flags;
-		if (tmap_flags & BM_FLAG_TRANSPARENT )
+	int tmap_bottom = seg->sides[side].tmap_num;
+	int tmap_top = seg->sides[side].tmap_num2 & 0x3FFF;
+
+	if (tmap_top) {
+		int f_top = GameBitmaps[Textures[tmap_top].index].bm_flags;
+
+		if (f_top & BM_FLAG_SUPER_TRANSPARENT)
 			return WID_RENDPAST_FLAG;
-		else if (tmap_flags & BM_FLAG_ALPHA)
-			return WID_RENDPAST_FLAG | WID_RENDER_ALPHA_FLAG;
-		else
+		if (!(f_top & BM_FLAG_TRANSPARENT))
 			return 0;
 	}
 
-	if (GameBitmaps[Textures[seg->sides[side].tmap_num2 & 0x3FFF ].index].bm_flags & BM_FLAG_SUPER_TRANSPARENT )
+	int f_bottom = GameBitmaps[Textures[tmap_bottom].index].bm_flags;
+
+	if (f_bottom & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT))
 		return WID_RENDPAST_FLAG;
-	else
-		return 0;
+
+	return 0;
 }
 
 //-----------------------------------------------------------------
