@@ -1189,6 +1189,27 @@ int load_game_data(CFILE *LoadFile)
 	//	Go through all triggers, set WALL_HAS_TRIGGERS.
 
 	for (int t=0; t<Num_triggers + Num_object_triggers; t++) {
+		trigger *trig = &Triggers[t];
+		bool object_trigger = IS_OBJECT_TRIGGER(t);
+
+		// A copy of the absurd nonsense found in d2x-xl. I suppose most of this
+		// is due to very unwise and frivolous modifications of the level format
+		// the d2x-xl author made, and later compensated on load time. Or
+		// something. What the fuck.
+		if (trig->type == TT_MASTER) {
+			if (object_trigger || game_top_fileinfo_version < 39) {
+				trig->value = 0;
+			} else if (trig->value > 0) {
+				trig->value = f2i(trig->value); // ?????????????????????? fuck
+				trig->flags |= TF_DISABLED;
+				if (trig->flags & TF_AUTOPLAY)
+					trig->flags &= ~(uint32_t)TF_PERMANENT;
+			}
+		}
+		if (object_trigger && trig->type != TT_COUNTDOWN &&
+			trig->type != TT_MESSAGE && trig->type != TT_SOUND)
+			trig->time = -1;
+
 		trigger_warn_unsupported(t, false);
 
 		int	l;

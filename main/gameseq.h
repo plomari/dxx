@@ -39,6 +39,7 @@ extern int Current_level_num, Next_level_num;
 extern char Current_level_name[LEVEL_NAME_LEN];
 extern obj_position Player_init[MAX_PLAYERS];
 
+char *get_level_filename(int level_num);
 
 // This is the highest level the player has ever reached
 extern int Player_highest_level;

@@ -85,7 +85,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define TF_AUTOPLAY			128
 #define TF_PLAYING_SOUND	256
 #define TF_FLY_THROUGH		512
-// This fork. (D2X-XL also has such a flag, but as separate int32 bool field.)
+// This fork. (D2X-XL also has such a flag, but as separate int32 bool field: bShot.)
 #define TF_SHOT				(1 << 17)
 
 //old trigger structs
@@ -137,10 +137,10 @@ typedef struct trigger {
 	short   side[MAX_WALLS_PER_LINK];
 	// d2x-xl only fields
 	fix     value;			// unknown function (present in D2 but never used)
-	fix     time;			// shake duration? (present in D2 but never used)
-	fix		delay;			// something absurd about delaying triggers?
-	fix		last_operated; 	// last time at which this was "operated"
-	int8_t	last_player; 	// last player by which this was "operated"
+	fix     time;			// shake duration? (present in D2 but never used) (d2x-xl: time[0])
+	fix		time_b;			// whatever the fuck (d2x-xl: time[1])
+	fix		last_operated; 	// last time at which this was "operated" (d2x-xl: tOperated)
+	int8_t	last_player; 	// last player by which this was "operated" (d2x-xl: nPlayer)
 	int16_t	object_id;		// object triggers: Objects[] index
 							// multiple triggers can point to the same object
 							// -1 if dead/not object trigger
@@ -150,6 +150,7 @@ typedef struct trigger {
 	.last_operated = -1,				\
 	.last_player = -1,					\
 	.object_id = -1,					\
+	.time_b = -1,						\
 }
 
 extern trigger Triggers[MAX_ALL_TRIGGERS];

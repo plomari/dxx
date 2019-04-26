@@ -564,7 +564,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 			CFILE_var_w(fp, &trig->value);
 			CFILE_var_w(fp, &trig->time);
 			CFILE_var_w(fp, &trig->flags);
-			CFILE_var_w(fp, &trig->delay);
+			CFILE_var_w(fp, &trig->time_b);
 			CFILE_var_w(fp, &trig->last_operated);
 			CFILE_var_w(fp, &trig->last_player);
 			CFILE_var_w(fp, &trig->object_id);
@@ -1016,7 +1016,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 			CFILE_var_r(fp, &trig->time);
 			if (version >= 26) {
 				CFILE_var_r(fp, &trig->flags);
-				CFILE_var_r(fp, &trig->delay);
+				CFILE_var_r(fp, &trig->time_b);
 				CFILE_var_r(fp, &trig->last_operated);
 				CFILE_var_r(fp, &trig->last_player);
 				CFILE_var_r(fp, &trig->object_id);

@@ -650,42 +650,46 @@ void load_robot_replacements(char *level_name);
 int read_hamfile();
 extern int Robot_replacements_loaded;
 
+// pass Current_level_num for current level
+// returns a hog filename (not Current_level_name, that's the level title)
+// returned string stays valid until mission is unloaded (probably?)
+// returns NULL if something goes wrong
+char *get_level_filename(int level_num)
+{
+	if (WARN_ON(level_num > Last_level || level_num < Last_secret_level || level_num == 0))
+		return NULL;
+
+	if (level_num<0)		//secret level
+		return Secret_level_names[-level_num-1];
+	else					//normal level
+		return Level_names[level_num-1];
+}
+
 // load just the hxm file
 void load_level_robots(int level_num)
 {
-	char *level_name;
-
-	Assert(level_num <= Last_level  && level_num >= Last_secret_level  && level_num != 0);
-
-	if (level_num<0)		//secret level
-		level_name = Secret_level_names[-level_num-1];
-	else					//normal level
-		level_name = Level_names[level_num-1];
-
 	if (Robot_replacements_loaded) {
 		int load_mission_ham();
 		free_polygon_models();
 		load_mission_ham();
 		Robot_replacements_loaded = 0;
 	}
-	load_robot_replacements(level_name);
+
+	char *level_name = get_level_filename(level_num);
+	if (level_name)
+		load_robot_replacements(level_name);
 }
 
 //load a level off disk. level numbers start at 1.  Secret levels are -1,-2,-3
 void LoadLevel(int level_num,int page_in_textures)
 {
-	char *level_name;
 	player save_player;
 	int load_ret;
 
 	save_player = Players[Player_num];
 
-	Assert(level_num <= Last_level  && level_num >= Last_secret_level  && level_num != 0);
-
-	if (level_num<0)		//secret level
-		level_name = Secret_level_names[-level_num-1];
-	else					//normal level
-		level_name = Level_names[level_num-1];
+	char *level_name = get_level_filename(level_num);
+	Assert(level_name);
 
 	gr_set_current_canvas(NULL);
 	gr_clear_canvas(BM_XRGB(0, 0, 0));		//so palette switching is less obvious

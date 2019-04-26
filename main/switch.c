@@ -252,6 +252,128 @@ static void do_master(trigger *trig, int player_index, int shot, int depth)
 	}
 }
 
+static void do_enable_trigger(trigger *trig)
+{
+	printf("D2X-XL: enable trigger\n");
+
+	if (IS_OBJECT_TRIGGER(trig - Triggers)) {
+		// Not sure if/how this is supposed to work.
+		printf("D2X-XL: ignoring enabling object trigger\n");
+		return;
+	}
+
+	for (int i = 0; i < trig->num_links; i++) {
+		int side = trig->side[i];
+		if (side >= 0) {
+			int wall_num = Segments[trig->seg[i]].sides[trig->side[i]].wall_num;
+			int other_num = Walls[wall_num].trigger;
+			trigger *other = &Triggers[other_num];
+			bool unset_disable = true;
+			// For some fucking annoying reason, this is different for TT_MASTER!
+			if (other->type == TT_MASTER) {
+				if (other->value > 0)
+					other->value -= 1; // apparently despite being fix
+				unset_disable = other->value <= 0;
+			}
+			if (unset_disable)
+				other->flags &= ~(uint32_t)TF_DISABLED;
+			printf("d2x-xl: enable trigger %d => %d %x\n", other_num,
+				   unset_disable, (int)other->flags);
+			if ((other->flags & TF_PERMANENT) && !(other->flags & TF_DISABLED))
+				other->last_operated = -1;
+		} else {
+			// for particles/lights/sounds
+			printf("D2X-XL: ignoring enabling effect trigger\n");
+		}
+	}
+}
+
+// (much duplicated, and this instance is a FPOS too, probably)
+static bool change_ext(char *dbuf, size_t dbuf_size, const char *fn,
+					   const char *newext)
+{
+	const char *ext = strrchr(fn, '.');
+	if (!ext)
+		return false;
+	// Not checking for size_t->int overflows in the printf string length. Also,
+	// the return value may overflow, but I suppose the better snprintf impls.
+	// will return an error instead. Jesus Christ C, could you make writing
+	// correct programs any harder, fucking hell.
+	int len = snprintf(dbuf, dbuf_size, "%.*s.%s", (int)(ext - fn), fn, newext);
+	return len > 0 && len < dbuf_size;
+}
+
+static void do_message(int id)
+{
+	// We reopen and reparse the message file on every message. Messages are
+	// rare enough that this is the simplest and most efficient choice.
+
+	char *level_name = get_level_filename(Current_level_num);
+	if (!level_name)
+		return;
+
+	char buf[80];
+	if (!change_ext(buf, sizeof(buf), level_name, "msg"))
+		return;
+
+	CFILE *f = cfopen(buf, "rb");
+	if (!f)
+		return;
+	bool found = false;
+	while (1) {
+		char line[1024];
+		if (!cfgets(line, sizeof(line), f))
+			break;
+		unsigned int cur_id = 0;
+		int offset = 0;
+		if (sscanf(line, "%u%n", &cur_id, &offset) != 1 || line[offset] != ':')
+			continue;
+		if (id == cur_id) {
+			// Not sure how how processing of control sequences is supposed to
+			// work. d2x-xl seems to specifically process "\n", and there are
+			// messages which contain it, so do the same. In-place.
+			char *msg = line + offset + 1;
+			size_t cur = 0;
+			size_t n = 0;
+			while (msg[n]) {
+				if (msg[n] == '\\' && msg[n + 1] == 'n') {
+					msg[cur++] = '\n';
+					n += 2;
+				} else {
+					msg[cur++] = msg[n++];
+				}
+			}
+			msg[cur] = '\0';
+			HUD_init_message(HM_DEFAULT, "'%s'", msg);
+			found = true;
+			break;
+		}
+	}
+	cfclose(f);
+
+	if (!found)
+		printf("D2X-XL: message %d not found\n", id);
+}
+
+static bool is_delayed(trigger *trig)
+{
+	if (!is_d2x_xl_level())
+		return false;
+	if (trig->type == TT_COUNTDOWN || trig->type == TT_MESSAGE ||
+		trig->type == TT_SOUND)
+		return 0;
+	if ((abs(trig->time) < 100) || abs(trig->time) > 900000)
+		return 0;
+	return 1;
+}
+
+static int delay_state(trigger *trig)
+{
+	if (!is_delayed(trig))
+		return -1;
+	return GameTime - trig->last_operated < (fix)(trig->time_b * (i2f(1) / 100.0f));
+}
+
 int check_trigger_sub(int trigger_num, int pnum,int shot)
 {
 	return do_trigger(trigger_num, pnum, shot, SWITCH_DEPTH);
@@ -278,6 +400,24 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 
 	bool show_msg = pnum == Player_num && !(trig->flags & TF_NO_MESSAGE) && shot;
 	const char *pl = trig->num_links > 1 ? "s" : "";
+
+	if (trig->last_operated < 0) {
+		trig->last_operated = GameTime;
+		trig->last_player = pnum;
+		if (shot)
+			trig->flags |= TF_SHOT;
+		if (is_delayed(trig)) {
+			if (trig->time > 0) {
+				trig->time_b = trig->time;
+			} else {
+				fix h = -trig->time / 10;
+				trig->time_b = h + h * (d_rand() % 10);
+			}
+		}
+	}
+
+	if (delay_state(trig) > 0)
+		return 1;
 
 	if (!trigger_warn_unsupported(trigger_num, true))
 		return 0;
@@ -476,6 +616,12 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 			printf("D2X-XL: master\n");
 			do_master(trig, Player_num, shot, depth);
 			break;
+		case TT_ENABLE_TRIGGER:
+			do_enable_trigger(trig);
+			break;
+		case TT_MESSAGE:
+			do_message(f2i(trig->value));
+			break;
 
 		default:
 			Int3();
@@ -493,11 +639,10 @@ bool trigger_warn_unsupported(int idx, bool hud)
 	trigger *trig = &Triggers[idx];
 
 	int unsupp = trig->flags & (
-		TF_PERMANENT |
+		TF_PERMANENT | // untested
 		TF_ALTERNATE |
 		TF_SET_ORIENT |
 		TF_SILENT |
-		TF_AUTOPLAY |
 		TF_PLAYING_SOUND |
 		TF_FLY_THROUGH
 	);
@@ -516,9 +661,7 @@ bool trigger_warn_unsupported(int idx, bool hud)
 	case TT_COUNTDOWN:
 	case TT_SPAWN_BOT:
 	case TT_SMOKE_BRIGHTNESS:
-	case TT_MESSAGE:
 	case TT_SOUND:
-	case TT_ENABLE_TRIGGER:
 	case TT_DISABLE_TRIGGER:
 	case TT_DISARM_ROBOT:
 	case TT_REPROGRAM_ROBOT:
@@ -582,6 +725,45 @@ void check_trigger(segment *seg, short side, short objnum,int shot)
 
 void triggers_frame_process()
 {
+	if (!is_d2x_xl_level())
+		return;
+
+	// Note: object triggers also have TF_AUTOPLAY and countdowns, but I have
+	//		 no test case yet.
+	// It's also not clear how they "operate" other triggers.
+	for (int n = 0; n < Num_triggers; n++) {
+		trigger *trig = &Triggers[n];
+
+		if (trig->flags & TF_DISABLED)
+			continue;
+
+		if ((trig->flags & TF_AUTOPLAY) && trig->last_operated < 0 &&
+			(is_delayed(trig) || !(trig->flags & TF_PERMANENT)))
+		{
+			printf("d2x-xl: autoplay trigger %d\n", n);
+
+			check_trigger_sub(n, Player_num, !!(trig->flags & TF_SHOT));
+
+			if (!is_delayed(trig))
+				trig->flags |= TF_DISABLED;
+		}
+
+		// ignoring TT_SOUND special handling
+
+		// countdown
+		if (trig->last_operated > 0 && !delay_state(trig)) {
+			printf("d2x-xl: countdown trigger %d\n", n);
+
+			check_trigger_sub(n, Player_num, !!(trig->flags & TF_SHOT));
+
+			if (trig->flags & TF_PERMANENT) {
+				trig->last_operated = -1;
+			} else {
+				trig->time = 0;
+				trig->flags |= TF_DISABLED;
+			}
+		}
+	}
 }
 
 void trigger_delete_object(int objnum)
