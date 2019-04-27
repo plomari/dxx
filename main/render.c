@@ -1427,12 +1427,6 @@ void build_segment_list(int start_seg_num, int window_num)
 	}
 }
 
-static bool wall_uses_alpha(segment *seg, int side)
-{
-	int wid = WALL_IS_DOORWAY(seg, side);
-	return (wid & WID_RENDER_FLAG) && (wid & WID_RENDPAST_FLAG);
-}
-
 //renders onto current canvas
 void render_mine(int start_seg_num,fix eye_offset, int window_num)
 {
@@ -1448,7 +1442,6 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 	if (eye_offset<=0) // Do for left eye or zero.
 		set_dynamic_light();
 
-    // First Pass: render opaque level geometry
 	for (int nn = N_render_segs - 1; nn >= 0; nn--) {
 		int segnum = Render_list[nn];
 
@@ -1459,39 +1452,11 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 
 		segment *seg = &Segments[segnum];
 
-		for (int sn = 0; sn < MAX_SIDES_PER_SEGMENT; sn++) {
-			if (wall_uses_alpha(seg, sn)) {
-				glAlphaFunc(GL_GEQUAL,1.0);
-				render_side(seg, sn);
-				glAlphaFunc(GL_GEQUAL,0.02);
-			} else {
-				render_side(seg, sn);
-			}
-		}
-	}
-
-    // Second pass: Render objects and level geometry with alpha pixels
-	for (int nn = N_render_segs - 1; nn >= 0; nn--) {
-		int segnum = Render_list[nn];
-
-		if (segnum == -1)
-			continue;
-
-		segment *seg = &Segments[segnum];
-
 		if (Viewer->type != OBJ_ROBOT)
 			Automap_visited[segnum] = 1;
 
-		for (int sn = 0; sn < MAX_SIDES_PER_SEGMENT; sn++) {
-			if (wall_uses_alpha(seg, sn)) {
-				// Render alpha textures.
-				glAlphaFunc(GL_LESS,1.0);
-				glDepthMask(GL_FALSE);
-				render_side(seg, sn);
-				glDepthMask(GL_TRUE);
-				glAlphaFunc(GL_GEQUAL,0.02);
-			}
-		}
+		for (int sn = 0; sn < MAX_SIDES_PER_SEGMENT; sn++)
+			render_side(seg, sn);
 
 		// render objects
 		for (int index = Render_list_objs[nn];

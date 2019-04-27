@@ -678,8 +678,10 @@ static void draw_poly(int nv, const g3s_point **pointlist, g3s_uvl *uvl_list, g3
 	}
 
 	float c_a = color4[3];
-	if (grd_curcanv->cv_fade_level < GR_FADE_OFF)
+	if (grd_curcanv->cv_fade_level < GR_FADE_OFF) {
 		c_a *= 1.0 - grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0);
+		glDepthMask(GL_FALSE);
+	}
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
@@ -745,6 +747,8 @@ static void draw_poly(int nv, const g3s_point **pointlist, g3s_uvl *uvl_list, g3
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glDepthMask(GL_TRUE);
 }
 
 /*
@@ -803,6 +807,8 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
 	ogl_bindbmtex(bm);
 	ogl_texwrap(bm->gltexture,GL_CLAMP_TO_EDGE);
 
+	glDepthMask(GL_FALSE);
+
 	width = fixmul(width,Matrix_scale.x);
 	height = fixmul(height,Matrix_scale.y);
 	for (i=0;i<4;i++){
@@ -851,6 +857,8 @@ bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glDepthMask(GL_TRUE);
 
 	return 0;
 }
