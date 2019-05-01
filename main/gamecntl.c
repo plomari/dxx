@@ -1732,6 +1732,19 @@ static bool FinalCheats(int key)
 		}
 
 
+	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("seenitall")], "seenitall"))
+		{
+				do_cheat_penalty();
+				Players[Player_num].flags |=PLAYER_FLAGS_MAP_ALL;
+
+				for (int i = 0; i < Num_segments; i++)
+					Automap_visited[i] = 1;
+
+				HUD_init_message(HM_DEFAULT, "Oh Mr. Belpit");
+				return true;
+		}
+
+
   if (!(strcmp (cryptstring,HomingCheatString)))
 		{
 			if (!HomingCheat) {
