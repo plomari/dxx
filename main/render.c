@@ -28,6 +28,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "texmap.h"
 #include "render.h"
+#include "fuelcen.h"
 #include "game.h"
 #include "object.h"
 #include "laser.h"
@@ -665,6 +666,55 @@ static void highlight_side_triggers(int segnum, int sidenum)
 	is_target = any_triggers || otherside_triggers;
 	if (is_target)
 		APPENDF(t, "\n");
+
+	if (segp->special) {
+		APPENDF(t, "segnum: %d\n", segnum);
+
+		static const char *const Segspecial_name[] = {
+			[SEGMENT_IS_NOTHING] = "",
+			[SEGMENT_IS_FUELCEN] = "fuelcen",
+			[SEGMENT_IS_REPAIRCEN] = "repaircen",
+			[SEGMENT_IS_CONTROLCEN] = "controlcen",
+			[SEGMENT_IS_ROBOTMAKER] = "robotmaker",
+			[SEGMENT_IS_GOAL_BLUE] = "goal_blue",
+			[SEGMENT_IS_GOAL_RED] = "goal_red",
+			[SEGMENT_IS_TEAM_BLUE] = "team_blue",
+			[SEGMENT_IS_TEAM_RED] = "team_red",
+			[SEGMENT_IS_SPEEDBOOST] = "speedboost",
+			[SEGMENT_IS_SKYBOX] = "skybox",
+			[SEGMENT_IS_EQUIPMAKER] = "equipmaker",
+		};
+
+		APPENDF(t, "segspecial: %d (%s)\n", segp->special,
+				ARRAY_OR_DEF(segp->special, Segspecial_name, "?"));
+
+		matcen_info *matcen = NULL;
+
+		switch (segp->special) {
+		case SEGMENT_IS_ROBOTMAKER:
+			matcen = &RobotCenters[segp->matcen_num];
+			break;
+		case SEGMENT_IS_EQUIPMAKER:
+			matcen = &EquipCenters[segp->matcen_num];
+			break;
+		}
+
+		if (matcen) {
+			FuelCenter *fuelcen = &Station[segp->fuelcen_num];
+
+			APPENDF(t,
+				"matcen=%d, fuelcen=%d\n"
+				"enabled=%d\n"
+				"timer=%f\n"
+				"flag=%d\n"
+				"matcen_flags=%x %x\n",
+				segp->matcen_num, segp->fuelcen_num,
+				fuelcen->Enabled,
+				f2fl(fuelcen->Timer),
+				fuelcen->Flag,
+				matcen->robot_flags[0], matcen->robot_flags[1]);
+		}
+	}
 
 	bool highlight = segnum == highlight_seg && sidenum == highlight_side;
 
