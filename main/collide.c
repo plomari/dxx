@@ -472,24 +472,25 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 
 	Assert(blower->type == OBJ_WEAPON);
 
+	int wall_num = seg->sides[side].wall_num;
+	int	trigger_num = -1;
+	if ( wall_num != -1 )
+		trigger_num = Walls[wall_num].trigger;
+
 	//	If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
 	// We don't want robots blowing puzzles.  Only player or buddy can open!
 	{
 		int	ok_to_blow = effect_parent_is_guidebot(blower);
 
 		if (!(ok_to_blow || (blower->ctype.laser_info.parent_type == OBJ_PLAYER))) {
-			int	trigger_num, wall_num;
-
-			wall_num = seg->sides[side].wall_num;
-			if ( wall_num != -1 ) {
-				trigger_num = Walls[wall_num].trigger;
-
-				if (trigger_num != -1)
-					return 0;
-			}
+			if (trigger_num != -1)
+				return 0;
 		}
 	}
 
+	// A "permanent" trigger can be retriggered any time. Seems silly, but D2X-XL
+	// levels may rely on it.
+	bool keep_it = trigger_num >= 0 && (Triggers[trigger_num].flags & TF_PERMANENT);
 
 	if ((tm=seg->sides[side].tmap_num2) != 0) {
 
@@ -517,7 +518,6 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 				int vc,sound_num;
 				fix dest_size;
 
-
 #ifdef NETWORK
 				if ((Game_mode & GM_MULTI) && Netgame.AlwaysLighting)
 			   	if (!(ec!=-1 && db!=-1 && !(Effects[ec].flags&EF_ONE_SHOT)))
@@ -527,7 +527,8 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 				//note: this must get called before the texture changes,
 				//because we use the light value of the texture to change
 				//the static light in the segment
-				subtract_light(seg-Segments,side);
+				if (!keep_it)
+					subtract_light(seg-Segments,side);
 
 				if (Newdemo_state == ND_STATE_RECORDING)
 					newdemo_record_effect_blowup( seg-Segments, side, pnt);
@@ -542,7 +543,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 
 				object_create_explosion( seg-Segments, pnt, dest_size, vc );
 
-				if (ec!=-1 && db!=-1 && !(Effects[ec].flags&EF_ONE_SHOT)) {
+				if (!keep_it && ec!=-1 && db!=-1 && !(Effects[ec].flags&EF_ONE_SHOT)) {
 
 					if ((sound_num = Vclip[vc].sound_num) != -1)
 		  				digi_link_sound_to_pos( sound_num, seg-Segments, 0, pnt,  0, F1_0 );
@@ -574,7 +575,8 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 					}
 				}
 				else {
-					seg->sides[side].tmap_num2 = TmapInfo[tm].destroyed | tmf;
+					if (!keep_it)
+						seg->sides[side].tmap_num2 = TmapInfo[tm].destroyed | tmf;
 
 					//assume this is a light, and play light sound
 		  			digi_link_sound_to_pos( SOUND_LIGHT_BLOWNUP, seg-Segments, 0, pnt,  0, F1_0 );

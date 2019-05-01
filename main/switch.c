@@ -663,7 +663,6 @@ bool trigger_warn_unsupported(int idx, bool hud)
 	trigger *trig = &Triggers[idx];
 
 	int unsupp = trig->flags & (
-		TF_PERMANENT | // untested
 		TF_SET_ORIENT |
 		TF_SILENT |
 		TF_PLAYING_SOUND |
