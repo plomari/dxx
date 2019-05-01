@@ -511,7 +511,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 				int flags = tmap_test_pixel(tm | tmf, u, v);
 
 				//not trans, thus an effect
-				hit = !(flags & BM_FLAG_TRANSPARENT);
+				hit = !(flags & BM_FLAG_TRANSPARENT) || (flags & BM_FLAG_SEE_THRU);
 			}
 
 			if (hit) {

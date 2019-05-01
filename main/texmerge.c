@@ -167,8 +167,10 @@ static int check_pixel_type(uint8_t *p, int bm_flags, int bm_depth)
 			return BM_FLAG_SUPER_TRANSPARENT;
 		if (p[3] <= 5)
 			return BM_FLAG_TRANSPARENT | BM_FLAG_ALPHA;
+		// Note: it is possible that if pixels are "too opaque", they should not
+		// let weapons through, only light.
 		if (p[3] < 255)
-			return BM_FLAG_SEE_THRU | BM_FLAG_ALPHA;
+			return BM_FLAG_TRANSPARENT | BM_FLAG_ALPHA | BM_FLAG_SEE_THRU;
 		return 0;
 	}
 
@@ -332,6 +334,10 @@ int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 	}
 
 	int c_bottom = tmap_test_pixel(tmap_bottom, u, v);
+
+	// Pixel too opaque => render only
+	if (c_bottom & BM_FLAG_SEE_THRU)
+		return 0;
 
 	if (c_bottom & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT))
 		return WID_RENDPAST_FLAG;
