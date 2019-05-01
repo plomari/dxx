@@ -1092,8 +1092,11 @@ int load_game_data(CFILE *LoadFile)
 
 	//================ READ DL_INDICES INFO ===============
 
-	if (static_light_offset > -1)
-		Assert(cftell(LoadFile) == static_light_offset);
+	if (static_light_offset > -1) {
+		if (!is_d2x_xl_level())
+			Assert(cftell(LoadFile) == static_light_offset);
+		cfseek(LoadFile, static_light_offset, SEEK_SET);
+	}
 
 	for (i = 0; i < Num_static_lights; i++) {
 		if (game_top_fileinfo_version < 29) {
