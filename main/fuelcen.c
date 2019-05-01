@@ -105,17 +105,22 @@ void fuelcen_init(segment *segp)
 	Assert( Num_fuelcenters > -1 );
 
 	segp->fuelcen_num = Num_fuelcenters;
-	Station[Num_fuelcenters].Type = station_type;
-	Station[Num_fuelcenters].MaxCapacity = Fuelcen_max_amount;
-	Station[Num_fuelcenters].Capacity = Station[Num_fuelcenters].MaxCapacity;
-	Station[Num_fuelcenters].segnum = segp-Segments;
-	Station[Num_fuelcenters].Timer = -1;
-	Station[Num_fuelcenters].Flag = 0;
-	compute_segment_center(&Station[Num_fuelcenters].Center, segp);
+
+	FuelCenter *fuelcen = &Station[Num_fuelcenters];
+
+	*fuelcen = (FuelCenter) {
+		.Type = station_type,
+		.MaxCapacity = Fuelcen_max_amount,
+		.Capacity = Fuelcen_max_amount,
+		.segnum = segp-Segments,
+		.Timer = -1,
+		.Flag = 0,
+	};
+	compute_segment_center(&fuelcen->Center, segp);
 
 	if (station_type == SEGMENT_IS_ROBOTMAKER) {
-		Station[Num_fuelcenters].Capacity = i2f(Difficulty_level + 3);
-		Station[Num_fuelcenters].MaxCapacity = Station[Num_fuelcenters].Capacity;
+		fuelcen->Capacity = i2f(Difficulty_level + 3);
+		fuelcen->MaxCapacity = fuelcen->Capacity;
 	}
 
 	Num_fuelcenters++;
