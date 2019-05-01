@@ -698,6 +698,7 @@ bool trigger_warn_unsupported(int idx, bool hud)
 	if (unsupp) {
 		APPENDF(msg, "D2X-XL: Trigger %d: unsupported flags: 0x%x\n",
 				idx, unsupp);
+		ok = false;
 	}
 
 	if (msg[0]) {
