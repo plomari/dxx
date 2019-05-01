@@ -1355,8 +1355,11 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 				explode_object(robot,STANDARD_EXPL_DELAY);
 		}
 		return 1;
-	} else
-		return 0;
+	}
+
+	if (killer_objnum == Players[Player_num].objnum)
+		trigger_damage_object(robot - Objects);
+	return 0;
 }
 
 extern int boss_spew_robot(object *objp, vms_vector *pos);

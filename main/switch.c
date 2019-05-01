@@ -788,7 +788,48 @@ void triggers_frame_process()
 	}
 }
 
-void trigger_delete_object(int objnum)
+// corresponds to CTrigger::DoExecObjTrigger
+static bool can_trigger_object(trigger *trig, int objnum, bool damage_only)
+{
+	if (damage_only != (trig->type == TT_TELEPORT || trig->type == TT_SPAWN_BOT))
+		return false;
+
+	if (!damage_only)
+		return true;
+
+	fix v = trig->value;
+
+	// Some idiotic cryptic logic from D2X-XL. Compatibility garbage?
+	if (v >= i2f(1))
+		v = f2i(v); // the fuck???
+	v = 10 - v;
+
+	if (v >= 10)
+		return false;
+
+	// Depends on too much bullshit, so ignore it. The intention is apparently
+	// to allow a level designer to trigger an action if the player has beat a
+	// robot or reactor to a specific percentage.
+	// Unlike the name implies, Damage() seems to return 1.0 if the object is
+	// at full strength, and 0.0 if it's almost destroyed.
+	// if (fix (OBJECT (nObject)->Damage () * 100) > v * 10)
+	// 	return false;
+	// Instead require the player to destroy the object fully if the trigger
+	// is activated only if the required object strength to trigger it is below
+	// 90%. If the required strength is above that, a single shot that manages
+	// to damage the strength even a little triggers it. (Does this make sense?
+	// Maybe not.)
+	if (v * 10 < 90)
+		return false;
+
+	// (Now how does this even make sense?)
+	if (!(trig->flags & TF_PERMANENT))
+		trig->value = 0;
+
+	return true;
+}
+
+static void do_object_trigger(int objnum, bool damage_only)
 {
 	object *obj = &Objects[objnum];
 
@@ -798,11 +839,23 @@ void trigger_delete_object(int objnum)
 	for (int n = 0; n < Num_object_triggers; n++) {
 		trigger *trig = &ObjectTriggers[n];
 		if (trig->object_id == objnum) {
-			// Coincidentally destroying the object also triggers the trigger.
-			do_trigger(OBJECT_TRIGGER_INDEX(n), Player_num, 1, SWITCH_DEPTH);
-			trig->object_id = -1;
+			if (can_trigger_object(trig, objnum, damage_only))
+				do_trigger(OBJECT_TRIGGER_INDEX(n), Player_num, 1, SWITCH_DEPTH);
+			// Object trigger obviously becomes invalid if object is destroyed.
+			if (!damage_only)
+				trig->object_id = -1;
 		}
 	}
+}
+
+void trigger_delete_object(int objnum)
+{
+	do_object_trigger(objnum, false);
+}
+
+void trigger_damage_object(int objnum)
+{
+	do_object_trigger(objnum, true);
 }
 
 /*
