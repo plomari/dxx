@@ -54,6 +54,26 @@ extern int Do_appearance_effect;
 
 static int do_trigger(int trigger_num, int pnum, int shot, int depth);
 
+static int get_alternate_trigger(int type)
+{
+	switch (type) {
+	case TT_CLOSE_DOOR:			return TT_OPEN_DOOR;
+	case TT_OPEN_DOOR:			return TT_CLOSE_DOOR;
+	case TT_ILLUSION_ON: 		return TT_ILLUSION_OFF;
+	case TT_ILLUSION_OFF: 		return TT_ILLUSION_ON;
+	case TT_LOCK_DOOR: 			return TT_UNLOCK_DOOR;
+	case TT_UNLOCK_DOOR: 		return TT_LOCK_DOOR;
+	case TT_CLOSE_WALL: 		return TT_OPEN_WALL;
+	case TT_OPEN_WALL: 			return TT_CLOSE_WALL;
+	case TT_LIGHT_ON: 			return TT_LIGHT_OFF;
+	case TT_LIGHT_OFF: 			return TT_LIGHT_ON;
+	case TT_DISABLE_TRIGGER: 	return TT_ENABLE_TRIGGER;
+	case TT_ENABLE_TRIGGER: 	return TT_DISABLE_TRIGGER;
+	default:
+		return type;
+	}
+}
+
 //turns lighting on or off.  returns true if lights were actually changed. (they
 //would not be if they had previously been shot out etc.).
 static int do_change_light(trigger *trigger, bool on)
@@ -629,6 +649,9 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 	if (trig->flags & TF_ONE_SHOT)		//if this is a one-shot...
 		trig->flags |= TF_DISABLED;		//..then don't let it happen again
 
+	if (trig->flags & TF_ALTERNATE)
+		trig->type = get_alternate_trigger(trig->type);
+
 	return res;
 }
 
@@ -641,7 +664,6 @@ bool trigger_warn_unsupported(int idx, bool hud)
 
 	int unsupp = trig->flags & (
 		TF_PERMANENT | // untested
-		TF_ALTERNATE |
 		TF_SET_ORIENT |
 		TF_SILENT |
 		TF_PLAYING_SOUND |
