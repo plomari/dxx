@@ -49,7 +49,7 @@ The data dir is by default in /usr/local/share/games/d2x-rebirth/. This can be
 adjusted at build time with the "sharepath" option, or at runtime with the
 -hogdir option. This directory must contain descent2.hog at its top level.
 
-The user config path is in ~/.d2c/. (Currently, you can copy D2X/DXX config
+The user config path is in ~/.d2x-c/. (Currently, you can copy D2X/DXX config
 files from ~/.d2x-rebirth/ to here to migrate your config. Don't try to symlink
 them to the same directory - this can lead to conflicts. In particular,
 savegames made with this project won't load in D2X/DXX. The reverse should
