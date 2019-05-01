@@ -1067,7 +1067,7 @@ int check_trans_wall(vms_vector *pnt,segment *seg,int sidenum,int facenum)
 
 	find_hitpoint_uv(&u,&v,NULL,pnt,seg,sidenum,facenum);	//	Don't compute light value.
 
-	return !!(texmerge_test_pixel(side->tmap_num, side->tmap_num2, u, v) & WID_RENDPAST_FLAG);
+	return texmerge_hit_test_pixel(side->tmap_num, side->tmap_num2, u, v);
 }
 
 //new function for Mike

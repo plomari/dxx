@@ -320,7 +320,7 @@ int tmap_test_pixel(int tmap, fix u, fix v)
 							bm->bm_flags, bm->bm_depth);
 }
 
-int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
+bool texmerge_hit_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 {
 	piggy_page_in_two(tmap_bottom, tmap_top);
 
@@ -328,21 +328,21 @@ int texmerge_test_pixel(int tmap_bottom, int tmap_top, fix u, fix v)
 		int c_top = tmap_test_pixel(tmap_top, u, v);
 
 		if (c_top & BM_FLAG_SUPER_TRANSPARENT)
-			return WID_RENDPAST_FLAG;
+			return true;
 		if (!(c_top & BM_FLAG_TRANSPARENT))
-			return 0;
+			return false;
 	}
 
 	int c_bottom = tmap_test_pixel(tmap_bottom, u, v);
 
 	// Pixel too opaque => render only
 	if (c_bottom & BM_FLAG_SEE_THRU)
-		return 0;
+		return false;
 
 	if (c_bottom & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT))
-		return WID_RENDPAST_FLAG;
+		return true;
 
-	return 0;
+	return false;
 }
 
 void gr_bitmap_check_transparency(grs_bitmap *bmp)
