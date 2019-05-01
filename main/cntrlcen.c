@@ -451,13 +451,16 @@ void init_controlcen_for_level(void)
 	}
 
 	if ( (boss_objnum != -1) && !((Game_mode & GM_MULTI) && !(Game_mode & GM_MULTI_ROBOTS)) ) {
-		if (cntrlcen_objnum != -1) {
+		if (cntrlcen_objnum != -1 && !is_d2x_xl_level()) {
 			Objects[cntrlcen_objnum].type = OBJ_GHOST;
 			Objects[cntrlcen_objnum].control_type = CT_NONE;
 			Objects[cntrlcen_objnum].render_type = RT_NONE;
 			Control_center_present = 0;
+			cntrlcen_objnum = -1;
 		}
-	} else if (cntrlcen_objnum != -1) {
+	}
+
+	if (cntrlcen_objnum != -1) {
 		//	Compute all gun positions.
 		objp = &Objects[cntrlcen_objnum];
 		N_controlcen_guns = Reactors[objp->id].n_guns;
