@@ -823,9 +823,16 @@ int load_game_data(CFILE *LoadFile)
 		num_delta_lights = 0;
 	}
 
+	int equip_center_offset = -1;
+	Num_equip_centers = 0;
 	if (Gamesave_current_version >= GAMESAVE_D2X_XL_VERSION) {
-		if (Gamesave_current_version > 15)
-			cfseek(LoadFile, 4 * 3, SEEK_CUR); // equipGen offset/count/size
+		if (Gamesave_current_version > 15) {
+			equip_center_offset = cfile_read_int(LoadFile);
+			Num_equip_centers = cfile_read_int(LoadFile);
+			int equip_center_size = cfile_read_int(LoadFile);
+			Assert(equip_center_size == sizeof(EquipCenters[0]));
+			Assert(Num_equip_centers >= 0 && Num_equip_centers < MAX_EQUIP_CENTERS);
+		}
 		if (Gamesave_current_version > 26)
 			cfseek(LoadFile, 4 * 4, SEEK_CUR); // 4x fog color (?)
 	}
@@ -1085,11 +1092,16 @@ int load_game_data(CFILE *LoadFile)
 		}
 	}
 
+	if (equip_center_offset > -1)
+		Assert(cftell(LoadFile) == equip_center_offset);
+
+	for (i = 0; i < Num_equip_centers; i++)
+		matcen_info_read(&EquipCenters[i], LoadFile);
+
 	//================ READ DL_INDICES INFO ===============
 
 	if (static_light_offset > -1) {
-		if (!is_d2x_xl_level())
-			Assert(cftell(LoadFile) == static_light_offset);
+		Assert(cftell(LoadFile) == static_light_offset);
 		cfseek(LoadFile, static_light_offset, SEEK_SET);
 	}
 
@@ -1160,6 +1172,7 @@ int load_game_data(CFILE *LoadFile)
 
 	Num_fuelcenters = 0;
 	int found_robotmakers = 0;
+	int found_equipcenters = 0;
 	for (int segnum = 0; segnum < Num_segments; segnum++) {
 		segment *segp = &Segments[segnum];
 
@@ -1180,9 +1193,17 @@ int load_game_data(CFILE *LoadFile)
 			segp->matcen_num = found_robotmakers++;
 			RobotCenters[segp->matcen_num].fuelcen_num = segp->fuelcen_num;
 		}
+
+		// Do the same for D2X-XL equipment centers. I'm not sure, but it
+		// probably does it the same way.
+		if (segp->special == SEGMENT_IS_EQUIPMAKER) {
+			segp->matcen_num = found_equipcenters++;
+			EquipCenters[segp->matcen_num].fuelcen_num = segp->fuelcen_num;
+		}
 	}
 	// Check that all RobotCenters are referenced.
 	Assert(found_robotmakers == Num_robot_centers);
+	Assert(found_equipcenters == Num_equip_centers);
 
 	//go through all walls, killing references to invalid triggers
 	for (i=0;i<Num_walls;i++)

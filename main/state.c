@@ -72,7 +72,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern void game_disable_cheats();
 
-#define STATE_VERSION 26
+#define STATE_VERSION 27
 #define STATE_COMPATIBLE_VERSION 20
 // 0 - Put DGSS (Descent Game State Save) id at tof.
 // 1 - Added Difficulty level save
@@ -99,6 +99,7 @@ extern void game_disable_cheats();
 // 25- extend struct wall
 // 26- correctly save D2X-XL multi-boss info (old D2 levels use new format too)
 //	   save D2X-XL trigger info
+// 27- Save D2X-XL equipment centers
 
 // Things to change on next incompatible savegame change:
 // - add a way to save/restore objects in a backward/forward compatible way
@@ -647,6 +648,9 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	// Save spawn point (can change at runtime with D2X-XL levels)
 	PHYSFS_write(fp, &Player_init[Player_num], sizeof(Player_init[Player_num]), 1);
 
+	PHYSFS_write(fp, &Num_equip_centers, sizeof(int), 1);
+	PHYSFS_write(fp, EquipCenters, sizeof(matcen_info), Num_equip_centers);
+
 	magic = END_MAGIC;
 	if (PHYSFS_write(fp, &magic, sizeof(magic), 1) < 1)
 	{
@@ -1176,6 +1180,11 @@ int state_restore_all_sub(char *filename, int secret_restore)
 	if (version >= 24) {
 		PHYSFS_read(fp, &Missile_gun, sizeof(Missile_gun), 1);
 		PHYSFS_read(fp, &Player_init[Player_num], sizeof(Player_init[Player_num]), 1);
+
+		if (version >= 27) {
+			PHYSFS_read(fp, &Num_equip_centers, sizeof(int), 1);
+			PHYSFS_read(fp, EquipCenters, sizeof(matcen_info), Num_equip_centers);
+		}
 
 		uint32_t magic = 0;
 		PHYSFS_read(fp, &magic, sizeof(magic), 1);

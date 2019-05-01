@@ -582,7 +582,7 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 		case TT_MATCEN:
 			if (!(Game_mode & GM_MULTI) || (Game_mode & GM_MULTI_ROBOTS)) {
 				for (int i = 0; i < trig->num_links; i++)
-					trigger_matcen(trig->seg[i]);
+					trigger_fuelcen(trig->seg[i]);
 			}
 			break;
 

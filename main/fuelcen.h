@@ -94,10 +94,11 @@ typedef struct FuelCenter {
 	vms_vector Center;
 } __pack__ FuelCenter;
 
-// The max number of robot centers per mine.
 #define MAX_ROBOT_CENTERS  100
+#define MAX_EQUIP_CENTERS  100
 
 extern int Num_robot_centers;
+extern int Num_equip_centers;
 
 typedef struct  {
 	int     robot_flags;    // Up to 32 different robots
@@ -116,12 +117,11 @@ typedef struct matcen_info {
 } __pack__ matcen_info;
 
 extern matcen_info RobotCenters[MAX_ROBOT_CENTERS];
+extern matcen_info EquipCenters[MAX_EQUIP_CENTERS];
 
 //--repair-- extern object *RepairObj;  // which object getting repaired, or NULL
 
-// Called when a materialization center gets triggered by the player
-// flying through some trigger!
-extern void trigger_matcen(int segnum);
+extern void trigger_fuelcen(int segnum);
 
 extern void disable_matcens(void);
 

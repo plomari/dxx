@@ -66,6 +66,9 @@ fix EnergyToCreateOneRobot = i2f(1);
 matcen_info RobotCenters[MAX_ROBOT_CENTERS];
 int Num_robot_centers;
 
+matcen_info EquipCenters[MAX_EQUIP_CENTERS];
+int Num_equip_centers;
+
 FuelCenter Station[MAX_NUM_FUELCENS];
 int Num_fuelcenters = 0;
 
@@ -85,6 +88,7 @@ void fuelcen_init(segment *segp)
 	case SEGMENT_IS_REPAIRCEN:
 	case SEGMENT_IS_CONTROLCEN:
 	case SEGMENT_IS_ROBOTMAKER:
+	case SEGMENT_IS_EQUIPMAKER:
 		break;
 	// D2X-XL
 	case SEGMENT_IS_TEAM_BLUE:
@@ -93,9 +97,6 @@ void fuelcen_init(segment *segp)
 		return;
 	case SEGMENT_IS_SPEEDBOOST:
 		printf("D2X-XL: ignoring speedboost segment\n");
-		return;
-	case SEGMENT_IS_EQUIPMAKER:
-		printf("D2X-XL: ignoring equipmaker segment\n");
 		return;
 	default:
 		Error( "Invalid station type %d in fuelcen.c\n", station_type );
@@ -133,17 +134,18 @@ void fuelcen_init(segment *segp)
 
 //------------------------------------------------------------
 //	Trigger (enable) the materialization center in segment segnum
-void trigger_matcen(int segnum)
+static void trigger_matcen(int segnum)
 {
 	segment		*segp = &Segments[segnum];
 	vms_vector	pos, delta;
 	FuelCenter	*robotcen;
 	int			objnum;
 
-	if (segp->matcen_num < 0)
+	if (WARN_ON(segp->matcen_num < 0))
 		return;
 
-	Assert(segp->special == SEGMENT_IS_ROBOTMAKER);
+	assert(segp->special == SEGMENT_IS_ROBOTMAKER);
+
 	Assert(segp->matcen_num < Num_fuelcenters);
 	Assert((segp->matcen_num >= 0) && (segp->matcen_num <= Highest_segment_index));
 
@@ -174,6 +176,32 @@ void trigger_matcen(int segnum)
 		Objects[objnum].ctype.light_info.intensity = i2f(8);	//	Light cast by a fuelcen.
 	} else {
 		Int3();
+	}
+}
+
+static void trigger_equipcen(int segnum)
+{
+	segment		*segp = &Segments[segnum];
+
+	if (WARN_ON(segp->matcen_num < 0))
+		return;
+
+	assert(segp->special == SEGMENT_IS_EQUIPMAKER);
+
+	FuelCenter *fuelcen = &Station[EquipCenters[segp->matcen_num].fuelcen_num];
+
+	fuelcen->Enabled = !fuelcen->Enabled;
+}
+
+void trigger_fuelcen(int segnum)
+{
+	switch (Segments[segnum].special) {
+	case SEGMENT_IS_ROBOTMAKER:
+		trigger_matcen(segnum);
+		break;
+	case SEGMENT_IS_EQUIPMAKER:
+		trigger_equipcen(segnum);
+		break;
 	}
 }
 
@@ -226,15 +254,58 @@ object * create_morph_robot( segment *segp, vms_vector *object_pos, int object_i
 
 int Num_extry_robots = 15;
 
+static void create_matcen_anim(int segnum, int vclip_num)
+{
+	vms_vector loc;
+
+	compute_segment_center(&loc, &Segments[segnum]);
+
+	// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
+	object *obj = object_create_explosion(segnum, &loc, i2f(10), vclip_num);
+
+	if (obj)
+		extract_orient_from_segment(&obj->orient, &Segments[segnum]);
+
+	if ( Vclip[vclip_num].sound_num > -1 )
+		digi_link_sound_to_pos( Vclip[vclip_num].sound_num, segnum, 0, &loc, 0, F1_0 );
+}
+
+static int get_matcen_new_object_type(matcen_info *matcen)
+{
+	if (matcen->robot_flags[0] == 0 && matcen->robot_flags[1] == 0)
+		return -1;
+
+	uint	flags;
+	sbyte   legal_types[64];   // 64 bits, the width of robot_flags[].
+	int	num_types, robot_index, i;
+
+	num_types = 0;
+	for (i=0;i<2;i++) {
+		robot_index = i*32;
+		flags = matcen->robot_flags[i];
+		while (flags) {
+			if (flags & 1)
+				legal_types[num_types++] = robot_index;
+			flags >>= 1;
+			robot_index++;
+		}
+	}
+
+	return num_types == 1 ?
+		legal_types[0] : legal_types[(d_rand() * num_types) / 32768];
+}
+
 //	----------------------------------------------------------------------------------------------------------
-void robotmaker_proc( FuelCenter * robotcen )
+static void robotmaker_proc( FuelCenter * robotcen )
 {
 	fix		dist_to_player;
 	vms_vector	cur_object_loc; //, direction;
-	int		matcen_num, segnum, objnum;
+	int		objnum;
 	object	*obj;
 	fix		top_time;
 	vms_vector	direction;
+
+	assert(robotcen->Type == SEGMENT_IS_ROBOTMAKER);
 
 	if (robotcen->Enabled == 0)
 		return;
@@ -257,13 +328,14 @@ void robotmaker_proc( FuelCenter * robotcen )
 		return;
 	}
 
-	matcen_num = Segments[robotcen->segnum].matcen_num;
-
+	int matcen_num = Segments[robotcen->segnum].matcen_num;
 	if ( matcen_num == -1 ) {
 		return;
 	}
 
-	if (RobotCenters[matcen_num].robot_flags[0]==0 && RobotCenters[matcen_num].robot_flags[1]==0) {
+	matcen_info *matcen = &RobotCenters[matcen_num];
+
+	if (matcen->robot_flags[0]==0 && matcen->robot_flags[1]==0) {
 		return;
 	}
 
@@ -294,7 +366,6 @@ void robotmaker_proc( FuelCenter * robotcen )
 		if (robotcen->Timer > top_time )	{
 			int	count=0;
 			int	i, my_station_num = robotcen-Station;
-			object *obj;
 
 			//	Make sure this robotmaker hasn't put out its max without having any of them killed.
 			for (i=0; i<=Highest_object_index; i++)
@@ -308,8 +379,7 @@ void robotmaker_proc( FuelCenter * robotcen )
 
 			//	Whack on any robot or player in the matcen segment.
 			count=0;
-			segnum = robotcen->segnum;
-			for (objnum=Segments[segnum].objects;objnum!=-1;objnum=Objects[objnum].next)	{
+			for (objnum=Segments[robotcen->segnum].objects;objnum!=-1;objnum=Objects[objnum].next)	{
 				count++;
 				if ( count > MAX_OBJECTS )	{
 					Int3();
@@ -326,16 +396,8 @@ void robotmaker_proc( FuelCenter * robotcen )
 				}
 			}
 
-			compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
-			// HACK!!! The 10 under here should be something equal to the 1/2 the size of the segment.
-			obj = object_create_explosion(robotcen->segnum, &cur_object_loc, i2f(10), VCLIP_MORPHING_ROBOT );
+			create_matcen_anim(robotcen->segnum, VCLIP_MORPHING_ROBOT);
 
-			if (obj)
-				extract_orient_from_segment(&obj->orient,&Segments[robotcen->segnum]);
-
-			if ( Vclip[VCLIP_MORPHING_ROBOT].sound_num > -1 )		{
-				digi_link_sound_to_pos( Vclip[VCLIP_MORPHING_ROBOT].sound_num, robotcen->segnum, 0, &cur_object_loc, 0, F1_0 );
-			}
 			robotcen->Flag	= 1;
 			robotcen->Timer = 0;
 
@@ -351,29 +413,8 @@ void robotmaker_proc( FuelCenter * robotcen )
 			compute_segment_center(&cur_object_loc, &Segments[robotcen->segnum]);
 
 			// If this is the first materialization, set to valid robot.
-			if (RobotCenters[matcen_num].robot_flags[0] != 0 || RobotCenters[matcen_num].robot_flags[1] != 0) {
-				int	type;
-				uint	flags;
-				sbyte   legal_types[64];   // 64 bits, the width of robot_flags[].
-				int	num_types, robot_index, i;
-
-				num_types = 0;
-				for (i=0;i<2;i++) {
-					robot_index = i*32;
-					flags = RobotCenters[matcen_num].robot_flags[i];
-					while (flags) {
-						if (flags & 1)
-							legal_types[num_types++] = robot_index;
-						flags >>= 1;
-						robot_index++;
-					}
-				}
-
-				if (num_types == 1)
-					type = legal_types[0];
-				else
-					type = legal_types[(d_rand() * num_types) / 32768];
-
+			int type = get_matcen_new_object_type(matcen);
+			if (type >= 0) {
 				obj = create_morph_robot(&Segments[robotcen->segnum], &cur_object_loc, type );
 				if (obj != NULL) {
 #ifdef NETWORK
@@ -400,6 +441,65 @@ void robotmaker_proc( FuelCenter * robotcen )
 	}
 }
 
+static void equipmaker_proc(FuelCenter *fuelcen)
+{
+	assert(fuelcen->Type == SEGMENT_IS_EQUIPMAKER);
+
+	int matcen_num = Segments[fuelcen->segnum].matcen_num;
+	if (WARN_ON(matcen_num < 0))
+		return;
+	matcen_info *matcen = &EquipCenters[matcen_num];
+
+	if (!fuelcen->Enabled)
+		return;
+
+	//	No equip making in multiplayer mode.
+#ifdef NETWORK
+	if (Game_mode & GM_MULTI)
+		return;
+#endif
+
+	fuelcen->Timer += FrameTime;
+
+	if (fuelcen->Flag) {
+		if (fuelcen->Timer < (Vclip[VCLIP_MORPHING_ROBOT].play_time/2) )
+			return;
+
+		fuelcen->Flag = 0;
+		fuelcen->Timer = 0;
+
+		int type = get_matcen_new_object_type(matcen);
+		if (type < 0)
+			return;
+
+		int objnum = drop_powerup(OBJ_POWERUP, type, 1, &(vms_vector){0},
+								  &fuelcen->Center, fuelcen->segnum, false);
+
+		if (objnum >= 0) {
+			object *obj = &Objects[objnum];
+
+			// We mean it. Neutralize random velocity change.
+			assert(obj->movement_type == MT_PHYSICS);
+			obj->mtype.phys_info.velocity = (vms_vector){0};
+		}
+	} else {
+		fix gen_time = i2f(3) * (Difficulty_level + 1);
+		if (fuelcen->Timer < gen_time)
+			return;
+
+		fuelcen->Timer = 0;
+
+		for (int objnum=Segments[fuelcen->segnum].objects;objnum!=-1;objnum=Objects[objnum].next)	{
+			if (Objects[objnum].type == OBJ_POWERUP ||
+				Objects[objnum].type == OBJ_PLAYER)
+				return;
+		}
+
+		create_matcen_anim(fuelcen->segnum, VCLIP_MORPHING_ROBOT);
+
+		fuelcen->Flag = 1;
+	}
+}
 
 //-------------------------------------------------------------
 // Called once per frame, replenishes fuel supply.
@@ -414,6 +514,8 @@ void fuelcen_update_all()
 		if ( Station[i].Type == SEGMENT_IS_ROBOTMAKER )	{
 			if (! (Game_suspended & SUSP_ROBOTS))
 				robotmaker_proc( &Station[i] );
+		} else if ( Station[i].Type == SEGMENT_IS_EQUIPMAKER ) {
+			equipmaker_proc(&Station[i]);
 		} else if ( Station[i].Type == SEGMENT_IS_CONTROLCEN )	{
 			//controlcen_proc( &Station[i] );
 	
