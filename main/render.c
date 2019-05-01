@@ -333,11 +333,18 @@ static void draw_links(segment *segp, int sidenum, int tr_link)
 		if (tr_link >= 0 && i != tr_link)
 			continue;
 
+		if (trigp->seg[i] < 0 || trigp->seg[i] > Highest_segment_index)
+			abort();
+
         segment *tseg = &Segments[trigp->seg[i]];
         int tside = trigp->side[i];
 
         vms_vector tcp;
-        compute_center_point_on_side(&tcp, tseg, tside);
+		if (tside >= 0) {
+			compute_center_point_on_side(&tcp, tseg, tside);
+		} else {
+			compute_segment_center(&tcp, segp);
+		}
 
         g3s_point tcpp;
         g3_rotate_point(&tcpp, &tcp);
@@ -389,6 +396,48 @@ void highlight_all_triggers(void)
 {
 	if (highlight_seg >= 0)
 		highlight_trigger(&Segments[highlight_seg], highlight_side);
+
+	if (Num_marked_triggers) {
+		for (int n = 0; n < Num_marked_triggers; n++) {
+			int t = Marked_Triggers[n];
+			if (t < 0)
+				continue;
+			trigger *trig = &Triggers[t];
+
+			if (IS_OBJECT_TRIGGER(t)) {
+				if (trig->object_id >= 0 &&
+					trig->object_id <= Highest_object_index)
+				{
+					object *obj = &Objects[trig->object_id];
+
+					g3s_point cpp;
+					g3_rotate_point(&cpp, &obj->pos);
+					g3_project_point(&cpp);
+
+					gr_setcolor(gr_find_closest_color(0,63,63));
+					g3_draw_sphere(&cpp, 10 << 16);
+
+					goto found;
+				}
+			} else {
+
+				for (int x = 0; x <= Highest_segment_index; x++) {
+					for (int s = 0; s < MAX_SIDES_PER_SEGMENT; s++) {
+						int w = Segments[x].sides[s].wall_num;
+						if (w >= 0 && Walls[w].trigger == t) {
+							highlight_trigger(&Segments[x], s);
+							goto found;
+						}
+					}
+				}
+
+			}
+
+			printf("No wall/object points to marked trigger %d\n", t);
+			Marked_Triggers[n] = -1;
+		found:;
+		}
+	}
 }
 
 static void highlight_side_triggers(int segnum, int sidenum)

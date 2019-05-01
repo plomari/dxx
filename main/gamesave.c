@@ -1191,6 +1191,8 @@ int load_game_data(CFILE *LoadFile)
 	//	MK, 10/17/95: Make walls point back at the triggers that control them.
 	//	Go through all triggers, set WALL_HAS_TRIGGERS.
 
+	Num_marked_triggers = 0;
+
 	for (int t=0; t<Num_triggers + Num_object_triggers; t++) {
 		trigger *trig = &Triggers[t];
 		bool object_trigger = IS_OBJECT_TRIGGER(t);
@@ -1213,7 +1215,10 @@ int load_game_data(CFILE *LoadFile)
 			trig->type != TT_MESSAGE && trig->type != TT_SOUND)
 			trig->time = -1;
 
-		trigger_warn_unsupported(t, false);
+		if (!trigger_warn_unsupported(t, false)) {
+			assert(Num_marked_triggers < MAX_ALL_TRIGGERS);
+			Marked_Triggers[Num_marked_triggers++] = t;
+		}
 
 		int	l;
 		for (l=0; l<Triggers[t].num_links; l++) {
@@ -1278,12 +1283,18 @@ int load_game_data(CFILE *LoadFile)
 			case TT_ILLUSION_OFF:
 				if (wall_num == -1) {
 					// (All game code should be able to deal with this.)
- 					printf("Error: no wall for trigger %d\n", t);
+ 					printf("Warning: no wall for trigger %d (type %d)\n", t,
+						   trig->type);
 				} else {
 					Walls[wall_num].flags |= WALL_HAS_TRIGGERS;
 				}
 			}
 		}
+	}
+
+	if (Num_marked_triggers) {
+		printf("Warning: %d unsupported triggers. Level might not be playable.\n",
+			   Num_marked_triggers);
 	}
 
 	for (i = 0; i < Num_walls; i++) {

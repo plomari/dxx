@@ -608,6 +608,8 @@ void create_small_fireball_on_object(object *objp, fix size_scale, int sound_fla
 
 static void draw_object_debug(object *obj)
 {
+	int objnum = obj - Objects;
+
 	glDisable(GL_DEPTH_TEST);
 
 	g3s_point g1;
@@ -641,14 +643,26 @@ static void draw_object_debug(object *obj)
 		"type: %d\n"
 		"flags: 0x%x\n"
 		"id: %d\n"
+		"index: %d\n"
 		"shield: %f\n",
 		 obj->type,
 		 (unsigned int)obj->flags,
 		 obj->id,
+		 objnum,
 		 f2fl(obj->shields));
 
 	if (obj->lifeleft != IMMORTAL_TIME)
 		APPENDF(t, "lifeleft: %f\n", f2fl(obj->lifeleft));
+
+	if (obj->flags & OF_HAS_TRIGGERS) {
+		APPENDF(t, "triggers:");
+		for (int n = 0; n < Num_object_triggers; n++) {
+			trigger *trig = &ObjectTriggers[n];
+			if (trig->object_id == objnum)
+				APPENDF(t, " %d(%d)", n, trig->type);
+		}
+		APPENDF(t, "\n");
+	}
 
 	grd_curcanv->cv_font = GAME_FONT;
 	gr_set_fontcolor( BM_XRGB(28,28,28), -1 );

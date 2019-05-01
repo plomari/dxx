@@ -172,6 +172,11 @@ void trigger_delete_object(int objnum);
 void trigger_damage_object(int objnum);
 bool trigger_warn_unsupported(int idx, bool hud);
 
+// For debugging: for each n in [0..Num_marked_triggers) the trigger
+// Triggers[Marked_Triggers[n]] is highlighted.
+extern int Marked_Triggers[MAX_ALL_TRIGGERS];
+extern int Num_marked_triggers;
+
 /*
  * reads a v29_trigger structure from a CFILE
  */

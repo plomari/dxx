@@ -48,6 +48,9 @@ trigger Triggers[MAX_ALL_TRIGGERS];
 int Num_triggers;
 int Num_object_triggers;
 
+int Marked_Triggers[MAX_ALL_TRIGGERS];
+int Num_marked_triggers;
+
 extern int Do_appearance_effect;
 
 #define SWITCH_DEPTH 100
