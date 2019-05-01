@@ -129,3 +129,50 @@ imperfect method of recording game footage, that requires the game itself for
 playback on top of it.
 
 (Does anyone actually care about demo playback?)
+
+Development stuff
+-----------------
+
+Assert policy:
+
+The original code uses Assert() and Int3(). Both don't do anything in release
+mode, which is the way most/all builds for user consumption have been made. In
+debug mode, these crashed the program.
+
+This fork removed the difference between release and debug mode. The
+preprocessor directives and build arguments to control them simply don't exist
+anymore. I consider this a good idea. You don't want development and production
+versions to be too different. They should use the same code (rather than be
+subtly different due to ifdef messes).
+
+Unfortunately, Assert() and Int3() trigger really often, even during normal
+gameplay in official D2 levels. I assume often enough they're intended to drop
+the developers into a debugger, so that whatever caused it could be debugged.
+Maybe Int3() could be resumed or even be ignored. After over 2 decades  of
+software technology progress, this is not convenient anymore, you'd just crash
+all the time for dumb reasons.
+
+The code does not use Assert() in a "modern" way like it is recommended today.
+An assert should strictly catch internal logic errors (impossible conditions),
+not things that depend on runtime failures or file contents.
+
+This is why Assert() and Int3() print a message and do nothing else in this
+fork. Which is dumb, but such is life. Of course nobody writing new code would
+seriously consider this a good idea (except maybe GTK devs), but it's a
+compromise to avoid a separate debug mode. Blindly removing all Assert()s is not
+a good idea either.
+
+The way to go is to slowly replace Assert() by assert() in code where it was
+determined that it can happen on internal logic errors only. Int3() is to be
+replaced by assert(0) or abort().
+
+(assert() does nothing if NDEBUG is set, but the build system never sets NDEBUG.
+The entire purpose of setting NDEBUG at all is for people, who try to prove that
+NDEBUG is useful, and fail to achieve this.)
+
+One problem is that the game does little verification of game data loaded from
+disk. Savegames are basically memory dumps. Considering this, Assert() may never
+go away. However, where possibly, it should be replaced by WARN_ON(), which
+prints the failed condition, and returns the condition itself. The intention is
+that the caller of WARN_ON() checks the result, and then handles the failure
+gracefully in some way.
