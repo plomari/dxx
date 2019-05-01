@@ -51,7 +51,7 @@ void segment2_read(segment *s2, CFILE *fp)
 	s2->special = cfile_read_byte(fp);
 	if (Gamesave_current_version < 24) {
 		s2->matcen_num = cfile_read_byte(fp);
-		s2->value = cfile_read_byte(fp);
+		s2->fuelcen_num = cfile_read_byte(fp);
 	} else {
 		// D2X stuff
 		int16_t v = cfile_read_short(fp);
@@ -65,7 +65,7 @@ void segment2_read(segment *s2, CFILE *fp)
 			printf("D2X-XL: discarding value=%d\n", v);
 			v = 0;
 		}
-		s2->value = v;
+		s2->fuelcen_num = v;
 	}
 	// (D2X-XL levels, e.g. Anthology, have extra bits with unknown purpose)
 	s2->s2_flags = (ubyte)cfile_read_byte(fp) & 3u;

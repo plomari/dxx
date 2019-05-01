@@ -47,20 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //   he got.
 
 
-// Destroys all fuel centers, clears segment backpointer array.
-void fuelcen_reset();
-// Create materialization center
-int create_matcen( segment * segp );
-// Makes a segment a fuel center.
-void fuelcen_create( segment * segp);
-// Makes a fuel center active... needs to be called when
-// a segment is loaded from disk.
-void fuelcen_activate( segment * segp, int station_type );
-// Deletes a segment as a fuel center.
-void fuelcen_delete( segment * segp );
-
-// Charges all fuel centers to max capacity.
-void fuelcen_replentish_all();
+void fuelcen_init(segment *segp);
 
 // Create a matcen robot
 extern object *create_morph_robot(segment *segp, vms_vector *object_pos, int object_id);
@@ -124,7 +111,7 @@ typedef struct matcen_info {
 	int     robot_flags[2]; // Up to 64 different robots
 	fix     hit_points;     // How hard it is to destroy this particular matcen
 	fix     interval;       // Interval between materialogrifizations
-	short   segnum;         // Segment this is attached to.
+	short   dummy_segnum;   // Segment this is attached to. (unused)
 	short   fuelcen_num;    // Index in fuelcen array.
 } __pack__ matcen_info;
 

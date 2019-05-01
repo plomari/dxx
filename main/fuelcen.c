@@ -71,28 +71,10 @@ int Num_fuelcenters = 0;
 
 segment * PlayerSegment= NULL;
 
-//------------------------------------------------------------
-// Resets all fuel center info
-void fuelcen_reset()
+// Adds a segment that already is a special type into the Station array.
+void fuelcen_init(segment *segp)
 {
-	int i;
-
-	Num_fuelcenters = 0;
-
-	for(i=0; i<MAX_SEGMENTS; i++ )
-		Segments[i].special = SEGMENT_IS_NOTHING;
-
-	Num_robot_centers = 0;
-
-}
-
-//------------------------------------------------------------
-// Turns a segment into a fully charged up fuel center...
-void fuelcen_create( segment *segp)
-{
-	int	station_type;
-
-	station_type = segp->special;
+	int station_type = segp->special;
 
 	switch( station_type )	{
 	case SEGMENT_IS_NOTHING:
@@ -122,73 +104,21 @@ void fuelcen_create( segment *segp)
 	Assert( Num_fuelcenters < MAX_NUM_FUELCENS );
 	Assert( Num_fuelcenters > -1 );
 
-	segp->value = Num_fuelcenters;
+	segp->fuelcen_num = Num_fuelcenters;
 	Station[Num_fuelcenters].Type = station_type;
 	Station[Num_fuelcenters].MaxCapacity = Fuelcen_max_amount;
 	Station[Num_fuelcenters].Capacity = Station[Num_fuelcenters].MaxCapacity;
 	Station[Num_fuelcenters].segnum = segp-Segments;
 	Station[Num_fuelcenters].Timer = -1;
 	Station[Num_fuelcenters].Flag = 0;
-//	Station[Num_fuelcenters].NextRobotType = -1;
-//	Station[Num_fuelcenters].last_created_obj=NULL;
-//	Station[Num_fuelcenters].last_created_sig = -1;
 	compute_segment_center(&Station[Num_fuelcenters].Center, segp);
 
-//	if (station_type == SEGMENT_IS_ROBOTMAKER)
-//		Station[Num_fuelcenters].Capacity = i2f(Difficulty_level + 3);
+	if (station_type == SEGMENT_IS_ROBOTMAKER) {
+		Station[Num_fuelcenters].Capacity = i2f(Difficulty_level + 3);
+		Station[Num_fuelcenters].MaxCapacity = Station[Num_fuelcenters].Capacity;
+	}
 
 	Num_fuelcenters++;
-}
-
-//------------------------------------------------------------
-// Adds a matcen that already is a special type into the Station array.
-// This function is separate from other fuelcens because we don't want values reset.
-void matcen_create( segment *segp)
-{
-	int	station_type = segp->special;
-
-	Assert( (segp != NULL) );
-	Assert(station_type == SEGMENT_IS_ROBOTMAKER);
-	if ( segp == NULL ) return;
-
-	Assert( Num_fuelcenters < MAX_NUM_FUELCENS );
-	Assert( Num_fuelcenters > -1 );
-
-	segp->value = Num_fuelcenters;
-	Station[Num_fuelcenters].Type = station_type;
-	Station[Num_fuelcenters].Capacity = i2f(Difficulty_level + 3);
-	Station[Num_fuelcenters].MaxCapacity = Station[Num_fuelcenters].Capacity;
-
-	Station[Num_fuelcenters].segnum = segp-Segments;
-	Station[Num_fuelcenters].Timer = -1;
-	Station[Num_fuelcenters].Flag = 0;
-//	Station[Num_fuelcenters].NextRobotType = -1;
-//	Station[Num_fuelcenters].last_created_obj=NULL;
-//	Station[Num_fuelcenters].last_created_sig = -1;
-	compute_segment_center(&Station[Num_fuelcenters].Center, &Segments[segp-Segments] );
-
-	segp->matcen_num = Num_robot_centers;
-	Num_robot_centers++;
-
-	RobotCenters[segp->matcen_num].hit_points = MATCEN_HP_DEFAULT;
-	RobotCenters[segp->matcen_num].interval = MATCEN_INTERVAL_DEFAULT;
-	RobotCenters[segp->matcen_num].segnum = segp-Segments;
-	RobotCenters[segp->matcen_num].fuelcen_num = Num_fuelcenters;
-
-	Num_fuelcenters++;
-}
-
-//------------------------------------------------------------
-// Adds a segment that already is a special type into the Station array.
-void fuelcen_activate( segment * segp, int station_type )
-{
-	segp->special = station_type;
-
-	if (segp->special == SEGMENT_IS_ROBOTMAKER)
-		matcen_create( segp);
-	else
-		fuelcen_create( segp);
-	
 }
 
 //	The lower this number is, the more quickly the center can be re-triggered.
@@ -722,6 +652,6 @@ void matcen_info_read(matcen_info *mi, CFILE *fp)
 	mi->robot_flags[1] = cfile_read_int(fp);
 	mi->hit_points = cfile_read_fix(fp);
 	mi->interval = cfile_read_fix(fp);
-	mi->segnum = cfile_read_short(fp);
+	mi->dummy_segnum = cfile_read_short(fp);
 	mi->fuelcen_num = cfile_read_short(fp);
 }

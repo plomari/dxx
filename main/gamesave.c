@@ -1078,16 +1078,11 @@ int load_game_data(CFILE *LoadFile)
 			RobotCenters[i].robot_flags[1] = 0;
 			RobotCenters[i].hit_points = m.hit_points;
 			RobotCenters[i].interval = m.interval;
-			RobotCenters[i].segnum = m.segnum;
+			RobotCenters[i].dummy_segnum = m.segnum;
 			RobotCenters[i].fuelcen_num = m.fuelcen_num;
-		}
-		else
+		} else {
 			matcen_info_read(&RobotCenters[i], LoadFile);
-			//	Set links in RobotCenters to Station array
-			for (j = 0; j <= Highest_segment_index; j++)
-			if (Segments[j].special == SEGMENT_IS_ROBOTMAKER)
-				if (Segments[j].matcen_num == i)
-					RobotCenters[i].fuelcen_num = Segments[j].value;
+		}
 	}
 
 	//================ READ DL_INDICES INFO ===============
@@ -1162,6 +1157,32 @@ int load_game_data(CFILE *LoadFile)
 	Num_open_doors = game_fileinfo.doors_howmany;
 #endif // 0
 	Num_open_doors = 0;
+
+	Num_fuelcenters = 0;
+	int found_robotmakers = 0;
+	for (int segnum = 0; segnum < Num_segments; segnum++) {
+		segment *segp = &Segments[segnum];
+
+		segp->matcen_num = -1;
+		segp->fuelcen_num = -1;
+
+		fuelcen_init(segp);
+
+		// D2 does not trust the matcen_num and fuelcen_num fields (the latter
+		// both in segment and matcen_info), discards them, and reinitializes
+		// them by using the order of segments and RobotCenters.
+		// This means even though all links were written by the level generator,
+		// they are not trusted, and instead it is expected that RobotCenters
+		// was written in increasing order of index of the segment they appear
+		// in. The level generator must write all robotmaker fields in order.
+		// There is no way around it.
+		if (segp->special == SEGMENT_IS_ROBOTMAKER) {
+			segp->matcen_num = found_robotmakers++;
+			RobotCenters[segp->matcen_num].fuelcen_num = segp->fuelcen_num;
+		}
+	}
+	// Check that all RobotCenters are referenced.
+	Assert(found_robotmakers == Num_robot_centers);
 
 	//go through all walls, killing references to invalid triggers
 	for (i=0;i<Num_walls;i++)

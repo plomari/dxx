@@ -37,7 +37,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "game.h"
 #include "newmenu.h"
 #include "cfile.h"
-#include "fuelcen.h"
 #include "hash.h"
 #include "key.h"
 #include "piggy.h"
@@ -443,11 +442,11 @@ void read_special(int segnum,ubyte bit_mask,CFILE *LoadFile)
 		// Read byte	Segments[segnum].matcen_num
 		Segments[segnum].matcen_num = cfile_read_byte(LoadFile);
 		// Read short	Segments[segnum].value
-		Segments[segnum].value = cfile_read_short(LoadFile);
+		Segments[segnum].fuelcen_num = cfile_read_short(LoadFile);
 	} else {
 		Segments[segnum].special = 0;
 		Segments[segnum].matcen_num = -1;
-		Segments[segnum].value = 0;
+		Segments[segnum].fuelcen_num = 0;
 	}
 }
 
@@ -481,7 +480,6 @@ int load_mine_data_compiled(CFILE *LoadFile)
 		New_file_format_load = 1;
 
 //	memset( Segments, 0, sizeof(segment)*MAX_SEGMENTS );
-	fuelcen_reset();
 
 	//=============================== Reading part ==============================
 	compiled_version = cfile_read_byte(LoadFile);
@@ -698,7 +696,6 @@ int load_mine_data_compiled(CFILE *LoadFile)
 	for (i=0; i<Num_segments; i++) {
 		if (Gamesave_current_version > 5)
 			segment2_read(&Segments[i], LoadFile);
-		fuelcen_activate( &Segments[i], Segments[i].special );
 	}
 
 	reset_objects(1);		//one object, the player

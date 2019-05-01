@@ -81,7 +81,7 @@ typedef struct segment {
 	int     objects;    // pointer to objects in this segment
 	ubyte   special;	// one of SEGMENT_IS_* values (D2X-XL: m_function)
 	sbyte   matcen_num;
-	sbyte   value;
+	sbyte   fuelcen_num;
 	ubyte   s2_flags;	// S2F_* flags (D2X-XL: m_prop)
 	fix     static_light;
 } segment;
