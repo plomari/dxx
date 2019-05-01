@@ -395,9 +395,6 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 	if (trig->flags & TF_DISABLED)
 		return 1;		//1 means don't send trigger hit to other players
 
-	if (trig->flags & TF_ONE_SHOT)		//if this is a one-shot...
-		trig->flags |= TF_DISABLED;		//..then don't let it happen again
-
 	bool show_msg = pnum == Player_num && !(trig->flags & TF_NO_MESSAGE) && shot;
 	const char *pl = trig->num_links > 1 ? "s" : "";
 
@@ -422,6 +419,8 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 	if (!trigger_warn_unsupported(trigger_num, true))
 		return 0;
 
+	int res = 0;
+
 	switch (trig->type) {
 
 		case TT_EXIT:
@@ -445,11 +444,10 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 				} else {
 					ExitSecretLevel();
 				}
-				return 1;
 			} else {
 				Int3();		//level num == 0, but no editor!
 			}
-			return 1;
+			res = 1;
 			break;
 
 		case TT_SECRET_EXIT: {
@@ -491,7 +489,7 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 
 			EnterSecretLevel();
 			Control_center_destroyed = 0;
-			return 1;
+			res = 1;
 			break;
 
 		}
@@ -628,7 +626,10 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 			break;
 	}
 
-	return 0;
+	if (trig->flags & TF_ONE_SHOT)		//if this is a one-shot...
+		trig->flags |= TF_DISABLED;		//..then don't let it happen again
+
+	return res;
 }
 
 bool trigger_warn_unsupported(int idx, bool hud)
