@@ -1216,6 +1216,12 @@ void add_segment_edges(automap *am, segment *seg)
 		case SEGMENT_IS_ROBOTMAKER:
 			color = BM_XRGB( 29, 0, 31 );
 			break;
+		case SEGMENT_IS_EQUIPMAKER:
+			color = BM_XRGB( 0, 31, 31 );
+			break;
+		case SEGMENT_IS_REPAIRCEN:
+			color = BM_XRGB( 16, 16, 31 );
+			break;
 		}
 
 		if (seg->sides[sn].wall_num > -1)	{
