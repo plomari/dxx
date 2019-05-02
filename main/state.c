@@ -598,7 +598,7 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 		PHYSFS_write(fp, &Control_center_player_been_seen, sizeof(int), 1);
 		PHYSFS_write(fp, &Control_center_next_fire_time, sizeof(int), 1);
 		PHYSFS_write(fp, &Control_center_present, sizeof(int), 1);
-		PHYSFS_write(fp, &Dead_controlcen_object_num, sizeof(int), 1);
+		PHYSFS_write(fp, &(int){0}, sizeof(int), 1); // Dead_controlcen_object_num
 	
 	// Save the AI state
 		ai_save_state( fp );
@@ -1053,7 +1053,7 @@ int state_restore_all_sub(char *filename, int secret_restore)
 		PHYSFS_read(fp, &Control_center_player_been_seen, sizeof(int), 1);
 		PHYSFS_read(fp, &Control_center_next_fire_time, sizeof(int), 1);
 		PHYSFS_read(fp, &Control_center_present, sizeof(int), 1);
-		PHYSFS_read(fp, &Dead_controlcen_object_num, sizeof(int), 1);
+		PHYSFS_read(fp, &(int){0}, sizeof(int), 1); // Dead_controlcen_object_num
 		if (Control_center_destroyed)
 			Total_countdown_time = Countdown_timer/F0_5; // we do not need to know this, but it should not be 0 either...
 	

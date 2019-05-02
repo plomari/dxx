@@ -128,8 +128,6 @@ int calc_best_gun(struct controlcen_gun_data *guns, vms_vector *objpos)
 
 }
 
-int	Dead_controlcen_object_num=-1;
-
 //how long to blow up on insane
 int Base_control_center_explosion_time=DEFAULT_CONTROL_CENTER_EXPLOSION_TIME;
 
@@ -207,12 +205,6 @@ void do_countdown_frame()
 		size = (i2f(Total_countdown_time)-Countdown_timer) / fl2f(0.65);
 		old_size = (i2f(Total_countdown_time)-old_time) / fl2f(0.65);
 		if (size != old_size && (Countdown_seconds_left < (Total_countdown_time-5) ))		{			// Every 2 seconds!
-			//@@if (Dead_controlcen_object_num != -1) {
-			//@@	vms_vector vp;	//,v,c;
-			//@@	compute_segment_center(&vp, &Segments[Objects[Dead_controlcen_object_num].segnum]);
-			//@@	object_create_explosion( Objects[Dead_controlcen_object_num].segnum, &vp, size*10, VCLIP_SMALL_EXPLOSION);
-			//@@}
-
 			digi_play_sample( SOUND_CONTROL_CENTER_WARNING_SIREN, F3_0 );
 		}
 	}  else {
@@ -239,7 +231,6 @@ void do_countdown_frame()
 //	Called when control center gets destroyed.
 //	This code is common to whether control center is implicitly imbedded in a boss,
 //	or is an object of its own.
-//	if objp == NULL that means the boss was the control center and don't set Dead_controlcen_object_num
 void do_controlcen_destroyed_stuff(object *objp)
 {
 	int	i;
@@ -281,9 +272,6 @@ void do_controlcen_destroyed_stuff(object *objp)
 		Total_countdown_time = Alan_pavlish_reactor_times[Difficulty_level];
 
 	Countdown_timer = i2f(Total_countdown_time);
-
-	if (Control_center_present && objp && objp->type == OBJ_CNTRLCEN)
-		Dead_controlcen_object_num = objp-Objects;
 }
 
 int	Last_time_cc_vis_check = 0;
@@ -497,8 +485,6 @@ void init_controlcen_for_level(void)
 	Control_center_been_hit = 0;
 	Control_center_player_been_seen = 0;
 	Control_center_next_fire_time = 0;
-	
-	Dead_controlcen_object_num = -1;
 }
 
 void special_reactor_stuff(void)

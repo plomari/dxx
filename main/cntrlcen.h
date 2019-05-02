@@ -56,7 +56,6 @@ extern int Control_center_been_hit;
 extern int Control_center_player_been_seen;
 extern int Control_center_next_fire_time;
 extern int Control_center_present;
-extern int Dead_controlcen_object_num;
 
 struct controlcen_gun_data {
 	int num_guns;
