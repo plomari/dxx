@@ -454,7 +454,6 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 {
 	int	num_options;
 
-	#ifndef DEMO_ONLY
 	num_options = 0;
 
 	ADD_ITEM(TXT_NEW_GAME,MENU_NEW_GAME,KEY_N);
@@ -471,7 +470,7 @@ void create_main_menu(newmenu_item *m, int *menu_choice, int *callers_num_option
 	if (cfexist("orderd2.pcx")) /* SHAREWARE */
 		ADD_ITEM(TXT_ORDERING_INFO,MENU_ORDER_INFO,-1);
 	ADD_ITEM(TXT_CREDITS,MENU_SHOW_CREDITS,-1);
-	#endif
+
 	ADD_ITEM("SANDBOX", MENU_SANDBOX, -1);
 	ADD_ITEM(TXT_QUIT,MENU_QUIT,KEY_Q);
 

@@ -1618,9 +1618,6 @@ fix	Last_afterburner_time[MAX_OBJECTS];
 //move an object for the current frame
 void object_move_one( object * obj )
 {
-
-	#ifndef DEMO_ONLY
-
 	int	previous_segment = obj->segnum;
 
 	obj->last_pos = obj->pos;			// Save the current position
@@ -1833,10 +1830,6 @@ void object_move_one( object * obj )
 			Last_afterburner_time[objnum] = GameTime;
 		}
 	}
-
-	#else
-		obj++;		//kill warning
-	#endif		//DEMO_ONLY
 }
 
 //--------------------------------------------------------------------
@@ -1858,20 +1851,12 @@ void object_move_all()
 	// Move all objects
 	objp = Objects;
 
-	#ifndef DEMO_ONLY
 	for (i=0;i<=Highest_object_index;i++) {
 		if ( (objp->type != OBJ_NONE) && (!(objp->flags&OF_SHOULD_BE_DEAD)) )	{
 			object_move_one( objp );
 		}
 		objp++;
 	}
-	#else
-		i=0;	//kill warning
-	#endif
-
-//	check_duplicate_objects();
-//	remove_incorrect_objects();
-
 }
 
 //called after load.  Takes number of objects,  and objects should be
