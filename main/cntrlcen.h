@@ -71,6 +71,9 @@ extern void do_controlcen_frame(object *obj);
 // Call when a new level is started.
 extern void init_controlcen_for_level(void);
 
+struct trigger;
+void init_countdown_timer(struct trigger *trigp);
+
 extern void do_controlcen_destroyed_stuff(object *objp);
 extern void do_controlcen_dead_frame(void);
 

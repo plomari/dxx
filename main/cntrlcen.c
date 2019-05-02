@@ -39,6 +39,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "endlevel.h"
 #include "state.h"
+#include "switch.h"
 
 //@@vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
 //@@vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
@@ -227,51 +228,76 @@ void do_countdown_frame()
 	}
 }
 
+void init_countdown_timer(trigger *trigp)
+{
+	if (trigp && trigp->time > 0)
+		Total_countdown_time = trigp->time;
+	else if (Base_control_center_explosion_time != DEFAULT_CONTROL_CENTER_EXPLOSION_TIME)
+		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL-Difficulty_level-1)/2;
+	else
+		Total_countdown_time = Alan_pavlish_reactor_times[Difficulty_level];
+
+	Countdown_timer = i2f(Total_countdown_time);
+
+	// And start the countdown stuff.
+	Control_center_destroyed = 1;
+}
+
 //	-----------------------------------------------------------------------------
 //	Called when control center gets destroyed.
 //	This code is common to whether control center is implicitly imbedded in a boss,
 //	or is an object of its own.
 void do_controlcen_destroyed_stuff(object *objp)
 {
-	int	i;
+	int objnum = objp ? objp - Objects : -1;
 
-   if ((Game_mode & GM_MULTI_ROBOTS) && Control_center_destroyed)
-    return; // Don't allow resetting if control center and boss on same level
+	if ((Game_mode & GM_MULTI_ROBOTS) && Control_center_destroyed)
+		return; // Don't allow resetting if control center and boss on same level
 
     // In D2X-XL mode, the boss dies only if all bosses have been destroyed.
-    if (objp && objp->type == OBJ_ROBOT && Robot_info[objp->id].boss_flag &&
-		is_d2x_xl_level())
-	{
+    // In D2 mode, it doesn't matter, and this function always enters countdown.
+	bool start_countdown = true;
+	if (is_d2x_xl_level()) {
 		for (int i = 0; i <= Highest_object_index; i++) {
 			object *other = &Objects[i];
  			if (other != objp && other->type == OBJ_ROBOT &&
 				Robot_info[other->id].boss_flag &&
 				!(other->flags & (OF_EXPLODING | OF_DESTROYED | OF_SHOULD_BE_DEAD)))
-				return;
+			{
+				start_countdown = false;
+				break;
+			}
 		}
 	}
 
-	// Must toggle walls whether it is a boss or control center.
-	for (i=0;i<ControlCenterTriggers.num_links;i++)
-		wall_toggle(ControlCenterTriggers.seg[i], ControlCenterTriggers.side[i]);
+	if (start_countdown) {
+		if (is_d2x_xl_level()) {
+			// Need to kill off all bosses. This may or may not matter. In D2
+			// mode, multi-boss dying is handled correctly (and not here).
+			for (int i = 0; i <= Highest_object_index; i++) {
+				object *other = &Objects[i];
+				if (other != objp && other->type == OBJ_ROBOT &&
+					Robot_info[other->id].boss_flag)
+					other->flags |= OF_EXPLODING | OF_SHOULD_BE_DEAD;
+			}
+		}
 
-	// And start the countdown stuff.
-	Control_center_destroyed = 1;
+		// Must toggle walls whether it is a boss or control center.
+		for (int i = 0; i < ControlCenterTriggers.num_links; i++)
+			wall_toggle(ControlCenterTriggers.seg[i], ControlCenterTriggers.side[i]);
 
-	//	If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
-	if (Current_level_num < 0) {
-		int	rval;
+		//	If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
+		if (Current_level_num < 0)
+			PHYSFS_delete(SECRETC_FILENAME);
 
-		rval = !PHYSFS_delete(SECRETC_FILENAME);
-
+		init_countdown_timer(NULL);
 	}
 
-	if (Base_control_center_explosion_time != DEFAULT_CONTROL_CENTER_EXPLOSION_TIME)
-		Total_countdown_time = Base_control_center_explosion_time + Base_control_center_explosion_time * (NDL-Difficulty_level-1)/2;
-	else
-		Total_countdown_time = Alan_pavlish_reactor_times[Difficulty_level];
-
-	Countdown_timer = i2f(Total_countdown_time);
+	// Reactor objects don't get actually destroyed (they just switch into a
+	// destroyed mode), so explicitly run its object triggers. Other objects
+	// (boss robots) will run them normally.
+	if (objp && objp->type == OBJ_CNTRLCEN)
+		trigger_delete_object(objnum);
 }
 
 int	Last_time_cc_vis_check = 0;

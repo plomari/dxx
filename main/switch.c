@@ -643,6 +643,9 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 		case TT_MESSAGE:
 			do_message(f2i(trig->value));
 			break;
+		case TT_COUNTDOWN:
+			init_countdown_timer(trig);
+			break;
 
 		default:
 			Int3();
@@ -683,7 +686,6 @@ bool trigger_warn_unsupported(int idx, bool hud)
 	case TT_SMOKE_DENS:
 	case TT_SMOKE_SIZE:
 	case TT_SMOKE_DRIFT:
-	case TT_COUNTDOWN:
 	case TT_SPAWN_BOT:
 	case TT_SMOKE_BRIGHTNESS:
 	case TT_SOUND:
