@@ -644,11 +644,13 @@ static void draw_object_debug(object *obj)
 		"flags: 0x%x\n"
 		"id: %d\n"
 		"index: %d\n"
+		"ctype: %d\n"
 		"shield: %f\n",
 		 obj->type,
 		 (unsigned int)obj->flags,
 		 obj->id,
 		 objnum,
+		 obj->control_type,
 		 f2fl(obj->shields));
 
 	if (obj->lifeleft != IMMORTAL_TIME)
