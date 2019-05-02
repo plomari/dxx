@@ -1026,6 +1026,9 @@ void apply_damage_to_controlcen(object *controlcen, fix damage, short who)
 		digi_link_sound_to_pos( SOUND_CONTROL_CENTER_DESTROYED, controlcen->segnum, 0, &controlcen->pos, 0, F1_0 );
 
 		explode_object(controlcen,0);
+
+		// Restore the frame handler (for creating "fireballs").
+		controlcen->control_type = CT_CNTRLCEN;
 	}
 }
 
