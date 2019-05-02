@@ -654,6 +654,16 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth, int objnum
 				boss_spew_robot(&Objects[objnum], &Objects[objnum].pos, type);
 			}
 			break;
+		case TT_CHANGE_TEXTURE: {
+			int tmap1 = trig->value & 0xFFFF;
+			int tmap2 = (unsigned)trig->value >> 16;
+			for (int i = 0; i < trig->num_links; i++) {
+				side *s = &Segments[trig->seg[i]].sides[trig->side[i]];
+				s->tmap_num = tmap1;
+				s->tmap_num2 = tmap2;
+			}
+			break;
+		}
 
 		default:
 			Int3();
@@ -688,7 +698,6 @@ bool trigger_warn_unsupported(int idx, bool hud)
 	case TT_CAMERA:
 	case TT_SHIELD_DAMAGE:
 	case TT_ENERGY_DRAIN:
-	case TT_CHANGE_TEXTURE:
 	case TT_SMOKE_LIFE:
 	case TT_SMOKE_SPEED:
 	case TT_SMOKE_DENS:
