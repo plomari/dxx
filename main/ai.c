@@ -1935,7 +1935,7 @@ void teleport_boss(object *objp)
 
 //	----------------------------------------------------------------------------------------------------------
 //	objp points at a boss.  He was presumably just hit and he's supposed to create a bot at the hit location *pos.
-int boss_spew_robot(object *objp, vms_vector *pos)
+int boss_spew_robot(object *objp, vms_vector *pos, int type)
 {
 	int		objnum, segnum;
 	int		boss_index;
@@ -1945,7 +1945,10 @@ int boss_spew_robot(object *objp, vms_vector *pos)
 	if (WARN_ON(!info))
 		return -1;
 
-	boss_index = Robot_info[objp->id].boss_flag - BOSS_D2;
+	boss_index = Robot_info[objp->id].boss_flag;
+	// Normal D2 always has an index>=BOSS_D2. D2X-XL doesn't, for no reason.
+	if (boss_index >= BOSS_D2)
+		boss_index -= BOSS_D2;
 
 	Assert((boss_index >= 0) && (boss_index < NUM_D2_BOSSES));
 
@@ -1954,7 +1957,10 @@ int boss_spew_robot(object *objp, vms_vector *pos)
 		return -1;
 	}
 
-	objnum = create_gated_robot(boss_objnum, segnum, Spew_bots[boss_index][(Max_spew_bots[boss_index] * d_rand()) >> 15], pos);
+	if (type < 0)
+		type = Spew_bots[boss_index][(Max_spew_bots[boss_index] * d_rand()) >> 15];
+
+	objnum = create_gated_robot(boss_objnum, segnum, type, pos);
 
 	//	Make spewed robot come tumbling out as if blasted by a flash missile.
 	if (objnum != -1) {

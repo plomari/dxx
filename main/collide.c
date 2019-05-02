@@ -1365,8 +1365,6 @@ int apply_damage_to_robot(object *robot, fix damage, int killer_objnum)
 	return 0;
 }
 
-extern int boss_spew_robot(object *objp, vms_vector *pos);
-
 //--ubyte	Boss_teleports[NUM_D2_BOSSES] = 				{1,1,1,1,1,1};		// Set byte if this boss can teleport
 //--ubyte	Boss_cloaks[NUM_D2_BOSSES] = 					{1,1,1,1,1,1};		// Set byte if this boss can cloak
 //--ubyte	Boss_spews_bots_energy[NUM_D2_BOSSES] = 	{1,1,0,0,1,1};		//	Set byte if boss spews bots when hit by energy weapon.
@@ -1411,10 +1409,10 @@ static enum boss_weapon_collision_result do_boss_weapon_collision(object *robot,
 		if ((Weapon_info[weapon->id].matter && Boss_spews_bots_matter[d2_boss_index]) || (!Weapon_info[weapon->id].matter && Boss_spews_bots_energy[d2_boss_index])) {
 			if (Boss_spew_more[d2_boss_index])
 				if (d_rand() > 16384) {
-					if (boss_spew_robot(robot, collision_point) != -1)
+					if (boss_spew_robot(robot, collision_point, -1) != -1)
 						info->gate_time = GameTime - Gate_interval - 1;	//	Force allowing spew of another bot.
 				}
-			boss_spew_robot(robot, collision_point);
+			boss_spew_robot(robot, collision_point, -1);
 		}
 
 	if (Boss_invulnerable_spot[d2_boss_index]) {

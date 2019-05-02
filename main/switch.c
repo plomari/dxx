@@ -22,6 +22,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <math.h>
 #include <string.h>
 
+#include "ai.h"
 #include "gauges.h"
 #include "newmenu.h"
 #include "game.h"
@@ -55,7 +56,7 @@ extern int Do_appearance_effect;
 
 #define SWITCH_DEPTH 100
 
-static int do_trigger(int trigger_num, int pnum, int shot, int depth);
+static int do_trigger(int trigger_num, int pnum, int shot, int depth, int objnum);
 
 static int get_alternate_trigger(int type)
 {
@@ -271,7 +272,7 @@ static void do_master(trigger *trig, int player_index, int shot, int depth)
 		int wall_num = Segments[trig->seg[i]].sides[trig->side[i]].wall_num;
 		int sub_trig = Walls[wall_num].trigger;
 		printf("trigger %zd: sub trigger %d (%d) \n", trig-Triggers, sub_trig, Triggers[sub_trig].type);
-		do_trigger(sub_trig, player_index, shot, depth);
+		do_trigger(sub_trig, player_index, shot, depth, -1);
 	}
 }
 
@@ -399,10 +400,10 @@ static int delay_state(trigger *trig)
 
 int check_trigger_sub(int trigger_num, int pnum,int shot)
 {
-	return do_trigger(trigger_num, pnum, shot, SWITCH_DEPTH);
+	return do_trigger(trigger_num, pnum, shot, SWITCH_DEPTH, -1);
 }
 
-static int do_trigger(int trigger_num, int pnum, int shot, int depth)
+static int do_trigger(int trigger_num, int pnum, int shot, int depth, int objnum)
 {
 	trigger *trig = &Triggers[trigger_num];
 
@@ -646,6 +647,13 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth)
 		case TT_COUNTDOWN:
 			init_countdown_timer(trig);
 			break;
+		case TT_SPAWN_BOT:
+			if (objnum > -1) {
+				int seg = trig->num_links ? trig->seg[0] : -1;
+				int type = seg > -1 ? pick_robot_from_matcen_seg(seg) : -1;
+				boss_spew_robot(&Objects[objnum], &Objects[objnum].pos, type);
+			}
+			break;
 
 		default:
 			Int3();
@@ -686,7 +694,6 @@ bool trigger_warn_unsupported(int idx, bool hud)
 	case TT_SMOKE_DENS:
 	case TT_SMOKE_SIZE:
 	case TT_SMOKE_DRIFT:
-	case TT_SPAWN_BOT:
 	case TT_SMOKE_BRIGHTNESS:
 	case TT_SOUND:
 	case TT_DISABLE_TRIGGER:
@@ -845,8 +852,10 @@ static void do_object_trigger(int objnum, bool damage_only)
 	for (int n = 0; n < Num_object_triggers; n++) {
 		trigger *trig = &ObjectTriggers[n];
 		if (trig->object_id == objnum) {
-			if (can_trigger_object(trig, objnum, damage_only))
-				do_trigger(OBJECT_TRIGGER_INDEX(n), Player_num, 1, SWITCH_DEPTH);
+			if (can_trigger_object(trig, objnum, damage_only)) {
+				do_trigger(OBJECT_TRIGGER_INDEX(n), Player_num, 1, SWITCH_DEPTH,
+						   objnum);
+			}
 			// Object trigger obviously becomes invalid if object is destroyed.
 			if (!damage_only)
 				trig->object_id = -1;

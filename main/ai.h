@@ -278,6 +278,7 @@ extern void init_ai_frame(void);
 extern void create_bfs_list(int start_seg, short bfs_list[], int *length, int max_segs);
 extern void init_thief_for_level();
 
+int boss_spew_robot(object *objp, vms_vector *pos, int type);
 
 extern int Escort_goal_object;
 

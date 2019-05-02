@@ -125,6 +125,8 @@ extern void trigger_fuelcen(int segnum);
 
 extern void disable_matcens(void);
 
+int pick_robot_from_matcen_seg(int segnum);
+
 extern FuelCenter Station[MAX_NUM_FUELCENS];
 extern int Num_fuelcenters;
 

@@ -441,6 +441,22 @@ static void robotmaker_proc( FuelCenter * robotcen )
 	}
 }
 
+int pick_robot_from_matcen_seg(int segnum)
+{
+	if (WARN_ON(segnum < 0 || segnum >= Num_segments))
+		return -1;
+
+	segment *segp = &Segments[segnum];
+
+	if (WARN_ON(segp->special != SEGMENT_IS_ROBOTMAKER))
+		return -1;
+
+	if (WARN_ON(segp->matcen_num < 0))
+		return -1;
+
+	return get_matcen_new_object_type(&RobotCenters[segp->matcen_num]);
+}
+
 static void equipmaker_proc(FuelCenter *fuelcen)
 {
 	assert(fuelcen->Type == SEGMENT_IS_EQUIPMAKER);
