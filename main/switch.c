@@ -312,6 +312,33 @@ static void do_enable_trigger(trigger *trig)
 	}
 }
 
+static void do_disable_trigger(trigger *trig)
+{
+	printf("D2X-XL: disable trigger\n");
+
+	if (IS_OBJECT_TRIGGER(trig - Triggers)) {
+		// Not sure if/how this is supposed to work.
+		printf("D2X-XL: ignoring disabling object trigger\n");
+		return;
+	}
+
+	for (int i = 0; i < trig->num_links; i++) {
+		int side = trig->side[i];
+		if (side >= 0) {
+			int wall_num = Segments[trig->seg[i]].sides[trig->side[i]].wall_num;
+			int other_num = Walls[wall_num].trigger;
+			trigger *other = &Triggers[other_num];
+			other->flags |= TF_DISABLED;
+			if (other->type == TT_MASTER)
+				other->value += 1; // apparently despite being fix
+			printf("d2x-xl: disable trigger %d\n", other_num);
+		} else {
+			// for particles/lights/sounds
+			printf("D2X-XL: ignoring disabling effect trigger\n");
+		}
+	}
+}
+
 // (much duplicated, and this instance is a FPOS too, probably)
 static bool change_ext(char *dbuf, size_t dbuf_size, const char *fn,
 					   const char *newext)
@@ -641,6 +668,9 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth, int objnum
 		case TT_ENABLE_TRIGGER:
 			do_enable_trigger(trig);
 			break;
+		case TT_DISABLE_TRIGGER:
+			do_disable_trigger(trig);
+			break;
 		case TT_MESSAGE:
 			do_message(f2i(trig->value));
 			break;
@@ -705,7 +735,6 @@ bool trigger_warn_unsupported(int idx, bool hud)
 	case TT_SMOKE_DRIFT:
 	case TT_SMOKE_BRIGHTNESS:
 	case TT_SOUND:
-	case TT_DISABLE_TRIGGER:
 	case TT_DISARM_ROBOT:
 	case TT_REPROGRAM_ROBOT:
 	case TT_SHAKE_MINE:
