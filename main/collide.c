@@ -476,6 +476,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 	int	trigger_num = -1;
 	if ( wall_num != -1 )
 		trigger_num = Walls[wall_num].trigger;
+	trigger *trig = trigger_num > -1 ? &Triggers[trigger_num] : NULL;
 
 	//	If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
 	// We don't want robots blowing puzzles.  Only player or buddy can open!
@@ -490,7 +491,15 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 
 	// A "permanent" trigger can be retriggered any time. Seems silly, but D2X-XL
 	// levels may rely on it.
-	bool keep_it = trigger_num >= 0 && (Triggers[trigger_num].flags & TF_PERMANENT);
+	bool keep_it = false;
+
+	if (trig && (trig->flags & TF_PERMANENT)) {
+		keep_it = true;
+
+		// Don't allow immediate retrigger (e.g. quad laser hitting it 4 times).
+		if (trig->debounce > 0)
+			return 0;
+	}
 
 	if ((tm=seg->sides[side].tmap_num2) != 0) {
 

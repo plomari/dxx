@@ -472,6 +472,8 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth, int objnum
 
 	int res = 0;
 
+	trig->debounce = F0_5;
+
 	switch (trig->type) {
 
 		case TT_EXIT:
@@ -806,6 +808,9 @@ void triggers_frame_process()
 	// It's also not clear how they "operate" other triggers.
 	for (int n = 0; n < Num_triggers; n++) {
 		trigger *trig = &Triggers[n];
+
+		if (trig->debounce > 0)
+			trig->debounce -= FrameTime;
 
 		if (trig->flags & TF_DISABLED)
 			continue;

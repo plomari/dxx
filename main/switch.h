@@ -144,6 +144,7 @@ typedef struct trigger {
 	int16_t	object_id;		// object triggers: Objects[] index
 							// multiple triggers can point to the same object
 							// -1 if dead/not object trigger
+	fix		debounce;		// debounce time for TF_PERMANENT; not in savegames
 } trigger;
 
 #define TRIGGER_DEFAULTS (trigger){		\

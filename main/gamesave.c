@@ -1239,6 +1239,8 @@ int load_game_data(CFILE *LoadFile)
 		trigger *trig = &Triggers[t];
 		bool object_trigger = IS_OBJECT_TRIGGER(t);
 
+		trig->debounce = 0;
+
 		// A copy of the absurd nonsense found in d2x-xl. I suppose most of this
 		// is due to very unwise and frivolous modifications of the level format
 		// the d2x-xl author made, and later compensated on load time. Or
