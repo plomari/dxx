@@ -51,6 +51,7 @@ control_center_triggers ControlCenterTriggers;
 int	Control_center_been_hit;
 int	Control_center_player_been_seen;
 int	Control_center_next_fire_time;
+static fix controlcen_death_silence = 0;
 int	Control_center_present;
 
 void do_countdown_frame();
@@ -296,7 +297,6 @@ int	Last_time_cc_vis_check = 0;
 void do_controlcen_frame(object *obj)
 {
 	int			best_gun_num;
-	static fix controlcen_death_silence = 0;
 
 	//	If a boss level, then Control_center_present will be 0.
 	if (!Control_center_present)
