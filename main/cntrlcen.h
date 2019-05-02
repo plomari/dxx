@@ -52,16 +52,18 @@ extern int Num_reactors;
 
 extern reactor Reactors[MAX_REACTORS];
 
-//@@extern int N_controlcen_guns;
 extern int Control_center_been_hit;
 extern int Control_center_player_been_seen;
 extern int Control_center_next_fire_time;
 extern int Control_center_present;
 extern int Dead_controlcen_object_num;
 
-//@@extern vms_vector controlcen_gun_points[MAX_CONTROLCEN_GUNS];
-//@@extern vms_vector controlcen_gun_dirs[MAX_CONTROLCEN_GUNS];
-extern vms_vector Gun_pos[MAX_CONTROLCEN_GUNS];
+struct controlcen_gun_data {
+	int num_guns;
+	vms_vector	pos[MAX_CONTROLCEN_GUNS], dir[MAX_CONTROLCEN_GUNS];
+};
+
+extern void controlcen_calc_guns(object *obj, struct controlcen_gun_data *guns);
 
 // do whatever this thing does in a frame
 extern void do_controlcen_frame(object *obj);

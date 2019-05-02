@@ -2047,7 +2047,10 @@ multi_do_controlcen_fire(char *buf)
 	gun_num = buf[count];                       count += 1;
 	objnum = GET_INTEL_SHORT(buf + count);      count += 2;
 
-	Laser_create_new_easy(&to_target, &Gun_pos[(int)gun_num], objnum, CONTROLCEN_WEAPON_NUM, 1);
+	struct controlcen_gun_data guns = {0};
+	controlcen_calc_guns(&Objects[objnum], &guns);
+
+	Laser_create_new_easy(&to_target, &guns.pos[(int)gun_num], objnum, CONTROLCEN_WEAPON_NUM, 1);
 }
 
 void
