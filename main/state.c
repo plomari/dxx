@@ -100,6 +100,7 @@ extern void game_disable_cheats();
 // 26- correctly save D2X-XL multi-boss info (old D2 levels use new format too)
 //	   save D2X-XL trigger info
 // 27- Save D2X-XL equipment centers
+//	   add TLV extension records
 
 // Things to change on next incompatible savegame change:
 // - add a way to save/restore objects in a backward/forward compatible way
@@ -112,6 +113,8 @@ extern void game_disable_cheats();
 #define END_MAGIC 0xD00FB0A2
 // Hack to make old versions read newer savegames.
 #define END_MAGIC23 0xD00FB0A1
+
+#define TLV_MAGIC 0xF00DBEEE
 
 typedef struct st24_wall {
 	int     segnum,sidenum;
@@ -126,6 +129,21 @@ typedef struct st24_wall {
 	sbyte   controlling_trigger;
 	sbyte   cloak_value;
 } __pack__ st24_wall;
+
+typedef struct tlv_rec {
+	uint32_t type;				// one of TLV_TYPE_*
+	uint32_t compat_version;	// min required STATE_VERSION of reader
+	uint32_t flags;				// TLV_FLAG_* bitfields
+	uint32_t size;				// size of the payload after this struct
+} __pack__ tlv_rec;
+
+enum {
+	TLV_TYPE_SPEEDBOOST 	= 1,
+
+	TLV_FLAG_OPT			= (1 << 0),  // if not understood, skip and ignore
+	TLV_FLAG_XL_ONLY		= (1 << 1),  // needed by d2x-xl levels only
+									     // (these often require extensions)
+};
 
 extern void apply_all_changed_light(void);
 
@@ -650,6 +668,17 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 
 	PHYSFS_write(fp, &Num_equip_centers, sizeof(int), 1);
 	PHYSFS_write(fp, EquipCenters, sizeof(matcen_info), Num_equip_centers);
+
+	tlv_rec tlv = {
+		.type = TLV_TYPE_SPEEDBOOST,
+		.flags = TLV_FLAG_OPT | TLV_FLAG_XL_ONLY,
+		.compat_version = 27,
+		.size = sizeof(Player_Speedboost),
+	};
+	magic = TLV_MAGIC;
+	PHYSFS_write(fp, &magic, sizeof(magic), 1);
+	PHYSFS_write(fp, &tlv, sizeof(tlv), 1);
+	PHYSFS_write(fp, &Player_Speedboost, sizeof(Player_Speedboost), 1);
 
 	magic = END_MAGIC;
 	if (PHYSFS_write(fp, &magic, sizeof(magic), 1) < 1)
@@ -1186,11 +1215,48 @@ int state_restore_all_sub(char *filename, int secret_restore)
 			PHYSFS_read(fp, EquipCenters, sizeof(matcen_info), Num_equip_centers);
 		}
 
-		uint32_t magic = 0;
-		PHYSFS_read(fp, &magic, sizeof(magic), 1);
-		if (END_MAGIC != magic) {
-			fprintf(stderr, "wrong save game magic\n");
-			Int3();
+		while (1) {
+			uint32_t magic = 0;
+			PHYSFS_read(fp, &magic, sizeof(magic), 1);
+			if (magic == TLV_MAGIC) {
+				tlv_rec tlv = {0};
+				PHYSFS_read(fp, &tlv, sizeof(tlv), 1);
+				int64_t end_pos = cftell(fp) + tlv.size;
+				if (tlv.compat_version > STATE_VERSION)
+					goto tlv_problem;
+
+				switch (tlv.type) {
+				case TLV_TYPE_SPEEDBOOST:
+					PHYSFS_read(fp, &Player_Speedboost, sizeof(Player_Speedboost), 1);
+					break;
+				default:
+					goto tlv_problem;
+				}
+
+				if (cftell(fp) != end_pos) {
+					fprintf(stderr, "incorrect amount of data read\n");
+					cfseek(fp, end_pos, SEEK_SET);
+				}
+
+				continue;
+			tlv_problem:
+
+				fprintf(stderr, "incompatible savegame data\n");
+				if ((tlv.flags & TLV_FLAG_OPT) ||
+					(is_d2x_xl_level() && (tlv.flags & TLV_FLAG_XL_ONLY)))
+				{
+					fprintf(stderr, "it's optional -> skipping\n");
+					cfseek(fp, end_pos, SEEK_SET);
+					continue;
+				} else {
+					Int3();
+					break;
+				}
+			} else if (END_MAGIC != magic) {
+				fprintf(stderr, "wrong save game magic\n");
+				Int3();
+			}
+			break;
 		}
 	}
 
