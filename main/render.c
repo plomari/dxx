@@ -547,11 +547,13 @@ static void highlight_side_triggers(int segnum, int sidenum)
 
 		APPENDF(t,
 				 "type: %d (%s)\n"
+				 "loc: %d:%d\n"
 				 "flags: 0x%x (%s)\n"
 				 "state: %d (%s)\n"
 				 "keys: %d (%s)\n\n",
 				 wall->type,
 				 ARRAY_OR_DEF(wall->type, Wall_names, "?"),
+				 segnum, sidenum,
 				 wall->flags,
 				 flags_str,
 				 wall->state,
@@ -644,7 +646,7 @@ static void highlight_side_triggers(int segnum, int sidenum)
 				"value: %f (%"PRId32")\n"
 				"time: %f\n"
 				"oper.: %f /%d\n"
-				"num_links: %d\n\n",
+				"num_links: %d",
 				wall->trigger,
 				tr->type,
 			    ARRAY_OR_DEF(tr->type, Trigger_name, "?"),
@@ -654,6 +656,11 @@ static void highlight_side_triggers(int segnum, int sidenum)
 			    f2fl(tr->time),
 			    f2fl(tr->last_operated), tr->time_b,
 			    tr->num_links);
+
+			for (int n = 0; n < tr->num_links; n++)
+				APPENDF(t, " %d:%d", tr->seg[n], tr->side[n]);
+
+			APPENDF(t, "\n\n");
 		}
 	}
 
