@@ -266,13 +266,13 @@ static void do_set_spawn(trigger *trig, int player_index)
 						 &Player_init[player_index]);
 }
 
-static void do_master(trigger *trig, int player_index, int shot, int depth)
+static void do_master(trigger *trig, int player_index, int shot, int depth, int objnum)
 {
 	for (int i = 0; i < trig->num_links; i++) {
 		int wall_num = Segments[trig->seg[i]].sides[trig->side[i]].wall_num;
 		int sub_trig = Walls[wall_num].trigger;
 		printf("trigger %zd: sub trigger %d (%d) \n", trig-Triggers, sub_trig, Triggers[sub_trig].type);
-		do_trigger(sub_trig, player_index, shot, depth, -1);
+		do_trigger(sub_trig, player_index, shot, depth, objnum);
 	}
 }
 
@@ -657,7 +657,7 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth, int objnum
 			break;
 		case TT_MASTER:
 			printf("D2X-XL: master\n");
-			do_master(trig, Player_num, shot, depth);
+			do_master(trig, Player_num, shot, depth, objnum);
 			break;
 		case TT_ENABLE_TRIGGER:
 			do_enable_trigger(trig);
