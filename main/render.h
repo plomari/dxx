@@ -80,4 +80,7 @@ extern void render_mine(int start_seg_num, fix eye_offset, int window_num);
 
 extern void update_rendered_data(int window_num, object *viewer, int rear_view_flag);
 
+extern int highlight_seg;
+extern int highlight_side;
+
 #endif /* _RENDER_H */

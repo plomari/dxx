@@ -1294,9 +1294,6 @@ int HandleTestKey(int key)
 			break;
 
 		case KEY_DEBUGGED+KEY_H: {
-			extern int highlight_seg;
-			extern int highlight_side;
-
 			if (highlight_seg >= 0) {
 				highlight_seg = -1;
 			} else {
