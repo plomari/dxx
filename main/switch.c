@@ -791,11 +791,16 @@ void triggers_frame_process()
 	if (!is_d2x_xl_level())
 		return;
 
-	// Note: object triggers also have TF_AUTOPLAY and countdowns, but I have
-	//		 no test case yet.
-	// It's also not clear how they "operate" other triggers.
-	for (int n = 0; n < Num_triggers; n++) {
+	for (int n = 0; n < Num_triggers + Num_object_triggers; n++) {
 		trigger *trig = &Triggers[n];
+
+		int objnum = -1;
+
+		if (IS_OBJECT_TRIGGER(n)) {
+			objnum = trig->object_id;
+			if (objnum < 0)
+				continue;
+		}
 
 		if (trig->debounce > 0)
 			trig->debounce -= FrameTime;
@@ -808,7 +813,8 @@ void triggers_frame_process()
 		{
 			printf("d2x-xl: autoplay trigger %d\n", n);
 
-			check_trigger_sub(n, Player_num, !!(trig->flags & TF_SHOT));
+			do_trigger(n, Player_num, !!(trig->flags & TF_SHOT), SWITCH_DEPTH,
+					   objnum);
 
 			if (!is_delayed(trig))
 				trig->flags |= TF_DISABLED;
@@ -820,7 +826,8 @@ void triggers_frame_process()
 		if (trig->last_operated > 0 && !delay_state(trig)) {
 			printf("d2x-xl: countdown trigger %d\n", n);
 
-			check_trigger_sub(n, Player_num, !!(trig->flags & TF_SHOT));
+			do_trigger(n, Player_num, !!(trig->flags & TF_SHOT), SWITCH_DEPTH,
+					   objnum);
 
 			if (trig->flags & TF_PERMANENT) {
 				trig->last_operated = -1;
