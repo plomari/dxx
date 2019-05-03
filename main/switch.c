@@ -714,13 +714,6 @@ bool trigger_warn_unsupported(int idx, bool hud)
 
 	trigger *trig = &Triggers[idx];
 
-	int unsupp = trig->flags & (
-		TF_SET_ORIENT |
-		TF_SILENT |
-		TF_PLAYING_SOUND |
-		TF_FLY_THROUGH
-	);
-
 	switch (min(trig->type, NUM_TRIGGER_TYPES)) {
 	case TT_SPEEDBOOST:
 	case TT_CAMERA:
@@ -741,12 +734,6 @@ bool trigger_warn_unsupported(int idx, bool hud)
 				idx, trig->type);
 		ok = false;
 		break;
-	}
-
-	if (unsupp) {
-		APPENDF(msg, "D2X-XL: Trigger %d: unsupported flags: 0x%x\n",
-				idx, unsupp);
-		ok = false;
 	}
 
 	if (msg[0]) {
