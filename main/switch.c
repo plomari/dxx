@@ -115,7 +115,11 @@ static int do_change_walls(trigger *trigger)
 			short side,cside;
 			int new_wall_type;
 
-			segp = &Segments[trigger->seg[i]];
+			int child = trigger->seg[i];
+			if (WARN_ON(child < 0))
+				continue;
+
+			segp = &Segments[child];
 			side = trigger->side[i];
 
 			if (segp->children[side] < 0)

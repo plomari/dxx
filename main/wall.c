@@ -429,7 +429,11 @@ void start_wall_cloak(segment *seg, int side)
 
 	if ( Newdemo_state==ND_STATE_PLAYBACK ) return;
 
-	csegp = &Segments[seg->children[side]];
+	int child = seg->children[side];
+	if (WARN_ON(child < 0))
+		return;
+
+	csegp = &Segments[child];
 	Connectside = find_connect_side(seg, csegp);
 	Assert(Connectside != -1);
 	cwall_num = csegp->sides[Connectside].wall_num;
@@ -496,7 +500,7 @@ void start_wall_cloak(segment *seg, int side)
 	d->front_wallnum = seg->sides[side].wall_num;
 	d->back_wallnum = cwall_num;
 
-	Assert( seg-Segments != -1);
+	assert( seg-Segments != -1);
 
 	Assert(w->linked_wall == -1);
 
