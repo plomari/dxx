@@ -308,6 +308,7 @@ void highlight_seg_side(segment *segp, int sidenum)
 
 static void draw_links(segment *segp, int sidenum, int tr_link)
 {
+	int segnum = segp - Segments;
 	side		*sidep = &segp->sides[sidenum];
 
     vms_vector cp;
@@ -360,6 +361,37 @@ static void draw_links(segment *segp, int sidenum, int tr_link)
 								: gr_find_closest_color(0,63,63));
         g3_draw_line(&cpp, &tcpp);
     }
+
+    if (tr_link < 0) {
+		for (int n = 0; n < Num_object_triggers; n++) {
+			trigger *otrig = &ObjectTriggers[n];
+
+			if (otrig->object_id < 0)
+				continue;
+
+			for (int i = 0; i < otrig->num_links; i++) {
+				if (otrig->seg[i] == segnum && otrig->side[i] == sidenum)
+					goto found;
+			}
+
+			continue;
+
+			// Object trigger affects this wall.
+		found:;
+
+			object *obj = &Objects[otrig->object_id];
+
+			g3s_point ocpp;
+			g3_rotate_point(&ocpp, &obj->pos);
+			g3_project_point(&ocpp);
+
+			gr_setcolor(gr_find_closest_color(0,0,63));
+			g3_draw_sphere(&ocpp, 10 << 16);
+
+			gr_setcolor(gr_find_closest_color(0,63,0));
+			g3_draw_line(&cpp, &ocpp);
+		}
+	}
 }
 
 void highlight_trigger(segment *segp, int sidenum)
@@ -611,6 +643,7 @@ static void highlight_side_triggers(int segnum, int sidenum)
 				"flags: 0x%x (%s)\n"
 				"value: %f (%"PRId32")\n"
 				"time: %f\n"
+				"oper.: %f /%d\n"
 				"num_links: %d\n\n",
 				wall->trigger,
 				tr->type,
@@ -619,6 +652,7 @@ static void highlight_side_triggers(int segnum, int sidenum)
 			    tr_flags_str,
 			    f2fl(tr->value), tr->value,
 			    f2fl(tr->time),
+			    f2fl(tr->last_operated), tr->time_b,
 			    tr->num_links);
 		}
 	}
