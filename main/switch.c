@@ -280,12 +280,6 @@ static void do_enable_trigger(trigger *trig)
 {
 	printf("D2X-XL: enable trigger\n");
 
-	if (IS_OBJECT_TRIGGER(trig - Triggers)) {
-		// Not sure if/how this is supposed to work.
-		printf("D2X-XL: ignoring enabling object trigger\n");
-		return;
-	}
-
 	for (int i = 0; i < trig->num_links; i++) {
 		int side = trig->side[i];
 		if (side >= 0) {
@@ -315,12 +309,6 @@ static void do_enable_trigger(trigger *trig)
 static void do_disable_trigger(trigger *trig)
 {
 	printf("D2X-XL: disable trigger\n");
-
-	if (IS_OBJECT_TRIGGER(trig - Triggers)) {
-		// Not sure if/how this is supposed to work.
-		printf("D2X-XL: ignoring disabling object trigger\n");
-		return;
-	}
 
 	for (int i = 0; i < trig->num_links; i++) {
 		int side = trig->side[i];
