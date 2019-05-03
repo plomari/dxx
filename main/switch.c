@@ -23,6 +23,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 
 #include "ai.h"
+#include "controls.h"
 #include "gauges.h"
 #include "newmenu.h"
 #include "game.h"
@@ -692,6 +693,26 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth, int objnum
 			}
 			break;
 		}
+		case TT_SPEEDBOOST: {
+			if (objnum > -1) {
+				HUD_init_message(HM_DEFAULT, "D2X-XL robot speedboost unimplemented");
+				break;
+			}
+			if (ConsoleObject->movement_type != MT_PHYSICS)
+				break; // ?
+			if (trig->num_links) {
+				side *target = &Segments[trig->seg[0]].sides[trig->side[0]];
+				vms_vector p = target->normals[0];
+				vm_vec_scale(&p, -(i2f(4 * trig->value) + Player_ship->max_thrust));
+				printf("D2X-XL: speedboost: %f/%f/%f\n",
+					   f2fl(p.x), f2fl(p.y), f2fl(p.z));
+				Player_Speedboost = p;
+			} else {
+				// Assume no links means this disables speedboost.
+				vm_vec_zero(&Player_Speedboost);
+			}
+			break;
+		}
 
 		default:
 			Int3();
@@ -715,7 +736,6 @@ bool trigger_warn_unsupported(int idx, bool hud)
 	trigger *trig = &Triggers[idx];
 
 	switch (min(trig->type, NUM_TRIGGER_TYPES)) {
-	case TT_SPEEDBOOST:
 	case TT_CAMERA:
 	case TT_SHIELD_DAMAGE:
 	case TT_ENERGY_DRAIN:

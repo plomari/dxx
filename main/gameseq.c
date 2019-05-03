@@ -425,6 +425,7 @@ void init_player_stats_new_ship()
 	Players[Player_num].hostages_on_board = 0;
 
 	Afterburner_charge = 0;
+	vm_vec_zero(&Player_Speedboost);
 
 	for (i=0; i<MAX_PRIMARY_WEAPONS; i++) {
 		Players[Player_num].primary_ammo[i] = 0;

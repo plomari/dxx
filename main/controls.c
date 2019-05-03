@@ -47,6 +47,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 //physics vars rotvel, velocity
 
 fix Afterburner_charge=f1_0;
+vms_vector Player_Speedboost;
 
 #define AFTERBURNER_USE_SECS	3				//use up in 3 seconds
 #define DROP_DELTA_TIME			(f1_0/15)	//drop 3 per second
@@ -169,7 +170,7 @@ void read_flying_controls( object * obj )
 		vm_vec_scale_add2(&obj->mtype.phys_info.velocity,&obj->orient.uvec,fixmul(swiggle,Player_ship->wiggle));
 	}
 
-	// As of now, obj->mtype.phys_info.thrust & obj->mtype.phys_info.rotthrust are 
+	// As of now, obj->mtype.phys_info.thrust & obj->mtype.phys_info.rotthrust are
 	// in units of time... In other words, if thrust==FrameTime, that
 	// means that the user was holding down the Max_thrust key for the
 	// whole frame.  So we just scale them up by the max, and divide by
@@ -193,6 +194,8 @@ void read_flying_controls( object * obj )
 
 		vm_vec_scale( &obj->mtype.phys_info.rotthrust, fixdiv(Player_ship->max_rotthrust,ft) );
 	}
+
+	vm_vec_add2(&obj->mtype.phys_info.thrust, &Player_Speedboost);
 
 	if (Player_is_dead)
 	{
