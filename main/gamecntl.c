@@ -1697,6 +1697,9 @@ static bool FinalCheats(int key)
 		return true;
 	}
 
+	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("diediedie")], "diediedie"))
+		apply_damage_to_player(&Objects[Players[Player_num].objnum], NULL, i2f(201), 0);
+
 
   if (!(strcmp (cryptstring,InvulCheat)))
 		{
