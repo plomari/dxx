@@ -640,6 +640,10 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth, int objnum
 
 		// D2X-XL
 		case TT_TELEPORT:
+			if (objnum >= 0) {
+				HUD_init_message(HM_DEFAULT, "D2X-XL robot teleporting unimplemented");
+				break;
+			}
 			if (!Player_is_dead) {
 				printf("D2X-XL: teleport\n");
 				do_teleport_player(trig);
