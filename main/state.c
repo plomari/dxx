@@ -155,10 +155,16 @@ extern int Lunacy;
 extern void do_lunacy_on(void);
 extern void do_lunacy_off(void);
 
-int state_save_all_sub(char *filename, char *desc, int between_levels);
-int state_restore_all_sub(char *filename, int filenum, int secret_restore);
+extern void init_player_stats_new_ship(void);
+
+void ShowLevelIntro(int level_num);
+
+extern void do_cloak_invul_secret_stuff(fix old_gametime);
+extern void copy_defaults_to_robot(object *objp);
+
 
 extern int First_secret_visit;
+extern	fix	Flash_effect, Time_flash_last_played;
 
 char dgss_id[4] = "DGSS";
 
@@ -352,8 +358,12 @@ extern int Final_boss_is_dead;
 //	-----------------------------------------------------------------------------------
 int state_save_all(int between_levels, int secret_save, char *filename_override, int blind_save)
 {
-	int	rval, filenum = -1;
+	int	filenum = -1;
 	char	filename[128], desc[DESC_LENGTH+1];
+	int i,j;
+	PHYSFS_file *fp;
+	ubyte *pal;
+	GLint gl_draw_buffer;
 
 	Assert(between_levels == 0);	//between levels save ripped out
 
@@ -418,26 +428,6 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 			}
 		}
 	}
-
-	rval = state_save_all_sub(filename, desc, between_levels);
-
-	if (rval && !secret_save)
-		HUD_init_message(HM_DEFAULT, "Game saved");
-
-	return rval;
-}
-
-extern	fix	Flash_effect, Time_flash_last_played;
-
-
-int state_save_all_sub(char *filename, char *desc, int between_levels)
-{
-	int i,j;
-	PHYSFS_file *fp;
-	ubyte *pal;
-	GLint gl_draw_buffer;
-
-	Assert(between_levels == 0);	//between levels save ripped out
 
 	fp = PHYSFSX_openWriteBuffered(filename);
 	if ( !fp ) {
@@ -695,6 +685,9 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 	
 	start_time();
 
+	if (!secret_save)
+		HUD_init_message(HM_DEFAULT, "Game saved");
+
 	return 1;
 }
 
@@ -715,6 +708,18 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 {
 	char filename[128];
 	int	filenum = -1;
+	int ObjectStartLocation;
+	int version,i, j, segnum;
+	object * obj;
+	PHYSFS_file *fp;
+	int current_level, next_level;
+	int between_levels = 0;
+	char desc[DESC_LENGTH+1];
+	char id[5];
+	char org_callsign[CALLSIGN_LEN+16];
+	fix	old_gametime = GameTime;
+	short TempTmapNum[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
+	short TempTmapNum2[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
 
 #ifdef NETWORK
 	if ( Game_mode & GM_MULTI )	{
@@ -750,31 +755,6 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 	}
 
 	start_time();
-
-	return state_restore_all_sub(filename, filenum, secret_restore);
-}
-
-extern void init_player_stats_new_ship(void);
-
-void ShowLevelIntro(int level_num);
-
-extern void do_cloak_invul_secret_stuff(fix old_gametime);
-extern void copy_defaults_to_robot(object *objp);
-
-int state_restore_all_sub(char *filename, int filenum, int secret_restore)
-{
-	int ObjectStartLocation;
-	int version,i, j, segnum;
-	object * obj;
-	PHYSFS_file *fp;
-	int current_level, next_level;
-	int between_levels = 0;
-	char desc[DESC_LENGTH+1];
-	char id[5];
-	char org_callsign[CALLSIGN_LEN+16];
-	fix	old_gametime = GameTime;
-	short TempTmapNum[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
-	short TempTmapNum2[MAX_SEGMENTS][MAX_SIDES_PER_SEGMENT];
 
 	fp = PHYSFSX_openReadBuffered(filename);
 	if ( !fp ) return 0;
