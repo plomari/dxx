@@ -1087,14 +1087,18 @@ void StartNewLevelSecret(int level_num, int page_in_textures)
 
 int	Entered_from_level;
 
-// ---------------------------------------------------------------------------------------------------------------
-//	Called from switch.c when player is on a secret level and hits exit to return to base level.
-void ExitSecretLevel(void)
+// Exit the secret level. If died==true, exit due to being destroyed (possibly
+// even because the reactor countdown ended). Otherwise, exit due to a trigger.
+// Does not handle all subtleties.
+static void do_secret_exit(bool died)
 {
-	if (Newdemo_state == ND_STATE_PLAYBACK)
-		return;
+	assert(Current_level_num < 0); // must be in a secret level
 
-	if (!Control_center_destroyed) {
+	if (Control_center_destroyed) {
+		//	If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
+		PHYSFS_delete(SECRETC_FILENAME);
+	} else {
+		// If the secret level isn't destroyed, save its state.
 		state_save_all(0, 2, SECRETC_FILENAME, 0);
 	}
 
@@ -1105,18 +1109,37 @@ void ExitSecretLevel(void)
 		do_screen_message(TXT_SECRET_RETURN);
 		pw_save = Primary_weapon;
 		sw_save = Secondary_weapon;
-		state_restore_all(1, 1, SECRETB_FILENAME);
-		Primary_weapon = pw_save;
-		Secondary_weapon = sw_save;
+		state_restore_all(1, died ? 2 : 1, SECRETB_FILENAME);
+		set_pos_from_return_segment();
+		if (died) {
+			Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
+		} else {
+			Primary_weapon = pw_save;
+			Secondary_weapon = sw_save;
+		}
 	} else {
-		// File doesn't exist, so can't return to base level.  Advance to next one.
+		if (died && !Control_center_destroyed)
+			do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
+
 		if (Entered_from_level == Last_level)
 			DoEndGame();
 		else {
 			do_screen_message(TXT_SECRET_ADVANCE);
 			StartNewLevel(Entered_from_level+1, 0);
+			if (died)
+				init_player_stats_new_ship();	//	fixes bug with dying in secret level, advance to next level, keep powerups!
 		}
 	}
+}
+
+// ---------------------------------------------------------------------------------------------------------------
+//	Called from switch.c when player is on a secret level and hits exit to return to base level.
+void ExitSecretLevel(void)
+{
+	if (Newdemo_state == ND_STATE_PLAYBACK)
+		return;
+
+	do_secret_exit(false);
 
 	reset_time();
 }
@@ -1358,25 +1381,7 @@ void DoPlayerDead()
 		}
 
 		if (Current_level_num < 0) {
-			if (PHYSFS_exists(SECRETB_FILENAME))
-			{
-				do_screen_message(TXT_SECRET_RETURN);
-				if (!Control_center_destroyed)
-					state_save_all(0, 2, SECRETC_FILENAME, 0);
-				state_restore_all(1, 2, SECRETB_FILENAME);			//	2 means you died
-				set_pos_from_return_segment();
-				Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
-			} else {
-				if (!Control_center_destroyed)
-					do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
-				if (Entered_from_level == Last_level)
-					DoEndGame();
-				else {
-					do_screen_message(TXT_SECRET_ADVANCE);
-					StartNewLevel(Entered_from_level+1, 0);
-					init_player_stats_new_ship();	//	fixes bug with dying in secret level, advance to next level, keep powerups!
-				}
-			}
+			do_secret_exit(true);
 		} else {
 
 			AdvanceLevel(0);			//if finished, go on to next level

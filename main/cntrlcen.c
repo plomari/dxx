@@ -286,10 +286,6 @@ void do_controlcen_destroyed_stuff(object *objp)
 		for (int i = 0; i < ControlCenterTriggers.num_links; i++)
 			wall_toggle(ControlCenterTriggers.seg[i], ControlCenterTriggers.side[i]);
 
-		//	If a secret level, delete secret.sgc to indicate that we can't return to our secret level.
-		if (Current_level_num < 0)
-			PHYSFS_delete(SECRETC_FILENAME);
-
 		init_countdown_timer(NULL);
 	}
 
