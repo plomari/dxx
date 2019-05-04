@@ -1345,24 +1345,30 @@ void DoPlayerDead()
 		}
 	}
 
-	if ( Control_center_destroyed ) {
+	if ( Control_center_destroyed || Current_level_num < 0) {
 
-		//clear out stuff so no bonus
-		Players[Player_num].hostages_on_board = 0;
-		Players[Player_num].energy = 0;
-		Players[Player_num].shields = 0;
-		Players[Player_num].connected = CONNECT_DIED_IN_MINE;
+		if (Control_center_destroyed) {
+			//clear out stuff so no bonus
+			Players[Player_num].hostages_on_board = 0;
+			Players[Player_num].energy = 0;
+			Players[Player_num].shields = 0;
+			Players[Player_num].connected = CONNECT_DIED_IN_MINE;
 
-		do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
+			do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
+		}
 
 		if (Current_level_num < 0) {
 			if (PHYSFS_exists(SECRETB_FILENAME))
 			{
 				do_screen_message(TXT_SECRET_RETURN);
+				if (!Control_center_destroyed)
+					state_save_all(0, 2, SECRETC_FILENAME, 0);
 				state_restore_all(1, 2, SECRETB_FILENAME);			//	2 means you died
 				set_pos_from_return_segment();
 				Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
 			} else {
+				if (!Control_center_destroyed)
+					do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
 				if (Entered_from_level == Last_level)
 					DoEndGame();
 				else {
@@ -1379,25 +1385,6 @@ void DoPlayerDead()
 			last_drawn_cockpit = -1;
 		}
 
-	} else if (Current_level_num < 0) {
-		if (PHYSFS_exists(SECRETB_FILENAME))
-		{
-			do_screen_message(TXT_SECRET_RETURN);
-			if (!Control_center_destroyed)
-				state_save_all(0, 2, SECRETC_FILENAME, 0);
-			state_restore_all(1, 2, SECRETB_FILENAME);
-			set_pos_from_return_segment();
-			Players[Player_num].lives--;						//	re-lose the life, Players[Player_num].lives got written over in restore.
-		} else {
-			do_screen_message(TXT_DIED_IN_MINE); // Give them some indication of what happened
-			if (Entered_from_level == Last_level)
-				DoEndGame();
-			else {
-				do_screen_message(TXT_SECRET_ADVANCE);
-				StartNewLevel(Entered_from_level+1, 0);
-				init_player_stats_new_ship();	//	fixes bug with dying in secret level, advance to next level, keep powerups!
-			}
-		}
 	} else {
 		init_player_stats_new_ship();
 		StartLevel(1);
