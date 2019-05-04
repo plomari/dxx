@@ -719,11 +719,6 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 	}
 #endif
 
-	if (in_game && (Current_level_num < 0) && (secret_restore == 0)) {
-		HUD_init_message(HM_DEFAULT,  "Can't restore in secret level!" );
-		return 0;
-	}
-
 	if ( Newdemo_state == ND_STATE_RECORDING )
 		newdemo_stop_recording();
 
