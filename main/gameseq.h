@@ -36,6 +36,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // -1,-2,-3 are secret levels
 // 0 means not a real level loaded
 extern int Current_level_num, Next_level_num;
+extern int Entered_from_level;
 extern char Current_level_name[LEVEL_NAME_LEN];
 extern obj_position Player_init[MAX_PLAYERS];
 

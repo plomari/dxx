@@ -156,7 +156,7 @@ extern void do_lunacy_on(void);
 extern void do_lunacy_off(void);
 
 int state_save_all_sub(char *filename, char *desc, int between_levels);
-int state_restore_all_sub(char *filename, int secret_restore);
+int state_restore_all_sub(char *filename, int filenum, int secret_restore);
 
 extern int First_secret_visit;
 
@@ -363,11 +363,6 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 	}
 #endif
 
-	if ((Current_level_num < 0) && (secret_save == 0)) {
-		HUD_init_message(HM_DEFAULT,  "Can't save in secret level!" );
-		return 0;
-	}
-
 	if (Final_boss_is_dead)		//don't allow save while final boss is dying
 		return 0;
 
@@ -397,6 +392,7 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 	//	Do special secret level stuff.
 	//	If secret.sgc exists, then copy it to the savegame slot file.
 	//	If it doesn't exist, then delete the savegame slot file.
+	//	Same for secret.sgb if saving from a secret level.
 	if (!secret_save) {
 		int	rval;
 
@@ -411,9 +407,13 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 					Error("Cannot delete file <%s>", temp_fname);
 			}
 
-			if (PHYSFS_exists(SECRETC_FILENAME))
+			char *target = Current_level_num < 0
+				? SECRETB_FILENAME
+				: SECRETC_FILENAME;
+
+			if (PHYSFS_exists(target))
 			{
-				rval = copy_file(SECRETC_FILENAME, temp_fname);
+				rval = copy_file(target, temp_fname);
 				Assert(rval == 0);	//	Oops, error copying secret.sgc to temp_fname!
 			}
 		}
@@ -500,8 +500,11 @@ int state_save_all_sub(char *filename, char *desc, int between_levels)
 			PHYSFS_write(fp, &color, sizeof(ubyte), 1);		
 	} 
 
-// Save the Between levels flag...
-	PHYSFS_write(fp, &between_levels, sizeof(int), 1);
+// Save the Between levels flag... now reused for secret level saving.
+	int write_entered_from_level = 0;
+	if (Current_level_num < 0)
+		write_entered_from_level = Entered_from_level;
+	PHYSFS_write(fp, &write_entered_from_level, sizeof(int), 1);
 
 // Save the mission info...
 	cfile_write_fixed_str(fp, 9, Current_mission_filename);
@@ -736,27 +739,6 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 			return 0;
 		}
 	}
-	
-	//	MK, 1/1/96
-	//	Do special secret level stuff.
-	//	If savegame slot exists, then copy it to secret.sgc.
-	//	If it doesn't exist, then delete secret.sgc
-	if (!secret_restore) {
-		int	rval;
-
-		if (filenum >= 0) {
-			char temp_fname[SAVEGAME_FNAME_LEN];
-
-			gen_savegame_fname(temp_fname, sizeof(temp_fname), filenum, true);
-
-			if (PHYSFS_exists(temp_fname))
-			{
-				rval = copy_file(temp_fname, SECRETC_FILENAME);
-				Assert(rval == 0);	//	Oops, error copying temp_fname to secret.sgc!
-			} else
-				PHYSFS_delete(SECRETC_FILENAME);
-		}
-	}
 
 	if ( !secret_restore && in_game ) {
 		int choice;
@@ -769,7 +751,7 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 
 	start_time();
 
-	return state_restore_all_sub(filename, secret_restore);
+	return state_restore_all_sub(filename, filenum, secret_restore);
 }
 
 extern void init_player_stats_new_ship(void);
@@ -779,14 +761,14 @@ void ShowLevelIntro(int level_num);
 extern void do_cloak_invul_secret_stuff(fix old_gametime);
 extern void copy_defaults_to_robot(object *objp);
 
-int state_restore_all_sub(char *filename, int secret_restore)
+int state_restore_all_sub(char *filename, int filenum, int secret_restore)
 {
 	int ObjectStartLocation;
 	int version,i, j, segnum;
 	object * obj;
 	PHYSFS_file *fp;
 	int current_level, next_level;
-	int between_levels;
+	int between_levels = 0;
 	char desc[DESC_LENGTH+1];
 	char id[5];
 	char org_callsign[CALLSIGN_LEN+16];
@@ -821,10 +803,9 @@ int state_restore_all_sub(char *filename, int secret_restore)
 // And now...skip the goddamn palette stuff that somebody forgot to add
 	PHYSFS_seek(fp, PHYSFS_tell(fp) + 768);
 
-// Read the Between levels flag...
-	PHYSFS_read(fp, &between_levels, sizeof(int), 1);
-
-	Assert(between_levels == 0);	//between levels save ripped out
+// Read the Between levels flag... reused for secret level stuff
+	int read_entered_from_level = 0;
+	PHYSFS_read(fp, &read_entered_from_level, sizeof(int), 1);
 
 // Read the mission info...
 	char mission[10];
@@ -839,6 +820,44 @@ int state_restore_all_sub(char *filename, int secret_restore)
 //Read level info
 	PHYSFS_read(fp, &current_level, sizeof(int), 1);
 	PHYSFS_read(fp, &next_level, sizeof(int), 1);
+
+	if (current_level < 0) {
+		// Reuse this (otherwise unused) field for secret level savegames.
+		Entered_from_level = read_entered_from_level;
+	} else {
+		Assert(read_entered_from_level == 0);	//between levels save ripped out
+	}
+
+	//	MK, 1/1/96
+	//	Do special secret level stuff.
+	//	If savegame slot exists, then copy it to secret.sgc.
+	//	If it doesn't exist, then delete secret.sgc
+	//	If we're loading a game saved from the secret level (as opposed to
+	//	running this function when changing between secret and normal levels),
+	//	then do the same with secret.sgb.
+	if (!secret_restore) {
+		int	rval;
+
+		if (filenum >= 0) {
+			char temp_fname[SAVEGAME_FNAME_LEN];
+
+			gen_savegame_fname(temp_fname, sizeof(temp_fname), filenum, true);
+
+			PHYSFS_delete(SECRETB_FILENAME);
+			PHYSFS_delete(SECRETC_FILENAME);
+
+			char *target = current_level < 0
+				? SECRETB_FILENAME
+				: SECRETC_FILENAME;
+
+			if (PHYSFS_exists(temp_fname))
+			{
+				rval = copy_file(temp_fname, target);
+				Assert(rval == 0);	//	Oops, error copying temp_fname to secret.sgc!
+			}
+
+		}
+	}
 
 //Restore GameTime
 	PHYSFS_read(fp, &GameTime, sizeof(fix), 1);
