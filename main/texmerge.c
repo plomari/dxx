@@ -360,6 +360,8 @@ void gr_bitmap_check_transparency(grs_bitmap *bmp)
 	if (depth < 1)
 		depth = 1;
 
+	bool lightonly = true;
+
 	if (depth == 1 || depth == 4) {
 		// D2X-XL computes these flags on loading in CTGA::SetProperties(). It's
 		// a fucked up complicated heuristic, so I'm mostly _not_ duplicating it
@@ -381,6 +383,9 @@ void gr_bitmap_check_transparency(grs_bitmap *bmp)
 					data[3] = 0; // fucked up
 				data += depth;
 				flags |= res;
+				// Set BM_FLAG_LIGHTONLY only if all pixels are SEE_THRU or opaque.
+				if ((flags & BM_FLAG_TRANSPARENT) && !(flags & BM_FLAG_SEE_THRU))
+					lightonly = false;
 			}
 			data += bmp->bm_rowsize - bmp->bm_w * depth;
 		}
@@ -389,4 +394,7 @@ void gr_bitmap_check_transparency(grs_bitmap *bmp)
 	} else {
 		abort(); // unsupported
 	}
+
+	if (lightonly)
+		bmp->bm_flags |= BM_FLAG_LIGHTONLY;
 }

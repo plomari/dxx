@@ -88,6 +88,8 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WID_CLOAKED_FLAG        16	// cloaked wall (renderer special effects)
 #define WID_RENDER_ALPHA_FLAG	32	// texture contains alpha values other than
 									// 0 and 255 (implies RENDER/RENDPAST)
+#define WID_LIGHTONLY_FLAG		64	// only light can travel through this wall
+									// (WID_RENDPAST_FLAG is also set)
 
 #define MAX_STUCK_OBJECTS   32
 

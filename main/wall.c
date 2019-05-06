@@ -99,8 +99,12 @@ int wall_check_transparency(segment * seg, int side)
 
 	int f_bottom = GameBitmaps[Textures[tmap_bottom].index].bm_flags;
 
-	if (f_bottom & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT))
-		return WID_RENDPAST_FLAG;
+	if (f_bottom & (BM_FLAG_TRANSPARENT | BM_FLAG_SUPER_TRANSPARENT)) {
+		int flags = WID_RENDPAST_FLAG;
+		if (f_bottom & BM_FLAG_LIGHTONLY)
+			flags |= WID_LIGHTONLY_FLAG;
+		return flags;
+	}
 
 	return 0;
 }

@@ -71,6 +71,8 @@ typedef struct _grs_point {
 // This software
 #define BM_FLAG_ALPHA				512 // contains alpha values other than 0/1.0
 #define BM_FLAG_NO_DOWNSCALE		1024 // no need to generate mipmaps
+#define BM_FLAG_LIGHTONLY			2048 // transparency: WID_LIGHTONLY shall apply
+										// (for per-pixel tests use BM_FLAG_SEE_THRU)
 
 typedef struct _grs_bitmap {
 	short   bm_x,bm_y;  // Offset from parent's origin

@@ -109,7 +109,7 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 				dist = vm_vec_dist_quick( &obj0p->pos, &obj->pos );
 				// Make damage be from 'maxdamage' to 0.0, where 0.0 is 'maxdistance' away;
 				if ( dist < maxdistance ) {
-					if (object_to_object_visibility(obj, obj0p, FQ_TRANSWALL)) {
+					if (object_to_object_visibility(obj, obj0p, FQ_TRANSDAMAGE)) {
 
 						damage = maxdamage - fixmuldiv( dist, maxdamage, maxdistance );
 						force = maxforce - fixmuldiv( dist, maxforce, maxdistance );

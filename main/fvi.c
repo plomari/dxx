@@ -832,7 +832,9 @@ int fvi_sub(vms_vector *intp,int *ints,vms_vector *p0,int startseg,vms_vector *p
 
 						if ((wid_flag & WID_FLY_FLAG) ||
 							(((wid_flag & WID_RENDER_FLAG) && (wid_flag & WID_RENDPAST_FLAG)) &&
-								((flags & FQ_TRANSWALL) || (flags & FQ_TRANSPOINT && check_trans_wall(&hit_point,seg,side,face))))) {
+								((flags & FQ_TRANSWALL) ||
+								 ((flags & FQ_TRANSDAMAGE) && (wid_flag & WID_RENDPAST_FLAG) && !(wid_flag & WID_LIGHTONLY_FLAG)) ||
+								 (flags & FQ_TRANSPOINT && check_trans_wall(&hit_point,seg,side,face))))) {
 
 							int newsegnum;
 							vms_vector sub_hit_point;

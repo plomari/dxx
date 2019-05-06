@@ -55,6 +55,7 @@ typedef struct fvi_info {
 #define FQ_INFINITE		32		// don't stop at p1 (p1 only gives direction)
 #define FQ_ALL_SIDES	64		// collide against any segment sides
 #define FQ_WALL_SIDES	256		// collide against sides that have a wall_num set
+#define FQ_TRANSDAMAGE  512		// like FQ_TRANSWALL, but only if WID_LIGHTONLY is not set
 
 //this data contains the parms to fvi()
 typedef struct fvi_query {
