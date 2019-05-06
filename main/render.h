@@ -25,7 +25,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "object.h"
 
-#define MAX_RENDER_SEGS     1500
+#define MAX_RENDER_SEGS     MAX_SEGMENTS
 
 extern int Render_depth; //how many segments deep to render
 extern int Simple_model_threshhold_scale; // switch to simpler model when the object has depth greater than this value times its radius.
