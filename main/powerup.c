@@ -447,7 +447,9 @@ int do_powerup(object *obj)
 			break;
 		case	POW_CLOAK:
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-				if (Players[Player_num].flags & PLAYER_FLAGS_SAVE_ORBS) {
+				if ((Players[Player_num].flags & PLAYER_FLAGS_SAVE_ORBS) ||
+					(Players[Player_num].flags & PLAYER_FLAGS_SAVE_ORBS_ALL))
+				{
 					HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "Saved cloaking device!");
 					Players[Player_num].saved_cloak += CLOAK_TIME_MAX;
 					used = 1;
@@ -472,7 +474,9 @@ int do_powerup(object *obj)
 			break;
 		case	POW_INVULNERABILITY:
 			if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
-				if (Players[Player_num].flags & PLAYER_FLAGS_SAVE_ORBS) {
+				if ((Players[Player_num].flags & PLAYER_FLAGS_SAVE_ORBS) ||
+					(Players[Player_num].flags & PLAYER_FLAGS_SAVE_ORBS_ALL))
+				{
 					HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "Saved invulnerability!");
 					Players[Player_num].saved_invulnerable += INVULNERABLE_TIME_MAX;
 					used = 1;
