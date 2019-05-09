@@ -31,7 +31,6 @@ static void event_poll(void)
 {
 	SDL_Event event;
 	int clean_uniframe=1;
-	window *wind = window_get_front();
 	int idle = 1;
 
 	window *cur = window_get_front();
