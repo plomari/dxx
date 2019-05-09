@@ -258,8 +258,7 @@ static void gen_savegame_fname(char *dst, size_t dst_size, int num, bool secret)
 	}
 }
 
-static int state_default_item = 0;
-//Since state_default_item should ALWAYS point to a valid savegame slot, we use this to check if we once already actually SAVED a game. If yes, state_quick_item will be equal state_default_item, otherwise it should be -1 on every new mission and tell us we need to select a slot for quicksave.
+//Since GameCfg.LastSavegameSlot should ALWAYS point to a valid savegame slot, we use this to check if we once already actually SAVED a game. If yes, state_quick_item will be equal GameCfg.LastSavegameSlot, otherwise it should be -1 on every new mission and tell us we need to select a slot for quicksave.
 int state_quick_item = -1;
 
 /* Present a menu for selection of a savegame filename.
@@ -330,9 +329,9 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 		blind_save = 0;		// haven't picked a slot yet
 
 	if (blind_save)
-		choice = state_default_item;
+		choice = GameCfg.LastSavegameSlot;
 	else
-		choice = newmenu_do2( NULL, caption, NUM_SAVES, m, (int (*)(newmenu *, d_event *, void *))state_callback, sc_bmp, state_default_item, NULL );
+		choice = newmenu_do2( NULL, caption, NUM_SAVES, m, (int (*)(newmenu *, d_event *, void *))state_callback, sc_bmp, GameCfg.LastSavegameSlot, NULL );
 
 	for (i=0; i<NUM_SAVES; i++ )	{
 		if ( sc_bmp[i] )
@@ -342,7 +341,11 @@ int state_get_savegame_filename(char * fname, char * dsc, char * caption, int bl
 	if (choice >= 0) {
 		strcpy( fname, filename[choice] );
 		if ( dsc != NULL ) strcpy( dsc, desc[choice] );
-		state_quick_item = state_default_item = choice;
+		state_quick_item = choice;
+		if (GameCfg.LastSavegameSlot != choice) {
+			GameCfg.LastSavegameSlot = choice;
+			WriteConfigFile();
+		}
 		return choice;
 	}
 	return -1;

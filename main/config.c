@@ -187,6 +187,8 @@ int ReadConfigFile()
 				GameCfg.Grabinput = strtol(value, NULL, 10);
 			else if (!strcmp(token, SkipProgramIntroStr))
 				GameCfg.SkipProgramIntro = strtol(value, NULL, 10);
+			else if (!strcmp(token, "LastSavegameSlot"))
+				GameCfg.LastSavegameSlot = strtol(value, NULL, 10);
 		}
 	}
 
@@ -237,6 +239,7 @@ int WriteConfigFile()
 	PHYSFSX_printf(infile, "%s=%i\n", MultisampleStr, GameCfg.Multisample);
 	PHYSFSX_printf(infile, "%s=%i\n", GrabinputStr, GameCfg.Grabinput);
 	PHYSFSX_printf(infile, "%s=%i\n", SkipProgramIntroStr, GameCfg.SkipProgramIntro);
+	PHYSFSX_printf(infile, "%s=%i\n", "LastSavegameSlot", GameCfg.LastSavegameSlot);
 
 	PHYSFS_close(infile);
 

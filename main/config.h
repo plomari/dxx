@@ -39,6 +39,7 @@ typedef struct Cfg
 	char LastPlayer[CALLSIGN_LEN+1];
 	char LastMission[MISSION_NAME_LEN+1];
         int LastLevel;
+	int LastSavegameSlot;
 	int ResolutionX;
 	int ResolutionY;
 	int WindowMode;

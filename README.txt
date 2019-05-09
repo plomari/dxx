@@ -20,7 +20,8 @@ that are enabled by default:
   fights
 - fix display of current bomb type (for b/n keys) in a certain cockpit mode
 - show the total number of levels in the automap
-- autoselects the last pilot on startup
+- autoselects the last pilot on startup, the last savegame slot used, and
+  remembers the initial level choice when starting a new mission
 - options for skipping game intro movie and delay, level movies, and level
   briefings
 - no hardcoded timeout when loading level to simulate i486 experience (like
