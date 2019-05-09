@@ -407,7 +407,11 @@ void init_player_stats_new_ship()
 {
 	int	i;
 
-	int preserve_flags = 0;
+	int preserve_flags = PLAYER_FLAGS_SETTINGS |
+						 PLAYER_FLAGS_BLUE_KEY |
+						 PLAYER_FLAGS_RED_KEY |
+						 PLAYER_FLAGS_GOLD_KEY |
+						 PLAYER_FLAGS_MAP_ALL_CHEAT;
 	if (PlayerCfg.ExtendedAmmoRack)
 		preserve_flags |= PLAYER_FLAGS_AMMO_RACK;
 	int restore_flags = preserve_flags & Players[Player_num].flags;
@@ -444,21 +448,13 @@ void init_player_stats_new_ship()
 	Primary_weapon = 0;
 	Secondary_weapon = 0;
 
-	Players[Player_num].flags &= ~(	PLAYER_FLAGS_QUAD_LASERS |
-												PLAYER_FLAGS_AFTERBURNER |
-												PLAYER_FLAGS_CLOAKED |
-												PLAYER_FLAGS_INVULNERABLE |
-												PLAYER_FLAGS_MAP_ALL |
-												PLAYER_FLAGS_CONVERTER |
-												PLAYER_FLAGS_AMMO_RACK |
-												PLAYER_FLAGS_HEADLIGHT |
-												PLAYER_FLAGS_HEADLIGHT_ON |
-												PLAYER_FLAGS_FLAG);
-
-	Players[Player_num].flags |= restore_flags;
+	Players[Player_num].flags = restore_flags;
 
 	Players[Player_num].cloak_time = 0;
 	Players[Player_num].invulnerable_time = 0;
+
+	Players[Player_num].saved_cloak = 0;
+	Players[Player_num].saved_invulnerable = 0;
 
 	Player_is_dead = 0;		//player no longer dead
 

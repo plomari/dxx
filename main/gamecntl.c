@@ -129,6 +129,7 @@ extern void DropSecondaryWeapon();
 extern void DropCurrentWeapon();
 
 void do_cheat_menu(void);
+static void do_special_menu(void);
 
 int HandleGameKey(int key);
 int HandleSystemKey(int key);
@@ -1012,6 +1013,10 @@ int HandleSystemKey(int key)
 			change_guidebot_name();
 			break;
 
+		case KEY_F6:
+			do_special_menu();
+			break;
+
 		case KEY_ALTED + KEY_SHIFTED + KEY_F10:
 			songs_pause_resume();
 			break;
@@ -1868,6 +1873,125 @@ void do_cheat_menu()
 		Players[Player_num].primary_ammo[VULCAN_INDEX] = mm[9].value;
 		init_gauges();
 	}
+}
+
+// Add saved cloak or invulnerability to currently active state.
+static void use_cloak_invuln(int use_ival, player *pl, int pl_flag)
+{
+	fix *saved, *time, tmax;
+	if (pl_flag == PLAYER_FLAGS_CLOAKED) {
+		saved = &pl->saved_cloak;
+		time = &pl->cloak_time;
+		tmax = CLOAK_TIME_MAX;
+	} else if (pl_flag == PLAYER_FLAGS_INVULNERABLE) {
+		saved = &pl->saved_invulnerable;
+		time = &pl->invulnerable_time;
+		tmax = INVULNERABLE_TIME_MAX;
+	} else {
+		assert(0);
+	}
+
+	fix use_val = i2f(use_ival);
+	use_val = min(use_val, *saved);
+	if (use_val <= 0)
+		return;
+
+	if (!(pl->flags & pl_flag)) {
+		pl->flags |= pl_flag;
+		*time = GameTime - tmax; // start out with 0
+	}
+
+	*saved -= use_val;
+	*time += use_val;
+}
+
+// Transfer currently active cloak or invulnerability to saved values.
+static void save_cloak_invuln(player *pl, int pl_flag)
+{
+	fix *saved, *time, tmax;
+	if (pl_flag == PLAYER_FLAGS_CLOAKED) {
+		saved = &pl->saved_cloak;
+		time = &pl->cloak_time;
+		tmax = CLOAK_TIME_MAX;
+	} else if (pl_flag == PLAYER_FLAGS_INVULNERABLE) {
+		saved = &pl->saved_invulnerable;
+		time = &pl->invulnerable_time;
+		tmax = INVULNERABLE_TIME_MAX;
+	} else {
+		assert(0);
+	}
+
+	if (!(pl->flags & pl_flag))
+		return;
+
+	fix amount = *time + tmax - GameTime;
+	if (amount > 0)
+		*saved += amount;
+
+	pl->flags &= ~pl_flag;
+}
+
+// Special other game stuff menu.
+static void do_special_menu(void)
+{
+	int mmn = 0;
+	newmenu_item mm[16];
+
+	player *pl = &Players[Player_num];
+
+	int invuln = f2i(pl->saved_invulnerable);
+	int cloak = f2i(pl->saved_cloak);
+
+	int use_cloak_opt = mmn;
+	nm_set_item_number(&mm[mmn++],
+					   tprintf(80, "Use cloak (max %d seconds)", cloak),
+					   min(30, cloak), 0, cloak);
+
+	int use_invuln_opt = mmn;
+	nm_set_item_number(&mm[mmn++],
+					   tprintf(80, "Use invuln. (max %d seconds)", invuln),
+					   min(30, invuln), 0, invuln);
+
+	int save_cloak_opt = mmn;
+	nm_set_item_menu(&mm[mmn++], "Save current cloak");
+	int save_invuln_opt = mmn;
+	nm_set_item_menu(&mm[mmn++], "Save current invuln.");
+
+	int auto_save = 0;
+	if (Players[Player_num].flags & PLAYER_FLAGS_SAVE_ORBS_ALL) {
+		auto_save = 1;
+	} else if (Players[Player_num].flags & PLAYER_FLAGS_SAVE_ORBS) {
+		auto_save = 2;
+	}
+	int opt_auto_save = mmn;
+	nm_set_item_radio(&mm[mmn++], "Never auto save", auto_save == 0, 0);
+	nm_set_item_radio(&mm[mmn++], "Always auto save", auto_save == 1, 0);
+	nm_set_item_radio(&mm[mmn++], "Auto save if active", auto_save == 2, 0);
+
+	int exit_opt = mmn;
+	nm_set_item_menu(&mm[mmn++], "Cancel");
+
+	mmn = newmenu_do1("Game Stuff", NULL, mmn, mm, NULL, NULL, exit_opt);
+
+	if (mmn == use_cloak_opt) {
+		use_cloak_invuln(mm[use_cloak_opt].value, pl, PLAYER_FLAGS_CLOAKED);
+	} else if (mmn == use_invuln_opt) {
+		use_cloak_invuln(mm[use_invuln_opt].value, pl, PLAYER_FLAGS_INVULNERABLE);
+	} else if (mmn == save_cloak_opt) {
+		save_cloak_invuln(pl, PLAYER_FLAGS_CLOAKED);
+	} else if (mmn == save_invuln_opt) {
+		save_cloak_invuln(pl, PLAYER_FLAGS_INVULNERABLE);
+	} else if (mmn == exit_opt || mmn < 0) {
+		// Don't apply the options below.
+		return;
+	}
+
+	Players[Player_num].flags &=
+		~(PLAYER_FLAGS_SAVE_ORBS_ALL | PLAYER_FLAGS_SAVE_ORBS);
+	if (mm[opt_auto_save + 1].value)
+		Players[Player_num].flags |= PLAYER_FLAGS_SAVE_ORBS_ALL;
+	if (mm[opt_auto_save + 2].value)
+		Players[Player_num].flags |= PLAYER_FLAGS_SAVE_ORBS;
 }
 
 int ReadControls(d_event *event)

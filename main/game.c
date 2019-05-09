@@ -676,7 +676,7 @@ void show_help()
 	int nitems = 0;
 	newmenu_item *m;
 
-	MALLOC(m, newmenu_item, 26);
+	MALLOC(m, newmenu_item, 27);
 	if (!m)
 		return;
 
@@ -689,6 +689,7 @@ void show_help()
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F3\t  SWITCH COCKPIT MODES";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F4;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_F5;
+	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "F6\t  other game stuff menu";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = "ALT-F7\t  SWITCH HUD MODES";
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PAUSE;
 	m[nitems].type = NM_TYPE_TEXT; m[nitems++].text = TXT_HELP_PRTSCN;

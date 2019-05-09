@@ -72,7 +72,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 extern void game_disable_cheats();
 
-#define STATE_VERSION 27
+#define STATE_VERSION 28
 #define STATE_COMPATIBLE_VERSION 20
 // 0 - Put DGSS (Descent Game State Save) id at tof.
 // 1 - Added Difficulty level save
@@ -101,6 +101,7 @@ extern void game_disable_cheats();
 //	   save D2X-XL trigger info
 // 27- Save D2X-XL equipment centers
 //	   add TLV extension records
+// 28- Save player.saved_* fields
 
 // Things to change on next incompatible savegame change:
 // - add a way to save/restore objects in a backward/forward compatible way
@@ -180,9 +181,14 @@ static void serdes_player(struct serdes *sd, player *pl)
 	sd_sbyte(sd, &pl->connected);
 	sd_int(sd, &pl->objnum);
 
-	// n_packets_got/n_packets_sent
-	sd_pad(sd, 4);
-	sd_pad(sd, 4);
+	if (sd->file_version < 28) {
+		// used to be n_packets_got/n_packets_sent
+		sd_pad(sd, 4);
+		sd_pad(sd, 4);
+	} else {
+		sd_fix(sd, &pl->saved_cloak);
+		sd_fix(sd, &pl->saved_invulnerable);
+	}
 
 	sd_uint(sd, &pl->flags);
 	sd_fix(sd, &pl->energy);
@@ -954,6 +960,7 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 									 PLAYER_FLAGS_GOLD_KEY;
 				if (PlayerCfg.ExtendedAmmoRack)
 					preserve_flags |= PLAYER_FLAGS_AMMO_RACK;
+				preserve_flags |= PLAYER_FLAGS_SETTINGS;
 				saved_player.flags |= Players[Player_num].flags & preserve_flags;
 			}
 		}

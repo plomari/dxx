@@ -1856,6 +1856,18 @@ void drop_player_eggs(object *playerobj)
 		if (Players[pnum].flags & PLAYER_FLAGS_CLOAKED)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_CLOAK);
 
+		int drop_invuln =
+			(Players[pnum].saved_invulnerable + INVULNERABLE_TIME_MAX / 2) /
+			INVULNERABLE_TIME_MAX;
+		for (int n = 0; n < drop_invuln; n++)
+			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_INVULNERABILITY);
+
+		int drop_cloak =
+			(Players[pnum].saved_cloak + CLOAK_TIME_MAX / 2) /
+			CLOAK_TIME_MAX;
+		for (int n = 0; n < drop_cloak; n++)
+			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_CLOAK);
+
 		if (Players[pnum].flags & PLAYER_FLAGS_MAP_ALL)
 			call_object_create_egg(playerobj, 1, OBJ_POWERUP, POW_FULL_MAP);
 

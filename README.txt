@@ -31,6 +31,12 @@ that are enabled by default:
   This also doesn't include the d1x unification.
 - half-functional support for loading D2X-XL levels. This is work in progress
   and in an early stage. (See below.)
+- optional "saving" of invulnerability and cloak. It's off by default, and
+  configurable per game via a dialog shown on the F6 key. "Saving" means you can
+  disable invuln./cloak immediately, and reenable them at a later point. It's
+  also possible to "save" them when collecting them. The configuration (F6) and
+  the saved invuln./cloak amount are part of savegames. This feature was added
+  for gameplay parity with D2X-XL.
 
 This was also converted to SDL2 (OpenGL/Linux only), possibly with some problems
 that still should be fixed.

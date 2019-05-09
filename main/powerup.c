@@ -447,8 +447,17 @@ int do_powerup(object *obj)
 			break;
 		case	POW_CLOAK:
 			if (Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) {
-				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_ARE,TXT_CLOAKED);
-				break;
+				if (Players[Player_num].flags & PLAYER_FLAGS_SAVE_ORBS) {
+					HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "Saved cloaking device!");
+					Players[Player_num].saved_cloak += CLOAK_TIME_MAX;
+					used = 1;
+				} else {
+					HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_ARE,TXT_CLOAKED);
+				}
+			} else if (Players[Player_num].flags & PLAYER_FLAGS_SAVE_ORBS_ALL) {
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "Saved cloaking device!");
+				Players[Player_num].saved_cloak += CLOAK_TIME_MAX;
+				used = 1;
 			} else {
 				Players[Player_num].cloak_time = (GameTime+CLOAK_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);	//	Not! changed by awareness events (like player fires laser).
 				Players[Player_num].flags |= PLAYER_FLAGS_CLOAKED;
@@ -459,19 +468,28 @@ int do_powerup(object *obj)
 				#endif
 				powerup_basic(-10,-10,-10, CLOAK_SCORE, "%s!",TXT_CLOAKING_DEVICE);
 				used = 1;
-				break;
 			}
+			break;
 		case	POW_INVULNERABILITY:
 			if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE) {
-				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_ARE,TXT_INVULNERABLE);
-				break;
+				if (Players[Player_num].flags & PLAYER_FLAGS_SAVE_ORBS) {
+					HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "Saved invulnerability!");
+					Players[Player_num].saved_invulnerable += INVULNERABLE_TIME_MAX;
+					used = 1;
+				} else {
+					HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "%s %s!",TXT_ALREADY_ARE,TXT_INVULNERABLE);
+				}
+			} else if (Players[Player_num].flags & PLAYER_FLAGS_SAVE_ORBS_ALL) {
+				HUD_init_message(HM_DEFAULT|HM_REDUNDANT|HM_MAYDUPL, "Saved invulnerability!");
+				Players[Player_num].saved_invulnerable += INVULNERABLE_TIME_MAX;
+				used = 1;
 			} else {
 				Players[Player_num].invulnerable_time = (GameTime+INVULNERABLE_TIME_MAX>i2f(0x7fff-600)?GameTime-i2f(0x7fff-600):GameTime);
 				Players[Player_num].flags |= PLAYER_FLAGS_INVULNERABLE;
 				powerup_basic(7, 14, 21, INVULNERABILITY_SCORE, "%s!",TXT_INVULNERABILITY);
 				used = 1;
-				break;
 			}
+			break;
 		case	POW_MEGAWOW:
 			do_megawow_powerup(50);
 			used = 1;
