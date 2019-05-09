@@ -95,10 +95,6 @@ typedef struct player {
 	ushort  primary_ammo[MAX_PRIMARY_WEAPONS]; // How much ammo of each type.
 	ushort  secondary_ammo[MAX_SECONDARY_WEAPONS]; // How much ammo of each type.
 
-	ushort  pad; // Pad because increased weapon_flags from byte to short -YW 3/22/95
-
-	//  -- make sure you're 4 byte aligned now
-
 	// Statistics...
 	int     last_score;             // Score at beginning of current level.
 	int     score;                  // Current score.
@@ -122,7 +118,7 @@ typedef struct player {
 	fix     homing_object_dist;     // Distance of nearest homing object.
 	sbyte   hours_level;            // Hours played (since time_total can only go up to 9 hours)
 	sbyte   hours_total;            // Hours played (since time_total can only go up to 9 hours)
-} __pack__ player;
+} player;
 
 #define N_PLAYER_GUNS 8
 #define N_PLAYER_SHIP_TEXTURES 32

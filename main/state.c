@@ -170,6 +170,59 @@ char dgss_id[4] = "DGSS";
 
 uint state_game_id;
 
+static void serdes_player(struct serdes *sd, player *pl)
+{
+	if (sd->loading)
+		*pl = (player){0};
+
+	sd_char_arr(sd, pl->callsign);
+	sd_ubyte_arr(sd, pl->net_address);
+	sd_sbyte(sd, &pl->connected);
+	sd_int(sd, &pl->objnum);
+
+	// n_packets_got/n_packets_sent
+	sd_pad(sd, 4);
+	sd_pad(sd, 4);
+
+	sd_uint(sd, &pl->flags);
+	sd_fix(sd, &pl->energy);
+	sd_fix(sd, &pl->shields);
+	sd_ubyte(sd, &pl->lives);
+	sd_sbyte(sd, &pl->level);
+	sd_ubyte(sd, &pl->laser_level);
+	sd_sbyte(sd, &pl->starting_level);
+	sd_short(sd, &pl->killer_objnum);
+	sd_ushort(sd, &pl->primary_weapon_flags);
+	sd_ushort(sd, &pl->secondary_weapon_flags);
+	sd_ushort_arr(sd, pl->primary_ammo);
+	sd_ushort_arr(sd, pl->secondary_ammo);
+
+	sd_pad(sd, 2);
+
+	sd_int(sd, &pl->last_score);
+	sd_int(sd, &pl->score);
+	sd_fix(sd, &pl->time_level);
+	sd_fix(sd, &pl->time_total);
+
+	sd_fix(sd, &pl->cloak_time);
+	sd_fix(sd, &pl->invulnerable_time);
+
+	sd_short(sd, &pl->KillGoalCount);
+	sd_short(sd, &pl->net_killed_total);
+	sd_short(sd, &pl->net_kills_total);
+	sd_short(sd, &pl->num_kills_level);
+	sd_short(sd, &pl->num_kills_total);
+	sd_short(sd, &pl->num_robots_level);
+	sd_short(sd, &pl->num_robots_total);
+	sd_ushort(sd, &pl->hostages_rescued_total);
+	sd_ushort(sd, &pl->hostages_total);
+	sd_ubyte(sd, &pl->hostages_on_board);
+	sd_ubyte(sd, &pl->hostages_level);
+	sd_fix(sd, &pl->homing_object_dist);
+	sd_sbyte(sd, &pl->hours_level);
+	sd_sbyte(sd, &pl->hours_total);
+}
+
 //-------------------------------------------------------------------
 int state_callback(newmenu *menu, d_event *event, grs_bitmap *sc_bmp[])
 {
@@ -436,6 +489,12 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 		return 0;
 	}
 
+	struct serdes *sd = &(struct serdes){
+		.fp = fp,
+		.loading = false,
+		.file_version = STATE_VERSION,
+	};
+
 //Save id
 	PHYSFS_write(fp, dgss_id, 4, 1);
 
@@ -507,7 +566,7 @@ int state_save_all(int between_levels, int secret_save, char *filename_override,
 	PHYSFS_write(fp, &GameTime, sizeof(fix), 1);
 
 //Save player info
-	PHYSFS_write(fp, &Players[Player_num], sizeof(player), 1);
+	serdes_player(sd, &Players[Player_num]);
 
 // Save the current weapon info
 	PHYSFS_write(fp, &Primary_weapon, sizeof(sbyte), 1);
@@ -759,6 +818,11 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 	fp = PHYSFSX_openReadBuffered(filename);
 	if ( !fp ) return 0;
 
+	struct serdes *sd = &(struct serdes){
+		.fp = fp,
+		.loading = true,
+	};
+
 //Read id
 	//FIXME: check for swapped file, react accordingly...
 	PHYSFS_read(fp, id, 4, 1);
@@ -773,6 +837,8 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 		PHYSFS_close(fp);
 		return 0;
 	}
+
+	sd->file_version = version;
 
 // Read description
 	cfile_read_fixed_str(fp, DESC_LENGTH, desc);
@@ -860,7 +926,7 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 		StartNewLevelSub(current_level, 1, secret_restore);
 
 		player saved_player;
-		PHYSFS_read(fp, &saved_player, sizeof(player), 1);
+		serdes_player(sd, &saved_player);
 
 		if (secret_restore) {
 

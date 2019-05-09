@@ -816,3 +816,18 @@ bool cfile_is_directory(char *path)
 	struct stat st;
 	return stat(fullpath, &st) == 0 && (st.st_mode & S_IFMT) == S_IFDIR;
 }
+
+void sd_untyped(struct serdes *sd, void *ptr, size_t size)
+{
+	if (sd->loading) {
+		cfread(ptr, size, 1, sd->fp);
+	} else {
+		cfile_write(sd->fp, ptr, size, 1);
+	}
+}
+
+void sd_pad(struct serdes *sd, unsigned int size)
+{
+	for (unsigned int n = 0; n < size; n++)
+		sd_untyped(sd, &(char){0}, 1);
+}

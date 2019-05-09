@@ -248,4 +248,36 @@ CFILE *cfile_open_data_dir_file(const char *filename);
 #define CFILE_var_w(fp, ptr) cfile_write((fp), (ptr), sizeof(*(ptr)), 1)
 #define CFILE_var_r(fp, ptr)  cfread((ptr), sizeof(*(ptr)), 1, (fp))
 
+struct serdes {
+	CFILE *fp;
+	bool loading; // false: saving
+	int file_version; // specific to the file format
+};
+
+void sd_untyped(struct serdes *sd, void *ptr, size_t size);
+void sd_pad(struct serdes *sd, unsigned int size);
+
+#define sd_typed(type, sd, ptr) do {							\
+	type *tmp_ = (ptr);											\
+	sd_untyped(sd, tmp_, sizeof(*tmp_));						\
+} while (0)
+
+#define sd_typed_arr(type, sd, arr) do {						\
+	type *tmp_ = (arr);											\
+	sd_untyped(sd, tmp_, ARRAY_ELEMS(arr) * sizeof((arr)[0]));	\
+} while (0)
+
+#define sd_uint(sd, ptr) 			sd_typed(uint, sd, ptr)
+#define sd_int(sd, ptr) 			sd_typed(int, sd, ptr)
+#define sd_uint(sd, ptr) 			sd_typed(uint, sd, ptr)
+#define sd_fix(sd, ptr) 			sd_typed(fix, sd, ptr)
+#define sd_sbyte(sd, ptr) 			sd_typed(sbyte, sd, ptr)
+#define sd_ubyte(sd, ptr) 			sd_typed(ubyte, sd, ptr)
+#define sd_short(sd, ptr) 			sd_typed(short, sd, ptr)
+#define sd_ushort(sd, ptr) 			sd_typed(ushort, sd, ptr)
+
+#define sd_char_arr(sd, arr) 		sd_typed_arr(char, sd, arr)
+#define sd_ubyte_arr(sd, arr) 		sd_typed_arr(ubyte, sd, arr)
+#define sd_ushort_arr(sd, arr) 		sd_typed_arr(ushort, sd, arr)
+
 #endif
