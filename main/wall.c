@@ -977,15 +977,18 @@ void wall_illusion_off(segment *seg, int side)
 	cside = find_connect_side(seg, csegp);
 	Assert(cside != -1);
 
-	if (seg->sides[side].wall_num == -1) {
-		return;
+	int wall = seg->sides[side].wall_num;
+	int cwall = csegp->sides[cside].wall_num;
+
+	if (wall > -1) {
+		Walls[wall].flags |= WALL_ILLUSION_OFF;
+		kill_stuck_objects(wall);
 	}
 
-	Walls[seg->sides[side].wall_num].flags |= WALL_ILLUSION_OFF;
-	Walls[csegp->sides[cside].wall_num].flags |= WALL_ILLUSION_OFF;
-
-	kill_stuck_objects(seg->sides[side].wall_num);
-	kill_stuck_objects(csegp->sides[cside].wall_num);
+	if (cwall > -1) {
+		Walls[cwall].flags |= WALL_ILLUSION_OFF;
+		kill_stuck_objects(cwall);
+	}
 }
 
 //-----------------------------------------------------------------
@@ -1000,12 +1003,13 @@ void wall_illusion_on(segment *seg, int side)
 	cside = find_connect_side(seg, csegp);
 	Assert(cside != -1);
 
-	if (seg->sides[side].wall_num == -1) {
-		return;
-	}
+	int wall = seg->sides[side].wall_num;
+	int cwall = csegp->sides[cside].wall_num;
 
-	Walls[seg->sides[side].wall_num].flags &= ~WALL_ILLUSION_OFF;
-	Walls[csegp->sides[cside].wall_num].flags &= ~WALL_ILLUSION_OFF;
+	if (wall > -1)
+		Walls[wall].flags &= ~WALL_ILLUSION_OFF;
+	if (cwall > -1)
+		Walls[cwall].flags &= ~WALL_ILLUSION_OFF;
 }
 
 //	-----------------------------------------------------------------------------
