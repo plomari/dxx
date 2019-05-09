@@ -37,6 +37,11 @@ that are enabled by default:
   also possible to "save" them when collecting them. The configuration (F6) and
   the saved invuln./cloak amount are part of savegames. This feature was added
   for gameplay parity with D2X-XL.
+- saving and restoring in secret levels. (For the better or worse.)
+- debug mode is available at runtime. It can be temporarily enabled, and makes
+  some debugging functions available that were normally only available when
+  building the game in debug mode.
+- extensive trigger debugging (del+h in debug mode).
 
 This was also converted to SDL2 (OpenGL/Linux only), possibly with some problems
 that still should be fixed.
