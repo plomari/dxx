@@ -99,6 +99,68 @@ It's not a goal to recreate D2X-XL's rendering. Smoke effects etc. will likely
 remain unimplemented. On the other hand, missing features related to game play
 will be implemented on request as far as it is possible.
 
+The following levels have been tested:
+
+"Amalthea"
+
+	There is an equipment center that has no activation trigger and thus never
+	produces anything. It's possible that equipment centers are supposed to be
+	active by default, while the current implementation disables them by
+	default.
+
+"Anthology":
+
+	The last stage (which attempts to emulate Descent 3) has robot models in
+	an XL-specific unsupported format. The builtin models are used as fallback,
+	which looks quite wrong in some places. There is an alternate 3-level
+	"split" mission, which puts each stage into its own level, but it seems to
+	have a bug in the last stage that prevents completing the level.
+
+"Boiling Point"
+
+	Do not play. I think I got stuck when trying to play it, and did not
+	continue. Likely cannot be completed yet; needs to be revisited.
+
+"D.I. Monolevel"
+
+	Quite some unimplemented triggers, but can be played. In the sub-level
+	"The Gorge" there is a shield/energy drain triggers and a trigger behind
+	"glass" that disables them. This disable trigger cannot be reached (I'm
+	unsure whether the texture should isolate weapon fire; I opted for yes), and
+	the drain triggers are unimplemented. The sub-level "The Forest" has a small
+	room with a matcen that produces bosses (?) and locks all doors - not sure
+	if that behaves as designed, just don't go there. Every once in a while, a
+	door open/closed message appears, which makes no sense and which I didn't
+	investigate. I'm not sure whether the boss robots behave as intended. The
+	central room within the central "dispatch" room doesn't seem to work as
+	intended, but doesn't break gameplay as far as I'm aware.
+
+	The mission loads slow and often has severe FPS hits because of texture
+	merging. This merging is currently performed on the CPU, is quite
+	inefficient (native implementation due to high complexity), and there is
+	some cache trashing going on. These problems should be solved by moving
+	the merging to shaders. (It's not as simple as the old "multi texturing".)
+
+"The Sphere"
+
+	Not sure whether the bosses act as intended. Some obviously incorrect
+	textures, unknown cause (e.g. the texture right in front of you when
+	starting level 3). The level 3 boss is supposed to spawn robots when hit,
+	I think, which uses some sort of rube-goldberg trigger contraption, which
+	might have been implemented not quite as XL did. Level 4 has two split
+	paths, and it's impossible to visit both paths without restarting the level,
+	which is probably as designed. However, there are also these mysterious
+	glass windows to the final battle area.
+
+	The secret level contains an interesting enemy: a cloaked robot using the
+	guide bot model, which shoots a very large number of flares occasionally.
+	It will collide with you, and the resulting explosion will most likely kill
+	you. It's marked as thief, so like in all secret levels, will be respawned
+	at another place instantly. It's located behind a guidebot blast door, so
+	don't free it, I guess. I don't know if it really behaves as intended. The
+	same robot seems to appear again in "D.I. Monolevel" ("The Canal" sub-level)
+	where it isn't respawned of course.
+
 Multiplayer
 -----------
 
