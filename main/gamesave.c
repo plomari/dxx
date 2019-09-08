@@ -1260,8 +1260,10 @@ int load_game_data(CFILE *LoadFile)
 			trig->time = -1;
 
 		if (!trigger_warn_unsupported(t, false)) {
+#if 0
 			assert(Num_marked_triggers < MAX_ALL_TRIGGERS);
 			Marked_Triggers[Num_marked_triggers++] = t;
+#endif
 		}
 
 		int	l;
