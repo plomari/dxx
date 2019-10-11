@@ -124,7 +124,7 @@ The following levels have been tested:
 "D.I. Monolevel"
 
 	Quite some unimplemented triggers, but can be played. In the sub-level
-	"The Gorge" there is a shield/energy drain triggers and a trigger behind
+	"The Gorge" there are shield/energy drain triggers and a trigger behind
 	"glass" that disables them. This disable trigger cannot be reached (I'm
 	unsure whether the texture should isolate weapon fire; I opted for yes), and
 	the drain triggers are unimplemented. The sub-level "The Forest" has a small
