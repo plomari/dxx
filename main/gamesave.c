@@ -1343,6 +1343,8 @@ int load_game_data(CFILE *LoadFile)
 			   Num_marked_triggers);
 	}
 
+	bool bad_links_found = false;
+
 	for (i = 0; i < Num_walls; i++) {
 		int seg_num = Walls[i].segnum;
 		int side_num = Walls[i].sidenum;
@@ -1350,7 +1352,16 @@ int load_game_data(CFILE *LoadFile)
 		Assert(seg_num >= 0 && seg_num <= Highest_segment_index);
 		Assert(side_num >= 0 && side_num < MAX_SIDES_PER_SEGMENT);
 
-		Assert(Walls[i].linked_wall >= -1 && Walls[i].linked_wall < Num_walls);
+		if (Walls[i].linked_wall != -1) {
+			// (To be precise, we don't bother verifying the link.)
+			if (!bad_links_found) {
+				printf("Warning: wall %d with bogus linked_wall set.\n", i);
+				printf("Fixing this and all further instances.\n");
+				bad_links_found = true;
+			}
+			Walls[i].linked_wall = -1;
+		}
+
 		Assert(Walls[i].trigger >= -1 && Walls[i].trigger < Num_triggers);
 
 		Assert(Segments[seg_num].sides[side_num].wall_num == i);
