@@ -548,13 +548,13 @@ static void highlight_side_triggers(int segnum, int sidenum)
 
 		APPENDF(t,
 				 "type: %d (%s)\n"
-				 "loc: %d:%d\n"
+				 "loc: %d:%d (%d)\n"
 				 "flags: 0x%x (%s)\n"
 				 "state: %d (%s)\n"
 				 "keys: %d (%s)\n\n",
 				 wall->type,
 				 ARRAY_OR_DEF(wall->type, Wall_names, "?"),
-				 segnum, sidenum,
+				 segnum, sidenum, wall_num,
 				 wall->flags,
 				 flags_str,
 				 wall->state,
@@ -746,12 +746,12 @@ static void highlight_side_triggers(int segnum, int sidenum)
 
 			APPENDF(t,
 				"matcen=%d, fuelcen=%d\n"
-				"enabled=%d\n"
+				"enabled=%d, lives=%d\n"
 				"timer=%f\n"
 				"flag=%d\n"
 				"matcen_flags=%x %x\n",
 				segp->matcen_num, segp->fuelcen_num,
-				fuelcen->Enabled,
+				fuelcen->Enabled, fuelcen->Lives,
 				f2fl(fuelcen->Timer),
 				fuelcen->Flag,
 				matcen->robot_flags[0], matcen->robot_flags[1]);
