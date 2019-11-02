@@ -1323,6 +1323,21 @@ int HandleTestKey(int key)
 
 			break;
 		}
+		case KEY_DEBUGGED+KEY_W: {
+			if (highlight_seg >= 0) {
+				int wall_num = Segments[highlight_seg].sides[highlight_side].wall_num;
+				if (wall_num >= 0) {
+					struct wall *wall = &Walls[wall_num];
+					if (wall->trigger >= 0) {
+						trigger *tr = &Triggers[wall->trigger];
+						tr->flags &= ~TF_DISABLED;
+
+						check_trigger(&Segments[highlight_seg], highlight_side, Players[Player_num].objnum, 1);
+					}
+				}
+			}
+			break;
+		}
 		default:
 			return 0;
 			break;
