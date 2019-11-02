@@ -946,7 +946,7 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 			break;
 
 		default:
-			Error("Error: Illegal type (%i) in object spawning.\n", type);
+			Warning("Error: Illegal type (%i) in object spawning.\n", type);
 	}
 
 	return objnum;
