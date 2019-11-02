@@ -1829,6 +1829,15 @@ static bool FinalCheats(int key)
 		return true;
 	}
 
+	if (!strcmp(&CheatBuffer[strlen(CheatBuffer) - strlen("equip")], "equip"))
+	{
+		for (int n = 0; n < Num_fuelcenters; n++) {
+			if (Station[n].Type == SEGMENT_IS_EQUIPMAKER)
+				Station[n].Enabled = 1;
+		}
+	}
+
+
 	return false;
 
 }
