@@ -878,7 +878,9 @@ int state_restore_all(int in_game, int secret_restore, char *filename_override)
 
 	if (current_level < 0) {
 		// Reuse this (otherwise unused) field for secret level savegames.
-		Entered_from_level = read_entered_from_level;
+		// Note that this is only wanted/needed if loading from actual savegames.
+		if (!secret_restore)
+			Entered_from_level = read_entered_from_level;
 	} else {
 		Assert(read_entered_from_level == 0);	//between levels save ripped out
 	}
