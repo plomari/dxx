@@ -478,12 +478,19 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 		trigger_num = Walls[wall_num].trigger;
 	trigger *trig = trigger_num > -1 ? &Triggers[trigger_num] : NULL;
 
+	int blower_parent = blower->ctype.laser_info.parent_num;
+
 	//	If this wall has a trigger and the blower-upper is not the player or the buddy, abort!
 	// We don't want robots blowing puzzles.  Only player or buddy can open!
 	{
 		int	ok_to_blow = effect_parent_is_guidebot(blower);
 
-		if (!(ok_to_blow || (blower->ctype.laser_info.parent_type == OBJ_PLAYER))) {
+		if (blower->ctype.laser_info.parent_type == OBJ_PLAYER &&
+			blower->ctype.laser_info.parent_signature == Objects[blower_parent].signature &&
+			blower_parent == Players[Player_num].objnum)
+			ok_to_blow = true;
+
+		if (!ok_to_blow) {
 			if (trigger_num != -1)
 				return 0;
 		}
@@ -592,7 +599,7 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 				}
 
 				// could be a wall switch
-				check_trigger(seg,side,blower->ctype.laser_info.parent_num,1);
+				check_trigger(seg,side,blower_parent,1);
 
 				return 1;		//blew up!
 			}

@@ -778,27 +778,24 @@ void check_trigger(segment *seg, short side, short objnum,int shot)
 	if ((Game_mode & GM_MULTI) && (Players[Player_num].connected != CONNECT_PLAYING)) // as a host we may want to handle triggers for our clients. so this function may be called when we are not playing.
 		return;
 
-	if ((objnum == Players[Player_num].objnum) || ((Objects[objnum].type == OBJ_ROBOT) && (Robot_info[Objects[objnum].id].companion))) {
+	if ( Newdemo_state == ND_STATE_RECORDING )
+		newdemo_record_trigger( seg-Segments, side, objnum,shot);
 
-		if ( Newdemo_state == ND_STATE_RECORDING )
-			newdemo_record_trigger( seg-Segments, side, objnum,shot);
+	wall_num = seg->sides[side].wall_num;
+	if ( wall_num == -1 ) return;
 
-		wall_num = seg->sides[side].wall_num;
-		if ( wall_num == -1 ) return;
+	trigger_num = Walls[wall_num].trigger;
 
-		trigger_num = Walls[wall_num].trigger;
+	if (trigger_num == -1)
+		return;
 
-		if (trigger_num == -1)
-			return;
-
-		if (check_trigger_sub(trigger_num, Player_num,shot))
-			return;
+	if (check_trigger_sub(trigger_num, Player_num,shot))
+		return;
 
 #ifdef NETWORK
-		if (Game_mode & GM_MULTI)
-			multi_send_trigger(trigger_num);
+	if (Game_mode & GM_MULTI)
+		multi_send_trigger(trigger_num);
 #endif
-	}
 }
 
 void triggers_frame_process()
