@@ -493,8 +493,7 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth, int objnum
 			} else {
 				Int3();		//level num == 0, but no editor!
 			}
-			res = 1;
-			break;
+			return 1;
 
 		case TT_SECRET_EXIT: {
 			int	truth;
@@ -535,8 +534,7 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth, int objnum
 
 			EnterSecretLevel();
 			Control_center_destroyed = 0;
-			res = 1;
-			break;
+			return 1;
 
 		}
 
