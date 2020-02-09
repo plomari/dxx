@@ -44,7 +44,7 @@ VERSION_STRING = ' v' + str(D2XMAJOR) + '.' + str(D2XMINOR)
 if (D2XMICRO):
 	VERSION_STRING += '.' + str(D2XMICRO)
 
-print '\n===== ' + PROGRAM_NAME + VERSION_STRING + " (svn " + str(D2XSVN) + ') =====\n'
+print('\n===== ' + PROGRAM_NAME + VERSION_STRING + " (svn " + str(D2XSVN) + ') =====\n')
 
 # general source files
 common_sources = [
@@ -198,18 +198,18 @@ env['CCFLAGS'] += ['-Wno-misleading-indentation',
                    '-Werror-implicit-function-declaration']
 
 # Get traditional compiler environment variables
-if os.environ.has_key('CC'):
+if 'CC' in os.environ:
 	env['CC'] = os.environ['CC']
-if os.environ.has_key('CFLAGS'):
+if 'CFLAGS' in os.environ:
 	env['CCFLAGS'] += SCons.Util.CLVar(os.environ['CFLAGS'])
-if os.environ.has_key('LDFLAGS'):
+if 'LDFLAGS' in os.environ:
 	env['LINKFLAGS'] += SCons.Util.CLVar(os.environ['LDFLAGS'])
 
 env['CCFLAGS'] += ["-Wno-deprecated-declarations"]
 
 # windows or *nix?
 if sys.platform == 'win32':
-	print "compiling on Windows"
+	print("compiling on Windows")
 	osdef = '_WIN32'
 	sharepath = ''
 	env.Append(CPPDEFINES = ['_WIN32', 'HAVE_STRUCT_TIMEVAL'])
@@ -221,7 +221,7 @@ if sys.platform == 'win32':
 	libs = winlibs + generic_libs
 	lflags = '-mwindows'
 elif sys.platform == 'darwin':
-	print "compiling on Mac OS X"
+	print("compiling on Mac OS X")
 	osdef = '__APPLE__'
 	sharepath = ''
 	env.Append(CPPDEFINES = ['HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL', '__unix__'])
@@ -234,7 +234,7 @@ elif sys.platform == 'darwin':
 	lflags = '-framework Cocoa -framework SDL'
 	lflags += ' -framework OpenGL'
 	if (sdlmixer == 1):
-		print "including SDL_mixer"
+		print("including SDL_mixer")
 		lflags += ' -framework SDL_mixer'
 	sys.path += ['./arch/cocoa']
 	VERSION = str(D2XMAJOR) + '.' + str(D2XMINOR)
@@ -244,7 +244,7 @@ elif sys.platform == 'darwin':
 	env['VERSION_NAME'] = PROGRAM_NAME + ' v' + VERSION
 	import tool_bundle
 else:
-	print "compiling on *NIX"
+	print("compiling on *NIX")
 	osdef = '__LINUX__'
 	sharepath += '/'
 	env.Append(CPPDEFINES = ['__LINUX__', 'HAVE_STRUCT_TIMESPEC', 'HAVE_STRUCT_TIMEVAL'])
@@ -254,7 +254,7 @@ else:
 	libs = generic_libs
 	lflags = '-L/usr/X11R6/lib'
 
-print "building with OpenGL"
+print("building with OpenGL")
 target = 'd2x-rebirth-gl'
 env.Append(CPPDEFINES = ogldefines)
 common_sources += arch_ogl_sources
@@ -262,7 +262,7 @@ libs += ogllibs
 
 # SDL_mixer support?
 if (sdlmixer == 1):
-	print "including SDL_mixer"
+	print("including SDL_mixer")
 	env.Append(CPPDEFINES = ['USE_SDLMIXER'])
 	common_sources += arch_sdlmixer
 	if (sys.platform != 'darwin'):
@@ -291,7 +291,7 @@ if (use_udp == 1):
 	# Tracker support?  (Relies on UDP)
 	env.Append( CPPDEFINES = [ 'USE_TRACKER' ] )
 
-print '\n'
+print('\n')
 
 env.Append(CPPDEFINES = [('SHAREPATH', '\\"' + str(sharepath) + '\\"')])
 # finally building program...
