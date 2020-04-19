@@ -143,9 +143,9 @@ typedef struct {
 	short   index;
 } dl_index;
 
-// that's a lot of lights... the d2x-xl limits are higher
-#define MAX_DL_INDICES      2000
-#define MAX_DELTA_LIGHTS    50000
+// that's a lot of lights... using (crazy) d2x-xl limits
+#define MAX_DL_INDICES      (MAX_SEGMENTS / 2)
+#define MAX_DELTA_LIGHTS    (MAX_SEGMENTS * 10)
 
 #define DL_SCALE            2048    // Divide light to allow 3 bits integer, 5 bits fraction.
 
