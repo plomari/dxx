@@ -1262,6 +1262,10 @@ int HandleTestKey(int key)
 				GameArg.SysMaxFPS = 30;
 			break;
 
+		case KEY_DEBUGGED+KEY_Z:
+			Control_center_destroyed = !Control_center_destroyed;
+			break;
+
 		case KEY_PAD5: slew_stop(); break;
 
 		case KEY_DEBUGGED + KEY_C:
