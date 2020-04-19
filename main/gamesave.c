@@ -1277,10 +1277,15 @@ int load_game_data(CFILE *LoadFile)
 			// manipulates a referenced _object_. These are effects only, so
 			// ignore it.
 			if (side_num == -1 && (Triggers[t].type == TT_ENABLE_TRIGGER ||
-				                   Triggers[t].type == TT_DISABLE_TRIGGER))
+				                   Triggers[t].type == TT_DISABLE_TRIGGER ||
+				                   Triggers[t].type == TT_DISARM_ROBOT))
 			{
 				int object_index = seg_num; // yep.
 				Assert(object_index >= 0 && object_index < gs_num_objects);
+				// If an object is deleted, we don't want to leave the trigger
+				// dangling. To avoid doing this for every object, abuse this
+				// flag for it.
+				Objects[object_index].flags |= OF_HAS_TRIGGERS;
 				continue;
 			}
 

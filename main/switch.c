@@ -711,6 +711,22 @@ static int do_trigger(int trigger_num, int pnum, int shot, int depth, int objnum
 			}
 			break;
 		}
+		case TT_DISARM_ROBOT: {
+			for (int i = 0; i < trig->num_links; i++) {
+				if (trig->side[i] >= 0 || trig->seg[i] < 0)
+					continue;
+				int objid = trig->seg[i];
+				if (WARN_ON(objid < 0 || objid > Highest_object_index))
+					continue;
+				if (Objects[objid].control_type != CT_AI) {
+					printf("D2X-XL: can't disarm object %d\n", objid);
+					continue;
+				}
+				// Maybe there's a better way.
+				Objects[objid].control_type = CT_NONE;
+			}
+			break;
+		}
 
 		default:
 			Int3();
@@ -744,7 +760,6 @@ bool trigger_warn_unsupported(int idx, bool hud)
 	case TT_SMOKE_DRIFT:
 	case TT_SMOKE_BRIGHTNESS:
 	case TT_SOUND:
-	case TT_DISARM_ROBOT:
 	case TT_REPROGRAM_ROBOT:
 	case TT_SHAKE_MINE:
 	case NUM_TRIGGER_TYPES:
@@ -913,6 +928,24 @@ static void do_object_trigger(int objnum, bool damage_only)
 
 void trigger_delete_object(int objnum)
 {
+	object *obj = &Objects[objnum];
+
+	if (obj->flags & OF_HAS_TRIGGERS) {
+		for (int n = 0; n < Num_triggers + Num_object_triggers; n++) {
+			trigger *trig = &Triggers[n];
+
+			if (trig->type == TT_DISARM_ROBOT) {
+				for (int i = 0; i < trig->num_links; i++) {
+					if (trig->side[i] < 0 && trig->seg[i] == objnum) {
+						trig->seg[i] = -1;
+						printf("D2X-XL: deleting object %d -> disable %d/%d\n",
+							   objnum, n, i);
+					}
+				}
+			}
+		}
+	}
+
 	do_object_trigger(objnum, false);
 }
 
