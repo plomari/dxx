@@ -38,7 +38,7 @@ extern void key_close();
 extern fix64 keyd_time_when_last_pressed;
 
 // Stores Unicode values registered in one event_loop call
-unsigned char unicode_frame_buffer[KEY_BUFFER_SIZE];
+extern unsigned char unicode_frame_buffer[KEY_BUFFER_SIZE];
 
 extern int event_key_get(d_event *event);	// Get the keycode from the EVENT_KEY_COMMAND event
 extern int event_key_get_raw(d_event *event);	// same as above but without mod states
