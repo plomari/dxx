@@ -305,13 +305,15 @@ void wall_open_door(segment *seg, int side)
 	int Connectside, wall_num, cwall_num = -1;
 	segment *csegp;
 
-	Assert(seg->sides[side].wall_num != -1); 	//Opening door on illegal wall
+	if (WARN_ON(seg->sides[side].wall_num == -1)) 	//Opening door on illegal wall
+		return;
 
 	w = &Walls[seg->sides[side].wall_num];
 	wall_num = w - Walls;
 	//kill_stuck_objects(seg->sides[side].wall_num);
 
-	Assert(w->type == WALL_DOOR);
+	if (WARN_ON(w->type != WALL_DOOR))
+		return;
 
 	if ((w->state == WALL_DOOR_OPENING) ||		//already opening
 		 (w->state == WALL_DOOR_WAITING)	||		//open, waiting to close
